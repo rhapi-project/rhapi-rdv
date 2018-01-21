@@ -4,6 +4,8 @@ import { Button, Icon, Step, List, Divider, Dropdown, Header} from 'semantic-ui-
 
 import _ from 'lodash'
 
+import MesRdv from './MesRdv'
+
 export default class PriseRdv extends React.Component {
 
     componentWillMount() {
@@ -31,7 +33,8 @@ export default class PriseRdv extends React.Component {
             horairesDisponibles: [],
             horaireDisponibleNext: '',
             horaire: '',
-            completed: false
+            completed: false,
+            voirMesRdv: false
         });
         
         
@@ -112,6 +115,11 @@ export default class PriseRdv extends React.Component {
     }
     
     render() {
+        
+        if (this.state.voirMesRdv) {
+            return (<MesRdv patient={ this.state.patient } identified={ true } client={ this.props.client } />)
+        }
+        
         return (
             <React.Fragment>
             <Header size='medium'>
@@ -197,12 +205,23 @@ export default class PriseRdv extends React.Component {
                 </Step.Group>
                 {
                     this.state.completed ?
-                    <Button 
-                        onClick={ () => window.location.reload() }
-                        fluid={ true }
-                    >
-                        Déconnexion
-                    </Button>
+                    <React.Fragment> 
+                    {
+                        this.props.identified ?
+                        <React.Fragment>
+                        <Button
+                            onClick={ () => this.setState({ voirMesRdv: true }) }
+                            fluid={ true }
+                            secondary= { true }
+                        >
+                            Voir mes rendez-vous
+                        </Button>
+                        <Divider hidden={ true }/>
+                        </React.Fragment>
+                        : 
+                        ''
+                    }
+                    </React.Fragment>
                     :
                     <List 
                         divided={ true }
@@ -211,6 +230,13 @@ export default class PriseRdv extends React.Component {
                         onItemClick= { this.createRdv }
                     />
                 }
+                <Button
+                    onClick={ () => window.location.reload() }
+                    fluid={ true }
+                    secondary= { true }
+                >
+                    { this.state.completed ? 'Déconnexion' : 'Annuler cette prise de RDV' }
+                </Button>
             </React.Fragment>
         )
     }

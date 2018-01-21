@@ -124,6 +124,14 @@ export default class MesRdv extends React.Component {
             >
                 Prendre un nouveau RDV
             </Button>
+            <Divider hidden={ true } />
+            <Button
+                onClick={ () => window.location.reload() }
+                fluid={ true }
+                secondary= { true }
+            >
+                Déconnexion
+            </Button>
             </React.Fragment>
         )
     }
