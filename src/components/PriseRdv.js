@@ -14,6 +14,8 @@ import _ from "lodash";
 
 import MesRdv from "./MesRdv";
 
+import HorairesDisponibles from "./HorairesDisponibles"
+
 export default class PriseRdv extends React.Component {
   componentWillMount() {
     let patient = {};
@@ -82,39 +84,18 @@ export default class PriseRdv extends React.Component {
     }
     let motif = this.state.motifs[index];
     let motifId = motif.id;
-    if (motifId) {
-      let params = this.state.patient;
-      params.planning = this.state.currentPlanningId;
-      params.motif = motifId;
-      this.props.client.Reservation.readAll(
-        params,
-        result => {
-          this.setState({ horairesDisponibles: result.results });
-          this.setState({
-            horaireDisponibleNext: result.informations.next
-          });
-        },
-        datas => {
-          // erreur
-          // TODO : Afficher le message en utilisant un Component semantic à la place de 'alert'
-          console.log(datas);
-          alert(datas.internalMessage + " : " + datas.userMessage);
-        }
-      );
-    }
-
     this.setState({ currentMotifId: motifId, currentMotifIndex: index });
   };
 
-  createRdv = (e, d) => {
+  createRdv = (horaire) => {
     let params = this.state.patient;
     params.planning = this.state.currentPlanningId;
     params.motif = this.state.currentMotifId;
-    params.startAt = d.content;
+    params.startAt = horaire;
     this.props.client.Reservation.create(
       params,
       result => {
-        this.setState({ completed: true, horaire: d.content });
+        this.setState({ completed: true, horaire: horaire });
       },
       datas => {
         // erreur
@@ -126,6 +107,7 @@ export default class PriseRdv extends React.Component {
   };
 
   render() {
+      
     if (this.state.voirMesRdv) {
       return (
         <MesRdv
@@ -240,12 +222,13 @@ export default class PriseRdv extends React.Component {
             )}
           </React.Fragment>
         ) : (
-          <List
-            divided={true}
-            selection={true}
-            items={this.state.horairesDisponibles}
-            onItemClick={this.createRdv}
-          />
+        <HorairesDisponibles
+          patient={this.state.patient}
+          planningId={this.state.currentPlanningId}
+          motifId={this.state.currentMotifId} 
+          validation={this.createRdv}
+          client={this.props.client}
+        />
         )}
         <Button
           onClick={() => window.location.reload()}
