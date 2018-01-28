@@ -12,7 +12,7 @@ const maxWidth = 500;
  */
 
 const fsize = "big";
-const hsize = "medium";
+const hsize = "large";
 
 /* 
  * defaultPlanning : Planning par défaut

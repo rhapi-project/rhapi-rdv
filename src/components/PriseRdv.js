@@ -11,6 +11,8 @@ import {
 
 import _ from "lodash";
 
+import { hsize } from "./Settings";
+
 import MesRdv from "./MesRdv";
 
 import HorairesDisponibles from "./HorairesDisponibles";
@@ -118,7 +120,7 @@ export default class PriseRdv extends React.Component {
 
     return (
       <React.Fragment>
-        <Header size="medium">Prendre un rendez-vous</Header>
+        <Header size={hsize}>Prendre un rendez-vous</Header>
         <Step.Group vertical={true}>
           <Step completed={this.state.currentPlanningId !== 0}>
             <Icon name="calendar" />

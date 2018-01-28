@@ -3,6 +3,8 @@ import { Header, Button, Divider, Modal } from "semantic-ui-react";
 
 import _ from "lodash";
 
+import { hsize } from "./Settings";
+
 import PriseRdv from "./PriseRdv";
 import HorairesDisponibles from "./HorairesDisponibles";
 
@@ -169,7 +171,7 @@ export default class MesRdv extends React.Component {
     // d'annulation ou de modification
     return (
       <React.Fragment>
-        <Header size="medium">
+        <Header size={hsize}>
           {this.state.mesRdv.length === 0
             ? "Aucun rendez-vous"
             : this.state.mesRdv.length === 1
