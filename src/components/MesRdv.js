@@ -1,25 +1,26 @@
 import React from "react";
-import { Header, Button, Divider } from "semantic-ui-react";
+import { Header, Button, Divider, Modal } from "semantic-ui-react";
 
 import _ from "lodash";
 
 import PriseRdv from "./PriseRdv";
+import HorairesDisponibles from "./HorairesDisponibles";
 
 // TODO: améliorer ce Component MonRdv
 // => afficher le détail de chaque rendez-vous
 // => ajouter des boutons "Annulation" "Modification" et gérer ces actions
 class MonRdv extends React.Component {
-  handleClick = () => {
-    alert(
-      "TODO : Ici je dois pouvoir :" +
-        "\n- Afficher le détail du rendez-vous avec Reservation.read et l'id " +
-        this.props.rdv.id +
-        "\n- Annuler le rendez-vous avec Reservation.annuler et l'id du RDV " +
-        this.props.rdv.id +
-        "\n- Modifier le rendez-vous avec Reservation.update et l'id du RDV " +
-        this.props.rdv.id +
-        "\n\nPour l'instant l'action implémentée est 'Annuler'..."
-    );
+  state = {
+    edited: false,
+    openSupp: false,
+    openModif: false
+  };
+
+  close = () => {
+    this.setState({ openSupp: false, openModif: false });
+  };
+
+  supprimerReservation = () => {
     const params = this.props.patient;
     const id = this.props.rdv.id;
     this.props.client.Reservation.annuler(
@@ -27,30 +28,103 @@ class MonRdv extends React.Component {
       params,
       () => {
         this.props.updateMesRdv();
+        this.close();
       },
       datas => {
-        // TODO : Afficher le message en utilisant un Component semantic à la place de 'alert'
         console.log(datas);
         alert(datas.internalMessage + " : " + datas.userMessage);
       }
     );
   };
 
+  updateRdv = horaire => {
+    console.log(horaire);
+    this.close();
+  };
+
   render() {
-    // Provisoirement on n'affiche que la date, l'heure et la description (le motif) => à enrichir (voir TODOS )
     return (
-      <div>
-        <Button onClick={this.handleClick}>{this.props.rdv.startAt}</Button>
+      <React.Fragment>
+        <Button onClick={() => this.setState({ edited: !this.state.edited })}>
+          {new Date(this.props.rdv.startAt).toLocaleDateString("fr-FR", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "numeric",
+            minute: "numeric"
+          })}
+        </Button>
+        {this.state.edited ? (
+          <React.Fragment>
+            <br />
+            <Button.Group>
+              <Button
+                positive={true}
+                onClick={() => this.setState({ openModif: true })}
+              >
+                Je change l'horaire
+              </Button>
+
+              <Button.Or text="ou" />
+              <Button
+                negative={true}
+                onClick={() => this.setState({ openSupp: true })}
+              >
+                J'annule ce RDV
+              </Button>
+
+              {/* Modals */}
+              <Modal
+                size="tiny"
+                open={this.state.openModif}
+                onClose={this.close}
+                dimmer={false}
+                closeOnDocumentClick={true}
+              >
+                <Modal.Content>
+                  <HorairesDisponibles
+                    patient={this.props.patient}
+                    planningId={this.props.rdv.idPlanningsJA[0]}
+                    motifId={-this.props.rdv.idObjet}
+                    validation={this.updateRdv}
+                    client={this.props.client}
+                  />
+                </Modal.Content>
+              </Modal>
+              <Modal
+                size="tiny"
+                open={this.state.openSupp}
+                onClose={this.close}
+                dimmer={false}
+                closeOnDocumentClick={true}
+              >
+                <Modal.Header icon="archive" content="Annulation" />
+                <Modal.Content>
+                  Je confirme l'annulation du rendez-vous ?
+                </Modal.Content>
+                <Modal.Actions>
+                  <Button onClick={this.close}>Non</Button>
+                  <Button negative={true} onClick={this.supprimerReservation}>
+                    Oui
+                  </Button>
+                </Modal.Actions>
+              </Modal>
+            </Button.Group>
+          </React.Fragment>
+        ) : (
+          ""
+        )}
         <br />
         {this.props.rdv.description}
         <Divider />
-      </div>
+      </React.Fragment>
     );
   }
 }
 export default class MesRdv extends React.Component {
   componentWillMount() {
-    this.setState({ nouveauRdv: false, mesRdv: [] }); // default state
+    this.setState({ nouveauRdv: false, mesRdv: [], edited: false }); // default state
     this.updateMesRdv();
   }
 
@@ -64,7 +138,6 @@ export default class MesRdv extends React.Component {
         // Attention on récupère ici des rendez-vous sans distinction de planning
         // Il peut donc y avoir des RDV pour lesquels le patient n'a aucune autorisation
         // d'annulation ou de modification
-        console.log(result);
         this.setState({ mesRdv: result.results });
       },
       datas => {
@@ -79,6 +152,7 @@ export default class MesRdv extends React.Component {
 
   render() {
     // Prendre un nouveau RDV ?
+
     if (this.state.nouveauRdv) {
       return (
         <PriseRdv
@@ -110,7 +184,7 @@ export default class MesRdv extends React.Component {
               client={this.props.client}
               patient={this.props.patient}
               updateMesRdv={this.updateMesRdv}
-              key={"" + i}
+              key={i}
             />
           );
         })}
@@ -121,7 +195,7 @@ export default class MesRdv extends React.Component {
         >
           Prendre un nouveau RDV
         </Button>
-        <Divider hidden={true} />
+        <Divider fitted={true} />
         <Button
           onClick={() => window.location.reload()}
           fluid={true}

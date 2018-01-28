@@ -4,7 +4,6 @@ import {
   Button,
   Icon,
   Step,
-  List,
   Divider,
   Dropdown,
   Header
@@ -14,7 +13,7 @@ import _ from "lodash";
 
 import MesRdv from "./MesRdv";
 
-import HorairesDisponibles from "./HorairesDisponibles"
+import HorairesDisponibles from "./HorairesDisponibles";
 
 export default class PriseRdv extends React.Component {
   componentWillMount() {
@@ -87,7 +86,7 @@ export default class PriseRdv extends React.Component {
     this.setState({ currentMotifId: motifId, currentMotifIndex: index });
   };
 
-  createRdv = (horaire) => {
+  createRdv = horaire => {
     let params = this.state.patient;
     params.planning = this.state.currentPlanningId;
     params.motif = this.state.currentMotifId;
@@ -107,7 +106,6 @@ export default class PriseRdv extends React.Component {
   };
 
   render() {
-      
     if (this.state.voirMesRdv) {
       return (
         <MesRdv
@@ -188,7 +186,15 @@ export default class PriseRdv extends React.Component {
               <Step.Content>
                 <Step.Title>
                   {this.state.completed
-                    ? "Mon RDV : " + this.state.horaire
+                    ? "RDV le " +
+                      new Date(this.state.horaire).toLocaleDateString("fr-FR", {
+                        weekday: "long",
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                        hour: "numeric",
+                        minute: "numeric"
+                      })
                     : "Je choisis un horaire"}
                 </Step.Title>
                 <Step.Description>
@@ -215,20 +221,20 @@ export default class PriseRdv extends React.Component {
                 >
                   Voir mes rendez-vous
                 </Button>
-                <Divider hidden={true} />
+                <Divider fitted={true} />
               </React.Fragment>
             ) : (
               ""
             )}
           </React.Fragment>
         ) : (
-        <HorairesDisponibles
-          patient={this.state.patient}
-          planningId={this.state.currentPlanningId}
-          motifId={this.state.currentMotifId} 
-          validation={this.createRdv}
-          client={this.props.client}
-        />
+          <HorairesDisponibles
+            patient={this.state.patient}
+            planningId={this.state.currentPlanningId}
+            motifId={this.state.currentMotifId}
+            validation={this.createRdv}
+            client={this.props.client}
+          />
         )}
         <Button
           onClick={() => window.location.reload()}
