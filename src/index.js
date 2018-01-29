@@ -5,10 +5,10 @@ import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
 //CSS
 import "../node_modules/semantic-ui-css/semantic.min.css";
-//import "./css/index.css";
+import "./css/index.css";
 
 // Semantic
-import { Button, Icon } from "semantic-ui-react";
+import { Button, Icon, Divider } from "semantic-ui-react";
 
 //Components
 import App from "./components/App";
@@ -19,6 +19,8 @@ import Praticiens from "./components/Praticiens";
 render(
   <React.Fragment>
     <Button
+      size="tiny"
+      style={{ marginLeft: -12 }}
       icon={true}
       onClick={() => {
         window.location = "/";
@@ -26,6 +28,7 @@ render(
     >
       <Icon name="home" />
     </Button>
+    <Divider hidden={true} />
     <Router>
       <Switch>
         <Route exact={true} path="/" component={App} />

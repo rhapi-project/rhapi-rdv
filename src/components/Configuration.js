@@ -8,10 +8,35 @@ import {
   Accordion,
   Form,
   Segment,
-  Button
+  Button,
+  Divider,
+  Input,
+  Label
 } from "semantic-ui-react";
 
 import { maxWidth, fsize, hsize, defaultPlanning } from "./Settings";
+
+// props : hfrom, hto, onChange(hfrom, hto), remove(e, d);
+
+class FromTo extends React.Component {
+  componentWillMount() {
+    this.setState({ hfrom: this.props.hfrom, hto: this.props.hto });
+  }
+
+  render() {
+    let { hfrom, hto } = this.state;
+    return (
+      <React.Fragment>
+        <Label>De</Label>
+        <Input size="tiny" style={{ maxWidth: maxWidth / 5 }} value={hfrom} />
+        <Label>à</Label>
+        <Input size="tiny" style={{ maxWidth: maxWidth / 5 }} value={hto} />
+        <Button size="tiny" icon="minus" circular={true} />
+        <Button size="tiny" icon="add" circular={true} />
+      </React.Fragment>
+    );
+  }
+}
 
 export default class Configuration extends React.Component {
   componentWillMount() {
@@ -82,43 +107,11 @@ export default class Configuration extends React.Component {
       let planning = plannings[index];
       let options = planning.optionsJO;
 
-      const plagesPanels = [
-        // javascript : 0=Sunday, 1=Monday, etc
-        {
-          title: "Dimanche",
-          content: "0 - à définir avec des champs 'début' 'fin'"
-        },
-        {
-          title: "Lundi",
-          content: "1 - à définir avec des champs 'début' 'fin'"
-        },
-        {
-          title: "Mardi",
-          content: "2 - à définir avec des champs 'début' 'fin'"
-        },
-        {
-          title: "Mercredi",
-          content: "3 - à définir avec des champs 'début' 'fin'"
-        },
-        {
-          title: "Jeudi",
-          content: "4 - à définir avec des champs 'début' 'fin'"
-        },
-        {
-          title: "Vendredi",
-          content: "5 - à définir avec des champs 'début' 'fin'"
-        },
-        {
-          title: "Samedi",
-          content: "6 - à définir avec des champs 'début' 'fin'"
-        }
-      ];
-
       const Plages = (
         <React.Fragment>
           <Form.Input
             label="Durée par défaut d'un RDV (en mn)"
-            style={{ maxWidth: maxWidth / 4 }}
+            style={{ maxWidth: maxWidth / 5 }}
             placeholder="Durée par défaut"
             value={options.plages.duree}
             onChange={(e, d) => {
@@ -126,7 +119,18 @@ export default class Configuration extends React.Component {
               this.setState({ plannings: plannings });
             }}
           />
-          <Accordion.Accordion panels={plagesPanels} />
+          <Accordion>
+            <Accordion.Title>Dimanche</Accordion.Title>
+            <Accordion.Content />
+          </Accordion>
+          <Accordion>
+            <Accordion.Title>Lundi</Accordion.Title>
+            <Accordion.Content active={true}>
+              <FromTo hfrom="09:00" hto="12:00" />
+              <br />
+              <FromTo hfrom="14:00" hto="19:00" />
+            </Accordion.Content>
+          </Accordion>
         </React.Fragment>
       );
 
@@ -158,7 +162,8 @@ export default class Configuration extends React.Component {
       ];
 
       form = (
-        <Segment>
+        <React.Fragment>
+          <Divider hidden={true} />
           <Form size={fsize}>
             <Form.Group widths={2}>
               <Form.Input
@@ -186,6 +191,7 @@ export default class Configuration extends React.Component {
               styled={true}
               fluid={true}
             />
+            <Divider hidden={true} />
             <Button onClick={this.cancel}>Annuler</Button>
             <Button secondary={true} onClick={this.defaults}>
               Valeurs par défaut
@@ -195,7 +201,7 @@ export default class Configuration extends React.Component {
               Sauvegarder
             </Button>
           </Form>
-        </Segment>
+        </React.Fragment>
       );
     }
 

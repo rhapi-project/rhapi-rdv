@@ -11,7 +11,7 @@ const maxWidth = 500;
  * hsize : Preferred Semantic UI Header/Title Size
  */
 
-const fsize = "big";
+const fsize = "large";
 const hsize = "large";
 
 /* 
