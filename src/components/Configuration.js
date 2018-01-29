@@ -10,7 +10,8 @@ import {
   Button,
   Divider,
   Input,
-  Label
+  Label,
+  List
 } from "semantic-ui-react";
 
 import { maxWidth, fsize, hsize, defaultPlanning } from "./Settings";
@@ -31,6 +32,25 @@ class FromTo extends React.Component {
         <Label>à</Label>
         <Input size="tiny" style={{ maxWidth: maxWidth / 5 }} value={hto} />
         <Button size="tiny" icon="minus" circular={true} />
+      </React.Fragment>
+    );
+  }
+}
+
+// props : horaires, onChange(horaires)
+
+class FromToList extends React.Component {
+  componentWillMount() {
+    this.setState({ horaires: this.props.horaires });
+  }
+
+  render() {
+    let { horaires } = this.state;
+    return (
+      <React.Fragment>
+        <List>
+          {/* TODO lister les horaires par _.map(horaires... et les éditer avec des FromTo */}
+        </List>
         <Button size="tiny" icon="add" circular={true} />
       </React.Fragment>
     );
@@ -125,6 +145,7 @@ export default class Configuration extends React.Component {
           <Accordion>
             <Accordion.Title>Lundi</Accordion.Title>
             <Accordion.Content active={true}>
+              {/*TODO utiliser ici FromToList */}
               <FromTo hfrom="09:00" hto="12:00" />
               <br />
               <FromTo hfrom="14:00" hto="19:00" />
