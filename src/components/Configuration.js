@@ -7,7 +7,6 @@ import {
   Dropdown,
   Accordion,
   Form,
-  Segment,
   Button,
   Divider,
   Input,
