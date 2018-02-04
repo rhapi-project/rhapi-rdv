@@ -32,7 +32,6 @@ export default class HorairesDisponibles extends React.Component {
     }
     params.planning = nextProps.planningId;
     params.motif = nextProps.motifId;
-    console.log(params);
     this.props.client.Reservation.readAll(
       params,
       result => {

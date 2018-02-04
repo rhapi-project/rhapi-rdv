@@ -8,7 +8,7 @@ export default class App extends React.Component {
       <Card.Group>
         <Card>
           <Card.Content>
-            <Image floated="right" size="mini" src="/images/praticien.png" />
+            <Image floated="right" size="mini" src="images/praticien.png" />
             <Card.Header>Praticien</Card.Header>
             <Card.Meta>
               Je suis un praticien ou un admininistrateur de la structure
@@ -22,7 +22,10 @@ export default class App extends React.Component {
             <Button
               basic={true}
               color="green"
-              onClick={() => (window.location = "/Praticiens")}
+              onClick={() => {
+                window.location.hash = "#Praticiens";
+                window.location.reload();
+              }}
             >
               OK
             </Button>
@@ -30,7 +33,7 @@ export default class App extends React.Component {
         </Card>
         <Card>
           <Card.Content>
-            <Image floated="right" size="mini" src="/images/patient.png" />
+            <Image floated="right" size="mini" src="images/patient.png" />
             <Card.Header>Patient</Card.Header>
             <Card.Meta>Je suis un patient</Card.Meta>
             <Card.Description>
@@ -41,7 +44,10 @@ export default class App extends React.Component {
             <Button
               basic={true}
               color="green"
-              onClick={() => (window.location = "/Patients")}
+              onClick={() => {
+                window.location.hash = "#Patients";
+                window.location.reload();
+              }}
             >
               OK
             </Button>

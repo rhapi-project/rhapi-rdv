@@ -14,6 +14,20 @@ const maxWidth = 500;
 const fsize = "large";
 const hsize = "large";
 
+/*
+ * Affichage Date/Heure d'un rendez-vous (format long en Français)
+ */
+
+const longDateTime = dateStr =>
+  new Date(dateStr).toLocaleDateString("fr-FR", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric"
+  });
+
 /* 
  * defaultPlanning : Planning par défaut
  */
@@ -213,4 +227,4 @@ const defaultPlanning = {
   }
 };
 
-export { maxWidth, fsize, hsize, defaultPlanning };
+export { maxWidth, fsize, hsize, defaultPlanning, longDateTime };

@@ -11,7 +11,7 @@ import {
 
 import _ from "lodash";
 
-import { hsize } from "./Settings";
+import { hsize, longDateTime } from "./Settings";
 
 import MesRdv from "./MesRdv";
 
@@ -188,15 +188,7 @@ export default class PriseRdv extends React.Component {
               <Step.Content>
                 <Step.Title>
                   {this.state.completed
-                    ? "RDV le " +
-                      new Date(this.state.horaire).toLocaleDateString("fr-FR", {
-                        weekday: "long",
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                        hour: "numeric",
-                        minute: "numeric"
-                      })
+                    ? "RDV le " + longDateTime(this.state.horaire)
                     : "Je choisis un horaire"}
                 </Step.Title>
                 <Step.Description>
@@ -205,7 +197,7 @@ export default class PriseRdv extends React.Component {
                       ? "Mon nouveau rendez-vous est bien enregistré"
                       : "Un mail de confirmation vient de m'être adressé pour valider définivement ce rendez-vous. " +
                         "Il me reste à ouvrir ce mail et à cliquer sur le lien proposé dans (un délai maximum de 5 mn)."
-                    : "Je choisis un horaire parmis ceux qui me sont proposés"}
+                    : "Je choisis un horaire parmi ceux qui me sont proposés"}
                 </Step.Description>
                 <Divider hidden={true} />
               </Step.Content>
@@ -223,7 +215,7 @@ export default class PriseRdv extends React.Component {
                 >
                   Voir mes rendez-vous
                 </Button>
-                <Divider fitted={true} />
+                <Divider fitted={true} hidden={true} />
               </React.Fragment>
             ) : (
               ""

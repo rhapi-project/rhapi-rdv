@@ -23,15 +23,71 @@ class FromTo extends React.Component {
     this.setState({ hfrom: this.props.hfrom, hto: this.props.hto });
   }
 
+  componentWillReceiveProps(next) {
+    this.setState({ hfrom: next.hfrom, hto: next.hto });
+  }
+
+  convertHourToMinutes = stringToTest => {
+    const tableTime = stringToTest.split(/:/);
+    var heures = 1 * tableTime[0];
+    var minutes = 1 * tableTime[1];
+    var heureEnMinutes = 60 * heures;
+    return heureEnMinutes + minutes;
+  };
+
+  handleChange = (event, d) => {
+    let { hfrom, hto } = this.state;
+
+    if (d.name === "hfrom") {
+      hfrom = d.value;
+      if (this.convertHourToMinutes(hfrom) < this.convertHourToMinutes(hto)) {
+        this.setState({ hfrom: hfrom });
+        this.props.handleChange(this.props.index, hfrom, hto);
+      } else {
+        this.forceUpdate();
+      }
+    }
+
+    if (d.name === "hto") {
+      hto = d.value;
+      if (this.convertHourToMinutes(hto) > this.convertHourToMinutes(hfrom)) {
+        this.setState({ hto: hto });
+        this.props.handleChange(this.props.index, hfrom, hto);
+      } else {
+        this.forceUpdate();
+      }
+    }
+  };
+
   render() {
     let { hfrom, hto } = this.state;
     return (
       <React.Fragment>
         <Label>De</Label>
-        <Input size="tiny" style={{ maxWidth: maxWidth / 5 }} value={hfrom} />
+        <Input
+          size="tiny"
+          type="time"
+          style={{ maxWidth: maxWidth / 4 }}
+          name="hfrom"
+          value={hfrom}
+          onChange={this.handleChange}
+        />
         <Label>à</Label>
-        <Input size="tiny" style={{ maxWidth: maxWidth / 5 }} value={hto} />
-        <Button size="tiny" icon="minus" circular={true} />
+        <Input
+          size="tiny"
+          type="time"
+          style={{ maxWidth: maxWidth / 4 }}
+          name="hto"
+          value={hto}
+          onChange={this.handleChange}
+        />
+        <Button
+          size="tiny"
+          icon="minus"
+          circular={true}
+          onClick={() => this.props.supprimer(this.props.index)}
+        />
+        <br />
       </React.Fragment>
     );
   }
@@ -44,14 +100,67 @@ class FromToList extends React.Component {
     this.setState({ horaires: this.props.horaires });
   }
 
+  ajouter = () => {
+    let horaires = this.state.horaires;
+    let start = horaires.length ? horaires[horaires.length - 1].end : "08:00";
+    let table = start.split(/:/);
+    //Ajoute +1h au start et +2 au end, si c'est supérieur à 23 on recommence a 00, et si c'est inférieur à 10 on concatene un 0
+    start = [
+      1 + Number(table[0]) > 23
+        ? "00"
+        : 1 + Number(table[0]) < 10
+          ? "0" + (1 + Number(table[0]))
+          : 1 + Number(table[0]),
+      table[1]
+    ];
+    let end = [
+      2 + Number(table[0]) > 23
+        ? "00"
+        : 2 + Number(table[0]) < 10
+          ? "0" + (2 + Number(table[0]))
+          : 2 + Number(table[0]),
+      table[1]
+    ];
+    horaires.push({ start: start.join(":"), end: end.join(":") }); //On concatene
+    this.setState({ horaires: horaires });
+    //this.props.onChange(horaires);
+  };
+
+  supprimer = index => {
+    let horaires = this.state.horaires;
+    horaires.splice(index, 1);
+    this.setState({ horaires: horaires });
+    //this.props.onChange(horaires);
+  };
+
+  handleChange = (index, hfrom, hto) => {
+    let horaires = this.state.horaires;
+    horaires[index] = { start: hfrom, end: hto };
+    horaires = _.sortBy(horaires, "start");
+    this.setState({ horaires: horaires });
+    //this.props.onChange(horaires);
+  };
+
   render() {
-    let { horaires } = this.state;
+    console.log(this.state.horaires);
+
     return (
       <React.Fragment>
         <List>
-          {/* TODO lister les horaires par _.map(horaires... et les éditer avec des FromTo */}
+          {_.map(this.state.horaires, (horaire, i) => {
+            return (
+              <FromTo
+                hfrom={horaire.start}
+                hto={horaire.end}
+                key={i}
+                index={i}
+                handleChange={this.handleChange}
+                supprimer={this.supprimer}
+              />
+            );
+          })}
         </List>
-        <Button size="tiny" icon="add" circular={true} />
+        <Button size="tiny" icon="add" circular={true} onClick={this.ajouter} />
       </React.Fragment>
     );
   }
@@ -125,6 +234,7 @@ export default class Configuration extends React.Component {
     if (this.state.index >= 0) {
       let planning = plannings[index];
       let options = planning.optionsJO;
+      let horaires = options.plages.horaires;
 
       const Plages = (
         <React.Fragment>
@@ -138,17 +248,17 @@ export default class Configuration extends React.Component {
               this.setState({ plannings: plannings });
             }}
           />
+
           <Accordion>
             <Accordion.Title>Dimanche</Accordion.Title>
+
             <Accordion.Content />
           </Accordion>
+
           <Accordion>
             <Accordion.Title>Lundi</Accordion.Title>
             <Accordion.Content active={true}>
-              {/*TODO utiliser ici FromToList */}
-              <FromTo hfrom="09:00" hto="12:00" />
-              <br />
-              <FromTo hfrom="14:00" hto="19:00" />
+              <FromToList horaires={horaires[1]} />
             </Accordion.Content>
           </Accordion>
         </React.Fragment>

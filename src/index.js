@@ -1,7 +1,6 @@
 //React
 import React from "react";
 import { render } from "react-dom";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
 //CSS
 import "../node_modules/semantic-ui-css/semantic.min.css";
@@ -12,9 +11,21 @@ import { Button, Icon, Divider } from "semantic-ui-react";
 
 //Components
 import App from "./components/App";
-import NotFound from "./components/Notfound";
 import Patients from "./components/Patients";
 import Praticiens from "./components/Praticiens";
+
+const originPath = window.location.pathname;
+const subApp = window.location.hash;
+
+let app;
+
+if (subApp === "#Patients") {
+  app = <Patients />;
+} else if (subApp === "#Praticiens") {
+  app = <Praticiens />;
+} else {
+  app = <App />;
+}
 
 render(
   <React.Fragment>
@@ -23,20 +34,13 @@ render(
       style={{ marginLeft: -12 }}
       icon={true}
       onClick={() => {
-        window.location = "/";
+        window.location = originPath;
       }}
     >
       <Icon name="home" />
     </Button>
     <Divider hidden={true} />
-    <Router>
-      <Switch>
-        <Route exact={true} path="/" component={App} />
-        <Route path="/Patients/" component={Patients} />
-        <Route path="/Praticiens/" component={Praticiens} />
-        <Route component={NotFound} />
-      </Switch>
-    </Router>
+    {app}
   </React.Fragment>,
   document.getElementById("root")
 );

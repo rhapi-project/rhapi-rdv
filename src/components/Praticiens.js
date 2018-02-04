@@ -13,16 +13,22 @@ import {
   Icon
 } from "semantic-ui-react";
 
+import _ from "lodash";
+
 import { Client } from "rhapi-client";
 import { maxWidth, hsize, fsize } from "./Settings";
 import Configuration from "./Configuration";
+import Calendars from "./Calendars";
 
-var client = new Client((datas, response) => {
-  if (datas.networkError === 401) {
-    // eq response.statusCode === 401
-    window.location.reload();
+var client = new Client(
+  //"http://localhost", // local dev
+  (datas, response) => {
+    if (datas.networkError === 401) {
+      // eq response.statusCode === 401
+      window.location.reload();
+    }
   }
-});
+);
 
 export default class Praticiens extends React.Component {
   state = {
@@ -49,6 +55,9 @@ export default class Praticiens extends React.Component {
   };
 
   accept = () => {
+    // local dev
+    //this.setState({ validation: "success", errorMessage: "" });
+
     client.authorize(
       "https://auth-dev.rhapi.net", // auth url
       "bXlhcHA6bXlhcHBteWFwcA", // app token
@@ -83,12 +92,7 @@ export default class Praticiens extends React.Component {
 
   render() {
     if (this.state.validation === "calendar") {
-      return (
-        <Header>
-          TODO : choisir un planning l'ouvrir avec{" "}
-          <a href="https://fullcalendar.io/">FullCalendar</a>
-        </Header>
-      );
+      return <Calendars client={client} />;
     }
     if (this.state.validation === "configuration") {
       return <Configuration client={client} />;

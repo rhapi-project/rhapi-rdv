@@ -75,13 +75,13 @@ export default class Patients extends React.Component {
     }
 
     // https://developer.mozilla.org/en-US/docs/Web/API/History_API
-    //
-    var stateObj = { "/": "Patients" };
+
     window.history.pushState(
-      stateObj,
+      { app: "#Patients" },
       "unused",
-      "?" + queryString.stringify(patient)
+      "?" + queryString.stringify(patient) + "#Patients"
     );
+
     const loc = window.location.href;
     window.onpopstate = () => {
       window.location.href = loc;
