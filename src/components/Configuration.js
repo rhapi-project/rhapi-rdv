@@ -417,8 +417,9 @@ export default class Configuration extends React.Component {
             style={{ maxWidth: maxWidth / 5 }}
             placeholder="Durée par défaut"
             value={options.plages.duree}
+            type="number"
             onChange={(e, d) => {
-              plannings[index].optionsJO.plages.duree = d.value;
+              plannings[index].optionsJO.plages.duree = _.toNumber(d.value);
               this.setState({ plannings: plannings });
             }}
           />
