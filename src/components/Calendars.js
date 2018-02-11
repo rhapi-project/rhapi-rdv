@@ -5,21 +5,14 @@ import "../css/fullcalendar.css";
 // fullcalendar locale
 import "fullcalendar/dist/locale/fr";
 
+import moment from "moment";
+
 //import _ from 'lodash'
 import React from "react";
 
 import _ from "lodash";
 
 import {
-  Button,
-  Form,
-  Grid,
-  Header,
-  Message,
-  Segment,
-  Divider,
-  Card,
-  Icon,
   Dropdown
 } from "semantic-ui-react";
 
@@ -78,6 +71,11 @@ export default class Calendars extends React.Component {
         <External client={this.props.client} />
         <Calendar
           client={this.props.client}
+          options={
+            this.state.index < 0
+              ? {}
+              : this.state.plannings[this.state.index].optionsJO
+          }
           planning={
             this.state.index < 0
               ? "0"
@@ -92,15 +90,64 @@ export default class Calendars extends React.Component {
 class Calendar extends React.Component {
   state = { modalRdvIsOpen: false, eventToEdit: {}, dateClicked: "" };
 
-  componentDidMount() {
+  componentDidUpdate() {
+    planningId = this.props.planning;
     const client = this.props.client;
+    const options = this.props.options;
+
+    let hiddenDays = [];
+    let businessHours = [];
+    let minTime = "08:30";
+    let maxTime = "20:00";
+
+    let duree = 30;
+    const plages = options.plages;
+    if (
+      !_.isUndefined(plages) &&
+      !_.isUndefined(plages.horaires) &&
+      plages.horaires.length === 7
+    ) {
+      duree = _.isNumber(plages.duree) ? plages.duree : 30;
+
+      let minT = "23:59";
+      let maxT = "00:00";
+      _.forEach(plages.horaires, (horaires, i) => {
+        if (horaires.length === 0) {
+          hiddenDays.push(i);
+        }
+        _.forEach(horaires, (horaire, j) => {
+          if (horaire.start < minT) minT = horaire.start;
+          if (horaire.end > maxT) maxT = horaire.end;
+          businessHours.push({
+            dow: [i],
+            start: horaire.start,
+            end: horaire.end
+          });
+        });
+        // on affiche 2 * la durée d'un rdv avant et après
+        minTime = moment(minT, "HH:mm")
+          .subtract(2 * duree, "minutes")
+          .format("HH:mm");
+        maxTime = moment(maxT, "HH:mm")
+          .add(2 * duree, "minutes")
+          .format("HH:mm");
+      });
+    }
+    // anything that the moment.duration constructor accepts
+    let duration = { minutes: duree };
+
+    $("#calendar").fullCalendar("destroy");
     $("#calendar").fullCalendar({
       locale: "fr",
       defaultView: "agendaWeek", // month,basicWeek,basicDay,agendaWeek,agendaDay,listYear,listMonth,listWeek,listDay
       editable: true,
+      hiddenDays: hiddenDays,
+      businessHours: businessHours,
+      slotDuration: duration,
+      minTime: minTime,
+      maxTime: maxTime,
 
       events: (start, end, timezone, callback) => {
-        console.log(planningId);
         var params = {
           from: start.toISOString(), // start est un 'moment' => voir doc fullCalendar
           to: end.toISOString(), // end est un 'moment' => voir doc fullCalendar
@@ -223,11 +270,6 @@ class Calendar extends React.Component {
       }
     });
     */
-  }
-
-  componentWillReceiveProps(props) {
-    planningId = props.planning;
-    $("#calendar").fullCalendar("refetchEvents");
   }
 
   render() {
