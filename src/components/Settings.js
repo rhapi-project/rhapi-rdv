@@ -33,8 +33,8 @@ const longDateTime = dateStr =>
  */
 
 const defaultPlanning = {
-  titre: "Nouveau planning",
-  description: "Description du nouveau planning",
+  titre: "Sans titre",
+  description: "Nouveau planning",
   couleur: "white",
   optionsJO: {
     plages: {

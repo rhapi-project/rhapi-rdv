@@ -11,7 +11,8 @@ import {
   Divider,
   Input,
   Label,
-  List
+  List,
+  Icon
 } from "semantic-ui-react";
 
 import { maxWidth, fsize, hsize, defaultPlanning } from "./Settings";
@@ -100,6 +101,10 @@ class FromToList extends React.Component {
     this.setState({ horaires: this.props.horaires });
   }
 
+  componentWillReceiveProps(next) {
+    this.setState({ horaires: next.horaires });
+  }
+
   ajouter = () => {
     let horaires = this.state.horaires;
     let start = horaires.length ? horaires[horaires.length - 1].end : "08:00";
@@ -123,14 +128,14 @@ class FromToList extends React.Component {
     ];
     horaires.push({ start: start.join(":"), end: end.join(":") }); //On concatene
     this.setState({ horaires: horaires });
-    //this.props.onChange(horaires);
+    this.props.onChange(horaires);
   };
 
   supprimer = index => {
     let horaires = this.state.horaires;
     horaires.splice(index, 1);
     this.setState({ horaires: horaires });
-    //this.props.onChange(horaires);
+    this.props.onChange(horaires);
   };
 
   handleChange = (index, hfrom, hto) => {
@@ -138,12 +143,10 @@ class FromToList extends React.Component {
     horaires[index] = { start: hfrom, end: hto };
     horaires = _.sortBy(horaires, "start");
     this.setState({ horaires: horaires });
-    //this.props.onChange(horaires);
+    this.props.onChange(horaires);
   };
 
   render() {
-    console.log(this.state.horaires);
-
     return (
       <React.Fragment>
         <List>
@@ -166,17 +169,112 @@ class FromToList extends React.Component {
   }
 }
 
+class HorairesJour extends React.Component {
+  state = {
+    activeIndex: this.props.activeIndex,
+    accordeonIndex: this.props.accordeonIndex,
+    activeHandle: this.props.activeHandle,
+    day: this.props.day,
+    onHorairesChange: this.props.onHorairesChange,
+    index: this.props.index,
+    horaires: this.props.horaires
+  };
+
+  componentWillReceiveProps(next) {
+    this.setState({ horaires: next.horaires });
+  }
+
+  render() {
+    return (
+      <React.Fragment>
+        <Accordion.Title
+          active={this.props.activeIndex === this.props.accordeonIndex}
+          index={this.props.accordeonIndex}
+          onClick={this.props.activeHandle}
+        >
+          {this.props.day}
+        </Accordion.Title>
+        <Accordion.Content
+          active={this.props.activeIndex === this.props.accordeonIndex}
+        >
+          <FromToList
+            horaires={this.props.horaires[this.props.accordeonIndex]}
+            onChange={this.props.onHorairesChange}
+          />
+        </Accordion.Content>
+      </React.Fragment>
+    );
+  }
+}
+
+class HorairesSemaine extends React.Component {
+  state = {
+    activeIndex: 0,
+    horaires: this.props.horaires
+  };
+
+  componentWillReceiveProps(next) {
+    this.setState({ horaires: next.horaires });
+  }
+
+  handleClick = (e, index) => {
+    const indexToTest = index.index;
+    const { activeIndex } = this.state;
+    const newIndex = activeIndex === indexToTest ? -1 : indexToTest;
+    this.setState({ activeIndex: newIndex });
+  };
+
+  render() {
+    const days = [
+      "Dimanche",
+      "Lundi",
+      "Mardi",
+      "Mercredi",
+      "Jeudi",
+      "Vendredi",
+      "Samedi"
+    ];
+    return (
+      <React.Fragment>
+        <Accordion>
+          {_.map(this.state.horaires, (horaireJour, i) => {
+            return (
+              <HorairesJour
+                horaires={this.props.horaires}
+                onHorairesChange={this.props.onHorairesChange}
+                activeHandle={this.handleClick}
+                activeIndex={this.state.activeIndex}
+                accordeonIndex={i}
+                key={i}
+                day={days[i]}
+              />
+            );
+          })}
+        </Accordion>
+      </React.Fragment>
+    );
+  }
+}
+
 export default class Configuration extends React.Component {
   componentWillMount() {
-    this.setState({ plannings: [], index: -1 });
+    this.setState({
+      plannings: [],
+      index: -1,
+      indexHoraire: 1,
+      activeIndex: 0
+    });
     this.reload();
   }
 
   reload = () => {
-    this.props.client.Plannings.readAll(
-      {},
+    this.props.client.Plannings.mesPlannings(
+      { admin: true },
       result => {
-        this.setState({ plannings: result.results });
+        this.setState({
+          plannings: result.results,
+          index: result.results.length > 0 ? 0 : -1
+        });
       },
       datas => {
         console.log(datas);
@@ -218,6 +316,74 @@ export default class Configuration extends React.Component {
     });
   };
 
+  supprimer = () => {
+    const id = this.state.plannings[this.state.index].id;
+    this.props.client.Plannings.destroy(
+      id,
+      () => {
+        this.props.client.Plannings.mesPlannings(
+          { admin: true },
+          result => {
+            let index = this.state.index;
+            if (index >= result.results.length) {
+              index = result.results.length - 1;
+            }
+            this.setState({ plannings: result.results, index: index });
+          },
+          datas => {
+            console.log(datas);
+          }
+        );
+      },
+      datas => {
+        console.log("erreur sur supprimer() :");
+        console.log(datas);
+      }
+    );
+  };
+
+  ajouter = () => {
+    this.props.client.Plannings.create(
+      defaultPlanning,
+      () => {
+        this.props.client.Plannings.mesPlannings(
+          { admin: true },
+          result => {
+            this.setState({
+              plannings: result.results,
+              index: result.results.length - 1
+            });
+          },
+          datas => {
+            console.log(datas);
+          }
+        );
+      },
+      datas => {
+        console.log("erreur sur ajouter() :");
+        console.log(datas);
+      }
+    );
+  };
+
+  onHorairesChange = horaires => {
+    let plannings = this.state.plannings;
+    let planning = plannings[this.state.index];
+    //index à modifier dynamiquement
+    let horairesState =
+      planning.optionsJO.plages.horaires[this.state.indexHoraire];
+    horairesState = horaires;
+    this.setState({ plannings: plannings });
+  };
+
+  onHorairesReservationChange = horaires => {
+    let plannings = this.state.plannings;
+    let planning = plannings[this.state.index];
+    let horairesReservationState = planning.optionsJO.reservation.horaires;
+    horairesReservationState = horaires;
+    this.setState({ plannings: plannings });
+  };
+
   onPlanningChange = (e, d) => {
     /*
     console.log(
@@ -228,13 +394,21 @@ export default class Configuration extends React.Component {
     this.setState({ index: d.value });
   };
 
+  handleClickAccordion = (e, index) => {
+    const indexToTest = index.index;
+    const { activeIndex } = this.state;
+    const newIndex = activeIndex === indexToTest ? -1 : indexToTest;
+    this.setState({ activeIndex: newIndex });
+  };
+
   render() {
     let { plannings, index } = this.state;
     let form = "";
-    if (this.state.index >= 0) {
+    if (index >= 0) {
       let planning = plannings[index];
       let options = planning.optionsJO;
       let horaires = options.plages.horaires;
+      let horairesReservation = options.reservation.horaires;
 
       const Plages = (
         <React.Fragment>
@@ -249,17 +423,39 @@ export default class Configuration extends React.Component {
             }}
           />
 
-          <Accordion>
-            <Accordion.Title>Dimanche</Accordion.Title>
+          <HorairesSemaine
+            horaires={horaires}
+            index={this.state.index}
+            onHorairesChange={this.onHorairesChange}
+          />
+        </React.Fragment>
+      );
 
-            <Accordion.Content />
-          </Accordion>
-
+      const HorairesReserves = (
+        <React.Fragment>
           <Accordion>
-            <Accordion.Title>Lundi</Accordion.Title>
-            <Accordion.Content active={true}>
-              <FromToList horaires={horaires[1]} />
-            </Accordion.Content>
+            {console.log(horairesReservation)}
+            {_.map(horairesReservation, (horaireReservation, i) => {
+              return (
+                <React.Fragment key={i}>
+                  <Accordion.Title
+                    active={this.state.activeIndex === i}
+                    index={i}
+                    onClick={this.handleClickAccordion}
+                  >
+                    <Icon name="dropdown" />
+                    Niveau d'autorisation {i}
+                  </Accordion.Title>
+                  <Accordion.Content active={this.state.activeIndex === i}>
+                    <HorairesSemaine
+                      horaires={horaireReservation}
+                      index={this.state.index}
+                      onHorairesChange={this.onHorairesReservationChange}
+                    />
+                  </Accordion.Content>
+                </React.Fragment>
+              );
+            })}
           </Accordion>
         </React.Fragment>
       );
@@ -269,7 +465,7 @@ export default class Configuration extends React.Component {
           title: "Congés",
           content: "Congés prévus (les congés passés pourront être supprimés)"
         },
-        { title: "Horaires", content: "Horaires ouverts à la réservation" }
+        { title: "Horaires", content: { content: HorairesReserves, key: "1" } }
       ];
 
       const Reservations = (
@@ -323,10 +519,10 @@ export default class Configuration extends React.Component {
             />
             <Divider hidden={true} />
             <Button onClick={this.cancel}>Annuler</Button>
-            <Button secondary={true} onClick={this.defaults}>
-              Valeurs par défaut
+            <Button onClick={this.defaults}>Valeurs par défaut</Button>
+            <Button negative={true} onClick={this.supprimer}>
+              Supprimer
             </Button>
-            <Button negative={true}>Supprimer</Button>
             <Button primary={true} onClick={this.save}>
               Sauvegarder
             </Button>
@@ -341,6 +537,7 @@ export default class Configuration extends React.Component {
           {plannings.length} plannings à configurer...
         </Header>
         <Dropdown
+          value={index}
           onChange={this.onPlanningChange}
           placeholder="Choisir le planning à configurer"
           fluid={false}
@@ -352,7 +549,14 @@ export default class Configuration extends React.Component {
             };
           })}
         />
+        <b>
+          {this.state.index >= 0
+            ? " #" + this.state.plannings[this.state.index].id
+            : ""}
+        </b>
         {form}
+        <Divider fitted={true} hidden={true} />
+        <Button onClick={this.ajouter}>Nouveau planning</Button>
       </React.Fragment>
     );
   }

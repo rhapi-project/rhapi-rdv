@@ -23,6 +23,8 @@ import {
   Dropdown
 } from "semantic-ui-react";
 
+import CalendarModalRdv from "./CalendarModalRdv";
+
 import { maxWidth, hsize, fsize } from "./Settings";
 
 import fullCalendar from "fullcalendar";
@@ -40,7 +42,7 @@ export default class Calendars extends React.Component {
   }
 
   reload = () => {
-    this.props.client.Plannings.readAll(
+    this.props.client.Plannings.mesPlannings(
       {},
       result => {
         this.setState({ plannings: result.results });
@@ -88,6 +90,8 @@ export default class Calendars extends React.Component {
 }
 
 class Calendar extends React.Component {
+  state = { modalRdvIsOpen: false, eventToEdit: {}, dateClicked: "" };
+
   componentDidMount() {
     const client = this.props.client;
     $("#calendar").fullCalendar({
@@ -135,6 +139,7 @@ class Calendar extends React.Component {
       },
 
       eventClick: (event, element) => {
+        /*
         alert("click on " + event.title + "\ncolor is '" + event.color + "'");
         // TODO: edit and update :
         event.title += " (clicked)";
@@ -157,9 +162,24 @@ class Calendar extends React.Component {
           (e, r) => {}
         );
         $("#calendar").fullCalendar("updateEvent", event);
+         */
+        this.setState({ modalRdvIsOpen: true, eventToEdit: event });
       },
 
-      eventDrop: function(event, delta, revertFunc, jsEvent, ui, view) {
+      dayClick: (date, jsEvent, view) => {
+        //alert('Clicked on: ' + date.format());
+        this.setState({
+          modalRdvIsOpen: true,
+          eventToEdit: {},
+          dateClicked: date.format()
+        });
+
+        //alert('Coordinates: ' + jsEvent.pageX + ',' + jsEvent.pageY);
+
+        //alert('Current view: ' + view.name);
+      },
+
+      eventDrop: (event, delta, revertFunc, jsEvent, ui, view) => {
         var params = {
           startAt: event.start.toISOString(),
           endAt: event.end.toISOString()
@@ -167,7 +187,7 @@ class Calendar extends React.Component {
         client.RendezVous.update(event.id, params, (d, r) => {}, (e, r) => {});
       },
 
-      eventResize: function(event, delta, revertFunc, jsEvent, ui, view) {
+      eventResize: (event, delta, revertFunc, jsEvent, ui, view) => {
         var params = {
           startAt: event.start.toISOString(),
           endAt: event.end.toISOString()
@@ -211,7 +231,19 @@ class Calendar extends React.Component {
   }
 
   render() {
-    return <div id="calendar" />;
+    return (
+      <React.Fragment>
+        <div id="calendar" />
+        <CalendarModalRdv
+          open={this.state.modalRdvIsOpen}
+          close={() => this.setState({ modalRdvIsOpen: false })}
+          event={this.state.eventToEdit}
+          date={this.state.dateClicked}
+          client={this.props.client}
+          planning={planningId}
+        />
+      </React.Fragment>
+    );
   }
 }
 

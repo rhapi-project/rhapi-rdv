@@ -38,6 +38,24 @@ export default class Praticiens extends React.Component {
     errorMessage: ""
   };
 
+  componentDidUpdate() {
+    // https://developer.mozilla.org/en-US/docs/Web/API/History_API
+    // TODO : use https://github.com/ReactTraining/history :
+    // ... a minimal API that lets you manage the history stack, navigate,
+    // confirm navigation, and persist state between sessions.
+
+    window.history.pushState(
+      this.state,
+      "RDV Praticiens State",
+      window.location.href
+    );
+
+    window.onpopstate = e => {
+      //console.log(e.state);
+      this.setState(e.state);
+    };
+  }
+
   userChange = event => {
     this.setState({
       user: event.target.value,
@@ -55,7 +73,7 @@ export default class Praticiens extends React.Component {
   };
 
   accept = () => {
-    // local dev
+    // local dev no auth
     //this.setState({ validation: "success", errorMessage: "" });
 
     client.authorize(

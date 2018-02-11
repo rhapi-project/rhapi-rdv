@@ -12,33 +12,34 @@ import {
 
 import _ from "lodash";
 
-import queryString from "query-string"; // add to package
 import { Client } from "rhapi-client";
 
 import { maxWidth, fsize, hsize } from "./Settings";
 import PriseRdv from "./PriseRdv";
 import MesRdv from "./MesRdv";
 
-var client = new Client((datas, response) => {
-  // TODO gestion globale des erreurs
-  //console.log(datas);
-  //if (datas.networkError === 401) { // eq response.statusCode === 401
-  //    window.location.reload();
-  //}
-});
+var client = new Client(
+  //"http://localhost", // local dev
+  (datas, response) => {
+    //if (datas.networkError === 401) {
+    // eq response.statusCode === 401
+    //  window.location.reload();
+  }
+);
 
 export default class Patients extends React.Component {
   componentWillMount() {
-    // ipp, nom, prenom, email, telMobile peuvent être passé en paramètre de l'url
-    const params = queryString.parse(window.location.search);
     this.setState({
       gestionRDV: false,
-      identified: !(_.isUndefined(params.ipp) || _.isNull(params.ipp)),
-      patient: params
+      identified: false,
+      patient: {}
     });
   }
 
   componentDidMount() {
+    // local dev no auth
+    //this.setState({ validation: "success", errorMessage: "" });
+
     client.authorize(
       "https://auth-dev.rhapi.net", // auth url
       "bXlhcHA6bXlhcHBteWFwcA", // app token
@@ -52,6 +53,24 @@ export default class Patients extends React.Component {
         console.log("erreur auth client");
       }
     );
+  }
+
+  componentDidUpdate() {
+    // https://developer.mozilla.org/en-US/docs/Web/API/History_API
+    // TODO : use https://github.com/ReactTraining/history :
+    // ... a minimal API that lets you manage the history stack, navigate,
+    // confirm navigation, and persist state between sessions.
+
+    window.history.pushState(
+      this.state,
+      "RDV Patients State",
+      window.location.href
+    );
+
+    window.onpopstate = e => {
+      //console.log(e.state);
+      this.setState(e.state);
+    };
   }
 
   handleChange = (e, d) => {
@@ -73,19 +92,6 @@ export default class Patients extends React.Component {
     } else {
       patient = _.omit(patient, ["ipp", "ipp2", "password"]);
     }
-
-    // https://developer.mozilla.org/en-US/docs/Web/API/History_API
-
-    window.history.pushState(
-      { app: "#Patients" },
-      "unused",
-      "?" + queryString.stringify(patient) + "#Patients"
-    );
-
-    const loc = window.location.href;
-    window.onpopstate = () => {
-      window.location.href = loc;
-    };
 
     this.setState({ gestionRDV: true });
   };
