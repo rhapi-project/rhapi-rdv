@@ -368,19 +368,19 @@ export default class Configuration extends React.Component {
 
   onHorairesChange = horaires => {
     let plannings = this.state.plannings;
-    let planning = plannings[this.state.index];
+    //let planning = plannings[this.state.index];
     //index à modifier dynamiquement
-    let horairesState =
-      planning.optionsJO.plages.horaires[this.state.indexHoraire];
-    horairesState = horaires;
+    //let horairesState =
+    //  planning.optionsJO.plages.horaires[this.state.indexHoraire];
+    //horairesState = horaires;
     this.setState({ plannings: plannings });
   };
 
   onHorairesReservationChange = horaires => {
     let plannings = this.state.plannings;
-    let planning = plannings[this.state.index];
-    let horairesReservationState = planning.optionsJO.reservation.horaires;
-    horairesReservationState = horaires;
+    //let planning = plannings[this.state.index];
+    //let horairesReservationState = planning.optionsJO.reservation.horaires;
+    //horairesReservationState = horaires;
     this.setState({ plannings: plannings });
   };
 

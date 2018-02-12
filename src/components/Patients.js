@@ -80,6 +80,7 @@ export default class Patients extends React.Component {
   };
 
   gestionRDV = () => {
+    /* ?
     let patient = this.state.patient;
     if (this.state.identified) {
       patient = _.omit(patient, [
@@ -92,7 +93,7 @@ export default class Patients extends React.Component {
     } else {
       patient = _.omit(patient, ["ipp", "ipp2", "password"]);
     }
-
+    */
     this.setState({ gestionRDV: true });
   };
 

@@ -6,21 +6,21 @@ import _ from "lodash";
 
 import {
   Button,
-  Form,
-  Grid,
+  //Form,
+  //Grid,
   Header,
-  Message,
-  Segment,
-  Divider,
-  Card,
-  Icon,
-  Dropdown,
+  //Message,
+  //Segment,
+  //Divider,
+  //Card,
+  //Icon,
+  //Dropdown,
   Modal,
   Image,
   Search
 } from "semantic-ui-react";
 
-import { maxWidth, hsize, fsize } from "./Settings";
+//import { maxWidth, hsize, fsize } from "./Settings";
 
 export class PatientSearch extends React.Component {
   componentWillMount() {
@@ -133,8 +133,6 @@ export default class CalendarModalRdv extends React.Component {
   reload = next => {
     const event = next.event;
     const isNewOne = _.isUndefined(event.title);
-
-    console.log(isNewOne);
 
     let rdv = {};
     if (isNewOne) {

@@ -13,7 +13,7 @@ import {
   Icon
 } from "semantic-ui-react";
 
-import _ from "lodash";
+//import _ from "lodash";
 
 import { Client } from "rhapi-client";
 import { maxWidth, hsize, fsize } from "./Settings";

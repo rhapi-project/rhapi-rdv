@@ -5,24 +5,21 @@ import "../css/fullcalendar.css";
 // fullcalendar locale
 import "fullcalendar/dist/locale/fr";
 
-import moment from "moment";
-
-//import _ from 'lodash'
-import React from "react";
+import "fullcalendar";
 
 import _ from "lodash";
 
-import {
-  Dropdown
-} from "semantic-ui-react";
+import $ from "jquery";
+
+import moment from "moment";
+
+import React from "react";
+
+import { Dropdown } from "semantic-ui-react";
 
 import CalendarModalRdv from "./CalendarModalRdv";
 
-import { maxWidth, hsize, fsize } from "./Settings";
-
-import fullCalendar from "fullcalendar";
-
-import $ from "jquery";
+//import { maxWidth, hsize, fsize } from "./Settings";
 
 var rhapiMd5 = "";
 var rhapiEventsCache = [];
@@ -38,7 +35,8 @@ export default class Calendars extends React.Component {
     this.props.client.Plannings.mesPlannings(
       {},
       result => {
-        this.setState({ plannings: result.results });
+        let index = result.results.length > 0 ? 0 : -1;
+        this.setState({ plannings: result.results, index: index });
       },
       datas => {
         console.log(datas);
@@ -56,6 +54,7 @@ export default class Calendars extends React.Component {
     return (
       <React.Fragment>
         <Dropdown
+          value={this.state.index}
           onChange={this.onPlanningChange}
           placeholder="Choisir le(s) planning(s) à afficher"
           fluid={false}
@@ -68,20 +67,26 @@ export default class Calendars extends React.Component {
             };
           })}
         />
-        <External client={this.props.client} />
-        <Calendar
-          client={this.props.client}
-          options={
-            this.state.index < 0
-              ? {}
-              : this.state.plannings[this.state.index].optionsJO
-          }
-          planning={
-            this.state.index < 0
-              ? "0"
-              : this.state.plannings[this.state.index].id
-          }
-        />
+        {this.state.index < 0 ? (
+          ""
+        ) : (
+          <React.Fragment>
+            <External client={this.props.client} />
+            <Calendar
+              client={this.props.client}
+              options={
+                this.state.index < 0
+                  ? {}
+                  : this.state.plannings[this.state.index].optionsJO
+              }
+              planning={
+                this.state.index < 0
+                  ? "0"
+                  : this.state.plannings[this.state.index].id
+              }
+            />
+          </React.Fragment>
+        )}
       </React.Fragment>
     );
   }
@@ -89,6 +94,10 @@ export default class Calendars extends React.Component {
 
 class Calendar extends React.Component {
   state = { modalRdvIsOpen: false, eventToEdit: {}, dateClicked: "" };
+
+  componentDidMount() {
+    this.componentDidUpdate();
+  }
 
   componentDidUpdate() {
     planningId = this.props.planning;
@@ -293,6 +302,7 @@ class External extends React.Component {
   render() {
     return "";
 
+    /*
     return (
       <div id="external-events">
         <h4>Draggable Events</h4>
@@ -307,6 +317,7 @@ class External extends React.Component {
         </p>
       </div>
     );
+    */
   }
   componentDidMount() {
     $("#external-events .fc-event").each(function() {
