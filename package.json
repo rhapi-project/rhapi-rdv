@@ -2,10 +2,22 @@
   "name": "rhapi-rdv",
   "version": "0.1.0",
   "homepage": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rhapi-project/rhapi-rdv.git"
+  },
+  "license": "MIT",
+  "maintainers": [
+    {
+      "name": "Lambdasoft",
+      "email": "contact@lambdasoft.fr"
+    }
+  ],
   "dependencies": {
     "fullcalendar": "^3.8.2",
     "lodash": "^4.17.5",
     "react": "^16.2.0",
+    "react-dates": "^16.3.0",
     "react-dom": "^16.2.0",
     "react-scripts": "1.0.17",
     "rhapi-client": "^1.0.9",
