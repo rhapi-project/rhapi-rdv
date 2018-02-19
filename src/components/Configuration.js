@@ -194,13 +194,6 @@ export default class Configuration extends React.Component {
         </React.Fragment>
       );
 
-      const CongesPrevus = (
-        <React.Fragment>
-          {console.log(congesPrevus)}
-          <Conges plagesConges={congesPrevus} />
-        </React.Fragment>
-      );
-
       const HorairesReserves = (
         <React.Fragment>
           <Accordion>
@@ -230,7 +223,22 @@ export default class Configuration extends React.Component {
       );
 
       const reservationsPanels = [
-        { title: "Congés", content: CongesPrevus, key: "0" },
+        {
+          title:
+            "Congés (TODO: il faudrait masquer le contenu de cet accordéon lorsqu'il est fermé)",
+          content: (
+            <Conges
+              plagesConges={congesPrevus}
+              key="0"
+              onChange={conges => {
+                console.log(
+                  "TODO: prise en compte des modifications sur les congés"
+                );
+                console.log(conges);
+              }}
+            />
+          )
+        },
         { title: "Horaires", content: { content: HorairesReserves, key: "1" } }
       ];
 
@@ -300,7 +308,8 @@ export default class Configuration extends React.Component {
     return (
       <React.Fragment>
         <Header size={hsize}>
-          {plannings.length} plannings à configurer...
+          {plannings.length} planning{plannings.length > 1 ? "s" : ""} à
+          configurer...
         </Header>
         <Dropdown
           value={index}

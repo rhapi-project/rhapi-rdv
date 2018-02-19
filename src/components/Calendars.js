@@ -10,16 +10,20 @@ import "fullcalendar";
 import _ from "lodash";
 
 import $ from "jquery";
+import draggable from "jquery-ui/ui/widgets/draggable";
 
 import moment from "moment";
 
 import React from "react";
 
-import { Dropdown } from "semantic-ui-react";
+import { Dropdown, Grid, Header, Divider } from "semantic-ui-react";
 
 import CalendarModalRdv from "./CalendarModalRdv";
 
-//import { maxWidth, hsize, fsize } from "./Settings";
+import "react-dates/lib/css/_datepicker.css";
+import "react-dates/initialize";
+
+import { DayPickerSingleDateController } from "react-dates";
 
 var rhapiMd5 = "";
 var rhapiEventsCache = [];
@@ -53,40 +57,46 @@ export default class Calendars extends React.Component {
   render() {
     return (
       <React.Fragment>
-        <Dropdown
-          value={this.state.index}
-          onChange={this.onPlanningChange}
-          placeholder="Choisir le(s) planning(s) à afficher"
-          fluid={false}
-          selection={true}
-          multiple={false}
-          options={_.map(this.state.plannings, (planning, i) => {
-            return {
-              text: planning.titre,
-              value: i
-            };
-          })}
-        />
-        {this.state.index < 0 ? (
-          ""
-        ) : (
-          <React.Fragment>
-            <External client={this.props.client} />
-            <Calendar
-              client={this.props.client}
-              options={
-                this.state.index < 0
-                  ? {}
-                  : this.state.plannings[this.state.index].optionsJO
-              }
-              planning={
-                this.state.index < 0
-                  ? "0"
-                  : this.state.plannings[this.state.index].id
-              }
-            />
-          </React.Fragment>
-        )}
+        <Grid divided="vertically">
+          <Grid.Row columns={2}>
+            <Grid.Column width={3}>
+              <Dropdown
+                value={this.state.index}
+                onChange={this.onPlanningChange}
+                placeholder="Choisir le(s) planning(s) à afficher"
+                fluid={false}
+                selection={true}
+                multiple={false}
+                options={_.map(this.state.plannings, (planning, i) => {
+                  return {
+                    text: planning.titre,
+                    value: i
+                  };
+                })}
+              />
+              <CalendarLeftPanel client={this.props.client} />
+            </Grid.Column>
+            <Grid.Column width={13}>
+              {this.state.index < 0 ? (
+                ""
+              ) : (
+                <Calendar
+                  client={this.props.client}
+                  options={
+                    this.state.index < 0
+                      ? {}
+                      : this.state.plannings[this.state.index].optionsJO
+                  }
+                  planning={
+                    this.state.index < 0
+                      ? "0"
+                      : this.state.plannings[this.state.index].id
+                  }
+                />
+              )}
+            </Grid.Column>
+          </Grid.Row>
+        </Grid>
       </React.Fragment>
     );
   }
@@ -150,11 +160,18 @@ class Calendar extends React.Component {
       locale: "fr",
       defaultView: "agendaWeek", // month,basicWeek,basicDay,agendaWeek,agendaDay,listYear,listMonth,listWeek,listDay
       editable: true,
+      droppable: true,
       hiddenDays: hiddenDays,
       businessHours: businessHours,
       slotDuration: duration,
       minTime: minTime,
       maxTime: maxTime,
+
+      header: {
+        left: "prev,next today",
+        center: "title",
+        right: "month,agendaWeek,agendaDay"
+      },
 
       events: (start, end, timezone, callback) => {
         var params = {
@@ -243,6 +260,13 @@ class Calendar extends React.Component {
         client.RendezVous.update(event.id, params, (d, r) => {}, (e, r) => {});
       },
 
+      drop: function(/*event*/) {
+        //console.log(event);
+        console.log($(this).data("event"));
+        // remove the element from the "Draggable Events" list
+        $(this).remove();
+      },
+
       eventResize: (event, delta, revertFunc, jsEvent, ui, view) => {
         var params = {
           startAt: event.start.toISOString(),
@@ -258,27 +282,6 @@ class Calendar extends React.Component {
       },
       30000 // actualiser toutes les 30 secondes (voir md5 et retour 304 / mise en cache avec rhapiEventsCache)
     );
-    /*
-    $("#calendar").fullCalendar({
-      locale: "fr",
-      defaultView: "agendaWeek", // month,basicWeek,basicDay,agendaWeek,agendaDay,listYear,listMonth,listWeek,listDay
-      editable: true,
-      header: {
-        left: "prev,next today",
-        center: "title",
-        right: "month,agendaWeek,agendaDay"
-      },
-      editable: true,
-      droppable: true, // this allows things to be dropped onto the calendar
-      drop: function() {
-        // is the "remove after drop" checkbox checked?
-        if ($("#drop-remove").is(":checked")) {
-          // if so, remove the element from the "Draggable Events" list
-          $(this).remove();
-        }
-      }
-    });
-    */
   }
 
   render() {
@@ -298,41 +301,64 @@ class Calendar extends React.Component {
   }
 }
 
-class External extends React.Component {
-  render() {
-    return "";
+class CalendarLeftPanel extends React.Component {
+  onDateChange = date => {
+    $("#calendar").fullCalendar("gotoDate", date);
+  };
 
-    /*
+  render() {
     return (
-      <div id="external-events">
-        <h4>Draggable Events</h4>
-        <div className="fc-event">My Event 1</div>
-        <div className="fc-event">My Event 2</div>
-        <div className="fc-event">My Event 3</div>
-        <div className="fc-event">My Event 4</div>
-        <div className="fc-event">My Event 5</div>
-        <p>
-          <input type="checkbox" id="drop-remove" />
-          <label for="drop-remove">remove after drop</label>
-        </p>
-      </div>
+      <React.Fragment>
+        <Divider />
+        <div
+          id="external-events"
+          style={{ minHeight: $(window).height() - 450 }}
+        >
+          <Header size="medium">Liste d'attente</Header>
+          <div className="fc-event">Patient 1</div>
+          <Divider fitted={true} />
+          <div className="fc-event">Patient 2</div>
+          <Divider fitted={true} />
+          <div className="fc-event">Patient 3</div>
+          <Divider fitted={true} />
+          <div className="fc-event">Patient 4</div>
+          <Divider fitted={true} />
+          <div className="fc-event">Patient 5</div>
+          {/*
+          <p>
+            <input type="checkbox" id="drop-remove" />
+            <label htmlFor="drop-remove">remove after drop</label>
+          </p>
+          */}
+        </div>
+        <DayPickerSingleDateController
+          hideKeyboardShortcutsPanel={true}
+          onDateChange={this.onDateChange}
+          focused={false}
+        />
+      </React.Fragment>
     );
-    */
   }
+
   componentDidMount() {
-    $("#external-events .fc-event").each(function() {
+    $("#external-events .fc-event").each((i, event) => {
+      // console.log(i, event);
       // store data so the calendar knows to render an event upon drop
-      $(this).data("event", {
-        title: $.trim($(this).text()), // use the element's text as the event title
+
+      $(event).data("event", {
+        title: $.trim($(event).text()), // use the element's text as the event title
         stick: true // maintain when user navigates (see docs on the renderEvent method)
       });
-
+      // jQuery UI : ui-widget(options, element);
       // make the event draggable using jQuery UI
-      $(this).draggable({
-        zIndex: 999,
-        revert: true, // will cause the event to go back to its
-        revertDuration: 0 //  original position after the drag
-      });
+      draggable(
+        {
+          zIndex: 999,
+          revert: true, // will cause the event to go back to its
+          revertDuration: 0 //  original position after the drag
+        },
+        event
+      );
     });
   }
 }
