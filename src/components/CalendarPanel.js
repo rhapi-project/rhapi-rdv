@@ -129,7 +129,7 @@ export default class CalendarPanel extends React.Component {
     client.RendezVous.create(
       params,
       (datas, response) => {
-        this.reloadExternalEvents();
+        this.reloadExternalEvents(planningId);
       },
       (error, response) => {
         //
