@@ -4,21 +4,7 @@ import ReactDOM from "react-dom";
 
 import _ from "lodash";
 
-import {
-  Button,
-  //Form,
-  //Grid,
-  Header,
-  //Message,
-  //Segment,
-  //Divider,
-  //Card,
-  //Icon,
-  //Dropdown,
-  Modal,
-  Image,
-  Search
-} from "semantic-ui-react";
+import { Button, Header, Modal, Image, Search } from "semantic-ui-react";
 
 //import { maxWidth, hsize, fsize } from "./Settings";
 

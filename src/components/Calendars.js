@@ -10,20 +10,19 @@ import "fullcalendar";
 import _ from "lodash";
 
 import $ from "jquery";
-import draggable from "jquery-ui/ui/widgets/draggable";
 
 import moment from "moment";
 
 import React from "react";
 
-import { Dropdown, Grid, Header, Divider } from "semantic-ui-react";
+import { Dropdown, Grid } from "semantic-ui-react";
 
 import CalendarModalRdv from "./CalendarModalRdv";
 
+import CalendarPanel from "./CalendarPanel";
+
 import "react-dates/lib/css/_datepicker.css";
 import "react-dates/initialize";
-
-import { DayPickerSingleDateController } from "react-dates";
 
 var rhapiMd5 = "";
 var rhapiEventsCache = [];
@@ -59,7 +58,7 @@ export default class Calendars extends React.Component {
       <React.Fragment>
         <Grid divided="vertically">
           <Grid.Row columns={2}>
-            <Grid.Column width={3}>
+            <Grid.Column width={3} style={{ maxWidth: 340 }}>
               <Dropdown
                 value={this.state.index}
                 onChange={this.onPlanningChange}
@@ -74,7 +73,10 @@ export default class Calendars extends React.Component {
                   };
                 })}
               />
-              <CalendarLeftPanel client={this.props.client} />
+              <CalendarPanel
+                client={this.props.client}
+                planningId={this.state.index}
+              />
             </Grid.Column>
             <Grid.Column width={13}>
               {this.state.index < 0 ? (
@@ -298,67 +300,5 @@ class Calendar extends React.Component {
         />
       </React.Fragment>
     );
-  }
-}
-
-class CalendarLeftPanel extends React.Component {
-  onDateChange = date => {
-    $("#calendar").fullCalendar("gotoDate", date);
-  };
-
-  render() {
-    return (
-      <React.Fragment>
-        <Divider />
-        <div
-          id="external-events"
-          style={{ minHeight: $(window).height() - 450 }}
-        >
-          <Header size="medium">Liste d'attente</Header>
-          <div className="fc-event">Patient 1</div>
-          <Divider fitted={true} />
-          <div className="fc-event">Patient 2</div>
-          <Divider fitted={true} />
-          <div className="fc-event">Patient 3</div>
-          <Divider fitted={true} />
-          <div className="fc-event">Patient 4</div>
-          <Divider fitted={true} />
-          <div className="fc-event">Patient 5</div>
-          {/*
-          <p>
-            <input type="checkbox" id="drop-remove" />
-            <label htmlFor="drop-remove">remove after drop</label>
-          </p>
-          */}
-        </div>
-        <DayPickerSingleDateController
-          hideKeyboardShortcutsPanel={true}
-          onDateChange={this.onDateChange}
-          focused={false}
-        />
-      </React.Fragment>
-    );
-  }
-
-  componentDidMount() {
-    $("#external-events .fc-event").each((i, event) => {
-      // console.log(i, event);
-      // store data so the calendar knows to render an event upon drop
-
-      $(event).data("event", {
-        title: $.trim($(event).text()), // use the element's text as the event title
-        stick: true // maintain when user navigates (see docs on the renderEvent method)
-      });
-      // jQuery UI : ui-widget(options, element);
-      // make the event draggable using jQuery UI
-      draggable(
-        {
-          zIndex: 999,
-          revert: true, // will cause the event to go back to its
-          revertDuration: 0 //  original position after the drag
-        },
-        event
-      );
-    });
   }
 }
