@@ -4,8 +4,17 @@ import ReactDOM from "react-dom";
 
 import _ from "lodash";
 
-import { Button, Header, Modal, Image, Search } from "semantic-ui-react";
+import {
+  Button,
+  Header,
+  Modal,
+  Image,
+  Search,
+  Segment,
+  Form
+} from "semantic-ui-react";
 
+import moment from "moment";
 //import { maxWidth, hsize, fsize } from "./Settings";
 
 export class PatientSearch extends React.Component {
@@ -118,27 +127,56 @@ export default class CalendarModalRdv extends React.Component {
 
   reload = next => {
     const event = next.event;
+    //if (_.isEmpty(event)) {
+    //    return;
+    //}
     const isNewOne = _.isUndefined(event.title);
 
     let rdv = {};
     if (isNewOne) {
-      rdv.startAt = next.date;
+      rdv.startAt = _.isUndefined(next.selectStart)
+        ? ""
+        : next.selectStart.format();
+      rdv.endAt = _.isUndefined(next.selectEnd)
+        ? rdv.startAt
+        : next.selectEnd.format();
     } else {
-      // TODO : reload rendez-vous from client.RendezVous !!!!
-      rdv.titre = next.event.title;
-      rdv.startAt = event.start;
-      rdv.endAt = event.end;
+      // (re)lire le rdv depuis le client
+      this.props.client.RendezVous.read(
+        event.id,
+        {},
+        rdv => {
+          this.setState({ rdv: rdv });
+        },
+        () => {}
+      );
     }
-
     this.setState({ isNewOne: isNewOne, rdv: rdv });
   };
 
-  handleClose = () => {
+  handleOk = () => {
     if (this.state.isNewOne) {
       this.props.client.RendezVous.create(
         this.state.rdv,
+        () => {
+          this.props.close();
+        },
+        () => {
+          //console.log("erreur")
+          this.props.close();
+        }
+      );
+    } else {
+      this.props.close();
+    }
+  };
+
+  handleRemove = () => {
+    if (!this.state.isNewOne) {
+      this.props.client.RendezVous.destroy(
+        this.props.event.id,
         () => this.props.close(),
-        () => alert("erreur")
+        () => this.props.close()
       );
     } else {
       this.props.close();
@@ -150,41 +188,57 @@ export default class CalendarModalRdv extends React.Component {
     rdv.idPatient = id;
     rdv.titre = title;
     rdv.idPlanningsJA = [this.props.planning];
-    rdv.startAt = this.props.date;
-    let end = new Date(rdv.startAt);
-    console.log(end);
-    end = new Date(end.getTime() + 30 * 60000); // + 30 mn
-    console.log(end);
-    rdv.endAt = end.toISOString();
+    rdv.startAt = this.props.selectStart;
+    rdv.endAt = this.props.selectEnd;
     this.setState({ rdv: rdv });
   };
 
   render() {
+    if (!this.props.open) {
+      return "";
+    }
+
+    if (!this.props.isExternal && _.isUndefined(this.state.rdv.startAt)) {
+      return "";
+    }
+
     return (
-      <Modal open={this.props.open}>
-        <Modal.Header>
-          {this.state.isNewOne ? (
-            <PatientSearch
-              client={this.props.client}
-              patientChange={this.patientChange}
-            />
-          ) : (
-            this.state.rdv.titre
-          )}
-        </Modal.Header>
+      <Modal size="large" open={this.props.open}>
+        <Segment clearing={true}>
+          <Header size="large" floated="left">
+            {this.state.isNewOne ? (
+              <PatientSearch
+                client={this.props.client}
+                patientChange={this.patientChange}
+              />
+            ) : (
+              this.state.rdv.titre
+            )}
+          </Header>
+          <Header size="large" floated="right">
+            {this.props.isExternal
+              ? "Rendez-vous en attente"
+              : moment(this.state.rdv.startAt).format("LL")}
+          </Header>
+        </Segment>
         <Modal.Content image={true}>
           <Image wrapped={true} size="medium" src="images/patient.png" />
-          <Modal.Description>
-            <Header>Description du rendez-vous.....</Header>
-            <p>
-              Définition du rendez-vous (pour l'instant juste la date de début)
-              {/*this.state.rdv.startAt*/}
-            </p>
-            <p>Is it okay to use this photo?</p>
-          </Modal.Description>
+          <Form>
+            {this.props.isExternal
+              ? ""
+              : "de " +
+                moment(this.state.rdv.startAt).format("HH:mm") +
+                " à " +
+                moment(this.state.rdv.endAt).format("HH:mm")}
+          </Form>
         </Modal.Content>
         <Modal.Actions>
-          <Button onClick={this.handleClose}>OK</Button>
+          <Button negative={true} onClick={this.handleRemove}>
+            {this.state.isNewOne ? "Annuler" : "Supprimer"}
+          </Button>
+          <Button primary={true} onClick={this.handleOk}>
+            OK
+          </Button>
         </Modal.Actions>
       </Modal>
     );
