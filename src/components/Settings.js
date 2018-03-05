@@ -35,7 +35,7 @@ const longDateTime = dateStr =>
 const defaultPlanning = {
   titre: "Sans titre",
   description: "Nouveau planning",
-  couleur: "white",
+  couleur: "#ffffff",
   optionsJO: {
     plages: {
       duree: 30,
@@ -93,13 +93,17 @@ const defaultPlanning = {
     reservation: {
       autorisationMin: 0,
       autorisationMax: 1,
+      congesCouleur: "#cc0000",
+      congesVisibles: true,
       congesFeries: true,
       conges: [
         {
+          titre: "Fermeture annuelle",
           start: "2018-08-01",
           end: "2018-08-20"
         },
         {
+          titre: "Congés de fin d'année",
           start: "2018-12-20",
           end: "2019-01-02"
         }

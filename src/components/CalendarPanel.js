@@ -25,7 +25,7 @@ export default class CalendarPanel extends React.Component {
   componentWillMount() {
     this.setState({
       currentDate: moment(),
-      currentPatient: { id: 0, title: "" },
+      currentPatient: { id: 0, title: "", rdv: { liste: [], index: -1 } },
       externalEventsDatas: [],
       modalRdvIsOpen: false,
       eventToEdit: {}
@@ -38,6 +38,7 @@ export default class CalendarPanel extends React.Component {
       externalEventsDatas: []
     });
     this.reloadExternalEvents(next.planning);
+    this.onPatientChange(-1, ""); // force reload rdv patient
   }
 
   componentDidMount() {
@@ -83,7 +84,7 @@ export default class CalendarPanel extends React.Component {
               data.id,
               {
                 planning: this.props.planning,
-                endAt: end.format()
+                endAt: end.toISOString()
               },
               () => {
                 this.reloadExternalEvents(this.props.planning);
@@ -137,7 +138,66 @@ export default class CalendarPanel extends React.Component {
   };
 
   onPatientChange = (id, title) => {
-    this.setState({ currentPatient: { id: id, title: title } });
+    // if id === -1 => unchanged => only force reload
+    let forceReload = id === -1;
+    if (forceReload) {
+      id = this.state.currentPatient.id;
+      title = this.state.currentPatient.title;
+    }
+    if (id === 0) {
+      this.setState({
+        currentPatient: { id: 0, title: "", rdv: { liste: [], index: -1 } }
+      });
+    } else {
+      // rdv du patient
+      this.props.client.RendezVous.readAll(
+        {
+          _idPatient: id,
+          q1: "startAt,GreaterThan,1980-01-01",
+          limit: "1000",
+          sort: "startAt",
+          fields: "startAt,idPlanningsJA"
+        },
+        datas => {
+          let today = new Date().toISOString().split("T")[0];
+          let liste = [];
+          let index = forceReload ? this.state.currentPatient.rdv.index : -1;
+          _.forEach(datas.results, (rdv, i) => {
+            if (_.indexOf(rdv.idPlanningsJA, this.props.planning) === -1) {
+              return;
+            }
+
+            if (!forceReload) {
+              // un nouvel index par défaut
+              if (index === -1) {
+                index = 0;
+              }
+              if (!index && rdv.startAt >= today) {
+                index = liste.length;
+              }
+            }
+            liste.push(rdv);
+          });
+
+          if (index > -1 && index > liste.length - 1) {
+            index = liste.length - 1;
+          }
+
+          if (forceReload && index === -1 && liste.length) {
+            index = 0;
+          }
+
+          this.setState({
+            currentPatient: {
+              id: id,
+              title: title,
+              rdv: { liste: liste, index: index }
+            }
+          });
+        },
+        () => {}
+      );
+    }
   };
 
   reloadExternalEvents = planning => {
@@ -188,7 +248,7 @@ export default class CalendarPanel extends React.Component {
         ? "1970-01-01T00:00:00"
         : moment(externals[externals.length - 1].endAt)
             .subtract(1, "days")
-            .format();
+            .toISOString();
 
     if (!this.state.currentPatient.id) {
       //alert("Aucun patient n'est actuellement défini.");
@@ -222,6 +282,18 @@ export default class CalendarPanel extends React.Component {
   };
 
   render() {
+    // RDV du patient
+    let rdvPatient = "Rendez-vous du patient";
+    let patient = this.state.currentPatient;
+    if (patient.id > 0) {
+      let index = patient.rdv.index;
+      rdvPatient =
+        index >= 0
+          ? "Le " +
+            moment(patient.rdv.liste[index].startAt).format("LL à HH:mm")
+          : "";
+    }
+
     return (
       <React.Fragment>
         <Divider />
@@ -236,21 +308,56 @@ export default class CalendarPanel extends React.Component {
           client={this.props.client}
           patientChange={this.onPatientChange}
         />
-        <Divider fitted={true} hidden={true} />
-        <div style={{ textAlign: "right" }}>
+        <br />
+        <div style={{ textAlign: "center" }}>
           <Button
-            icon="ban"
+            icon="step backward"
             size="mini"
-            onClick={() => this.setState({ currentPatient: {} })}
+            onClick={() => {
+              this.onPatientChange(-1);
+              let index = patient.rdv.index - 1;
+              if (index >= 0) {
+                patient.rdv.index = index;
+                this.setState({ currentPatient: patient });
+              }
+            }}
           />
-          <Button icon="step backward" size="mini" onClick={() => {}} />
-          <Button icon="step forward" size="mini" onClick={() => {}} />
+
+          <Button
+            size="mini"
+            onClick={() => {
+              this.onPatientChange(-1);
+              let index = patient.rdv.index;
+              if (index >= 0) {
+                $("#calendar").fullCalendar(
+                  "gotoDate",
+                  patient.rdv.liste[index].startAt
+                );
+              }
+            }}
+            style={{ width: "70%" }}
+            icon={_.isEmpty(rdvPatient) ? "refresh" : ""}
+            content={
+              _.isEmpty(rdvPatient)
+                ? ""
+                : rdvPatient + "\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0"
+            }
+          />
+          <Button
+            icon="step forward"
+            size="mini"
+            onClick={() => {
+              this.onPatientChange(-1);
+              let index = patient.rdv.index + 1;
+              if (index < patient.rdv.liste.length) {
+                patient.rdv.index = index;
+                this.setState({ currentPatient: patient });
+              }
+            }}
+          />
         </div>
         <Divider />
-        <div
-          id="external-events"
-          //style={{ minHeight: 600 }}
-        >
+        <div id="external-events">
           <Header size="medium">Liste d'attente</Header>
           <div style={{ textAlign: "right" }}>
             <Button icon="eraser" size="mini" onClick={this.clearExternal} />
@@ -274,8 +381,6 @@ export default class CalendarPanel extends React.Component {
                     }
                     style={{
                       minHeight: 30,
-                      color: "blue",
-                      background: "orange",
                       padding: 3,
                       cursor: "pointer"
                     }}

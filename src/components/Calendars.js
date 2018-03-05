@@ -56,6 +56,11 @@ export default class Calendars extends React.Component {
               />
               <CalendarPanel
                 client={this.props.client}
+                couleur={
+                  this.state.index < 0
+                    ? ""
+                    : this.state.plannings[this.state.index].couleur
+                }
                 planning={
                   this.state.index < 0
                     ? "0"
@@ -72,6 +77,11 @@ export default class Calendars extends React.Component {
               ) : (
                 <Calendar
                   client={this.props.client}
+                  couleur={
+                    this.state.index < 0
+                      ? ""
+                      : this.state.plannings[this.state.index].couleur
+                  }
                   options={
                     this.state.index < 0
                       ? {}

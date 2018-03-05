@@ -46,6 +46,7 @@ export class PatientSearch extends React.Component {
         results: [],
         value
       });
+      this.props.patientChange(0, "");
       return;
     }
     this.setState({ isLoading: true, value });
@@ -118,6 +119,7 @@ export class PatientSearch extends React.Component {
 
 export default class CalendarModalRdv extends React.Component {
   componentWillMount() {
+    this.isAboutToClose = false;
     this.reload(this.props);
   }
 
@@ -125,21 +127,26 @@ export default class CalendarModalRdv extends React.Component {
     this.reload(next);
   }
 
+  componentUnmount() {
+    this.isAboutToClose = false;
+  }
+
   reload = next => {
+    if (this.isAboutToClose) {
+      return;
+    }
+
     const event = next.event;
-    //if (_.isEmpty(event)) {
-    //    return;
-    //}
     const isNewOne = _.isUndefined(event.title);
 
     let rdv = {};
     if (isNewOne) {
       rdv.startAt = _.isUndefined(next.selectStart)
         ? ""
-        : next.selectStart.format();
+        : next.selectStart.toISOString();
       rdv.endAt = _.isUndefined(next.selectEnd)
         ? rdv.startAt
-        : next.selectEnd.format();
+        : next.selectEnd.toISOString();
     } else {
       // (re)lire le rdv depuis le client
       this.props.client.RendezVous.read(
@@ -154,20 +161,25 @@ export default class CalendarModalRdv extends React.Component {
     this.setState({ isNewOne: isNewOne, rdv: rdv });
   };
 
+  close = () => {
+    this.isAboutToClose = true;
+    this.props.close();
+  };
+
   handleOk = () => {
     if (this.state.isNewOne) {
       this.props.client.RendezVous.create(
         this.state.rdv,
         () => {
-          this.props.close();
+          this.close();
         },
         () => {
           //console.log("erreur")
-          this.props.close();
+          this.close();
         }
       );
     } else {
-      this.props.close();
+      this.close();
     }
   };
 
@@ -175,11 +187,11 @@ export default class CalendarModalRdv extends React.Component {
     if (!this.state.isNewOne) {
       this.props.client.RendezVous.destroy(
         this.props.event.id,
-        () => this.props.close(),
-        () => this.props.close()
+        () => this.close(),
+        () => this.close()
       );
     } else {
-      this.props.close();
+      this.close();
     }
   };
 

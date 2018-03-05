@@ -61,6 +61,7 @@ export default class Calendar extends React.Component {
     let businessHours = [];
     let minTime = "08:30";
     let maxTime = "20:00";
+    let defaultColor = this.props.couleur;
 
     let duree = 30;
     const plages = options.plages;
@@ -86,22 +87,26 @@ export default class Calendar extends React.Component {
             end: horaire.end
           });
         });
-        // on affiche 2 * la durée d'un rdv avant et après
+        // début/fin arrondis à l'heure précédente/suivante
         minTime = moment(minT, "HH:mm")
-          .subtract(2 * duree, "minutes")
+          .subtract(60, "minutes")
+          .minutes(0)
           .format("HH:mm");
         maxTime = moment(maxT, "HH:mm")
-          .add(2 * duree, "minutes")
+          .add(60, "minutes")
+          .minutes(0)
           .format("HH:mm");
       });
     }
-    let that = this; // that react component
-    // anything that the moment.duration constructor accepts
+
     let duration = { minutes: duree };
+    let that = this; // that react component
 
     $("#calendar").fullCalendar("destroy");
     $("#calendar").fullCalendar({
       locale: "fr",
+      slotLabelFormat: "H:mm",
+      nowIndicator: true,
       defaultView: "agendaWeek", // month,basicWeek,basicDay,agendaWeek,agendaDay,listYear,listMonth,listWeek,listDay
       editable: true,
       droppable: true,
@@ -109,43 +114,100 @@ export default class Calendar extends React.Component {
       hiddenDays: hiddenDays,
       businessHours: businessHours,
       slotDuration: duration,
+      /*slotLabelInterval: "01:00",*/
       defaultDuration: duration,
       defaultTimedEventDuration: duration,
       minTime: minTime,
       maxTime: maxTime,
-
       header: {
         left: "prev,next today",
         center: "title",
         right: "month,agendaWeek,agendaDay"
+      },
+      views: {
+        month: {
+          columnHeaderFormat: "dddd D/MM"
+        },
+        week: {
+          columnHeaderFormat: "dddd D/MM",
+          titleFormat: "D MMMM YYYY"
+        },
+        day: {
+          columnHeaderFormat: " ",
+          titleFormat: "dddd D MMMM YYYY"
+        }
       },
 
       events: function(start, end, timezone, callback) {
         if (_.isUndefined(planningId) || planningId <= 0) {
           callback([]);
         }
-        //console.log(that.rhapiMd5);
+
         var params = {
-          from: start.toISOString(), // start est un 'moment' => voir doc fullCalendar
-          to: end.toISOString(), // end est un 'moment' => voir doc fullCalendar
+          from: start.toISOString(),
+          to: end.toISOString(),
           md5: that.rhapiMd5,
           planning: planningId
         };
 
-        var events = [];
+        let events = [];
+        if (options.reservation.congesVisibles) {
+          if (options.reservation.congesFeries) {
+            params.feries = "true";
+          }
+          events = _.map(options.reservation.conges, (periode, i) => {
+            return {
+              start: periode.start,
+              end: periode.end,
+              color: options.reservation.congesCouleur,
+              title: periode.titre
+            };
+          });
+        }
+
+        // autres plages réservées / récurrentes => même format que businessHours
+        /*
+        events.push({
+          // days of week. an array of zero-based day of week integers (0=Sunday)
+          dow: [1, 2, 3, 4], // Monday - Thursday
+          start: "10:00", // a start time (10am in this example)
+          end: "18:00", // an end time (6pm in this example)
+          rendering: "background",
+          color: "blue"
+        });
+        */
 
         client.RendezVous.actualiser(
           params,
           (datas, response) => {
             that.rhapiMd5 = datas.informations.md5;
-            for (var i = 0; i < datas.results.length; i++) {
+
+            // jours fériés légaux affichés comme des congés
+            if (
+              options.reservation.congesVisibles &&
+              options.reservation.congesFeries
+            ) {
+              _.forEach(datas.informations.feries, (jour, i) => {
+                events.push({
+                  start: jour.date,
+                  end: jour.date,
+                  color: options.reservation.congesCouleur,
+                  title: jour.jour
+                });
+              });
+            }
+
+            for (let i = 0; i < datas.results.length; i++) {
               var result = datas.results[i];
+              let couleur = _.isEmpty(result.couleur)
+                ? defaultColor
+                : result.couleur;
               var event = {
                 id: result.id,
                 title: result.titre,
                 start: result.startAt,
                 end: result.endAt,
-                color: result.couleur
+                color: couleur
                 //...
               };
               events.push(event);

@@ -33,21 +33,13 @@ class HorairesJour extends React.Component {
 }
 
 export default class HorairesSemaine extends React.Component {
-  state = {
-    activeIndex: 0,
-    horaires: this.props.horaires
-  };
-
-  componentWillReceiveProps(next) {
-    this.setState({ horaires: next.horaires });
+  componentWillMount() {
+    this.setState({ horaires: this.props.horaires, activeIndex: -1 });
   }
 
-  handleClick = (e, index) => {
-    const indexToTest = index.index;
-    const { activeIndex } = this.state;
-    const newIndex = activeIndex === indexToTest ? -1 : indexToTest;
-    this.setState({ activeIndex: newIndex });
-  };
+  componentWillReceiveProps(next) {
+    this.setState({ horaires: next.horaires, activeIndex: -1 });
+  }
 
   render() {
     const days = [
@@ -61,13 +53,18 @@ export default class HorairesSemaine extends React.Component {
     ];
     return (
       <React.Fragment>
-        <Accordion>
+        <Accordion.Accordion>
           {_.map(this.state.horaires, (horaireJour, i) => {
             return (
               <HorairesJour
                 horaires={this.props.horaires}
                 onHorairesChange={this.props.onHorairesChange}
-                activeHandle={this.handleClick}
+                activeHandle={(e, d) =>
+                  this.setState({
+                    activeIndex:
+                      this.state.activeIndex === d.index ? -1 : d.index
+                  })
+                }
                 activeIndex={this.state.activeIndex}
                 accordeonIndex={i}
                 key={i}
@@ -75,7 +72,7 @@ export default class HorairesSemaine extends React.Component {
               />
             );
           })}
-        </Accordion>
+        </Accordion.Accordion>
       </React.Fragment>
     );
   }

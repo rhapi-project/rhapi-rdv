@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "semantic-ui-react";
+import { Button, Input, List, Label } from "semantic-ui-react";
 import _ from "lodash";
 
 import "react-dates/lib/css/_datepicker.css";
@@ -194,6 +194,10 @@ export default class Conges extends React.Component {
     this.setState({ plagesConges: this.props.plagesConges, clearFocus: false });
   }
 
+  componentWillReceiveProps(next) {
+    this.setState({ plagesConges: next.plagesConges, clearFocus: false });
+  }
+
   ajouter = () => {
     let plagesConges = this.state.plagesConges;
     let start = moment(); // Today moment
@@ -206,7 +210,8 @@ export default class Conges extends React.Component {
     plagesConges.push({
       // plageConges sont des ISO Dates Strings
       start: start.format("YYYY-MM-DD"),
-      end: start.add(7, "days").format("YYYY-MM-DD")
+      end: start.add(7, "days").format("YYYY-MM-DD"),
+      titre: ""
     });
     this.setState({ plagesConges: plagesConges });
     this.props.onChange(plagesConges);
@@ -221,38 +226,55 @@ export default class Conges extends React.Component {
 
   onPeriodeChange = (index, start, end) => {
     let plagesConges = this.state.plagesConges;
-    plagesConges[index] = { start: start, end: end };
+    plagesConges[index].start = start;
+    plagesConges[index].end = end;
     let plagesConges2 = _.sortBy(plagesConges, ["start", "end"]);
     let clearFocus = !_.isEqual(plagesConges, plagesConges2); // order change ? => clear picker focus
     this.setState({ plagesConges: plagesConges2, clearFocus: clearFocus });
     this.props.onChange(plagesConges);
   };
 
+  onTitreChange = (index, titre) => {
+    let plagesConges = this.state.plagesConges;
+    plagesConges[index].titre = titre;
+    this.setState({ plagesConges: plagesConges });
+    this.props.onChange(plagesConges);
+  };
+
   render() {
     return (
       <React.Fragment>
-        {_.map(this.state.plagesConges, (plageConges, i) => {
-          return (
-            <React.Fragment key={i}>
-              <Periode
-                initialStartDate={moment(plageConges.start)}
-                initialEndDate={moment(plageConges.end)}
-                key={i}
-                clearFocus={this.state.clearFocus}
-                onPeriodeChange={(start, end) =>
-                  this.onPeriodeChange(i, start, end)
-                }
-              />
-              <Button
-                size="tiny"
-                icon="minus"
-                circular={true}
-                onClick={() => this.supprimer(i)}
-              />
-              <br />
-            </React.Fragment>
-          );
-        })}
+        <List>
+          {_.map(this.state.plagesConges, (plageConges, i) => {
+            return (
+              <React.Fragment key={i}>
+                <Periode
+                  initialStartDate={moment(plageConges.start)}
+                  initialEndDate={moment(plageConges.end)}
+                  key={i}
+                  clearFocus={this.state.clearFocus}
+                  onPeriodeChange={(start, end) =>
+                    this.onPeriodeChange(i, start, end)
+                  }
+                />
+                <Label>Intitulé : </Label>
+                <Input
+                  type="text"
+                  placeholder="Intitulé de la période"
+                  value={plageConges.titre}
+                  onChange={(e, d) => this.onTitreChange(i, d.value)}
+                />
+                <Button
+                  size="tiny"
+                  icon="minus"
+                  circular={true}
+                  onClick={() => this.supprimer(i)}
+                />
+                <br />
+              </React.Fragment>
+            );
+          })}
+        </List>
         <Button size="tiny" icon="add" circular={true} onClick={this.ajouter} />
       </React.Fragment>
     );
