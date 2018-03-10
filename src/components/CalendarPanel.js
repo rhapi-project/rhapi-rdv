@@ -307,11 +307,16 @@ export default class CalendarPanel extends React.Component {
         <PatientSearch
           client={this.props.client}
           patientChange={this.onPatientChange}
+          format={
+            _.isUndefined(this.props.options.reservation)
+              ? "NP"
+              : this.props.options.reservation.denominationFormat
+          }
         />
         <br />
         <div style={{ textAlign: "center" }}>
           <Button
-            icon="step backward"
+            icon="left chevron"
             size="mini"
             onClick={() => {
               this.onPatientChange(-1);
@@ -344,7 +349,7 @@ export default class CalendarPanel extends React.Component {
             }
           />
           <Button
-            icon="step forward"
+            icon="right chevron"
             size="mini"
             onClick={() => {
               this.onPatientChange(-1);
@@ -370,15 +375,15 @@ export default class CalendarPanel extends React.Component {
                   <Divider fitted={true} hidden={true} />
                   <div
                     className="fc-event"
-                    onClick={() =>
+                    onClick={() => {
                       this.setState({
                         modalRdvIsOpen: true,
                         eventToEdit: {
                           title: data.titre,
                           id: data.id
                         }
-                      })
-                    }
+                      });
+                    }}
                     style={{
                       minHeight: 30,
                       padding: 3,

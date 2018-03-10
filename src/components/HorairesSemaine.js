@@ -13,14 +13,14 @@ class HorairesJour extends React.Component {
     return (
       <React.Fragment>
         <Accordion.Title
-          active={this.props.activeIndex === this.props.accordeonIndex}
+          active={this.props.indexHoraires === this.props.accordeonIndex}
           index={this.props.accordeonIndex}
           onClick={this.props.activeHandle}
         >
           {this.props.day}
         </Accordion.Title>
         <Accordion.Content
-          active={this.props.activeIndex === this.props.accordeonIndex}
+          active={this.props.indexHoraires === this.props.accordeonIndex}
         >
           <FromToList
             horaires={this.props.horaires[this.props.accordeonIndex]}
@@ -34,11 +34,7 @@ class HorairesJour extends React.Component {
 
 export default class HorairesSemaine extends React.Component {
   componentWillMount() {
-    this.setState({ horaires: this.props.horaires, activeIndex: -1 });
-  }
-
-  componentWillReceiveProps(next) {
-    this.setState({ horaires: next.horaires, activeIndex: -1 });
+    this.setState({ indexHoraires: -1 });
   }
 
   render() {
@@ -54,18 +50,18 @@ export default class HorairesSemaine extends React.Component {
     return (
       <React.Fragment>
         <Accordion.Accordion>
-          {_.map(this.state.horaires, (horaireJour, i) => {
+          {_.map(this.props.horaires, (horaireJour, i) => {
             return (
               <HorairesJour
                 horaires={this.props.horaires}
                 onHorairesChange={this.props.onHorairesChange}
                 activeHandle={(e, d) =>
                   this.setState({
-                    activeIndex:
-                      this.state.activeIndex === d.index ? -1 : d.index
+                    indexHoraires:
+                      d.index === this.state.indexHoraires ? -1 : d.index
                   })
                 }
-                activeIndex={this.state.activeIndex}
+                indexHoraires={this.state.indexHoraires}
                 accordeonIndex={i}
                 key={i}
                 day={days[i]}

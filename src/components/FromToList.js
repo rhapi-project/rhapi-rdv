@@ -110,7 +110,7 @@ export default class FromToList extends React.Component {
           : 2 + Number(table[0]),
       table[1]
     ];
-    horaires.push({ start: start.join(":"), end: end.join(":") }); //On concatene
+    horaires.push({ start: start.join(":"), end: end.join(":") });
     this.setState({ horaires: horaires });
     this.props.onChange(horaires);
   };

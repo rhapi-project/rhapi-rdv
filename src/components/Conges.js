@@ -82,6 +82,7 @@ const defaultProps = {
   keepOpenOnDateSelect: false,
   reopenPickerOnClearDates: false,
   isRTL: false,
+  hideKeyboardShortcutsPanel: true,
 
   // navigation related props
   navPrev: null,
@@ -213,7 +214,7 @@ export default class Conges extends React.Component {
       end: start.add(7, "days").format("YYYY-MM-DD"),
       titre: ""
     });
-    this.setState({ plagesConges: plagesConges });
+    this.setState({ plagesConges: plagesConges, saved: false });
     this.props.onChange(plagesConges);
   };
 

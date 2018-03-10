@@ -35,7 +35,7 @@ const longDateTime = dateStr =>
 const defaultPlanning = {
   titre: "Sans titre",
   description: "Nouveau planning",
-  couleur: "#ffffff",
+  couleur: "#7ED321",
   optionsJO: {
     plages: {
       duree: 30,
@@ -93,7 +93,7 @@ const defaultPlanning = {
     reservation: {
       autorisationMin: 0,
       autorisationMax: 1,
-      congesCouleur: "#cc0000",
+      congesCouleur: "#D0021B",
       congesVisibles: true,
       congesFeries: true,
       conges: [
@@ -108,58 +108,57 @@ const defaultPlanning = {
           end: "2019-01-02"
         }
       ],
-      couleur: "",
-      dateMax: "2019-03-15",
+      delaiMax: 120,
       delaiPrevenance: 48,
       denominationFormat: "NP",
       denominationDefaut: "Anonyme",
       motifs: [
         {
           autorisationMin: 0,
-          couleur: "",
+          couleur: "#4A90E2",
           duree: 10,
           motif: "Première consultation"
         },
         {
           autorisationMin: 0,
-          couleur: "",
+          couleur: "#4A90E2",
           duree: 10,
           motif: "Je suis adressé(e) pour avis par un médecin/un dentiste"
         },
         {
           autorisationMin: 1,
-          couleur: "",
+          couleur: "#4A90E2",
           duree: 15,
           motif: "Consultation de suivi"
         },
         {
           autorisationMin: 1,
-          couleur: "",
+          couleur: "#4A90E2",
           duree: 30,
           motif: "Détartrage"
         },
         {
           autorisationMin: 1,
-          couleur: "",
+          couleur: "#4A90E2",
           duree: 30,
           motif:
             "J'envisage la réalisation du plan de traitement qui m'a été proposé"
         },
         {
           autorisationMin: 1,
-          couleur: "",
+          couleur: "#4A90E2",
           duree: 20,
           motif: "Je pense avoir un problème à une dent"
         },
         {
           autorisationMin: 1,
-          couleur: "",
+          couleur: "#4A90E2",
           duree: 20,
           motif: "Je pense avoir un problème à la gencive"
         },
         {
           autorisationMin: 1,
-          couleur: "",
+          couleur: "#4A90E2",
           duree: 10,
           motif: "Je pense avoir des problèmes avec une prothèse"
         }

@@ -11,7 +11,10 @@ import {
   Divider,
   Popup,
   Icon,
-  Checkbox
+  Checkbox,
+  Message,
+  Table,
+  Confirm
 } from "semantic-ui-react";
 
 import { maxWidth, fsize, hsize, defaultPlanning } from "./Settings";
@@ -19,24 +22,31 @@ import { maxWidth, fsize, hsize, defaultPlanning } from "./Settings";
 import HorairesSemaine from "./HorairesSemaine";
 import Conges from "./Conges";
 
+import ColorPicker from "./ColorPicker";
+
 export default class Configuration extends React.Component {
   componentWillMount() {
     this.setState({
       plannings: [],
       index: -1,
-      indexHoraire: 1,
-      activeIndex: -1
+      reservationActiveIndex: -1,
+      saved: true
     });
-    this.reload();
+    this.reload(0);
   }
 
-  reload = () => {
+  reload = index => {
+    if (_.isUndefined(index)) {
+      index = this.state.index;
+    }
+
     this.props.client.Plannings.mesPlannings(
       { admin: true },
       result => {
         this.setState({
           plannings: result.results,
-          index: result.results.length > 0 ? 0 : -1
+          index: index < result.results.length ? index : -1,
+          saved: true
         });
       },
       datas => {
@@ -46,15 +56,23 @@ export default class Configuration extends React.Component {
   };
 
   cancel = () => {
+    /*
+    if (!this.state.saved) {
+      this.setState({
+        confirmationMessage:
+          "Certaines modifications ne sont pas sauvegardées. Souhaitez-vous les annuler ?",
+        confirmationAction: this.reload
+      });
+    } else {
+    */
     this.reload();
+    //}
   };
 
   defaults = () => {
     let plannings = this.state.plannings;
-    let planning = plannings[this.state.index];
-    _.assign(planning, defaultPlanning);
-    plannings[this.state.index] = planning;
-    this.setState({ plannings: plannings });
+    plannings[this.state.index] = defaultPlanning;
+    this.setState({ plannings: plannings, saved: false });
   };
 
   save = () => {
@@ -63,16 +81,18 @@ export default class Configuration extends React.Component {
         planning.id,
         planning,
         result => {
-          if (i === this.state.plannings.length - 1) {
-            this.reload();
-          }
+          planning.lockRevision++;
+          this.setState({ saved: true });
         },
         datas => {
           console.log("erreur sur save() :");
           console.log(datas);
           if (datas.networkError === 409) {
-            // lock version control
-            this.reload();
+            this.setState({
+              confirmationMessage:
+                "Les données ont été modifiées depuis un autre poste. Vous devez les recharger.",
+              confirmationAction: this.reload
+            });
           }
         }
       );
@@ -80,76 +100,93 @@ export default class Configuration extends React.Component {
   };
 
   supprimer = () => {
-    const id = this.state.plannings[this.state.index].id;
-    this.props.client.Plannings.destroy(
-      id,
-      () => {
-        this.props.client.Plannings.mesPlannings(
-          { admin: true },
-          result => {
-            let index = this.state.index;
-            if (index >= result.results.length) {
-              index = result.results.length - 1;
-            }
-            this.setState({ plannings: result.results, index: index });
-          },
-          datas => {
-            console.log(datas);
-          }
-        );
-      },
-      datas => {
-        console.log("erreur sur supprimer() :");
-        console.log(datas);
-      }
-    );
+    let supprimerAction = () => {
+      const id = this.state.plannings[this.state.index].id;
+      this.props.client.Plannings.destroy(
+        id,
+        () => {
+          let index = this.state.index;
+          this.reload(
+            index === this.state.plannings.length - 1 ? index - 1 : index
+          );
+        },
+        datas => {
+          console.log("erreur sur supprimer() :");
+          console.log(datas);
+        }
+      );
+    };
+
+    this.setState({
+      confirmationMessage: this.state.saved
+        ? "Souhaitez-vous supprimer définitivement ce planning ?"
+        : "Souhaitez-vous supprimer définitivement ce planning sans sauvergarde préalable des modifications  ?",
+      confirmationAction: supprimerAction
+    });
   };
 
   ajouter = () => {
-    this.props.client.Plannings.create(
-      defaultPlanning,
-      () => {
-        this.props.client.Plannings.mesPlannings(
-          { admin: true },
-          result => {
-            this.setState({
-              plannings: result.results,
-              index: result.results.length - 1
-            });
-          },
-          datas => {
-            console.log(datas);
-          }
-        );
-      },
-      datas => {
-        console.log("erreur sur ajouter() :");
-        console.log(datas);
-      }
-    );
+    let ajouterAction = () => {
+      this.props.client.Plannings.create(
+        defaultPlanning,
+        () => {
+          this.reload(this.state.plannings.length);
+        },
+        datas => {
+          console.log("erreur sur ajouter() :");
+          console.log(datas);
+        }
+      );
+    };
+    if (!this.state.saved) {
+      this.setState({
+        confirmationMessage:
+          "Certaines modifications ne sont pas sauvegardées. Vous confirmez l'ajout d'un nouveau planning sans sauvergarde préalable des modifications ?",
+        confirmationAction: ajouterAction
+      });
+    } else {
+      ajouterAction();
+    }
+  };
+
+  dupliquer = () => {
+    let dupliquerAction = () => {
+      let planning = this.state.plannings[this.state.index];
+      planning.titre += " (copie)";
+      this.props.client.Plannings.create(
+        planning,
+        () => {
+          this.reload(this.state.plannings.length);
+        },
+        datas => {
+          console.log("erreur sur ajouter() :");
+          console.log(datas);
+        }
+      );
+    };
+    if (!this.state.saved) {
+      this.setState({
+        confirmationMessage:
+          "Certaines modifications ne sont pas sauvegardées. Vous confirmez la duplication de ce planning sans sauvergarde préalable des modifications ?",
+        confirmationAction: dupliquerAction
+      });
+    } else {
+      dupliquerAction();
+    }
   };
 
   onHorairesChange = horaires => {
-    let plannings = this.state.plannings;
-    //let planning = plannings[this.state.index];
-    //index à modifier dynamiquement
-    //let horairesState =
-    //  planning.optionsJO.plages.horaires[this.state.indexHoraire];
-    //horairesState = horaires;
-    this.setState({ plannings: plannings });
+    this.setState({ saved: false });
   };
 
   onHorairesReservationChange = horaires => {
-    let plannings = this.state.plannings;
-    //let planning = plannings[this.state.index];
-    //let horairesReservationState = planning.optionsJO.reservation.horaires;
-    //horairesReservationState = horaires;
-    this.setState({ plannings: plannings });
+    this.setState({ saved: false });
   };
 
   render() {
-    let { plannings, index } = this.state;
+    let { index, plannings, saved } = this.state;
     let form = "";
+
     if (index >= 0) {
       let planning = plannings[index];
       let options = planning.optionsJO;
@@ -167,12 +204,11 @@ export default class Configuration extends React.Component {
             type="number"
             onChange={(e, d) => {
               plannings[index].optionsJO.plages.duree = _.toNumber(d.value);
-              this.setState({ plannings: plannings });
+              this.setState({ plannings: plannings, saved: false });
             }}
           />
           <HorairesSemaine
             horaires={horaires}
-            index={this.state.index}
             onHorairesChange={this.onHorairesChange}
           />
         </React.Fragment>
@@ -180,44 +216,243 @@ export default class Configuration extends React.Component {
 
       const HorairesReserves = (
         <React.Fragment>
-          <p>
-            Les plages horaires ouvertes à la prise de rendez-vous en ligne sont
-            définies pour chacun des 4 premiers niveaux d'autorisation (niveaux
-            de 0 à 3).
-          </p>
-          <p>
-            Le cinquième niveau (niveau 4 non configurable) dispose de
-            l'intégralité des plages horaires, mais reste reservé à une prise de
-            rendez-vous directement depuis l'interface du praticien.
-          </p>
-          <Accordion.Accordion>
-            {_.map(horairesReservation, (horaireReservation, i) => {
-              return (
-                <React.Fragment key={i}>
-                  <Accordion.Title
-                    active={this.state.activeIndex === i}
-                    index={i}
-                    onClick={(e, d) =>
-                      this.setState({
-                        activeIndex:
-                          this.state.activeIndex === d.index ? -1 : d.index
-                      })
-                    }
-                    icon="dropdown"
-                    content={"Niveau d'autorisation " + i}
-                  />
-
-                  <Accordion.Content active={this.state.activeIndex === i}>
-                    <HorairesSemaine
-                      horaires={horaireReservation}
-                      index={this.state.index}
-                      onHorairesChange={this.onHorairesReservationChange}
+          <Form.Group>
+            <Form.Input
+              label="Niveau minimum d'autorisation requis pour la prise de rendez-vous en ligne"
+              style={{ maxWidth: maxWidth / 5 }}
+            >
+              <Dropdown
+                fluid={false}
+                selection={true}
+                error={
+                  options.reservation.autorisationMin !== 4 &&
+                  options.reservation.autorisationMin >
+                    options.reservation.autorisationMax
+                }
+                options={[
+                  {
+                    text: "Niveau d'autorisation 0",
+                    value: 0
+                  },
+                  {
+                    text: "Niveau d'autorisation 1",
+                    value: 1
+                  },
+                  {
+                    text: "Niveau d'autorisation 2",
+                    value: 2
+                  },
+                  {
+                    text: "Niveau d'autorisation 3",
+                    value: 3
+                  },
+                  {
+                    text: "RDV en ligne désactivés",
+                    value: 4
+                  }
+                ]}
+                value={options.reservation.autorisationMin}
+                onChange={(e, d) => {
+                  options.reservation.autorisationMin = d.value;
+                  plannings[index].optionsJO = options;
+                  this.setState({ saved: false, plannings: plannings });
+                }}
+              />
+            </Form.Input>
+            <Form.Input
+              label="Niveau maximum accepté"
+              style={{ maxWidth: maxWidth / 5 }}
+            >
+              <Dropdown
+                disabled={options.reservation.autorisationMin === 4}
+                error={
+                  options.reservation.autorisationMin !== 4 &&
+                  options.reservation.autorisationMin >
+                    options.reservation.autorisationMax
+                }
+                fluid={false}
+                selection={true}
+                options={[
+                  {
+                    text: "Niveau d'autorisation 0",
+                    value: 0
+                  },
+                  {
+                    text: "Niveau d'autorisation 1",
+                    value: 1
+                  },
+                  {
+                    text: "Niveau d'autorisation 2",
+                    value: 2
+                  },
+                  {
+                    text: "Niveau d'autorisation 3",
+                    value: 3
+                  }
+                ]}
+                value={options.reservation.autorisationMax}
+                onChange={(e, d) => {
+                  options.reservation.autorisationMax = d.value;
+                  plannings[index].optionsJO = options;
+                  this.setState({ saved: false, plannings: plannings });
+                }}
+              />
+            </Form.Input>
+          </Form.Group>
+          <Form.Input label="Plages horaires ouvertes">
+            <Accordion.Accordion>
+              {_.map(horairesReservation, (horaireReservation, i) => {
+                return (
+                  <React.Fragment key={i}>
+                    <Accordion.Title
+                      active={this.state.reservationActiveIndex === i}
+                      index={i}
+                      onClick={(e, d) =>
+                        this.setState({
+                          reservationActiveIndex:
+                            this.state.reservationActiveIndex === d.index
+                              ? -1
+                              : d.index
+                        })
+                      }
+                      icon="dropdown"
+                      content={"Niveau d'autorisation " + i}
                     />
-                  </Accordion.Content>
-                </React.Fragment>
-              );
-            })}
-          </Accordion.Accordion>
+
+                    <Accordion.Content
+                      active={this.state.reservationActiveIndex === i}
+                    >
+                      <HorairesSemaine
+                        horaires={horaires}
+                        onHorairesChange={this.onHorairesReservationChange}
+                      />
+                    </Accordion.Content>
+                  </React.Fragment>
+                );
+              })}
+            </Accordion.Accordion>
+          </Form.Input>
+        </React.Fragment>
+      );
+
+      const MotifsRDV = (
+        <React.Fragment>
+          <Table basic={true}>
+            <Table.Header>
+              <Table.Row>
+                <Table.HeaderCell>Motif</Table.HeaderCell>
+                <Table.HeaderCell collapsing={true}>
+                  Niveau d'autorisation minimum requis
+                </Table.HeaderCell>
+                <Table.HeaderCell collapsing={true}>
+                  Durée par défaut (en mn)
+                </Table.HeaderCell>
+                <Table.HeaderCell>Couleur</Table.HeaderCell>
+                <Table.HeaderCell />
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {_.map(options.reservation.motifs, (motif, i) => {
+                return (
+                  <Table.Row key={i}>
+                    <Table.Cell>
+                      <Form.Input
+                        type="text"
+                        value={motif.motif}
+                        onChange={(e, d) => {
+                          options.reservation.motifs[i].motif = d.value;
+                          this.setState({ saved: false });
+                        }}
+                      />
+                    </Table.Cell>
+                    <Table.Cell>
+                      <Dropdown
+                        fluid={true}
+                        selection={true}
+                        options={[
+                          {
+                            text: "Niveau d'autorisation 0",
+                            value: 0
+                          },
+                          {
+                            text: "Niveau d'autorisation 1",
+                            value: 1
+                          },
+                          {
+                            text: "Niveau d'autorisation 2",
+                            value: 2
+                          },
+                          {
+                            text: "Niveau d'autorisation 3",
+                            value: 3
+                          },
+                          {
+                            text: "RDV en ligne désactivés",
+                            value: 4
+                          }
+                        ]}
+                        value={motif.autorisationMin}
+                        onChange={(e, d) => {
+                          options.reservation.motifs[i].autorisationMin =
+                            d.value;
+                          this.setState({ saved: false });
+                        }}
+                      />
+                    </Table.Cell>
+                    <Table.Cell>
+                      <Form.Input
+                        style={{ maxWidth: maxWidth / 5 }}
+                        type="number"
+                        value={motif.duree}
+                        onChange={(e, d) => {
+                          options.reservation.motifs[i].duree = _.toNumber(
+                            d.value
+                          );
+                          this.setState({ saved: false });
+                        }}
+                      />
+                    </Table.Cell>
+                    <Table.Cell>
+                      <Form.Input>
+                        <ColorPicker
+                          color={motif.couleur}
+                          onChange={color => {
+                            options.reservation.motifs[i].couleur = color;
+                            this.setState({ saved: false });
+                          }}
+                        />
+                      </Form.Input>
+                    </Table.Cell>
+                    <Table.Cell>
+                      <Button
+                        size="tiny"
+                        icon="minus"
+                        circular={true}
+                        onClick={() => {
+                          options.reservation.motifs.splice(i, 1);
+                          this.setState({ saved: false });
+                        }}
+                      />
+                    </Table.Cell>
+                  </Table.Row>
+                );
+              })}
+            </Table.Body>
+          </Table>
+          <Button
+            size="tiny"
+            icon="add"
+            circular={true}
+            onClick={() => {
+              options.reservation.motifs.push({
+                motif: "Nouveau motif",
+                autorisationMin: 4,
+                duree: options.plages.duree,
+                couleur: "#4A90E2"
+              });
+              this.setState({ saved: false });
+            }}
+          />
         </React.Fragment>
       );
 
@@ -254,19 +489,16 @@ export default class Configuration extends React.Component {
                       }}
                     />
                   </Form.Input>
-                  <Form.Input
-                    disabled={!options.reservation.congesVisibles}
-                    label="avec la couleur"
-                    style={{ maxWidth: maxWidth / 10 }}
-                    transparent={true}
-                    value={options.reservation.congesCouleur}
-                    type="color"
-                    onChange={(e, d) => {
-                      options.reservation.congesCouleur = d.value;
-                      plannings[index].optionsJO = options;
-                      this.setState({ plannings: plannings });
-                    }}
-                  />
+                  <Form.Input label="avec la couleur">
+                    <ColorPicker
+                      color={options.reservation.congesCouleur}
+                      onChange={color => {
+                        options.reservation.congesCouleur = color;
+                        plannings[index].optionsJO = options;
+                        this.setState({ plannings: plannings });
+                      }}
+                    />
+                  </Form.Input>
                 </Form.Group>
                 <Popup
                   trigger={
@@ -301,14 +533,98 @@ export default class Configuration extends React.Component {
           }
         },
         {
-          title: "Plages horaires ouvertes selon le niveau d'autorisation",
+          title: "Prise de rendez-vous en ligne",
           content: { content: HorairesReserves, key: "1" }
+        },
+        {
+          title: "Motifs des rendez-vous",
+          content: { content: MotifsRDV, key: "2" }
         }
       ];
 
       const Reservations = (
         <React.Fragment>
-          Paramètres pour la prise de rendez-vous
+          <Form.Group>
+            <Form.Input
+              label="Délai maximum pour un RDV (en jours)"
+              style={{ maxWidth: maxWidth / 5 }}
+              placeholder="Délai maximum"
+              value={options.reservation.delaiMax}
+              type="number"
+              onChange={(e, d) => {
+                plannings[index].optionsJO.reservation.delaiMax = _.toNumber(
+                  d.value
+                );
+                this.setState({ plannings: plannings, saved: false });
+              }}
+            />
+            <Form.Input
+              label="Délai de prévenance pour annuler un RDV (en heures)"
+              style={{ maxWidth: maxWidth / 5 }}
+              placeholder="Délai de prévenance"
+              value={options.reservation.delaiPrevenance}
+              type="number"
+              onChange={(e, d) => {
+                plannings[
+                  index
+                ].optionsJO.reservation.delaiPrevenance = _.toNumber(d.value);
+                this.setState({ plannings: plannings, saved: false });
+              }}
+            />
+          </Form.Group>
+          <Form.Group>
+            <Form.Input
+              label="Format pour la dénomination des patients"
+              style={{ maxWidth: maxWidth / 5 }}
+            >
+              <Dropdown
+                fluid={false}
+                selection={true}
+                options={[
+                  {
+                    text: "NOM + PRÉNOM",
+                    value: "NP"
+                  },
+                  {
+                    text: "NOM + Prénom",
+                    value: "Np"
+                  },
+                  {
+                    text: "Nom + Prénom",
+                    value: "np"
+                  },
+                  {
+                    text: "PRÉNOM + NOM",
+                    value: "PN"
+                  },
+                  {
+                    text: "Prénom + NOM",
+                    value: "pN"
+                  },
+                  {
+                    text: "Prénom + Nom",
+                    value: "pn"
+                  }
+                ]}
+                value={options.reservation.denominationFormat}
+                onChange={(e, d) => {
+                  plannings[index].optionsJO.reservation.denominationFormat =
+                    d.value;
+                  this.setState({ saved: false, plannings: plannings });
+                }}
+              />
+            </Form.Input>
+            <Form.Input
+              label="Dénomination par défaut (si patient non identifié)"
+              placeholder="Dénomination par défaut"
+              value={options.reservation.denominationDefaut}
+              onChange={(e, d) => {
+                plannings[index].optionsJO.reservation.denominationDefaut =
+                  d.value;
+                this.setState({ saved: false, plannings: plannings });
+              }}
+            />
+          </Form.Group>
           <Accordion.Accordion panels={reservationsPanels} />
         </React.Fragment>
       );
@@ -319,7 +635,7 @@ export default class Configuration extends React.Component {
           content: { content: Plages, key: "1" }
         },
         {
-          title: "Réservations",
+          title: "Prise de rendez-vous",
           content: { content: Reservations, key: "2" }
         }
       ];
@@ -335,7 +651,7 @@ export default class Configuration extends React.Component {
                 value={planning.titre}
                 onChange={(e, d) => {
                   plannings[index].titre = d.value;
-                  this.setState({ plannings: plannings });
+                  this.setState({ plannings: plannings, saved: false });
                 }}
               />
               <Form.Input
@@ -344,20 +660,18 @@ export default class Configuration extends React.Component {
                 value={planning.description}
                 onChange={(e, d) => {
                   plannings[index].description = d.value;
-                  this.setState({ plannings: plannings });
+                  this.setState({ plannings: plannings, saved: false });
                 }}
               />
-              <Form.Input
-                label="Couleur"
-                style={{ maxWidth: maxWidth / 10 }}
-                transparent={true}
-                value={planning.couleur}
-                type="color"
-                onChange={(e, d) => {
-                  plannings[index].couleur = d.value;
-                  this.setState({ plannings: plannings });
-                }}
-              />
+              <Form.Input label="Couleur">
+                <ColorPicker
+                  color={planning.couleur}
+                  onChange={color => {
+                    plannings[index].couleur = color;
+                    this.setState({ plannings: plannings, saved: false });
+                  }}
+                />
+              </Form.Input>
             </Form.Group>
             <Accordion
               defaultActiveIndex={-1}
@@ -366,12 +680,14 @@ export default class Configuration extends React.Component {
               fluid={true}
             />
             <Divider hidden={true} />
-            <Button onClick={this.cancel}>Annuler</Button>
-            <Button onClick={this.defaults}>Valeurs par défaut</Button>
             <Button negative={true} onClick={this.supprimer}>
-              Supprimer
+              Supprimer le planning
             </Button>
-            <Button primary={true} onClick={this.save}>
+            <Button onClick={this.ajouter}>Nouveau planning</Button>
+            <Button onClick={this.dupliquer}>Dupliquer le planning</Button>
+            <Button onClick={this.defaults}>Valeurs par défaut</Button>
+            <Button onClick={this.cancel}>Annuler</Button>
+            <Button primary={!saved} onClick={this.save}>
               Sauvegarder
             </Button>
           </Form>
@@ -381,10 +697,24 @@ export default class Configuration extends React.Component {
 
     return (
       <React.Fragment>
-        <Header size={hsize}>
-          {plannings.length} planning{plannings.length > 1 ? "s" : ""} à
-          configurer...
-        </Header>
+        <Header size={hsize}>Configuration</Header>
+        {saved ? (
+          <Message
+            header={
+              plannings.length +
+              " planning" +
+              (plannings.length > 1 ? "s" : "") +
+              " à configurer"
+            }
+            content="Chaque planning correspond à une ressource humaine ou matérielle distincte"
+          />
+        ) : (
+          <Message
+            warning={true}
+            header="Modifications non sauvegardées"
+            content="Les dernières modifications effectuées ne sont pas sauvegardées. Vous pouvez annuler pour revenir à la version précédente."
+          />
+        )}
         <Dropdown
           value={index}
           onChange={(e, d) => this.setState({ index: d.value })}
@@ -404,8 +734,34 @@ export default class Configuration extends React.Component {
             : ""}
         </b>
         {form}
-        <Divider fitted={true} hidden={true} />
-        <Button onClick={this.ajouter}>Nouveau planning</Button>
+        {plannings.length ? (
+          ""
+        ) : (
+          <Button onClick={this.ajouter}>Nouveau planning</Button>
+        )}
+
+        <Confirm
+          open={
+            _.isString(this.state.confirmationMessage) &&
+            _.isFunction(this.state.confirmationAction)
+          }
+          cancelButton="Annuler"
+          header="Confirmation"
+          content={this.state.confirmationMessage}
+          onCancel={() =>
+            this.setState({
+              confirmationMessage: null,
+              confirmationAction: null
+            })
+          }
+          onConfirm={() => {
+            this.state.confirmationAction();
+            this.setState({
+              confirmationMessage: null,
+              confirmationAction: null
+            });
+          }}
+        />
       </React.Fragment>
     );
   }

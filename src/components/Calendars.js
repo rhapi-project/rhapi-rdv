@@ -66,6 +66,11 @@ export default class Calendars extends React.Component {
                     ? "0"
                     : this.state.plannings[this.state.index].id
                 }
+                options={
+                  this.state.index < 0
+                    ? {}
+                    : this.state.plannings[this.state.index].optionsJO
+                }
                 handleExternalRefetch={externalRefetch =>
                   this.setState({ externalRefetch: externalRefetch })
                 }

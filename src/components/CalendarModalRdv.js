@@ -54,7 +54,7 @@ export class PatientSearch extends React.Component {
     this.props.client.Patients.completion(
       {
         texte: value,
-        format: "np",
+        format: this.props.format,
         limit: 10
       },
       patients => {
@@ -119,34 +119,33 @@ export class PatientSearch extends React.Component {
 
 export default class CalendarModalRdv extends React.Component {
   componentWillMount() {
-    this.isAboutToClose = false;
     this.reload(this.props);
   }
 
   componentWillReceiveProps(next) {
-    this.reload(next);
-  }
-
-  componentUnmount() {
-    this.isAboutToClose = false;
+    if (next.open) {
+      this.reload(next);
+    }
   }
 
   reload = next => {
-    if (this.isAboutToClose) {
-      return;
-    }
-
     const event = next.event;
+
     const isNewOne = _.isUndefined(event.title);
 
     let rdv = {};
     if (isNewOne) {
-      rdv.startAt = _.isUndefined(next.selectStart)
-        ? ""
-        : next.selectStart.toISOString();
-      rdv.endAt = _.isUndefined(next.selectEnd)
-        ? rdv.startAt
-        : next.selectEnd.toISOString();
+      if (next.isExternal) {
+        rdv.startAt = event.startAt;
+        rdv.endAt = event.endAt;
+      } else {
+        rdv.startAt = _.isUndefined(next.selectStart)
+          ? ""
+          : next.selectStart.toISOString();
+        rdv.endAt = _.isUndefined(next.selectEnd)
+          ? rdv.startAt
+          : next.selectEnd.toISOString();
+      }
     } else {
       // (re)lire le rdv depuis le client
       this.props.client.RendezVous.read(
@@ -158,11 +157,11 @@ export default class CalendarModalRdv extends React.Component {
         () => {}
       );
     }
+
     this.setState({ isNewOne: isNewOne, rdv: rdv });
   };
 
   close = () => {
-    this.isAboutToClose = true;
     this.props.close();
   };
 
@@ -200,8 +199,6 @@ export default class CalendarModalRdv extends React.Component {
     rdv.idPatient = id;
     rdv.titre = title;
     rdv.idPlanningsJA = [this.props.planning];
-    rdv.startAt = this.props.selectStart;
-    rdv.endAt = this.props.selectEnd;
     this.setState({ rdv: rdv });
   };
 
@@ -222,6 +219,7 @@ export default class CalendarModalRdv extends React.Component {
               <PatientSearch
                 client={this.props.client}
                 patientChange={this.patientChange}
+                format={this.props.denominationFormat}
               />
             ) : (
               this.state.rdv.titre
