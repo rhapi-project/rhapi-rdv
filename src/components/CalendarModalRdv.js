@@ -11,11 +11,15 @@ import {
   Image,
   Search,
   Segment,
-  Form
+  Form,
+  Label
 } from "semantic-ui-react";
 
+import TimeField from "react-simple-timefield";
+
 import moment from "moment";
-//import { maxWidth, hsize, fsize } from "./Settings";
+
+import { maxWidth, hsize, fsize } from "./Settings";
 
 export class PatientSearch extends React.Component {
   componentWillMount() {
@@ -117,6 +121,56 @@ export class PatientSearch extends React.Component {
   }
 }
 
+class FromTo extends React.Component {
+  componentWillMount() {
+    this.setState({ hfrom: this.props.hfrom, hto: this.props.hto });
+  }
+
+  componentWillReceiveProps(next) {
+    this.setState({ hfrom: next.hfrom, hto: next.hto });
+  }
+
+  handleChange = (value, name) => {
+    let { hfrom, hto } = this.state;
+
+    if (name === "hfrom") {
+      hfrom = value;
+    }
+
+    if (name === "hto") {
+      hto = value;
+    }
+    this.props.handleChange(hfrom, hto);
+  };
+
+  render() {
+    let { hfrom, hto } = this.state;
+
+    return (
+      <div>
+        <Label size="large" style={{ marginTop: 5 }} content="De" />
+        <TimeField
+          value={hfrom} // {String}   required, format '00:00' or '00:00:00'
+          onChange={value => this.handleChange(value, "hfrom")}
+          input={<input type="text" />}
+          //colon=":" // {String}   default: ":"
+          //showSeconds={false} // {Boolean}  default: false
+          style={{ minWidth: maxWidth / 5, maxWidth: maxWidth / 5 }}
+        />
+        <Label size="large" style={{ marginTop: 5 }} content="à" />
+        <TimeField
+          value={hto} // {String}   required, format '00:00' or '00:00:00'
+          onChange={value => this.handleChange(value, "hto")}
+          //input={<input type="text" />}
+          //colon=":" // {String}   default: ":"
+          //showSeconds={false} // {Boolean}  default: false
+          style={{ minWidth: maxWidth / 5, maxWidth: maxWidth / 5 }}
+        />
+      </div>
+    );
+  }
+}
+
 export default class CalendarModalRdv extends React.Component {
   componentWillMount() {
     this.reload(this.props);
@@ -178,7 +232,17 @@ export default class CalendarModalRdv extends React.Component {
         }
       );
     } else {
-      this.close();
+      this.props.client.RendezVous.update(
+        this.state.rdv.id,
+        this.state.rdv,
+        () => {
+          this.close();
+        },
+        () => {
+          //console.log("erreur")
+          this.close();
+        }
+      );
     }
   };
 
@@ -207,7 +271,9 @@ export default class CalendarModalRdv extends React.Component {
       return "";
     }
 
-    if (!this.props.isExternal && _.isUndefined(this.state.rdv.startAt)) {
+    let rdv = this.state.rdv;
+
+    if (!this.props.isExternal && _.isUndefined(rdv.startAt)) {
       return "";
     }
 
@@ -234,12 +300,36 @@ export default class CalendarModalRdv extends React.Component {
         <Modal.Content image={true}>
           <Image wrapped={true} size="medium" src="images/patient.png" />
           <Form>
-            {this.props.isExternal
-              ? ""
-              : "de " +
-                moment(this.state.rdv.startAt).format("HH:mm") +
-                " à " +
-                moment(this.state.rdv.endAt).format("HH:mm")}
+            {this.props.isExternal ? (
+              ""
+            ) : (
+              <FromTo
+                hfrom={rdv.startAt.split("T")[1]}
+                hto={rdv.endAt.split("T")[1]}
+                handleChange={(hfrom, hto) => {
+                  rdv.startAt = rdv.startAt.split("T")[0] + "T" + hfrom;
+                  rdv.endAt = rdv.endAt.split("T")[0] + "T" + hto;
+                  this.setState({ rdv: rdv });
+                }}
+              />
+            )}
+            {// TODO corriger la doc idObjet correspond à un motif commun à tous les plannings partagé par ce RDV ??
+            rdv.idObjet < 0 ? (
+              <Label
+                //circular={true}
+                style={{
+                  background: this.props.options.reservation.motifs[
+                    -rdv.idObjet - 1
+                  ].couleur
+                }}
+                content={
+                  "Rendez-pris en ligne. Motif : " +
+                  this.props.options.reservation.motifs[-rdv.idObjet - 1].motif
+                }
+              />
+            ) : (
+              "Rendez-vous pris depuis cet agenda"
+            )}
           </Form>
         </Modal.Content>
         <Modal.Actions>

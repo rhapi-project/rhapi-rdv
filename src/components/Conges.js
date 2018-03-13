@@ -2,9 +2,6 @@ import React from "react";
 import { Button, Input, List, Label } from "semantic-ui-react";
 import _ from "lodash";
 
-import "react-dates/lib/css/_datepicker.css";
-import "react-dates/initialize";
-
 import PropTypes from "prop-types";
 
 import momentPropTypes from "react-moment-proptypes";
@@ -75,7 +72,8 @@ const defaultProps = {
   orientation: HORIZONTAL_ORIENTATION,
   anchorDirection: ANCHOR_LEFT,
   horizontalMargin: 0,
-  withPortal: false,
+  daySize: 70,
+  withPortal: true,
   withFullScreenPortal: false,
   initialVisibleMonth: null,
   numberOfMonths: 2,
@@ -140,6 +138,20 @@ class Periode extends React.Component {
     }
   }
 
+  componentDidUpdate() {
+    this.reactDateStyleHack();
+  }
+
+  reactDateStyleHack = () => {
+    // Style hack for react-date
+    setTimeout(() => {
+      _.forEach(
+        document.getElementsByClassName("CalendarMonth_caption"),
+        elt => (elt.style.paddingBottom = "47px")
+      );
+    }, 0);
+  };
+
   onDatesChange = ({ startDate, endDate }) => {
     // may be null on range error (endDate < startDate)
     if (_.isNull(startDate) || _.isNull(endDate)) {
@@ -179,6 +191,8 @@ class Periode extends React.Component {
         {...props}
         onDatesChange={this.onDatesChange}
         onFocusChange={this.onFocusChange}
+        onNextMonthClick={this.reactDateStyleHack}
+        onPrevMonthClick={this.reactDateStyleHack}
         focusedInput={focusedInput}
         startDate={startDate}
         endDate={endDate}
@@ -214,32 +228,32 @@ export default class Conges extends React.Component {
       end: start.add(7, "days").format("YYYY-MM-DD"),
       titre: ""
     });
-    this.setState({ plagesConges: plagesConges, saved: false });
-    this.props.onChange(plagesConges);
+    //this.setState({ plagesConges: plagesConges, saved: false });
+    this.props.onChange();
   };
 
   supprimer = index => {
     let plagesConges = this.state.plagesConges;
     plagesConges.splice(index, 1);
-    this.setState({ plagesConges: plagesConges });
-    this.props.onChange(plagesConges);
+    //this.setState({ plagesConges: plagesConges });
+    this.props.onChange();
   };
 
   onPeriodeChange = (index, start, end) => {
     let plagesConges = this.state.plagesConges;
     plagesConges[index].start = start;
     plagesConges[index].end = end;
-    let plagesConges2 = _.sortBy(plagesConges, ["start", "end"]);
-    let clearFocus = !_.isEqual(plagesConges, plagesConges2); // order change ? => clear picker focus
-    this.setState({ plagesConges: plagesConges2, clearFocus: clearFocus });
-    this.props.onChange(plagesConges);
+    //let plagesConges2 = _.sortBy(plagesConges, ["start", "end"]);
+    //let clearFocus = !_.isEqual(plagesConges, plagesConges2); // order change ? => clear picker focus
+    //this.setState({ plagesConges: plagesConges/*, clearFocus: clearFocus*/ });
+    this.props.onChange();
   };
 
   onTitreChange = (index, titre) => {
     let plagesConges = this.state.plagesConges;
     plagesConges[index].titre = titre;
-    this.setState({ plagesConges: plagesConges });
-    this.props.onChange(plagesConges);
+    //this.setState({ plagesConges: plagesConges });
+    this.props.onChange();
   };
 
   render() {
@@ -258,7 +272,9 @@ export default class Conges extends React.Component {
                     this.onPeriodeChange(i, start, end)
                   }
                 />
-                <Label>Intitulé : </Label>
+                <Label size="large" style={{ verticalAlign: "bottom" }}>
+                  Intitulé :{" "}
+                </Label>
                 <Input
                   type="text"
                   placeholder="Intitulé de la période"
@@ -266,6 +282,7 @@ export default class Conges extends React.Component {
                   onChange={(e, d) => this.onTitreChange(i, d.value)}
                 />
                 <Button
+                  style={{ verticalAlign: "bottom" }}
                   size="tiny"
                   icon="minus"
                   circular={true}

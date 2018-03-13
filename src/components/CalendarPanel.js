@@ -14,9 +14,6 @@ import { PatientSearch } from "./CalendarModalRdv";
 
 import CalendarModalRdv from "./CalendarModalRdv";
 
-import "react-dates/lib/css/_datepicker.css";
-import "react-dates/initialize";
-
 import { DayPickerSingleDateController } from "react-dates";
 
 export default class CalendarPanel extends React.Component {
@@ -42,6 +39,8 @@ export default class CalendarPanel extends React.Component {
   }
 
   componentDidMount() {
+    this.reactDateStyleHack();
+
     let dropZone = $("#external-droppable");
     dropZone.each((i, zone) => {
       droppable(
@@ -131,6 +130,16 @@ export default class CalendarPanel extends React.Component {
       );
     });
   }
+
+  reactDateStyleHack = () => {
+    // Style hack for react-date
+    setTimeout(() => {
+      _.forEach(
+        document.getElementsByClassName("CalendarMonth_caption"),
+        elt => (elt.style.paddingBottom = "47px")
+      );
+    }, 0);
+  };
 
   onDateChange = date => {
     this.setState({ currentDate: date });
@@ -302,6 +311,8 @@ export default class CalendarPanel extends React.Component {
           onDateChange={this.onDateChange}
           focused={false}
           date={this.state.currentDate}
+          onNextMonthClick={this.reactDateStyleHack}
+          onPrevMonthClick={this.reactDateStyleHack}
         />
         <Divider />
         <PatientSearch

@@ -120,7 +120,7 @@ export default class Configuration extends React.Component {
     this.setState({
       confirmationMessage: this.state.saved
         ? "Souhaitez-vous supprimer définitivement ce planning ?"
-        : "Souhaitez-vous supprimer définitivement ce planning sans sauvergarde préalable des modifications  ?",
+        : "Souhaitez-vous supprimer définitivement ce planning sans sauvegarde préalable des modifications  ?",
       confirmationAction: supprimerAction
     });
   };
@@ -141,7 +141,7 @@ export default class Configuration extends React.Component {
     if (!this.state.saved) {
       this.setState({
         confirmationMessage:
-          "Certaines modifications ne sont pas sauvegardées. Vous confirmez l'ajout d'un nouveau planning sans sauvergarde préalable des modifications ?",
+          "Certaines modifications ne sont pas sauvegardées. Vous confirmez l'ajout d'un nouveau planning sans sauvegarde préalable des modifications ?",
         confirmationAction: ajouterAction
       });
     } else {
@@ -167,7 +167,7 @@ export default class Configuration extends React.Component {
     if (!this.state.saved) {
       this.setState({
         confirmationMessage:
-          "Certaines modifications ne sont pas sauvegardées. Vous confirmez la duplication de ce planning sans sauvergarde préalable des modifications ?",
+          "Certaines modifications ne sont pas sauvegardées. Vous confirmez la duplication de ce planning sans sauvegarde préalable des modifications ?",
         confirmationAction: dupliquerAction
       });
     } else {
@@ -175,11 +175,11 @@ export default class Configuration extends React.Component {
     }
   };
 
-  onHorairesChange = horaires => {
+  onHorairesChange = () => {
     this.setState({ saved: false });
   };
 
-  onHorairesReservationChange = horaires => {
+  onHorairesReservationChange = () => {
     this.setState({ saved: false });
   };
 
@@ -323,7 +323,7 @@ export default class Configuration extends React.Component {
                       active={this.state.reservationActiveIndex === i}
                     >
                       <HorairesSemaine
-                        horaires={horaires}
+                        horaires={horaireReservation}
                         onHorairesChange={this.onHorairesReservationChange}
                       />
                     </Accordion.Content>
@@ -523,9 +523,7 @@ export default class Configuration extends React.Component {
 
                 <Conges
                   plagesConges={congesPrevus}
-                  onChange={conges => {
-                    // prise en compte directement depuis Conges
-                  }}
+                  onChange={() => this.setState({ saved: false })}
                 />
               </React.Fragment>
             ),

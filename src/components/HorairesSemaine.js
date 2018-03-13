@@ -23,7 +23,7 @@ class HorairesJour extends React.Component {
           active={this.props.indexHoraires === this.props.accordeonIndex}
         >
           <FromToList
-            horaires={this.props.horaires[this.props.accordeonIndex]}
+            horaires={this.props.horaires}
             onChange={this.props.onHorairesChange}
           />
         </Accordion.Content>
@@ -35,6 +35,10 @@ class HorairesJour extends React.Component {
 export default class HorairesSemaine extends React.Component {
   componentWillMount() {
     this.setState({ indexHoraires: -1 });
+  }
+
+  componentWillReceiveProps(next) {
+    this.setState({ horaires: next.horaires });
   }
 
   render() {
@@ -50,10 +54,10 @@ export default class HorairesSemaine extends React.Component {
     return (
       <React.Fragment>
         <Accordion.Accordion>
-          {_.map(this.props.horaires, (horaireJour, i) => {
+          {_.map(this.props.horaires, (horairesJour, i) => {
             return (
               <HorairesJour
-                horaires={this.props.horaires}
+                horaires={horairesJour}
                 onHorairesChange={this.props.onHorairesChange}
                 activeHandle={(e, d) =>
                   this.setState({

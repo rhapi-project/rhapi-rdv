@@ -8,9 +8,6 @@ import Calendar from "./Calendar";
 
 import CalendarPanel from "./CalendarPanel";
 
-import "react-dates/lib/css/_datepicker.css";
-import "react-dates/initialize";
-
 export default class Calendars extends React.Component {
   componentWillMount() {
     this.setState({ plannings: [], index: -1 });
@@ -39,7 +36,7 @@ export default class Calendars extends React.Component {
       <React.Fragment>
         <Grid divided="vertically">
           <Grid.Row columns={2}>
-            <Grid.Column width={3} style={{ maxWidth: 340 }}>
+            <Grid.Column width={3}>
               <Dropdown
                 value={this.state.index}
                 onChange={this.onPlanningChange}

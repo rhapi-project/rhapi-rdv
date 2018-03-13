@@ -3,8 +3,13 @@ import React from "react";
 import { render } from "react-dom";
 
 //CSS
+
+import "react-dates/lib/css/_datepicker.css";
+import "react-dates/initialize";
+
 import "./css/fullcalendar.css";
 import "semantic-ui-css/semantic.min.css";
+
 import "./css/index.css";
 
 // Semantic

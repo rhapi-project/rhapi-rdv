@@ -313,6 +313,7 @@ export default class Calendar extends React.Component {
           selectEnd={this.state.selectEnd}
           client={this.props.client}
           planning={this.props.planning}
+          options={this.props.options}
           denominationFormat={this.props.options.reservation.denominationFormat}
         />
       </React.Fragment>

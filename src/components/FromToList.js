@@ -1,5 +1,8 @@
 import React from "react";
-import { Button, List, Input, Label } from "semantic-ui-react";
+
+import { Button, List, Label } from "semantic-ui-react";
+
+import TimeField from "react-simple-timefield";
 
 import { maxWidth } from "./Settings";
 
@@ -14,68 +17,50 @@ class FromTo extends React.Component {
     this.setState({ hfrom: next.hfrom, hto: next.hto });
   }
 
-  convertHourToMinutes = stringToTest => {
-    const tableTime = stringToTest.split(/:/);
-    var heures = 1 * tableTime[0];
-    var minutes = 1 * tableTime[1];
-    var heureEnMinutes = 60 * heures;
-    return heureEnMinutes + minutes;
-  };
-
-  handleChange = (event, d) => {
+  handleChange = (value, name) => {
     let { hfrom, hto } = this.state;
 
-    if (d.name === "hfrom") {
-      hfrom = d.value;
-      if (this.convertHourToMinutes(hfrom) < this.convertHourToMinutes(hto)) {
-        this.setState({ hfrom: hfrom });
-        this.props.handleChange(this.props.index, hfrom, hto);
-      } else {
-        this.forceUpdate();
-      }
+    if (name === "hfrom") {
+      hfrom = value;
     }
 
-    if (d.name === "hto") {
-      hto = d.value;
-      if (this.convertHourToMinutes(hto) > this.convertHourToMinutes(hfrom)) {
-        this.setState({ hto: hto });
-        this.props.handleChange(this.props.index, hfrom, hto);
-      } else {
-        this.forceUpdate();
-      }
+    if (name === "hto") {
+      hto = value;
     }
+    this.props.handleChange(this.props.index, hfrom, hto);
   };
 
   render() {
     let { hfrom, hto } = this.state;
+
     return (
-      <React.Fragment>
-        <Label>De</Label>
-        <Input
-          size="tiny"
-          type="time"
-          style={{ maxWidth: maxWidth / 4 }}
-          name="hfrom"
-          value={hfrom}
-          onChange={this.handleChange}
+      <div>
+        <Label size="large" style={{ marginTop: 7 }} content="De" />
+        <TimeField
+          value={hfrom} // {String}   required, format '00:00' or '00:00:00'
+          onChange={value => this.handleChange(value, "hfrom")}
+          input={<input type="text" />}
+          //colon=":" // {String}   default: ":"
+          //showSeconds={false} // {Boolean}  default: false
+          style={{ minWidth: maxWidth / 5, maxWidth: maxWidth / 5 }}
         />
-        <Label>à</Label>
-        <Input
-          size="tiny"
-          type="time"
-          style={{ maxWidth: maxWidth / 4 }}
-          name="hto"
-          value={hto}
-          onChange={this.handleChange}
+        <Label size="large" style={{ marginTop: 7 }} content="à" />
+        <TimeField
+          value={hto} // {String}   required, format '00:00' or '00:00:00'
+          onChange={value => this.handleChange(value, "hto")}
+          //input={<input type="text" />}
+          //colon=":" // {String}   default: ":"
+          //showSeconds={false} // {Boolean}  default: false
+          style={{ minWidth: maxWidth / 5, maxWidth: maxWidth / 5 }}
         />
         <Button
+          style={{ marginTop: 7 }}
           size="tiny"
           icon="minus"
           circular={true}
           onClick={() => this.props.supprimer(this.props.index)}
         />
-        <br />
-      </React.Fragment>
+      </div>
     );
   }
 }
@@ -92,42 +77,25 @@ export default class FromToList extends React.Component {
   ajouter = () => {
     let horaires = this.state.horaires;
     let start = horaires.length ? horaires[horaires.length - 1].end : "08:00";
-    let table = start.split(/:/);
-    //Ajoute +1h au start et +2 au end, si c'est supérieur à 23 on recommence a 00, et si c'est inférieur à 10 on concatene un 0
-    start = [
-      1 + Number(table[0]) > 23
-        ? "00"
-        : 1 + Number(table[0]) < 10
-          ? "0" + (1 + Number(table[0]))
-          : 1 + Number(table[0]),
-      table[1]
-    ];
-    let end = [
-      2 + Number(table[0]) > 23
-        ? "00"
-        : 2 + Number(table[0]) < 10
-          ? "0" + (2 + Number(table[0]))
-          : 2 + Number(table[0]),
-      table[1]
-    ];
-    horaires.push({ start: start.join(":"), end: end.join(":") });
-    this.setState({ horaires: horaires });
-    this.props.onChange(horaires);
+    horaires.push({ start: start, end: start });
+    //this.setState({ horaires: horaires });
+    this.props.onChange();
   };
 
   supprimer = index => {
     let horaires = this.state.horaires;
     horaires.splice(index, 1);
-    this.setState({ horaires: horaires });
-    this.props.onChange(horaires);
+    //this.setState({ horaires: horaires });
+    this.props.onChange();
   };
 
   handleChange = (index, hfrom, hto) => {
     let horaires = this.state.horaires;
     horaires[index] = { start: hfrom, end: hto };
-    horaires = _.sortBy(horaires, "start");
-    this.setState({ horaires: horaires });
-    this.props.onChange(horaires);
+    //let horaires2 = _.sortBy(horaires, "start");
+    //_.forEach(horaires2, (horaire, i) => horaires[i] = horaire);
+    //this.setState({ horaires: horaires });
+    this.props.onChange();
   };
 
   render() {
