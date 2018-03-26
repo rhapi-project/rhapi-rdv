@@ -39,6 +39,7 @@ const defaultPlanning = {
   optionsJO: {
     plages: {
       duree: 30,
+      dureeMin: 15,
       horaires: [
         [],
         [
@@ -93,6 +94,7 @@ const defaultPlanning = {
     reservation: {
       autorisationMin: 0,
       autorisationMax: 1,
+      autorisationMinAgenda: 1,
       congesCouleur: "#D0021B",
       congesVisibles: true,
       congesFeries: true,

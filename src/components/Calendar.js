@@ -64,6 +64,7 @@ export default class Calendar extends React.Component {
     let defaultColor = this.props.couleur;
 
     let duree = 30;
+    let dureeMin = 15;
     const plages = options.plages;
     if (
       !_.isUndefined(plages) &&
@@ -71,6 +72,8 @@ export default class Calendar extends React.Component {
       plages.horaires.length === 7
     ) {
       duree = _.isNumber(plages.duree) ? plages.duree : 30;
+
+      dureeMin = _.isNumber(plages.dureeMin) ? plages.dureeMin : 15;
 
       let minT = "23:59";
       let maxT = "00:00";
@@ -100,9 +103,19 @@ export default class Calendar extends React.Component {
     }
 
     let duration = { minutes: duree };
+    let slotDuration = { minutes: dureeMin };
+
+    let calendarSlotHeight = localStorage.getItem(
+      "calendarSlotHeight_" + planningId
+    );
+    calendarSlotHeight = _.isNull(calendarSlotHeight)
+      ? "20px"
+      : calendarSlotHeight + "px";
+
     let that = this; // that react component
 
     $("#calendar").fullCalendar("destroy");
+
     $("#calendar").fullCalendar({
       locale: "fr",
       slotLabelFormat: "H:mm",
@@ -113,12 +126,23 @@ export default class Calendar extends React.Component {
       selectable: true,
       hiddenDays: hiddenDays,
       businessHours: businessHours,
-      slotDuration: duration,
-      /*slotLabelInterval: "01:00",*/
+      slotDuration: slotDuration,
+      slotLabelInterval: "01:00",
       defaultDuration: duration,
       defaultTimedEventDuration: duration,
       minTime: minTime,
       maxTime: maxTime,
+      //
+      // defaults colors
+      eventColor: defaultColor,
+      //eventBackgroundColor
+      //eventBorderColor :"",
+      //eventTextColor: "",
+      //
+      // dimensions
+      //aspectRatio:,
+      height: "auto",
+      //contentHeight: "auto",
       header: {
         left: "prev,next today",
         center: "title",
@@ -136,6 +160,10 @@ export default class Calendar extends React.Component {
           columnHeaderFormat: " ",
           titleFormat: "dddd D MMMM YYYY"
         }
+      },
+
+      dayRender: function(date, cell) {
+        $("td.fc-widget-content").css("height", calendarSlotHeight);
       },
 
       events: function(start, end, timezone, callback) {
@@ -199,9 +227,18 @@ export default class Calendar extends React.Component {
 
             for (let i = 0; i < datas.results.length; i++) {
               var result = datas.results[i];
+
+              let motifIndex = -1;
+              if (result.planningJO.motif) {
+                motifIndex = Math.abs(result.planningJO.motif) - 1;
+              }
+
               let couleur = _.isEmpty(result.couleur)
-                ? defaultColor
+                ? motifIndex >= 0
+                  ? options.reservation.motifs[motifIndex].couleur
+                  : defaultColor
                 : result.couleur;
+
               var event = {
                 id: result.id,
                 title: result.titre,
@@ -254,28 +291,92 @@ export default class Calendar extends React.Component {
         );
       },
 
+      // drop from external
       dropAccept: ".fc-event",
       eventReceive: function(event) {
-        let end = moment(event.start);
-        end.add(30, "minutes");
+        let start = event.start;
+        let end = moment(start);
+        let start0 = moment(event.data.startAt);
+        let end0 = moment(event.data.endAt);
+        if (!start0.isValid() || !end0.isValid()) {
+          end.add(duration, "minutes");
+        } else {
+          // rétablit la durée initiale
+          let laps = end0.diff(start0, "minutes");
+          if (laps < 0) {
+            laps = duration;
+          }
+          end.add(laps, "minutes");
+        }
         var params = {
-          startAt: event.start.toISOString(),
+          startAt: start.toISOString(),
           endAt: end.toISOString()
         };
+
         client.RendezVous.update(
           event.data.id,
           params,
-          (d, r) => {
-            $("#calendar").fullCalendar("removeEvents", [event._id]);
-            $("#calendar").fullCalendar("refetchEvents");
-            that.props.externalRefetch(that.props.planning);
+          () => {
+            client.RendezVous.listeAction(
+              event.data.id,
+              {
+                action: "remove",
+                planning: planningId,
+                liste: 1
+              },
+              () => {
+                that.props.externalRefetch(planningId);
+                $("#calendar").fullCalendar("removeEvents", [event._id]);
+                $("#calendar").fullCalendar("refetchEvents");
+              },
+              () => {}
+            );
           },
-          (e, r) => {}
+          () => {}
         );
       },
 
+      // drag to external
+      // https://codepen.io/subodhghulaxe/pen/qEXLLr
+      dragRevertDuration: 0,
+      eventDragStop: function(event, jsEvent, ui, view) {
+        if (_.isUndefined(jsEvent)) {
+          return;
+        }
+        let externalEvents = $("#external-events");
+        let offset = externalEvents.offset();
+        let x = jsEvent.clientX;
+        let y = jsEvent.clientY;
+        offset.right = externalEvents.width() + offset.left;
+        offset.bottom = externalEvents.height() + offset.top;
+        if (
+          !(
+            x >= offset.left &&
+            y >= offset.top - 100 &&
+            x <= offset.right &&
+            y <= offset.bottom + 100
+          )
+        ) {
+          // out the external div
+          return;
+        }
+
+        client.RendezVous.listeAction(
+          event.id,
+          {
+            action: "push",
+            planning: planningId,
+            liste: 1
+          },
+          () => {
+            that.props.externalRefetch(planningId);
+            $("#calendar").fullCalendar("removeEvents", event._id);
+          }
+        );
+      },
+
+      // sélection d'une zone
       select: function(start, end) {
-        // sélection d'une zone
         that.setState({
           modalRdvIsOpen: true,
           eventToEdit: {},
@@ -299,7 +400,10 @@ export default class Calendar extends React.Component {
         );
       }
     });
-  }
+
+    // ajustement CSS fullcalendar
+    $(".fc-button").css("background", "white");
+  } // componentDidUpdate ends here
 
   render() {
     return (

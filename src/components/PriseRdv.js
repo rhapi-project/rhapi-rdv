@@ -221,7 +221,7 @@ export default class PriseRdv extends React.Component {
               ""
             )}
           </React.Fragment>
-        ) : (
+        ) : this.state.currentMotifId ? (
           <HorairesDisponibles
             patient={this.state.patient}
             planningId={this.state.currentPlanningId}
@@ -229,6 +229,8 @@ export default class PriseRdv extends React.Component {
             validation={this.createRdv}
             client={this.props.client}
           />
+        ) : (
+          ""
         )}
         <Button
           onClick={() => window.location.reload()}

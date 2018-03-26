@@ -12,14 +12,15 @@ import {
   Search,
   Segment,
   Form,
-  Label
+  Label,
+  Dropdown
 } from "semantic-ui-react";
 
 import TimeField from "react-simple-timefield";
 
 import moment from "moment";
 
-import { maxWidth, hsize, fsize } from "./Settings";
+import { maxWidth /*, hsize, fsize*/ } from "./Settings";
 
 export class PatientSearch extends React.Component {
   componentWillMount() {
@@ -189,6 +190,7 @@ export default class CalendarModalRdv extends React.Component {
 
     let rdv = {};
     if (isNewOne) {
+      rdv = { planningJO: { id: this.props.planning } };
       if (next.isExternal) {
         rdv.startAt = event.startAt;
         rdv.endAt = event.endAt;
@@ -204,7 +206,7 @@ export default class CalendarModalRdv extends React.Component {
       // (re)lire le rdv depuis le client
       this.props.client.RendezVous.read(
         event.id,
-        {},
+        { planning: this.props.planning },
         rdv => {
           this.setState({ rdv: rdv });
         },
@@ -220,41 +222,79 @@ export default class CalendarModalRdv extends React.Component {
   };
 
   handleOk = () => {
+    let pushToExternal = id => {
+      this.props.client.RendezVous.listeAction(
+        id,
+        {
+          action: "push",
+          planning: this.props.planning,
+          liste: 1
+        },
+        () => this.close()
+      );
+    };
+
+    let rdv = this.state.rdv;
+
+    /*
+    let motifId = rdv.planningJO.motif;
+    
+    if (motifId < 0) {
+        rdv.couleur = this.props.options.reservation.motifs[
+                   -motifId - 1
+                  ].couleur
+    }
+    */
+
     if (this.state.isNewOne) {
       this.props.client.RendezVous.create(
-        this.state.rdv,
-        () => {
-          this.close();
+        rdv,
+        result => {
+          if (this.props.isExternal) {
+            pushToExternal(result.id);
+          } else {
+            this.close();
+          }
         },
-        () => {
-          //console.log("erreur")
-          this.close();
-        }
+        () => this.close()
       );
     } else {
       this.props.client.RendezVous.update(
-        this.state.rdv.id,
-        this.state.rdv,
-        () => {
-          this.close();
-        },
-        () => {
-          //console.log("erreur")
-          this.close();
-        }
+        rdv.id,
+        rdv,
+        () => this.close(),
+        () => this.close()
       );
     }
   };
 
   handleRemove = () => {
-    if (!this.state.isNewOne) {
+    if (this.state.isNewOne) {
+      this.close();
+      return;
+    }
+
+    let destroy = () => {
       this.props.client.RendezVous.destroy(
         this.props.event.id,
         () => this.close(),
         () => this.close()
       );
+    };
+
+    if (this.props.isExternal) {
+      this.props.client.RendezVous.listeAction(
+        this.props.event.id,
+        {
+          action: "remove",
+          planning: this.props.planning,
+          liste: 1
+        },
+        () => destroy(),
+        () => destroy()
+      );
     } else {
-      this.close();
+      destroy();
     }
   };
 
@@ -262,7 +302,6 @@ export default class CalendarModalRdv extends React.Component {
     let rdv = this.state.rdv;
     rdv.idPatient = id;
     rdv.titre = title;
-    rdv.idPlanningsJA = [this.props.planning];
     this.setState({ rdv: rdv });
   };
 
@@ -273,13 +312,29 @@ export default class CalendarModalRdv extends React.Component {
 
     let rdv = this.state.rdv;
 
+    if (_.isUndefined(rdv.planningJO)) {
+      return "";
+    }
+
+    let motifId = rdv.planningJO.motif;
+    let motifs = this.props.options.reservation.motifs;
+
+    let autorisationMinAgenda = this.props.options.reservation
+      .autorisationMinAgenda;
+
+    let couleur = "";
+    if (motifId) {
+      couleur = motifs[Math.abs(motifId) - 1].couleur;
+    }
+
     if (!this.props.isExternal && _.isUndefined(rdv.startAt)) {
       return "";
     }
 
     return (
-      <Modal size="large" open={this.props.open}>
+      <Modal size="small" open={this.props.open}>
         <Segment clearing={true}>
+          <Label circular={true} style={{ background: couleur }} />
           <Header size="large" floated="left">
             {this.state.isNewOne ? (
               <PatientSearch
@@ -298,37 +353,54 @@ export default class CalendarModalRdv extends React.Component {
           </Header>
         </Segment>
         <Modal.Content image={true}>
-          <Image wrapped={true} size="medium" src="images/patient.png" />
+          <Image wrapped={true} size="small" src="images/patient.png" />
           <Form>
             {this.props.isExternal ? (
               ""
             ) : (
-              <FromTo
-                hfrom={rdv.startAt.split("T")[1]}
-                hto={rdv.endAt.split("T")[1]}
-                handleChange={(hfrom, hto) => {
-                  rdv.startAt = rdv.startAt.split("T")[0] + "T" + hfrom;
-                  rdv.endAt = rdv.endAt.split("T")[0] + "T" + hto;
-                  this.setState({ rdv: rdv });
-                }}
-              />
+              <Form.Input label="Horaire">
+                <FromTo
+                  hfrom={rdv.startAt.split("T")[1]}
+                  hto={rdv.endAt.split("T")[1]}
+                  handleChange={(hfrom, hto) => {
+                    rdv.startAt = rdv.startAt.split("T")[0] + "T" + hfrom;
+                    rdv.endAt = rdv.endAt.split("T")[0] + "T" + hto;
+                    this.setState({ rdv: rdv });
+                  }}
+                />
+              </Form.Input>
             )}
-            {// TODO corriger la doc idObjet correspond à un motif commun à tous les plannings partagé par ce RDV ??
-            rdv.idObjet < 0 ? (
-              <Label
-                //circular={true}
-                style={{
-                  background: this.props.options.reservation.motifs[
-                    -rdv.idObjet - 1
-                  ].couleur
-                }}
-                content={
-                  "Rendez-pris en ligne. Motif : " +
-                  this.props.options.reservation.motifs[-rdv.idObjet - 1].motif
-                }
-              />
+            {motifId < 0 ? (
+              <Form.Input label="Motif du RDV pris en ligne">
+                <p>{motifs[-motifId - 1].motif}</p>
+              </Form.Input>
             ) : (
-              "Rendez-vous pris depuis cet agenda"
+              <Form.Input label="Motif du RDV">
+                <Dropdown
+                  style={{ minWidth: maxWidth, maxWidth: maxWidth }}
+                  //fluid={true}
+                  selection={true}
+                  options={_.filter(
+                    _.map(motifs, (motif, i) => {
+                      return {
+                        text: motif.motif,
+                        value: i,
+                        motif: motif
+                      };
+                    }),
+                    (item, i) => {
+                      return (
+                        item.motif.autorisationMin >= autorisationMinAgenda
+                      );
+                    }
+                  )}
+                  value={rdv.planningJO.motif - 1}
+                  onChange={(e, d) => {
+                    rdv.planningJO.motif = d.value + 1;
+                    this.setState({ rdv: rdv });
+                  }}
+                />
+              </Form.Input>
             )}
           </Form>
         </Modal.Content>

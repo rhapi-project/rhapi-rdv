@@ -76,6 +76,11 @@ export default class Configuration extends React.Component {
   };
 
   save = () => {
+    if (this.saveProcessing) {
+      return;
+    }
+    this.saveProcessing = true;
+    let last = this.state.plannings.length - 1;
     _.forEach(this.state.plannings, (planning, i) => {
       this.props.client.Plannings.update(
         planning.id,
@@ -83,8 +88,14 @@ export default class Configuration extends React.Component {
         result => {
           planning.lockRevision++;
           this.setState({ saved: true });
+          if (i === last) {
+            this.saveProcessing = false;
+          }
         },
         datas => {
+          if (i === last) {
+            this.saveProcessing = false;
+          }
           console.log("erreur sur save() :");
           console.log(datas);
           if (datas.networkError === 409) {
@@ -196,17 +207,32 @@ export default class Configuration extends React.Component {
 
       const Plages = (
         <React.Fragment>
-          <Form.Input
-            label="Durée par défaut d'un RDV (en mn)"
-            style={{ maxWidth: maxWidth / 5 }}
-            placeholder="Durée par défaut"
-            value={options.plages.duree}
-            type="number"
-            onChange={(e, d) => {
-              plannings[index].optionsJO.plages.duree = _.toNumber(d.value);
-              this.setState({ plannings: plannings, saved: false });
-            }}
-          />
+          <Form.Group>
+            <Form.Input
+              label="Durée par défaut d'un RDV (en mn)"
+              style={{ maxWidth: maxWidth / 5 }}
+              placeholder="Durée par défaut"
+              value={options.plages.duree}
+              type="number"
+              onChange={(e, d) => {
+                plannings[index].optionsJO.plages.duree = _.toNumber(d.value);
+                this.setState({ /*plannings: plannings,*/ saved: false });
+              }}
+            />
+            <Form.Input
+              label="Durée minimale d'un RDV (plus petit créneau visible sur l'agenda en mn)"
+              style={{ maxWidth: maxWidth / 5 }}
+              placeholder="Durée minimale"
+              value={options.plages.dureeMin}
+              type="number"
+              onChange={(e, d) => {
+                plannings[index].optionsJO.plages.dureeMin = _.toNumber(
+                  d.value
+                );
+                this.setState({ /*plannings: plannings,*/ saved: false });
+              }}
+            />
+          </Form.Group>
           <HorairesSemaine
             horaires={horaires}
             onHorairesChange={this.onHorairesChange}
@@ -218,7 +244,7 @@ export default class Configuration extends React.Component {
         <React.Fragment>
           <Form.Group>
             <Form.Input
-              label="Niveau minimum d'autorisation requis pour la prise de rendez-vous en ligne"
+              label="Niveau minimum d'autorisation requis pour la prise de RDV en ligne"
               style={{ maxWidth: maxWidth / 5 }}
             >
               <Dropdown
@@ -247,7 +273,7 @@ export default class Configuration extends React.Component {
                     value: 3
                   },
                   {
-                    text: "RDV en ligne désactivés",
+                    text: "RDV en ligne désactivés (4)",
                     value: 4
                   }
                 ]}
@@ -255,12 +281,12 @@ export default class Configuration extends React.Component {
                 onChange={(e, d) => {
                   options.reservation.autorisationMin = d.value;
                   plannings[index].optionsJO = options;
-                  this.setState({ saved: false, plannings: plannings });
+                  this.setState({ saved: false /*, plannings: plannings*/ });
                 }}
               />
             </Form.Input>
             <Form.Input
-              label="Niveau maximum accepté"
+              label="Niveau maximum accepté pour un RDV en ligne"
               style={{ maxWidth: maxWidth / 5 }}
             >
               <Dropdown
@@ -294,12 +320,51 @@ export default class Configuration extends React.Component {
                 onChange={(e, d) => {
                   options.reservation.autorisationMax = d.value;
                   plannings[index].optionsJO = options;
-                  this.setState({ saved: false, plannings: plannings });
+                  this.setState({ saved: false /*, plannings: plannings*/ });
                 }}
               />
             </Form.Input>
           </Form.Group>
-          <Form.Input label="Plages horaires ouvertes">
+          <Form.Group>
+            <Form.Input
+              label="Niveau d'autorisation minimum des motifs proposés pour la prise de RDV depuis l'agenda"
+              style={{ maxWidth: maxWidth / 5 }}
+            >
+              <Dropdown
+                fluid={false}
+                selection={true}
+                options={[
+                  {
+                    text: "Niveau d'autorisation 0",
+                    value: 0
+                  },
+                  {
+                    text: "Niveau d'autorisation 1",
+                    value: 1
+                  },
+                  {
+                    text: "Niveau d'autorisation 2",
+                    value: 2
+                  },
+                  {
+                    text: "Niveau d'autorisation 3",
+                    value: 3
+                  },
+                  {
+                    text: "Niveau d'autorisation 4",
+                    value: 4
+                  }
+                ]}
+                value={options.reservation.autorisationMinAgenda}
+                onChange={(e, d) => {
+                  options.reservation.autorisationMinAgenda = d.value;
+                  plannings[index].optionsJO = options;
+                  this.setState({ saved: false /*, plannings: plannings*/ });
+                }}
+              />
+            </Form.Input>
+          </Form.Group>
+          <Form.Input label="Plages horaires ouvertes par niveau d'autorisation">
             <Accordion.Accordion>
               {_.map(horairesReservation, (horaireReservation, i) => {
                 return (
@@ -353,89 +418,92 @@ export default class Configuration extends React.Component {
             </Table.Header>
             <Table.Body>
               {_.map(options.reservation.motifs, (motif, i) => {
-                return (
-                  <Table.Row key={i}>
-                    <Table.Cell>
-                      <Form.Input
-                        type="text"
-                        value={motif.motif}
-                        onChange={(e, d) => {
-                          options.reservation.motifs[i].motif = d.value;
-                          this.setState({ saved: false });
-                        }}
-                      />
-                    </Table.Cell>
-                    <Table.Cell>
-                      <Dropdown
-                        fluid={true}
-                        selection={true}
-                        options={[
-                          {
-                            text: "Niveau d'autorisation 0",
-                            value: 0
-                          },
-                          {
-                            text: "Niveau d'autorisation 1",
-                            value: 1
-                          },
-                          {
-                            text: "Niveau d'autorisation 2",
-                            value: 2
-                          },
-                          {
-                            text: "Niveau d'autorisation 3",
-                            value: 3
-                          },
-                          {
-                            text: "RDV en ligne désactivés",
-                            value: 4
-                          }
-                        ]}
-                        value={motif.autorisationMin}
-                        onChange={(e, d) => {
-                          options.reservation.motifs[i].autorisationMin =
-                            d.value;
-                          this.setState({ saved: false });
-                        }}
-                      />
-                    </Table.Cell>
-                    <Table.Cell>
-                      <Form.Input
-                        style={{ maxWidth: maxWidth / 5 }}
-                        type="number"
-                        value={motif.duree}
-                        onChange={(e, d) => {
-                          options.reservation.motifs[i].duree = _.toNumber(
-                            d.value
-                          );
-                          this.setState({ saved: false });
-                        }}
-                      />
-                    </Table.Cell>
-                    <Table.Cell>
-                      <Form.Input>
-                        <ColorPicker
-                          color={motif.couleur}
-                          onChange={color => {
-                            options.reservation.motifs[i].couleur = color;
+                if (!_.isEmpty(motif) && !motif.hidden)
+                  return (
+                    <Table.Row key={i}>
+                      <Table.Cell>
+                        <Form.Input
+                          type="text"
+                          value={motif.motif}
+                          onChange={(e, d) => {
+                            options.reservation.motifs[i].motif = d.value;
                             this.setState({ saved: false });
                           }}
                         />
-                      </Form.Input>
-                    </Table.Cell>
-                    <Table.Cell>
-                      <Button
-                        size="tiny"
-                        icon="minus"
-                        circular={true}
-                        onClick={() => {
-                          options.reservation.motifs.splice(i, 1);
-                          this.setState({ saved: false });
-                        }}
-                      />
-                    </Table.Cell>
-                  </Table.Row>
-                );
+                      </Table.Cell>
+                      <Table.Cell>
+                        <Dropdown
+                          fluid={true}
+                          selection={true}
+                          options={[
+                            {
+                              text: "Niveau d'autorisation 0",
+                              value: 0
+                            },
+                            {
+                              text: "Niveau d'autorisation 1",
+                              value: 1
+                            },
+                            {
+                              text: "Niveau d'autorisation 2",
+                              value: 2
+                            },
+                            {
+                              text: "Niveau d'autorisation 3",
+                              value: 3
+                            },
+                            {
+                              text: "RDV en ligne désactivés (4)",
+                              value: 4
+                            }
+                          ]}
+                          value={motif.autorisationMin}
+                          onChange={(e, d) => {
+                            options.reservation.motifs[i].autorisationMin =
+                              d.value;
+                            this.setState({ saved: false });
+                          }}
+                        />
+                      </Table.Cell>
+                      <Table.Cell>
+                        <Form.Input
+                          style={{ maxWidth: maxWidth / 5 }}
+                          type="number"
+                          value={motif.duree}
+                          onChange={(e, d) => {
+                            options.reservation.motifs[i].duree = _.toNumber(
+                              d.value
+                            );
+                            this.setState({ saved: false });
+                          }}
+                        />
+                      </Table.Cell>
+                      <Table.Cell>
+                        <Form.Input>
+                          <ColorPicker
+                            color={motif.couleur}
+                            onChange={color => {
+                              options.reservation.motifs[i].couleur = color;
+                              this.setState({ saved: false });
+                            }}
+                          />
+                        </Form.Input>
+                      </Table.Cell>
+                      <Table.Cell>
+                        <Button
+                          size="tiny"
+                          icon="minus"
+                          circular={true}
+                          onClick={() => {
+                            // never remove : hide only
+                            // options.reservation.motifs.splice(i, 1);
+                            options.reservation.motifs[i].hidden = true;
+                            this.setState({ saved: false });
+                          }}
+                        />
+                      </Table.Cell>
+                    </Table.Row>
+                  );
               })}
             </Table.Body>
           </Table>
@@ -471,7 +539,7 @@ export default class Configuration extends React.Component {
                     onChange={(e, d) => {
                       options.reservation.congesFeries = d.checked;
                       plannings[index].optionsJO = options;
-                      this.setState({ plannings: plannings });
+                      this.setState({ /*plannings: plannings*/ saved: false });
                     }}
                   />
                 </Form.Input>
@@ -485,7 +553,9 @@ export default class Configuration extends React.Component {
                       onChange={(e, d) => {
                         options.reservation.congesVisibles = d.checked;
                         plannings[index].optionsJO = options;
-                        this.setState({ plannings: plannings });
+                        this.setState({
+                          /*plannings: plannings*/ saved: false
+                        });
                       }}
                     />
                   </Form.Input>
@@ -495,7 +565,9 @@ export default class Configuration extends React.Component {
                       onChange={color => {
                         options.reservation.congesCouleur = color;
                         plannings[index].optionsJO = options;
-                        this.setState({ plannings: plannings });
+                        this.setState({
+                          /*plannings: plannings*/ saved: false
+                        });
                       }}
                     />
                   </Form.Input>
@@ -531,7 +603,7 @@ export default class Configuration extends React.Component {
           }
         },
         {
-          title: "Prise de rendez-vous en ligne",
+          title: "Niveaux d'autorisation",
           content: { content: HorairesReserves, key: "1" }
         },
         {
@@ -553,7 +625,7 @@ export default class Configuration extends React.Component {
                 plannings[index].optionsJO.reservation.delaiMax = _.toNumber(
                   d.value
                 );
-                this.setState({ plannings: plannings, saved: false });
+                this.setState({ /*plannings: plannings,*/ saved: false });
               }}
             />
             <Form.Input
@@ -566,7 +638,7 @@ export default class Configuration extends React.Component {
                 plannings[
                   index
                 ].optionsJO.reservation.delaiPrevenance = _.toNumber(d.value);
-                this.setState({ plannings: plannings, saved: false });
+                this.setState({ /*plannings: plannings,*/ saved: false });
               }}
             />
           </Form.Group>
@@ -608,7 +680,7 @@ export default class Configuration extends React.Component {
                 onChange={(e, d) => {
                   plannings[index].optionsJO.reservation.denominationFormat =
                     d.value;
-                  this.setState({ saved: false, plannings: plannings });
+                  this.setState({ saved: false /*, plannings: plannings */ });
                 }}
               />
             </Form.Input>
@@ -619,7 +691,7 @@ export default class Configuration extends React.Component {
               onChange={(e, d) => {
                 plannings[index].optionsJO.reservation.denominationDefaut =
                   d.value;
-                this.setState({ saved: false, plannings: plannings });
+                this.setState({ saved: false /*, plannings: plannings*/ });
               }}
             />
           </Form.Group>
@@ -649,7 +721,7 @@ export default class Configuration extends React.Component {
                 value={planning.titre}
                 onChange={(e, d) => {
                   plannings[index].titre = d.value;
-                  this.setState({ plannings: plannings, saved: false });
+                  this.setState({ /* plannings: plannings, */ saved: false });
                 }}
               />
               <Form.Input
@@ -658,7 +730,7 @@ export default class Configuration extends React.Component {
                 value={planning.description}
                 onChange={(e, d) => {
                   plannings[index].description = d.value;
-                  this.setState({ plannings: plannings, saved: false });
+                  this.setState({ /*plannings: plannings,*/ saved: false });
                 }}
               />
               <Form.Input label="Couleur">
@@ -666,7 +738,7 @@ export default class Configuration extends React.Component {
                   color={planning.couleur}
                   onChange={color => {
                     plannings[index].couleur = color;
-                    this.setState({ plannings: plannings, saved: false });
+                    this.setState({ /*plannings: plannings,*/ saved: false });
                   }}
                 />
               </Form.Input>

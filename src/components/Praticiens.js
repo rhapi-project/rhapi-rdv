@@ -21,7 +21,8 @@ import Configuration from "./Configuration";
 import Calendars from "./Calendars";
 
 var client = new Client(
-  //"http://localhost", // local dev
+  // local dev no auth (décommenter la ligne suivante)
+  //"http://localhost",
   (datas, response) => {
     if (datas.networkError === 401) {
       // eq response.statusCode === 401
@@ -73,8 +74,9 @@ export default class Praticiens extends React.Component {
   };
 
   accept = () => {
-    // local dev no auth
+    // local dev no auth (décommenter les 2 lignes suivantes)
     //this.setState({ validation: "success", errorMessage: "" });
+    // return;
 
     client.authorize(
       "https://auth-dev.rhapi.net", // auth url

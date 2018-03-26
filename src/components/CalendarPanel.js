@@ -60,30 +60,29 @@ export default class CalendarPanel extends React.Component {
             if (moveTo < 0) {
               moveTo = 0;
             }
-            let end = moment(this.state.externalEventsDatas[moveTo].endAt);
+
+            let moveAction = "";
             if (atTop) {
-              end.add(1, "days");
+              moveTo = 0;
+              moveAction = "moveBefore";
             } else {
               if (moveTo === this.state.externalEventsDatas.length - 1) {
-                end.subtract(1, "days");
+                moveAction = "moveAfter";
               } else if (this.state.externalEventsDatas.length > 1) {
                 // entre moveTo et moveTo + 1
-                let ms =
-                  end.diff(this.state.externalEventsDatas[moveTo + 1].endAt) /
-                  2;
-                if (ms > 0) {
-                  end.subtract(ms, "milliseconds");
-                } else {
-                  end.add(-ms, "milliseconds");
-                }
+                moveAction = "moveAfter";
+              } else {
+                moveAction = "moveBefore";
               }
             }
 
-            this.props.client.RendezVous.update(
+            this.props.client.RendezVous.listeAction(
               data.id,
               {
+                action: moveAction,
+                to: moveTo,
                 planning: this.props.planning,
-                endAt: end.toISOString()
+                liste: 1
               },
               () => {
                 this.reloadExternalEvents(this.props.planning);
@@ -113,11 +112,28 @@ export default class CalendarPanel extends React.Component {
 
   componentDidUpdate() {
     $("#external-events .fc-event").each((i, event) => {
-      $(event).data("event", {
-        title: $.trim($(event).text()),
+      let datas = this.state.externalEventsDatas[i];
+      let jEvent = $(event);
+
+      jEvent.data("event", {
+        title: $.trim(jEvent.text()),
         stick: true,
-        data: this.state.externalEventsDatas[i]
+        data: datas
       });
+
+      let motifIndex = -1;
+      if (datas.planningJO.motif) {
+        motifIndex = Math.abs(datas.planningJO.motif) - 1;
+      }
+
+      let couleur = _.isEmpty(datas.couleur)
+        ? motifIndex >= 0
+          ? this.props.options.reservation.motifs[motifIndex].couleur
+          : this.props.couleur
+        : datas.couleur;
+
+      jEvent.css("background", couleur);
+
       // jQuery UI : ui-widget(options, element);
       // make the event draggable using jQuery UI
       draggable(
@@ -165,14 +181,21 @@ export default class CalendarPanel extends React.Component {
           q1: "startAt,GreaterThan,1980-01-01",
           limit: "1000",
           sort: "startAt",
-          fields: "startAt,idPlanningsJA"
+          fields: "startAt,planningsJA"
         },
         datas => {
           let today = new Date().toISOString().split("T")[0];
           let liste = [];
           let index = forceReload ? this.state.currentPatient.rdv.index : -1;
           _.forEach(datas.results, (rdv, i) => {
-            if (_.indexOf(rdv.idPlanningsJA, this.props.planning) === -1) {
+            // uniquement les rdv du planning courant qui ne sont pas sur une liste d'attente
+            if (
+              !_.some(rdv.planningsJA, {
+                id: this.props.planning,
+                liste1: 0,
+                liste2: 0
+              })
+            ) {
               return;
             }
 
@@ -215,13 +238,12 @@ export default class CalendarPanel extends React.Component {
     }
 
     var params = {
-      from: "1970-01-01",
-      to: "1970-01-02",
+      liste: 1,
       md5: this.rhapiMd5,
       planning: planning
     };
 
-    this.props.client.RendezVous.actualiser(
+    this.props.client.RendezVous.liste(
       params,
       (datas, response) => {
         this.rhapiMd5 = datas.informations.md5;
@@ -237,44 +259,37 @@ export default class CalendarPanel extends React.Component {
     _.forEach(this.state.externalEventsDatas, (external, i) => {
       this.props.client.RendezVous.destroy(external.id, () => {});
       if (i === this.state.externalEventsDatas.length - 1) {
+        // clean the list (remove all... if any)
+        this.props.client.RendezVous.listeAction(
+          0,
+          {
+            action: "remove",
+            planning: this.props.planning,
+            liste: 1
+          },
+          () => {},
+          () => {}
+        );
         this.setState({ externalEventsDatas: [] });
       }
     });
   };
 
   addExternal = () => {
-    // epoch 	date, timestamp 1970-01-01T00:00:00 (Unix system time zero)
-    // les rendez-vous en attente ont un startAt à 1970-01-01
-    // l'ordre est défini par endAt :
-    // 1970-01-01T00:00:00 => premier push
-    // 1970-01-02T00:00:00 => 2eme push
-    // d&d : on place endAt entre 2 endAt
-    // actualiser : ORDER BY start_at ASC, end_at DESC
-    let { client, planning } = this.props;
-    let externals = this.state.externalEventsDatas;
-    let end =
-      externals.length === 0
-        ? "1970-01-01T00:00:00"
-        : moment(externals[externals.length - 1].endAt)
-            .subtract(1, "days")
-            .toISOString();
+    let client = this.props.client;
+    let planning = this.props.planning;
 
     if (!this.state.currentPatient.id) {
       //alert("Aucun patient n'est actuellement défini.");
       this.setState({
         modalRdvIsOpen: true,
-        eventToEdit: {
-          startAt: "1970-01-01T00:00:00",
-          endAt: end
-        }
+        eventToEdit: {}
       });
       return;
     }
 
     var params = {
-      startAt: "1970-01-01T00:00:00",
-      endAt: end,
-      idPlanningsJA: [planning],
+      planningJO: { id: planning },
       idPatient: this.state.currentPatient.id,
       titre: this.state.currentPatient.title
     };
@@ -282,7 +297,20 @@ export default class CalendarPanel extends React.Component {
     client.RendezVous.create(
       params,
       (datas, response) => {
-        this.reloadExternalEvents(planning);
+        client.RendezVous.listeAction(
+          datas.id,
+          {
+            action: "push",
+            planning: planning,
+            liste: 1
+          },
+          (datas, response) => {
+            this.reloadExternalEvents(planning);
+          },
+          (error, response) => {
+            //
+          }
+        );
       },
       (error, response) => {
         //
@@ -308,6 +336,7 @@ export default class CalendarPanel extends React.Component {
         <Divider />
         <DayPickerSingleDateController
           hideKeyboardShortcutsPanel={true}
+          enableOutsideDays={true}
           onDateChange={this.onDateChange}
           focused={false}
           date={this.state.currentDate}
@@ -373,12 +402,16 @@ export default class CalendarPanel extends React.Component {
           />
         </div>
         <Divider />
+
+        <Header size="medium">Liste d'attente</Header>
+        <div style={{ textAlign: "right" }}>
+          <Button.Group basic={true} size="tiny">
+            <Button icon="eraser" onClick={this.clearExternal} />
+            <Button icon="add" onClick={this.addExternal} />
+          </Button.Group>
+        </div>
+
         <div id="external-events">
-          <Header size="medium">Liste d'attente</Header>
-          <div style={{ textAlign: "right" }}>
-            <Button icon="eraser" size="mini" onClick={this.clearExternal} />
-            <Button icon="add" size="mini" onClick={this.addExternal} />
-          </div>
           <div id="external-droppable">
             {_.map(this.state.externalEventsDatas, (data, i) => {
               return (
@@ -411,6 +444,11 @@ export default class CalendarPanel extends React.Component {
         </div>
         <CalendarModalRdv
           isExternal={true}
+          denominationFormat={
+            _.isUndefined(this.props.options.reservation)
+              ? "NP"
+              : this.props.options.reservation.denominationFormat
+          }
           open={this.state.modalRdvIsOpen}
           close={() => {
             this.setState({ modalRdvIsOpen: false });
@@ -421,6 +459,7 @@ export default class CalendarPanel extends React.Component {
           selectEnd={this.state.selectEnd}
           client={this.props.client}
           planning={this.props.planning}
+          options={this.props.options}
         />
       </React.Fragment>
     );

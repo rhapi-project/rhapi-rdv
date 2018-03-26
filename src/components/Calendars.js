@@ -2,7 +2,7 @@ import _ from "lodash";
 
 import React from "react";
 
-import { Dropdown, Grid } from "semantic-ui-react";
+import { Dropdown, Grid, Button } from "semantic-ui-react";
 
 import Calendar from "./Calendar";
 
@@ -31,6 +31,29 @@ export default class Calendars extends React.Component {
     this.setState({ index: d.value });
   };
 
+  zoomOut = () => {
+    let id =
+      this.state.index < 0 ? "0" : this.state.plannings[this.state.index].id;
+    let h = localStorage.getItem("calendarSlotHeight_" + id);
+    if (_.isNull(h)) {
+      h = 20;
+    }
+    if (h < 4) return;
+    localStorage.setItem("calendarSlotHeight_" + id, --h);
+    this.setState({});
+  };
+
+  zoomIn = () => {
+    let id =
+      this.state.index < 0 ? "0" : this.state.plannings[this.state.index].id;
+    let h = localStorage.getItem("calendarSlotHeight_" + id);
+    if (_.isNull(h)) {
+      h = 20;
+    }
+    localStorage.setItem("calendarSlotHeight_" + id, ++h);
+    this.setState({});
+  };
+
   render() {
     return (
       <React.Fragment>
@@ -38,6 +61,7 @@ export default class Calendars extends React.Component {
           <Grid.Row columns={2}>
             <Grid.Column width={3}>
               <Dropdown
+                style={{ width: "70%" }}
                 value={this.state.index}
                 onChange={this.onPlanningChange}
                 placeholder="Choisir le(s) planning(s) à afficher"
@@ -51,6 +75,10 @@ export default class Calendars extends React.Component {
                   };
                 })}
               />
+              <Button.Group basic={true} size="tiny" floated="right">
+                <Button icon="zoom out" onClick={this.zoomOut} />
+                <Button icon="zoom in" onClick={this.zoomIn} />
+              </Button.Group>
               <CalendarPanel
                 client={this.props.client}
                 couleur={
