@@ -139,7 +139,7 @@ export default class Praticiens extends React.Component {
                 primary={true}
                 onClick={() => {
                   window.location =
-                    window.location.pathname + "#Praticiens/Configuration";
+                    window.location.pathname + "#Praticiens/Agendas";
                   this.setState({});
                 }}
               >

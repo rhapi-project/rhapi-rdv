@@ -70,7 +70,9 @@ export default class Calendars extends React.Component {
       document.documentElement.clientWidth ||
       document.body.clientWidth;
 
-    let withPanel = width > 1400;
+    let withPanel = width > 1340;
+
+    let dropDownStyle = withPanel ? {} : { fontSize: "0.7rem" };
 
     return (
       <React.Fragment>
@@ -88,6 +90,7 @@ export default class Calendars extends React.Component {
               </div>
               <Divider fitted={true} hidden={true} />
               <Dropdown
+                style={dropDownStyle}
                 value={this.state.index}
                 onChange={this.onPlanningChange}
                 fluid={true}

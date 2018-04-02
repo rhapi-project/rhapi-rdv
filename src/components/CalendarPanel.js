@@ -400,7 +400,7 @@ export default class CalendarPanel extends React.Component {
         <div style={{ textAlign: "center" }}>
           <Button
             icon="left chevron"
-            size="mini"
+            style={{ fontSize: "0.7rem" }}
             onClick={() => {
               this.onPatientChange(-1);
               let index = patient.rdv.index - 1;
@@ -412,7 +412,6 @@ export default class CalendarPanel extends React.Component {
           />
 
           <Button
-            size="mini"
             onClick={() => {
               this.onPatientChange(-1);
               let index = patient.rdv.index;
@@ -423,7 +422,7 @@ export default class CalendarPanel extends React.Component {
                 );
               }
             }}
-            style={{ width: "70%" }}
+            style={{ width: "70%", fontSize: "0.7rem" }}
             icon={_.isEmpty(rdvPatient) ? "refresh" : ""}
             content={
               _.isEmpty(rdvPatient)
@@ -433,7 +432,7 @@ export default class CalendarPanel extends React.Component {
           />
           <Button
             icon="right chevron"
-            size="mini"
+            style={{ fontSize: "0.7rem" }}
             onClick={() => {
               this.onPatientChange(-1);
               let index = patient.rdv.index + 1;
