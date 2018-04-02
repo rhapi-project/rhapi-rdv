@@ -832,6 +832,7 @@ export default class Configuration extends React.Component {
             });
           }}
         />
+        <Divider hidden={true} />
       </React.Fragment>
     );
   }

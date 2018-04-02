@@ -152,7 +152,50 @@ export default class CalendarPanel extends React.Component {
     setTimeout(() => {
       _.forEach(
         document.getElementsByClassName("CalendarMonth_caption"),
-        elt => (elt.style.paddingBottom = "47px")
+        elt => {
+          elt.style.paddingBottom = "47px";
+          elt.style.fontSize = "small";
+        }
+      );
+
+      _.forEach(
+        document.getElementsByClassName("DayPicker_weekHeader_li"),
+        elt => {
+          elt.style.width = "32px";
+          elt.style.height = "32px";
+        }
+      );
+
+      _.forEach(document.getElementsByClassName("CalendarDay"), elt => {
+        elt.style.width = "32px";
+        elt.style.height = "32px";
+        elt.style.fontSize = "0.8rem";
+      });
+
+      _.forEach(document.getElementsByClassName("DayPicker"), elt => {
+        elt.style.maxWidth = "250px";
+        elt.style.height = "300px";
+        elt.style.marginLeft = "1px";
+      });
+
+      _.forEach(
+        document.getElementsByClassName("DayPicker_transitionContainer"),
+        elt => {
+          elt.style.maxWidth = "250px";
+          elt.style.height = "300px";
+        }
+      );
+
+      _.forEach(document.getElementsByClassName("CalendarMonth"), elt => {
+        elt.style.paddingLeft = "0px";
+      });
+
+      _.forEach(
+        document.getElementsByClassName("DayPicker_focusRegion"),
+        elt => {
+          elt.style.maxWidth = "250px";
+          elt.style.height = "300px";
+        }
       );
     }, 0);
   };
@@ -320,14 +363,14 @@ export default class CalendarPanel extends React.Component {
 
   render() {
     // RDV du patient
-    let rdvPatient = "Rendez-vous du patient";
+    let rdvPatient = "RDV du patient";
     let patient = this.state.currentPatient;
     if (patient.id > 0) {
       let index = patient.rdv.index;
       rdvPatient =
         index >= 0
           ? "Le " +
-            moment(patient.rdv.liste[index].startAt).format("LL à HH:mm")
+            moment(patient.rdv.liste[index].startAt).format("D MMM à HH:mm")
           : "";
     }
 
@@ -401,11 +444,9 @@ export default class CalendarPanel extends React.Component {
             }}
           />
         </div>
-        <Divider />
-
-        <Header size="medium">Liste d'attente</Header>
+        <Header size="small">Liste d'attente</Header>
         <div style={{ textAlign: "right" }}>
-          <Button.Group basic={true} size="tiny">
+          <Button.Group basic={true} size="mini">
             <Button icon="eraser" onClick={this.clearExternal} />
             <Button icon="add" onClick={this.addExternal} />
           </Button.Group>

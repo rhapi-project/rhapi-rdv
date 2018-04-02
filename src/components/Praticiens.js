@@ -39,6 +39,7 @@ export default class Praticiens extends React.Component {
     errorMessage: ""
   };
 
+  /*
   componentDidUpdate() {
     // https://developer.mozilla.org/en-US/docs/Web/API/History_API
     // TODO : use https://github.com/ReactTraining/history :
@@ -56,6 +57,7 @@ export default class Praticiens extends React.Component {
       this.setState(e.state);
     };
   }
+  */
 
   userChange = event => {
     this.setState({
@@ -111,13 +113,15 @@ export default class Praticiens extends React.Component {
   };
 
   render() {
-    if (this.state.validation === "calendar") {
-      return <Calendars client={client} />;
-    }
-    if (this.state.validation === "configuration") {
-      return <Configuration client={client} />;
-    }
     if (this.state.validation === "success") {
+      let option = window.location.hash.split("/")[1];
+
+      if (option === "Agendas") {
+        return <Calendars client={client} />;
+      } else if (option === "Configuration") {
+        return <Configuration client={client} />;
+      }
+
       return (
         <Card.Group>
           <Card>
@@ -134,7 +138,9 @@ export default class Praticiens extends React.Component {
               <Button
                 primary={true}
                 onClick={() => {
-                  this.setState({ validation: "calendar" });
+                  window.location =
+                    window.location.pathname + "#Praticiens/Configuration";
+                  this.setState({});
                 }}
               >
                 OK
@@ -153,7 +159,9 @@ export default class Praticiens extends React.Component {
               <Button
                 primary={true}
                 onClick={() => {
-                  this.setState({ validation: "configuration" });
+                  window.location =
+                    window.location.pathname + "#Praticiens/Configuration";
+                  this.setState({});
                 }}
               >
                 OK

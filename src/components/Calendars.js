@@ -2,7 +2,7 @@ import _ from "lodash";
 
 import React from "react";
 
-import { Dropdown, Grid, Button } from "semantic-ui-react";
+import { Dropdown, Grid, Button, Divider } from "semantic-ui-react";
 
 import Calendar from "./Calendar";
 
@@ -13,6 +13,16 @@ export default class Calendars extends React.Component {
     this.setState({ plannings: [], index: -1 });
     this.reload();
   }
+
+  /*
+  componentDidMount() {
+    window.addEventListener("resize", () => {
+      if (!this.aboutToMount) {
+        this.forceUpdate();
+      }
+    });
+  }
+  */
 
   reload = () => {
     this.props.client.Plannings.mesPlannings(
@@ -55,17 +65,32 @@ export default class Calendars extends React.Component {
   };
 
   render() {
+    let width =
+      window.innerWidth ||
+      document.documentElement.clientWidth ||
+      document.body.clientWidth;
+
+    let withPanel = width > 1400;
+
     return (
       <React.Fragment>
         <Grid divided="vertically">
           <Grid.Row columns={2}>
-            <Grid.Column width={3}>
+            <Grid.Column
+              width={withPanel ? 3 : 2}
+              style={{ maxWidth: "300px" }}
+            >
+              <div style={{ textAlign: "right" }}>
+                <Button.Group basic={true} size="mini">
+                  <Button icon="zoom out" onClick={this.zoomOut} />
+                  <Button icon="zoom in" onClick={this.zoomIn} />
+                </Button.Group>
+              </div>
+              <Divider fitted={true} hidden={true} />
               <Dropdown
-                style={{ width: "70%" }}
                 value={this.state.index}
                 onChange={this.onPlanningChange}
-                placeholder="Choisir le(s) planning(s) à afficher"
-                fluid={false}
+                fluid={true}
                 selection={true}
                 multiple={false}
                 options={_.map(this.state.plannings, (planning, i) => {
@@ -75,33 +100,33 @@ export default class Calendars extends React.Component {
                   };
                 })}
               />
-              <Button.Group basic={true} size="tiny" floated="right">
-                <Button icon="zoom out" onClick={this.zoomOut} />
-                <Button icon="zoom in" onClick={this.zoomIn} />
-              </Button.Group>
-              <CalendarPanel
-                client={this.props.client}
-                couleur={
-                  this.state.index < 0
-                    ? ""
-                    : this.state.plannings[this.state.index].couleur
-                }
-                planning={
-                  this.state.index < 0
-                    ? "0"
-                    : this.state.plannings[this.state.index].id
-                }
-                options={
-                  this.state.index < 0
-                    ? {}
-                    : this.state.plannings[this.state.index].optionsJO
-                }
-                handleExternalRefetch={externalRefetch =>
-                  this.setState({ externalRefetch: externalRefetch })
-                }
-              />
+              {withPanel ? (
+                <CalendarPanel
+                  client={this.props.client}
+                  couleur={
+                    this.state.index < 0
+                      ? ""
+                      : this.state.plannings[this.state.index].couleur
+                  }
+                  planning={
+                    this.state.index < 0
+                      ? "0"
+                      : this.state.plannings[this.state.index].id
+                  }
+                  options={
+                    this.state.index < 0
+                      ? {}
+                      : this.state.plannings[this.state.index].optionsJO
+                  }
+                  handleExternalRefetch={externalRefetch =>
+                    this.setState({ externalRefetch: externalRefetch })
+                  }
+                />
+              ) : (
+                ""
+              )}
             </Grid.Column>
-            <Grid.Column width={13}>
+            <Grid.Column width={withPanel ? 13 : 14}>
               {this.state.index < 0 ? (
                 ""
               ) : (
