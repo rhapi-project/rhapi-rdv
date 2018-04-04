@@ -1,7 +1,7 @@
 {
   "name": "rhapi-rdv",
   "version": "0.1.0",
-  "homepage": "",
+  "homepage": "{homepage}",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rhapi-project/rhapi-rdv.git"
