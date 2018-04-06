@@ -21,9 +21,10 @@
     "react-color": "^2.14.0",
     "react-dates": "^16.3.6",
     "react-dom": "^16.2.0",
+    "react-iframe": "^1.1.0",
     "react-scripts": "1.0.17",
     "react-simple-timefield": "^2.0.0",
-    "rhapi-client": "^1.0.10",
+    "rhapi-client": "^1.0.11",
     "semantic-ui-css": "2.2",
     "semantic-ui-react": "^0.77.2"
   },
@@ -32,9 +33,11 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "prettier": "prettier --write ./src/components/* ./src/css/* ./src/index.js"
+    "prettier": "prettier --write src/components/* src/css/* src/index.js",
+    "docs": "markdown-folder-to-html; rm -fr public/docs; mv _docs public/docs;"
   },
   "devDependencies": {
+    "markdown-folder-to-html": "^1.5.2",
     "prettier": "^1.11.1"
   }
 }

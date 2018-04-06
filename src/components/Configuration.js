@@ -14,7 +14,8 @@ import {
   Checkbox,
   Message,
   Table,
-  Confirm
+  Confirm,
+  Portal
 } from "semantic-ui-react";
 
 import { maxWidth, fsize, hsize, defaultPlanning } from "./Settings";
@@ -39,6 +40,17 @@ export default class Configuration extends React.Component {
     if (_.isUndefined(index)) {
       index = this.state.index;
     }
+
+    // test mon compte => à revoir
+    /*
+    console.log(this.props.user);
+    this.props.client.MonCompte.read(
+        monCompte => {
+            console.log(monCompte);
+        },
+        () => {}
+    );
+    */
 
     this.props.client.Plannings.mesPlannings(
       { admin: true },
@@ -186,6 +198,62 @@ export default class Configuration extends React.Component {
     }
   };
 
+  transferer = () => {
+    this.props.client.Plannings.mesPlannings(
+      { transfer: true },
+      result => {
+        let transfers = result.results;
+        let transfererAction = () => {
+          let n = transfers.length;
+          for (let i = 0; i < n; i++) {
+            let transfer = transfers[i];
+            transfer.optionsJO.acl.admin = transfer.optionsJO.acl.transfer;
+            transfer.optionsJO.acl.transfer = "";
+            this.props.client.Plannings.update(
+              transfer.id,
+              { optionsJO: transfer.optionsJO },
+              () => {
+                if (i === n - 1) {
+                  this.setState({
+                    messageOkAction:
+                      "Le transfert des droits administrateur a bien été effectué."
+                  });
+                  this.reload();
+                }
+              },
+              () => {}
+            );
+          }
+        };
+
+        if (transfers.length) {
+          let s = transfers.length > 1 ? "s" : "";
+          this.setState({
+            confirmationMessage:
+              "Les droits administrateurs vous sont proposés pour le" +
+              s +
+              " planning" +
+              s +
+              " suivant" +
+              s +
+              " : " +
+              _.map(transfers, t => t.titre).join(", ") +
+              ". Acceptez-vous le transfert de ce" +
+              s +
+              " planning" +
+              s +
+              " sur votre compte ?",
+            confirmationAction: transfererAction
+          });
+        }
+      },
+      datas => {
+        // erreur
+        console.log(datas);
+      }
+    );
+  };
+
   onHorairesChange = () => {
     this.setState({ saved: false });
   };
@@ -215,7 +283,7 @@ export default class Configuration extends React.Component {
               value={options.plages.duree}
               type="number"
               onChange={(e, d) => {
-                plannings[index].optionsJO.plages.duree = _.toNumber(d.value);
+                options.plages.duree = _.toNumber(d.value);
                 this.setState({ /*plannings: plannings,*/ saved: false });
               }}
             />
@@ -226,9 +294,7 @@ export default class Configuration extends React.Component {
               value={options.plages.dureeMin}
               type="number"
               onChange={(e, d) => {
-                plannings[index].optionsJO.plages.dureeMin = _.toNumber(
-                  d.value
-                );
+                options.plages.dureeMin = _.toNumber(d.value);
                 this.setState({ /*plannings: plannings,*/ saved: false });
               }}
             />
@@ -699,14 +765,57 @@ export default class Configuration extends React.Component {
         </React.Fragment>
       );
 
+      const Acl = (
+        <React.Fragment>
+          <Form.Group widths={2}>
+            <Form.Input
+              label="Propriétaires"
+              placeholder="Identifiants séparés par des espaces"
+              value={options.acl.owners.join(" ")}
+              onChange={(e, d) => {
+                options.acl.owners = d.value.split(" ");
+                this.setState({ /* plannings: plannings, */ saved: false });
+              }}
+            />
+          </Form.Group>
+          <Form.Group widths={2}>
+            <Form.Input
+              error={
+                _.isString(options.acl.transfer) &&
+                options.acl.transfer !== "" &&
+                !saved
+              }
+              loading={
+                _.isString(options.acl.transfer) &&
+                options.acl.transfer !== "" &&
+                saved
+              }
+              label="Transfert des droits administrateur"
+              placeholder="Utilisateur vers lequel transférer les droits"
+              value={
+                _.isString(options.acl.transfer) ? options.acl.transfer : ""
+              }
+              onChange={(e, d) => {
+                options.acl.transfer = d.value;
+                this.setState({ /*plannings: plannings,*/ saved: false });
+              }}
+            />
+          </Form.Group>
+        </React.Fragment>
+      );
+
       const rootPanels = [
         {
+          title: "Utilisateurs et droits d'accès",
+          content: { content: Acl, key: "1" }
+        },
+        {
           title: "Plages horaires d'ouverture",
-          content: { content: Plages, key: "1" }
+          content: { content: Plages, key: "2" }
         },
         {
           title: "Prise de rendez-vous",
-          content: { content: Reservations, key: "2" }
+          content: { content: Reservations, key: "3" }
         }
       ];
 
@@ -751,12 +860,27 @@ export default class Configuration extends React.Component {
             />
             <Divider hidden={true} />
             <Button negative={true} onClick={this.supprimer}>
-              Supprimer le planning
+              Supprimer
             </Button>
-            <Button onClick={this.ajouter}>Nouveau planning</Button>
-            <Button onClick={this.dupliquer}>Dupliquer le planning</Button>
+            <Button onClick={this.ajouter}>Nouveau</Button>
+            <Button
+              onClick={() => {
+                if (
+                  _.isString(options.acl.transfer) &&
+                  options.acl.transfer !== "" &&
+                  !saved
+                ) {
+                  this.save();
+                } else {
+                  this.transferer();
+                }
+              }}
+            >
+              Transférer
+            </Button>
+            <Button onClick={this.dupliquer}>Dupliquer</Button>
             <Button onClick={this.defaults}>Valeurs par défaut</Button>
-            <Button onClick={this.cancel}>Annuler</Button>
+            <Button onClick={this.cancel}>Annuler / Actualiser</Button>
             <Button primary={!saved} onClick={this.save}>
               Sauvegarder
             </Button>
@@ -782,32 +906,39 @@ export default class Configuration extends React.Component {
           <Message
             warning={true}
             header="Modifications non sauvegardées"
-            content="Les dernières modifications effectuées ne sont pas sauvegardées. Vous pouvez annuler pour revenir à la version précédente."
+            content={
+              "Les dernières modifications effectuées ne sont pas sauvegardées. Vous pouvez annuler pour revenir à la version précédente."
+            }
           />
         )}
-        <Dropdown
-          value={index}
-          onChange={(e, d) => this.setState({ index: d.value })}
-          placeholder="Choisir le planning à configurer"
-          fluid={false}
-          selection={true}
-          options={_.map(plannings, (planning, i) => {
-            return {
-              text: planning.titre,
-              value: i
-            };
-          })}
-        />
-        <b>
-          {this.state.index >= 0
-            ? " #" + this.state.plannings[this.state.index].id
-            : ""}
-        </b>
-        {form}
+
         {plannings.length ? (
-          ""
+          <React.Fragment>
+            <Dropdown
+              value={index}
+              onChange={(e, d) => this.setState({ index: d.value })}
+              placeholder="Choisir le planning à configurer"
+              fluid={false}
+              selection={true}
+              options={_.map(plannings, (planning, i) => {
+                return {
+                  text: planning.titre,
+                  value: i
+                };
+              })}
+            />
+            <b>
+              {this.state.index >= 0
+                ? " #" + this.state.plannings[this.state.index].id
+                : ""}
+            </b>
+            {form}
+          </React.Fragment>
         ) : (
-          <Button onClick={this.ajouter}>Nouveau planning</Button>
+          <React.Fragment>
+            <Button onClick={this.ajouter}>Créer un nouveau planning</Button>
+            <Button onClick={this.transferer}>Transférer un planning</Button>
+          </React.Fragment>
         )}
 
         <Confirm
@@ -832,6 +963,20 @@ export default class Configuration extends React.Component {
             });
           }}
         />
+        <Portal
+          open={_.isString(this.state.messageOkAction)}
+          closeOnTriggerClick={true}
+          closeOnEscape={true}
+          onClose={() => this.setState({ messageOkAction: null })}
+        >
+          <Message
+            success={true}
+            icon="checkmark"
+            header="OK"
+            content={this.state.messageOkAction}
+          />
+        </Portal>
+
         <Divider hidden={true} />
       </React.Fragment>
     );

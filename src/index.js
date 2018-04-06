@@ -12,8 +12,10 @@ import "semantic-ui-css/semantic.min.css";
 
 import "./css/index.css";
 
+import Iframe from "react-iframe";
+
 // Semantic
-import { Icon, Divider, Sidebar, Menu } from "semantic-ui-react";
+import { Icon, Divider, Sidebar, Menu, Modal } from "semantic-ui-react";
 
 import { maxWidth } from "./components/Settings";
 
@@ -23,19 +25,26 @@ import Patients from "./components/Patients";
 import Praticiens from "./components/Praticiens";
 
 class Main extends React.Component {
-  state = { visible: false };
+  state = { visible: false, help: false };
 
   render() {
     let sidebar = "";
+    let help = "";
+
     let originPath = window.location.pathname;
     let subApp = window.location.hash.split("/")[0];
 
-    let width =
+    let wWidth =
       window.innerWidth ||
       document.documentElement.clientWidth ||
       document.body.clientWidth;
 
-    let menuPos = width < maxWidth ? "top" : "left";
+    let wHeight =
+      window.innerHeight ||
+      document.documentElement.clientHeight ||
+      document.body.clientHeight;
+
+    let menuPos = wWidth < maxWidth ? "top" : "left";
 
     if (subApp === "#Patients") {
       sidebar = (
@@ -78,7 +87,7 @@ class Main extends React.Component {
                 window.location.reload();
               }}
             >
-              <Icon name="users" />
+              <Icon name="user" />
               Patient
             </Menu.Item>
           </Sidebar>
@@ -132,6 +141,13 @@ class Main extends React.Component {
                     this.setState({ visible: false });
                   }}
                 />
+                <Menu.Item
+                  name="Aide"
+                  icon="help"
+                  onClick={() => {
+                    this.setState({ visible: false, help: true });
+                  }}
+                />
               </Menu.Menu>
             </Menu.Item>
             <Menu.Item
@@ -142,7 +158,7 @@ class Main extends React.Component {
                 window.location.reload();
               }}
             >
-              <Icon name="users" />
+              <Icon name="user" />
               Patient
             </Menu.Item>
           </Sidebar>
@@ -176,25 +192,16 @@ class Main extends React.Component {
               <Icon name="home" />
               Accueil
             </Menu.Item>
-            <Menu.Item header={true}>
+            <Menu.Item
+              header={true}
+              name="praticien"
+              onClick={() => {
+                window.location = originPath + "#Praticiens";
+                window.location.reload();
+              }}
+            >
               <Icon name="doctor" />
               Praticien
-              <Menu.Menu>
-                <Menu.Item
-                  name="Agendas"
-                  onClick={() => {
-                    window.location = originPath + "#Praticiens/Agendas";
-                    this.setState({ visible: false });
-                  }}
-                />
-                <Menu.Item
-                  name="Configuration"
-                  onClick={() => {
-                    window.location = originPath + "#Praticiens/Configuration";
-                    this.setState({ visible: false });
-                  }}
-                />
-              </Menu.Menu>
             </Menu.Item>
             <Menu.Item
               header={true}
@@ -204,7 +211,7 @@ class Main extends React.Component {
                 window.location.reload();
               }}
             >
-              <Icon name="users" />
+              <Icon name="user" />
               Patient
             </Menu.Item>
           </Sidebar>
@@ -227,7 +234,23 @@ class Main extends React.Component {
             this.setState({ visible: !this.state.visible });
           }}
         />
+        {help}
         {sidebar}
+        <Modal
+          size="fullscreen"
+          open={this.state.help}
+          closeIcon={true}
+          onClose={() => this.setState({ help: false })}
+        >
+          <Modal.Header>Aide</Modal.Header>
+          <Iframe
+            url="docs/Agendas.html"
+            height={wHeight * 0.8 + "px"}
+            display="initial"
+            position="relative"
+            allowFullScreen={true}
+          />
+        </Modal>
       </React.Fragment>
     );
   }

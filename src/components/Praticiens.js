@@ -117,9 +117,9 @@ export default class Praticiens extends React.Component {
       let option = window.location.hash.split("/")[1];
 
       if (option === "Agendas") {
-        return <Calendars client={client} />;
+        return <Calendars client={client} user={this.state.user} />;
       } else if (option === "Configuration") {
-        return <Configuration client={client} />;
+        return <Configuration client={client} user={this.state.user} />;
       }
 
       return (
@@ -136,7 +136,6 @@ export default class Praticiens extends React.Component {
             </Card.Content>
             <Card.Content extra={true} textAlign="right">
               <Button
-                primary={true}
                 onClick={() => {
                   window.location =
                     window.location.pathname + "#Praticiens/Agendas";
@@ -157,7 +156,6 @@ export default class Praticiens extends React.Component {
             </Card.Content>
             <Card.Content extra={true} textAlign="right">
               <Button
-                primary={true}
                 onClick={() => {
                   window.location =
                     window.location.pathname + "#Praticiens/Configuration";
@@ -185,7 +183,7 @@ export default class Praticiens extends React.Component {
                 <Form.Input
                   id="form-login-user"
                   fluid={true}
-                  icon="user"
+                  icon="doctor"
                   iconPosition="left"
                   placeholder="Identifiant"
                   onChange={this.userChange}
