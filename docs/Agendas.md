@@ -14,7 +14,7 @@ Un client RHAPI JavaScript
 ## Installation
 
 ```
-npm install rhapi-client
+npm install rhapi-client --save
 ```
 
 Alternativement **rhapi-client-browser.js** (généré par browserify) est fourni pour être inséré directement dans une page html
