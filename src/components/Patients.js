@@ -16,6 +16,7 @@ import { Client } from "rhapi-client";
 
 import { maxWidth, fsize, hsize } from "./Settings";
 import PriseRdv from "./PriseRdv";
+
 import MesRdv from "./MesRdv";
 
 var client = new Client(

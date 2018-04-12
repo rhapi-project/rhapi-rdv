@@ -142,12 +142,25 @@ class Main extends React.Component {
                   }}
                 />
                 <Menu.Item
-                  name="Aide"
-                  icon="help"
+                  name="Profil"
+                  icon="address card"
                   onClick={() => {
-                    this.setState({ visible: false, help: true });
+                    window.location = originPath + "#Praticiens/Profil";
+                    this.setState({ visible: false });
                   }}
                 />
+                {// TODO : No help on login
+                false /* test if no login */ ? (
+                  ""
+                ) : (
+                  <Menu.Item
+                    name="Aide"
+                    icon="help"
+                    onClick={() => {
+                      this.setState({ visible: false, help: true });
+                    }}
+                  />
+                )}
               </Menu.Menu>
             </Menu.Item>
             <Menu.Item

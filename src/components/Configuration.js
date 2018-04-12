@@ -41,14 +41,35 @@ export default class Configuration extends React.Component {
       index = this.state.index;
     }
 
-    // test mon compte => à revoir
+    console.log("test lecture/écriture : " + this.props.user);
+
+    // lecture/écriture
     /*
-    console.log(this.props.user);
     this.props.client.MonCompte.read(
-        monCompte => {
-            console.log(monCompte);
-        },
-        () => {}
+      monCompte => {
+        console.log(monCompte);
+        // écriture
+        monCompte.currentName = "Nom courant 2";
+        //monCompte.userPassword = "masteruser";
+        //delete monCompte.userName;
+        this.props.client.MonCompte.update(
+            monCompte,
+            data => {
+                console.log("ok");
+                console.log(data);
+            },
+            (data, result) => {
+                console.log("ko");
+                console.log(data);
+                console.log(data);
+            }
+        )
+        //
+      },
+      data => {
+        console.log("erreur");
+        console.log(data);
+      }
     );
     */
 
