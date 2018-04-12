@@ -35,6 +35,7 @@ export default class Configuration extends React.Component {
       this.props.client.MonCompte.update(
           .... à faire
       );
+      some github test
       */
   };
 
