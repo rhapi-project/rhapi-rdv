@@ -26,6 +26,10 @@ C'est lui qui définit quels sont les propriétaires d'un agenda. C'est à dire 
 L'administrateur peut ajouter autant de propriétaires qu'il le souhaite en passant par le menu de configuration.
 Pour ajouter un nouveau propriétaire, il suffit de saisir son nom dans la liste. 
 Au cas où il y aurait plusieurs propriétaires, il faudra séparer chaque propriétaire par un espace.
+Exemple : 
+
+![alt text](https://image.noelshack.com/fichiers/2018/15/5/1523621730-capture-d-ecran-2018-04-13-a-14-14-36.png)
+
 
 Il est cependant possible d'en changer à tout moment.
 Pour transférer les droits d'administration à un autre utilisateur, il suffit de saisir son nom dans le champ "Transfert des droits administrateur" et de cliquer sur Transférer ou Sauvegarder.
