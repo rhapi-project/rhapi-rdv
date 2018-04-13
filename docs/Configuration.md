@@ -34,12 +34,26 @@ Exemple :
 
 
 Il est cependant possible de changer d'administrateur à tout moment.
-Pour transférer les droits d'administration à un autre utilisateur, il suffit de saisir son nom dans le champ "Transfert des droits administrateur" et de cliquer sur Transférer ou Sauvegarder ensuite :
+Pour transférer les droits d'administration à un autre utilisateur, il suffit de saisir son nom dans le champ "Transfert des droits administrateur" et de cliquer ensuite sur "Transférer" ou "Sauvegarder" :
 
 ![alt text](https://image.noelshack.com/fichiers/2018/15/5/1523621959-capture-d-ecran-2018-04-13-a-14-18-45.png)
 
 
-A partir de là, l'utilisateur indiqué verra sur sa page un bouton "Transférer un planning". Il n'aura donc plus qu'à cliquer sur ce bouton (qui lui demandera ensuite de confirmer ou non la prise de droits) pour devenir le nouvel administrateur.
+A partir de là, l'utilisateur indiqué dans "Transfert des droits administrateur" verra sur sa page un bouton "Transférer un planning :
+
+![alt text](https://image.noelshack.com/fichiers/2018/15/5/1523622193-capture-d-ecran-2018-04-13-a-14-21-49.png)
+
+
+Il n'aura donc plus qu'à cliquer sur ce bouton (qui lui demandera ensuite de confirmer ou non la prise de droits) pour devenir le nouvel administrateur :
+
+![alt text](https://image.noelshack.com/fichiers/2018/15/5/1523622193-capture-d-ecran-2018-04-13-a-14-22-02.png)
+
+
+Enfin, le message suivant apparaitra pour confirmer la réussite du transfert de droits :
+
+![alt text](https://image.noelshack.com/fichiers/2018/15/5/1523622193-capture-d-ecran-2018-04-13-a-14-22-10.png)
+
+
 
 Tant que la personne à qui les droits sont transférés n'a pas confirmer la récupération des droits administrateurs, c'est celui qui a initié le transfert qui restera administrateur. 
 Cela dans le but d'éviter de perdre les droits administrateur en cas d'erreur dans le nom saisi pour le transfert.
