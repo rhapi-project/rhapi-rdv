@@ -1,7 +1,9 @@
 # rhapi-rdv
 Une application de gestion de RDV pour RHAPI
 
-La configuration des agendas se fait depuis le menu Configuration du site.
+La configuration des agendas se fait depuis le menu Configuration du site : 
+
+![alt text](https://image.noelshack.com/fichiers/2018/15/5/1523621501-capture-d-ecran-2018-04-13-a-14-11-00.png)
 
 Dans cette page, plusieurs options sont disponibles.
 
