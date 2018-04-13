@@ -35,6 +35,7 @@ Exemple :
 
 Il est cependant possible de changer d'administrateur à tout moment.
 Pour transférer les droits d'administration à un autre utilisateur, il suffit de saisir son nom dans le champ "Transfert des droits administrateur" et de cliquer sur Transférer ou Sauvegarder ensuite :
+
 ![alt text](https://image.noelshack.com/fichiers/2018/15/5/1523621959-capture-d-ecran-2018-04-13-a-14-18-45.png)
 
 
