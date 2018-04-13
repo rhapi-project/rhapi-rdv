@@ -7,7 +7,7 @@ Dans cette page, plusieurs options sont disponibles.
 
 Tout d’abord, il est possible de définir un nom pour le planning. 
 Pour cela, il suffit de le saisir dans le champ « Titre » :
-![alt text] 
+![alt text](https://image.noelshack.com/fichiers/2018/15/5/1523621170-capture-d-ecran-2018-04-10-a-16-35-16.png)
 On pourra également ajouter une description au Planning ainsi qu'une couleur par défaut pour les rendez-vous.
 
 # Utilisateurs et droits d'accès
