@@ -15,6 +15,8 @@ Pour cela, il suffit de le saisir dans le champ « Titre » :
 
 On pourra également ajouter une description au Planning ainsi qu'une couleur par défaut pour les rendez-vous.
 
+Toute modification effectuée dans le menu de configuration devra être enregistrée via le bouton "Sauvegarder" en bas de page.
+
 # Utilisateurs et droits d'accès
 
 Cette rubrique permet de définir les propriétaires et l'administrateur du planning sélectionné.
