@@ -44,9 +44,11 @@ A partir de là, l'utilisateur indiqué dans "Transfert des droits administrateu
 ![alt text](https://image.noelshack.com/fichiers/2018/15/5/1523622193-capture-d-ecran-2018-04-13-a-14-21-49.png)
 
 
+
 Il n'aura donc plus qu'à cliquer sur ce bouton (qui lui demandera ensuite de confirmer ou non la prise de droits) pour devenir le nouvel administrateur :
 
 ![alt text](https://image.noelshack.com/fichiers/2018/15/5/1523622193-capture-d-ecran-2018-04-13-a-14-22-02.png)
+
 
 
 Enfin, le message suivant apparaitra pour confirmer la réussite du transfert de droits :
