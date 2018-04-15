@@ -79,7 +79,7 @@ export default class Praticiens extends React.Component {
   accept = () => {
     // local dev no auth (décommenter les 2 lignes suivantes)
     //this.setState({ validation: "success", errorMessage: "" });
-    // return;
+    //return;
 
     client.authorize(
       "https://auth-dev.rhapi.net", // auth url
@@ -121,8 +121,7 @@ export default class Praticiens extends React.Component {
         return <Calendars client={client} user={this.state.user} />;
       } else if (option === "Configuration") {
         return <Configuration client={client} user={this.state.user} />;
-      }
-      else if (option === "Profil") {
+      } else if (option === "Profil") {
         return <Profil client={client} user={this.state.user} />;
       }
 

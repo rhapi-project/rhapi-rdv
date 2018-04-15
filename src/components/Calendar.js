@@ -114,6 +114,8 @@ export default class Calendar extends React.Component {
 
     let that = this; // that react component
 
+    that.rhapiMd5 = "" + planningId; // force to refetch on planning change
+
     $("#calendar").fullCalendar("destroy");
 
     $("#calendar").fullCalendar({
@@ -154,7 +156,7 @@ export default class Calendar extends React.Component {
         },
         week: {
           columnHeaderFormat: "dddd D/MM",
-          titleFormat: "D MMMM YYYY"
+          titleFormat: "D MMMM YYYY [(semaine] W[)]"
         },
         day: {
           columnHeaderFormat: " ",
@@ -166,6 +168,14 @@ export default class Calendar extends React.Component {
         $("td.fc-widget-content").css("height", calendarSlotHeight);
       },
 
+      eventRender: function(event, element) {
+        let elt = element[0];
+        if (elt.className === "fc-bgevent") {
+          $(elt).css("color", "white");
+          elt.innerText = event.title;
+        }
+      },
+
       events: function(start, end, timezone, callback) {
         if (_.isUndefined(planningId) || planningId <= 0) {
           callback([]);
@@ -175,6 +185,7 @@ export default class Calendar extends React.Component {
           from: start.toISOString(),
           to: end.toISOString(),
           md5: that.rhapiMd5,
+          recurrents: "true",
           planning: planningId
         };
 
@@ -220,10 +231,25 @@ export default class Calendar extends React.Component {
                   start: jour.date,
                   end: jour.date,
                   color: options.reservation.congesCouleur,
+                  editable: false,
                   title: jour.jour
                 });
               });
             }
+
+            // évènements récurrents
+            // https://fullcalendar.io/docs/event-object
+            console.log(datas.informations.recurrents);
+            _.forEach(datas.informations.recurrents, (recurrent, i) => {
+              events.push({
+                start: recurrent.startAt,
+                end: recurrent.endAt,
+                color: recurrent.couleur,
+                title: recurrent.titre,
+                editable: false,
+                rendering: recurrent.background ? "background" : ""
+              });
+            });
 
             for (let i = 0; i < datas.results.length; i++) {
               var result = datas.results[i];

@@ -37,6 +37,10 @@ const defaultPlanning = {
   description: "Nouveau planning",
   couleur: "#7ED321",
   optionsJO: {
+    acl: {
+      owners: [],
+      admin: ""
+    },
     plages: {
       duree: 30,
       dureeMin: 15,
@@ -91,6 +95,30 @@ const defaultPlanning = {
         ]
       ]
     },
+    recurrents: [
+      {
+        titre: "Réunion début de semaine",
+        couleur: "#000000",
+        start: "",
+        end: "",
+        background: false,
+        recurrence: 0,
+        horaires: [
+          [],
+          [
+            {
+              start: "09:00",
+              end: "10:00"
+            }
+          ],
+          [],
+          [],
+          [],
+          [],
+          []
+        ]
+      }
+    ],
     reservation: {
       autorisationMin: 0,
       autorisationMax: 1,

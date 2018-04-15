@@ -22,6 +22,7 @@ import { maxWidth, fsize, hsize, defaultPlanning } from "./Settings";
 
 import HorairesSemaine from "./HorairesSemaine";
 import Conges from "./Conges";
+import Recurrents from "./Recurrents";
 
 import ColorPicker from "./ColorPicker";
 
@@ -34,6 +35,10 @@ export default class Configuration extends React.Component {
       saved: true
     });
     this.reload(0);
+  }
+
+  componentDidMount() {
+    this.reload(0); // assure un affichage correct des plages horaires...
   }
 
   reload = index => {
@@ -261,6 +266,11 @@ export default class Configuration extends React.Component {
       let horaires = options.plages.horaires;
       let horairesReservation = options.reservation.horaires;
       let congesPrevus = options.reservation.conges;
+
+      if (_.isUndefined(options.recurrents)) {
+        // si ancienne version du Settings
+        options.recurrents = [];
+      }
 
       const Plages = (
         <React.Fragment>
@@ -590,6 +600,7 @@ export default class Configuration extends React.Component {
                   style={{ maxWidth: maxWidth / 10 }}
                 >
                   <Checkbox
+                    toggle={true}
                     checked={options.reservation.congesFeries}
                     onChange={(e, d) => {
                       options.reservation.congesFeries = d.checked;
@@ -604,6 +615,7 @@ export default class Configuration extends React.Component {
                     style={{ maxWidth: maxWidth / 10 }}
                   >
                     <Checkbox
+                      toggle={true}
                       checked={options.reservation.congesVisibles}
                       onChange={(e, d) => {
                         options.reservation.congesVisibles = d.checked;
@@ -760,7 +772,11 @@ export default class Configuration extends React.Component {
             <Form.Input
               label="Propriétaires"
               placeholder="Identifiants séparés par des espaces"
-              value={options.acl.owners.join(" ")}
+              value={
+                _.isUndefined(options.acl.owners)
+                  ? ""
+                  : options.acl.owners.join(" ")
+              }
               onChange={(e, d) => {
                 options.acl.owners = d.value.split(" ");
                 this.setState({ /* plannings: plannings, */ saved: false });
@@ -803,8 +819,20 @@ export default class Configuration extends React.Component {
           content: { content: Plages, key: "2" }
         },
         {
+          title: "Évènement récurrents",
+          content: {
+            content: (
+              <Recurrents
+                recurrents={options.recurrents}
+                onChange={() => this.setState({ saved: false })}
+              />
+            ),
+            key: "3"
+          }
+        },
+        {
           title: "Prise de rendez-vous",
-          content: { content: Reservations, key: "3" }
+          content: { content: Reservations, key: "4" }
         }
       ];
 

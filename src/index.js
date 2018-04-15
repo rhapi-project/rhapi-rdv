@@ -242,11 +242,11 @@ class Main extends React.Component {
         <Icon
           size="large"
           style={{ cursor: "pointer" }}
-          name="bars"
+          name={this.state.visible ? "close" : "bars"}
           onClick={() => {
             this.setState({ visible: !this.state.visible });
           }}
-        />
+        />Menu
         {help}
         {sidebar}
         <Modal

@@ -2,7 +2,15 @@ import React from "react";
 
 //import _ from "lodash";
 
-import { Header, Message, Divider, Button, Form, Segment, Icon } from "semantic-ui-react";
+import {
+  Header,
+  Message,
+  Divider,
+  Button,
+  Form,
+  Segment,
+  Icon
+} from "semantic-ui-react";
 
 import { hsize } from "./Settings";
 
@@ -76,15 +84,24 @@ export default class Configuration extends React.Component {
         <Segment className="formulaire">
           <Form>
             <Message floating positive>
-              Vous êtes connectés en tant que : <strong>{this.state.userName}</strong>
+              Vous êtes connectés en tant que :{" "}
+              <strong>{this.state.userName}</strong>
               <Icon name="checkmark" color="green" size="big" />
             </Message>
-            
-            <Form.Input required label="Nom courant" placeholder="ex : Dr Jean DUPONT"/>
-            
+
+            <Form.Input
+              required
+              label="Nom courant"
+              placeholder="ex : Dr Jean DUPONT"
+            />
+
             <Form.Group widths="equal">
               <Form.Input required label="Mot de passe" type="password" />
-              <Form.Input required label="Confirmer le mot de passe" type="password" />
+              <Form.Input
+                required
+                label="Confirmer le mot de passe"
+                type="password"
+              />
             </Form.Group>
 
             <Divider />
@@ -97,7 +114,7 @@ export default class Configuration extends React.Component {
             <Form.Group inline>
               <label>Genre</label>
               <Form.Radio label="F" value="2" />
-              <Form.Radio label="M" value="1"/>
+              <Form.Radio label="M" value="1" />
             </Form.Group>
 
             <Form.Group widths="equal">
@@ -109,7 +126,7 @@ export default class Configuration extends React.Component {
             <Form.Group widths="equal">
               <Form.Input label="Code postal" placeholder="Code postal" />
               <Form.Input label="Ville" />
-              <Form.Input label="Pays" /> 
+              <Form.Input label="Pays" />
             </Form.Group>
 
             <Divider hidden />
@@ -121,7 +138,11 @@ export default class Configuration extends React.Component {
               <Form.Input label="Téléphone domicile" />
             </Form.Group>
 
-            <Form.Input required label="E-mail" placeholder="exemple@exemple.com" />
+            <Form.Input
+              required
+              label="E-mail"
+              placeholder="exemple@exemple.com"
+            />
           </Form>
         </Segment>
 
