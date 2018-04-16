@@ -63,3 +63,29 @@ Cela dans le but d'éviter de perdre les droits administrateur en cas d'erreur d
 
 
 # Plages horaires d'ouverture
+
+Ce menu permet la configuration complète des plages d'ouverture du cabinet.
+
+Trois paramètres sont modifiables, indépendament des journées :
+La "Durée par défaut d'un RDV", qui correspond au temps par défaut pour le créneau d'un nouveau rendez-vous, et la "Durée minimale d'un RDV", qui correspond à la durée visible des créneaux horaires dans l'agenda.
+Le troisième paramètre est la couleur, qui sera ainsi la couleur par défaut des rendez-vous.
+
+Une fois ces paramètres saisis, il est possible de configurer les plages horaires d'ouverture soit pour la semaine entière directement, soit journée par journée.
+
+Pour la partie semaine :
+à compléter.
+
+Pour configurer journée par journée, il suffit de cliquer sur le jour souhaité puis de cliquer sur le bouton "+", afin de définir les plages horaires souhaitées.
+Il est par exemple possible d'ouvrir le lundi, de 9h à 12h et de 14h à 18h :
+
+![alt text](https://image.noelshack.com/fichiers/2018/15/5/1523622193-capture-d-ecran-2018-04-13-a-14-22-10.png)
+
+
+Pour supprimer une plage horaire, il faut simplement cliquer sur le bouton "-" en bout de ligne.
+
+
+
+
+
+
+
