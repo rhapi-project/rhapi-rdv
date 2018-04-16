@@ -78,7 +78,7 @@ Pour la partie semaine :
 Pour configurer journée par journée, il suffit de cliquer sur le jour souhaité puis de cliquer sur le bouton "+", afin de définir les plages horaires souhaitées.
 Il est par exemple possible d'ouvrir le lundi, de 9h à 12h et de 14h à 18h :
 
-![alt text](https://image.noelshack.com/fichiers/2018/15/5/1523622193-capture-d-ecran-2018-04-13-a-14-22-10.png)
+![alt text](images/Capture d’écran 2018-04-16 à 11.39.48.png)
 
 
 Pour supprimer une plage horaire, il faut simplement cliquer sur le bouton "-" en bout de ligne.
