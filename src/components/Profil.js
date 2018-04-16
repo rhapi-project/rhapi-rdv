@@ -15,9 +15,9 @@ import {
 import { hsize } from "./Settings";
 
 /**
- * A faire
- * Vérifier que les champs obligatoires sont renseignés avant de sauvegerder (fait)
- * Vérifier la validité des formats (code postal, les téléphones et l'adresse mail) avec les preg...
+ * Avant de sauvegarder les modifications,
+ * On vérifie d'abord si tous les champs obligatoires sont renseignés
+ * et que les formats du code postal, n° de téléphone et adresse e-mail sont valides. (regex)
 */
 
 export default class Configuration extends React.Component {
@@ -132,9 +132,49 @@ export default class Configuration extends React.Component {
     }
   }
 
+  //Vérification de la validité du format d'un code postal
+  codePostalValide = (code) => {
+    var pattern = /^[0-9]{5}$/
+    if (pattern.test(code)) return true;
+    else return false;
+  }
+
+  //Vérification de la validité du format d'un n° de téléphone
+  //  01 12 45 78 14 pattern 1 (ou sans espace)
+  //  01.12.45.78.14 pattern 2
+  //  +33 6 00 00 00 00 pattern 3 (ou sans espace)
+  //  00 33 6 00 00 00 00 pattern 4 (ou sans espace)
+  telephoneValide = (numero) => {
+    var pattern1 = /^0[1-9]([\s.]?[0-9]{2}){4}$/; //pattern 1 et 2
+    var pattern3 = /^\+[1-9][0-9]{1,2}(\s)?[1-9](\s?[0-9]{2}){4}$/;
+    var pattern4 = /^00(\s)?[1-9][0-9]{1,2}([1-9])(\s?[0-9]{2}){4}$/;
+    if (pattern1.test(numero) || pattern3.test(numero) || pattern4.test(numero))
+      return true;
+    else return false;
+  }
+
+  //Vérification de la validité du format d'une adresse mail
+  emailValide = (email) => {
+    var pattern = /(^\w)([\w+.-])*([\w+-])*(@)([\w+.-])+\.([a-z]{2,4})$/i;
+    if (pattern.test(email)) return true;
+    else return false;
+  }
+
+  formatsValides = () => {
+    if (this.codePostalValide(this.state.account.codePostal) &&
+        this.telephoneValide(this.state.account.telMobile) &&
+        this.telephoneValide(this.state.account.telBureau) &&
+        this.emailValide(this.state.account.email)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   save = () => { 
-    //s'il y a des champs obligatoires qui ne sont pas renseignés, on sort de la fonction
-    if (this.verification()) {
+    //s'il y a des champs obligatoires qui ne sont pas renseignés,
+    //ou bien s'il y a des formats non valides on sort de la fonction
+    if (this.verification() && this.formatsValides()) {
 
       let obj = this.state;
        _.unset(obj,"passwordConfirm");
@@ -271,6 +311,7 @@ export default class Configuration extends React.Component {
                 label="Code postal" 
                 placeholder="Code postal" 
                 name="codePostal"
+                error={(this.codePostalValide(this.state.account.codePostal) || this.state.account.codePostal === "") ? false : true}
                 value={this.state.account.codePostal}
                 onChange={(e, d) => this.handleChangeInput(e, d)} />
               <Form.Input required 
@@ -295,19 +336,21 @@ export default class Configuration extends React.Component {
                 label="Téléphone mobile" 
                 value={this.state.account.telMobile}
                 name="telMobile" 
+                error={(this.telephoneValide(this.state.account.telMobile) || this.state.account.telMobile === "") ? false : true}
                 onChange={(e, d) => this.handleChangeInput(e, d)} />
               <Form.Input required
                 label="Téléphone bureau" 
                 value={this.state.account.telBureau}
                 name="telBureau"
+                error={(this.telephoneValide(this.state.account.telBureau) || this.state.account.telBureau === "") ? false : true}
                 onChange={(e, d) => this.handleChangeInput(e, d)} />
               <Form.Input required 
                 label="E-mail" 
                 placeholder="exemple@exemple.com" 
                 name="email"
+                error={(this.emailValide(this.state.account.email) || this.state.account.email === "") ? false : true}
                 value={this.state.account.email} 
                 onChange={(e, d) => this.handleChangeInput(e, d)} />
-                {/*A faire : vérification de la validité d'une adresse mail (sur la forme)*/}
             </Form.Group>
 
             {
