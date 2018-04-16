@@ -59,3 +59,7 @@ Enfin, le message suivant apparaitra pour confirmer la réussite du transfert de
 
 Tant que la personne à qui les droits sont transférés n'a pas confirmer la récupération des droits administrateurs, c'est celui qui a initié le transfert qui restera administrateur. 
 Cela dans le but d'éviter de perdre les droits administrateur en cas d'erreur dans le nom saisi pour le transfert. 
+
+
+
+# Plages horaires d'ouverture
