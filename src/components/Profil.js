@@ -132,32 +132,26 @@ export default class Configuration extends React.Component {
     }
   }
 
-  //Vérification de la validité du format d'un code postal
   codePostalValide = (code) => {
-    var pattern = /^[0-9]{5}$/
-    if (pattern.test(code)) return true;
-    else return false;
+    let pattern = /^[0-9]{5}$/;
+    return (pattern.test(code));
   }
 
-  //Vérification de la validité du format d'un n° de téléphone
+  //Les formats valides :
   //  01 12 45 78 14 pattern 1 (ou sans espace)
   //  01.12.45.78.14 pattern 2
   //  +33 6 00 00 00 00 pattern 3 (ou sans espace)
   //  00 33 6 00 00 00 00 pattern 4 (ou sans espace)
   telephoneValide = (numero) => {
-    var pattern1 = /^0[1-9]([\s.]?[0-9]{2}){4}$/; //pattern 1 et 2
-    var pattern3 = /^\+[1-9][0-9]{1,2}(\s)?[1-9](\s?[0-9]{2}){4}$/;
-    var pattern4 = /^00(\s)?[1-9][0-9]{1,2}([1-9])(\s?[0-9]{2}){4}$/;
-    if (pattern1.test(numero) || pattern3.test(numero) || pattern4.test(numero))
-      return true;
-    else return false;
+    let pattern1 = /^0[1-9]([\s.]?[0-9]{2}){4}$/; //pattern 1 et 2
+    let pattern3 = /^\+[1-9][0-9]{1,2}(\s)?[1-9](\s?[0-9]{2}){4}$/;
+    let pattern4 = /^00(\s)?[1-9][0-9]{1,2}([1-9])(\s?[0-9]{2}){4}$/;
+    return (pattern1.test(numero) || pattern3.test(numero) || pattern4.test(numero));
   }
 
-  //Vérification de la validité du format d'une adresse mail
   emailValide = (email) => {
-    var pattern = /(^\w)([\w+.-])*([\w+-])*(@)([\w+.-])+\.([a-z]{2,4})$/i;
-    if (pattern.test(email)) return true;
-    else return false;
+    let pattern = /(^\w)([\w+.-])*([\w+-])*(@)([\w+.-])+\.([a-z]{2,4})$/i;
+    return (pattern.test(email));
   }
 
   formatsValides = () => {
@@ -198,14 +192,12 @@ export default class Configuration extends React.Component {
     } else return;
   } 
 
-
   render() {
     console.log(this.verification());
     return (
       <React.Fragment>
         <Header size={hsize}>Profil</Header>
 
-        {/*Le formulaire de saisie de données*/}
         <Segment className="formProfil">
           <Form>
             { 
@@ -230,7 +222,8 @@ export default class Configuration extends React.Component {
                 </Message>
             }
             
-            <Form.Input required
+            <Form.Input
+              required={true}
               label="Nom courant"
               placeholder="ex : Dr Jean DUPONT" 
               value={this.state.currentName}
@@ -238,14 +231,16 @@ export default class Configuration extends React.Component {
               onChange={(e, d) => this.handleChangeInput(e, d)} />
             
             <Form.Group widths="equal">
-              <Form.Input required 
+              <Form.Input 
+                required={true}
                 label="Mot de passe"
                 type="password" 
                 error={(this.state.userPassword !== this.state.passwordConfirm) ? true : false}
                 value={this.state.userPassword}
                 name="userPassword"
                 onChange={(e, d) => this.handleChangeInput(e, d)} />
-              <Form.Input required 
+              <Form.Input
+                required={true}
                 label="Confirmer le mot de passe"
                 type="password" 
                 error={(this.state.userPassword !== this.state.passwordConfirm) ? true : false}
@@ -257,13 +252,15 @@ export default class Configuration extends React.Component {
             <Divider />
 
             <Form.Group widths="equal">
-              <Form.Input required 
+              <Form.Input 
+                required={true}
                 label="Prénom" 
                 placeholder="Votre prénom" 
                 value={this.state.account.prenom} 
                 name="prenom"
                 onChange={(e, d) => this.handleChangeInput(e, d)} />
-              <Form.Input required 
+              <Form.Input
+                required={true}
                 label="Nom" 
                 placeholder="Votre nom" 
                 name="nom"
@@ -286,20 +283,21 @@ export default class Configuration extends React.Component {
             </Form.Group>
 
             <Form.Group widths="equal">
-              <Form.Input required 
+              <Form.Input
+                required={true}
                 label="Adresse" 
                 placeholder="Votre adresse" 
                 name="adresse1"
                 value={this.state.account.adresse1} 
                 onChange={(e, d) => this.handleChangeInput(e, d)} />
               <Form.Input 
-                label="Adresse(Ligne 2)"
+                label="Adresse (ligne 2)"
                 placeholder="Votre adresse"
-                value={this.state.account.adresse4}
+                value={this.state.account.adresse2}
                 name="adresse2"
                 onChange={(e, d) => this.handleChangeInput(e, d)} />
               <Form.Input 
-                label="Adresse(Ligne 3)" 
+                label="Adresse (ligne 3)" 
                 placeholder="Votre adresse" 
                 name="adresse3"
                 value={this.state.account.adresse3}
@@ -307,20 +305,23 @@ export default class Configuration extends React.Component {
             </Form.Group>
 
             <Form.Group widths="equal">
-              <Form.Input required 
+              <Form.Input
+                required={true}
                 label="Code postal" 
                 placeholder="Code postal" 
                 name="codePostal"
                 error={(this.codePostalValide(this.state.account.codePostal) || this.state.account.codePostal === "") ? false : true}
                 value={this.state.account.codePostal}
                 onChange={(e, d) => this.handleChangeInput(e, d)} />
-              <Form.Input required 
+              <Form.Input
+                required={true}
                 label="Ville" 
                 placeholder="Votre ville" 
                 name="ville"
                 value={this.state.account.ville}
                 onChange={(e, d) => this.handleChangeInput(e, d)} />
-              <Form.Input required={true} 
+              <Form.Input 
+                required={true} 
                 label="Pays" 
                 placeholder="Votre pays" 
                 name="pays"
@@ -332,19 +333,22 @@ export default class Configuration extends React.Component {
             <Divider horizontal>Contact</Divider>
 
             <Form.Group widths="equal">
-              <Form.Input required 
+              <Form.Input
+                required={true} 
                 label="Téléphone mobile" 
                 value={this.state.account.telMobile}
                 name="telMobile" 
                 error={(this.telephoneValide(this.state.account.telMobile) || this.state.account.telMobile === "") ? false : true}
                 onChange={(e, d) => this.handleChangeInput(e, d)} />
-              <Form.Input required
+              <Form.Input
+                required={true}
                 label="Téléphone bureau" 
                 value={this.state.account.telBureau}
                 name="telBureau"
                 error={(this.telephoneValide(this.state.account.telBureau) || this.state.account.telBureau === "") ? false : true}
                 onChange={(e, d) => this.handleChangeInput(e, d)} />
-              <Form.Input required 
+              <Form.Input
+                required={true} 
                 label="E-mail" 
                 placeholder="exemple@exemple.com" 
                 name="email"
@@ -372,13 +376,15 @@ export default class Configuration extends React.Component {
         <Grid>
           <Grid.Row centered columns={4}>
             <Grid.Column>
-              <Button fluid
+              <Button 
+                fluid={true}
                 size="big"
                 color={(this.state.saved) ? "grey" : "blue"}
                 onClick={this.save}>Sauvegarder les modifications</Button>
             </Grid.Column>
             <Grid.Column>
-              <Button fluid={true} 
+              <Button 
+                fluid={true} 
                 size="big"
                 color="grey"
                 onClick={this.reload}>Annuler/Actualiser</Button>
