@@ -21,7 +21,7 @@ import { hsize } from "./Settings";
  * et que les formats du code postal, n° de téléphone et adresse e-mail sont valides. (regex)
  */
 
-var defaultProfil = {
+const defaultProfil = {
   currentName: "",
   userName: "",
   userPassword: "",
