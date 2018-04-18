@@ -83,7 +83,26 @@ Il est par exemple possible d'ouvrir le lundi, de 9h à 12h et de 14h à 18h :
 
 Pour supprimer une plage horaire, il faut simplement cliquer sur le bouton "-" en bout de ligne.
 
+Une fois toutes les plages configurées, il ne reste plus qu'à tout valider via le bouton "Sauvegarder" en bas de page.
 
+
+# Evènements récurrents
+
+Il est possible de créer des évenènements récurrents qui apparaitront ensuite dans le planning et qui permettront d'indiquer ce qu'on a prévu de faire à tel jour et tel créneau horaire.
+Pour créer un évènement récurrent, il suffit de cliquer sur le bouton "+ Ajouter un évènement" :
+
+![alt text](images/evenement-recurrent.png)
+
+Il faut ensuite donner un nom à l'évènement, lui choisir une couleur et indiquer si cette couleur apparaitra en arrière plan ou non.
+Arrière plan signifie que la couleur sera beaucoup plus transparente. Sans l'option arrière plan, la couleur sera de la même intensité que celles des rendez-vous.
+Exemple sans l'option arrière plan :
+
+![alt text](images/evenement-arriere-plan-on.png)
+
+
+Exemple avec l'option arrière plan :
+
+![alt text](images/evenement-arriere-plan-off.png)
 
 
 
