@@ -101,6 +101,7 @@ Exemple sans l'option arrière plan :
 ![alt text](images/evenement-arriere-plan-on.png)
 
 
+
 Exemple avec l'option arrière plan :
 
 ![alt text](images/evenement-arriere-plan-off.png)
