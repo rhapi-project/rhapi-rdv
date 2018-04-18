@@ -147,7 +147,7 @@ Pour obtenir le résultat suivant :
 Ensuite, on indique si on souhaite afficher les congés dans l'agenda, la couleur de ceux-ci et enfin les dates concernées.
 Là encore, on clique sur le bouton "+" pour ajouter une plage de dates, on saisit ensuite les dates et enfin son intitulé :
 
-![alt text](images/conges-config.png
+![alt text](images/conges-config.png)
 
 
 
