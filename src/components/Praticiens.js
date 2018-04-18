@@ -20,6 +20,7 @@ import { maxWidth, hsize, fsize } from "./Settings";
 import Configuration from "./Configuration";
 import Calendars from "./Calendars";
 import Profil from "./Profil";
+import ProfilsPatients from "./ProfilsPatients";
 
 var client = new Client(
   // local dev no auth (décommenter la ligne suivante)
@@ -123,6 +124,8 @@ export default class Praticiens extends React.Component {
         return <Configuration client={client} user={this.state.user} />;
       } else if (option === "Profil") {
         return <Profil client={client} user={this.state.user} />;
+      } else if (option === "Patients") {
+        return <ProfilsPatients client={client} user={this.state.user} />;
       }
 
       return (
