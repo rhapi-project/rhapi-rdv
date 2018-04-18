@@ -95,6 +95,7 @@ Pour créer un évènement récurrent, il suffit de cliquer sur le bouton "+ Ajo
 
 Il faut ensuite donner un nom à l'évènement, lui choisir une couleur et indiquer si cette couleur apparaitra en arrière plan ou non.
 Arrière plan signifie que la couleur sera beaucoup plus transparente. Sans l'option arrière plan, la couleur sera de la même intensité que celles des rendez-vous.
+
 Exemple sans l'option arrière plan :
 
 ![alt text](images/evenement-arriere-plan-on.png)
