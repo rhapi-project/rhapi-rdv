@@ -122,6 +122,32 @@ L'évènement récurrent s'affichera ainsi dans la zone "Toute la journée" de l
 ![alt text](images/evenement-journee-agenda.png)
 
 
+# Prise de rendez-vous
+
+La gestion des congés, des niveaux d'autorisation pour la prise des rendez-vous ainsi que la gestion des motifs de rendez-vous se fait via ce menu.
+Ici, on peut définir le délai maximum, en jours, pour la prise d'un rendez-vous ainsi que le délai de prévenance, en heures, pour leur annulation.
+On peut également définir le format des noms affichés dans l'agenda, comme NOM/PRENOM, NOM/Prénom, Nom/Prénom, etc... et indiquer la dénomination d'un rendez-vous par défaut pour les patients non identifiés :
+
+![alt text](images/prise-rdv.png)
+
+
+## Congés
+
+Tout d'abord, il est possible d'activer, ou non, l'affichage des jours fériés légaux dans l'agenda.
+Si on souhaite les afficher, il suffit de cocher la case "Les jours fériés légaux sont pris en compte automatiquement" :
+
+![alt text](images/jours-feries.png)
+
+
+Pour obtenir le résultat suivant :
+
+![alt text](images/exemple-jour-ferie.png)
+
+
+Ensuite, on indique si on souhaite afficher les congés dans l'agenda, la couleur de ceux-ci et enfin les dates concernées.
+Là encore, on clique sur le bouton "+" pour ajouter une plage de dates, on saisit ensuite les dates et enfin son intitulé :
+
+![alt text](images/conges-config.png
 
 
 
