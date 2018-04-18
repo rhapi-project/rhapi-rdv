@@ -29,7 +29,6 @@ var defaultProfil = {
   account: {
     nom: "",
     prenom: "",
-    genre: 0,
     adresse1: "",
     adresse2: "",
     adresse3: "",
@@ -88,18 +87,6 @@ export default class Profil extends React.Component {
       let obj = this.state.account;
       obj[d.name] = e.target.value;
       this.setState({ account: obj });
-    }
-  };
-
-  //gestion des bouton radios "Genre"
-  handleChangeRadio = value => {
-    this.setState({ saved: false });
-    if (_.isUndefined(this.state.account.genre)) {
-      let objAccount = this.state.account;
-      objAccount.genre = value;
-      this.setState({ account: objAccount });
-    } else {
-      this.setState({ account: { genre: value } });
     }
   };
 
