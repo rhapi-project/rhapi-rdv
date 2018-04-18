@@ -101,10 +101,33 @@ Exemple sans l'option arrière plan :
 ![alt text](images/evenement-arriere-plan-on.png)
 
 
-
 Exemple avec l'option arrière plan :
 
 ![alt text](images/evenement-arriere-plan-off.png)
+
+Une fois ces paramètres validés, il faut maintenant indique les créneaux horaires concernés par l'évènement.
+Le fonctionnement pour cela est le même que pour les plages horaires d'ouverture : on sélectionne une journée, on clique sur le bouton "+" et on mentionne le créneau horaire souhaité.
+
+Exemple : 
+
+![alt text](images/exemple-evenement-recurrent.png)
+
+Toutefois, il est possible d'indiquer qu'un évnèement s'applique à une journée entière plut^ qu'un créneau horaire.
+Pour cela, il faut cocher l'option "Toute la journée" :
+
+![alt text](images/evenement-journee-config.png)
+
+L'évènement récurrent s'affichera ainsi dans la zone "Toute la journée" de l'agenda :
+
+![alt text](images/evenement-journee-agenda.png)
+
+
+
+
+
+
+
+
 
 
 
