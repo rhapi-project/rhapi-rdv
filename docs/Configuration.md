@@ -152,6 +152,16 @@ Là encore, on clique sur le bouton "+" pour ajouter une plage de dates, on sais
 
 ## Niveaux d'autorisation
 
+Les niveaux d'autorisation, qui vont de 0 à 3, permettent de définir ce qu'un patient ou un correspondant peut faire au niveau du planning.
+Par exemple, si le patient A peut prendre des rendez-vous quand il le souhaite, ou bien uniquement pour certains motifs, ou encore certains créneaux horaires uniquement.
+Avant de pouvoir indiquer ce qu'un patient ou un correspondant peut faire, il faut donc commencer par définir ce qu'il est possible de faire selon chaque niveau d'autorisation.
+Le "Niveau minimum d'autorisation requis pour la prise de RDV en ligne" permet donc de savoir à partir de quel niveau on peut accéder aux rendez-vous en ligne :
+
+
+
+
+
+
 
 ## Motifs des rendez-vous
 
