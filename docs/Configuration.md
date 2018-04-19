@@ -167,9 +167,18 @@ Le "Niveau maximum accepté pour un RDV en ligne" permet cette fois d'indiquer l
 ![alt text](images/niveau-maximum.png)
 
 
-Enfin, le "Niveau d'autorisation minimum des motifs proposés pour la prise de RDV depuis l'agenda" sert à définir à partir de quel niveau on peut sélectionner un motif lors de notre prise de rendez-vous en ligne.
+Le "Niveau d'autorisation minimum des motifs proposés pour la prise de RDV depuis l'agenda" sert à définir à partir de quel niveau on peut sélectionner un motif lors de notre prise de rendez-vous en ligne.
 
 ![alt text](images/niveau-motifs.png)
+
+
+Enfin, les "Plages horaires ouvertes par niveau d'autorisation" sont à définir de la même manière que les plages horaires classiques.
+Il faut d'abord sélectionner le niveau d'autorisation pour lequel on veut définir les plages, choisir ensuite une journée et cliquer sur le bouton "+" pour sélectionner le créneau souhaité.
+
+Par exemple, si on veut indiquer que les personnes, dont le niveau d'autorisation est 0, ont le droit de prendre des rendez-vous en ligne le lundi de 8h à 12h, on sélectionne la rubrique "Niveau d'autorisation 0", on sélectionne le lundi et on ajoute la plage 8h-12h :
+
+![alt text](images/plage-niveau0.png)
+
 
 
 ## Motifs des rendez-vous
@@ -179,6 +188,8 @@ Il est possible de préparer des motifs de rendez-vous afin de ne pas avoir à l
 Il faut utiliser le bouton "+" pour créer un nouveau motif et ensuite, saisir son intitulé, son niveau d'autorisation (pour la prise de rendez-vous en ligne), sa durée par défaut (qui pourra bien entendu être modifiée lors de la prise d'un rendez-vous) et sa couleur :
 
 ![alt text](images/motif-rdv.png)
+
+
 
 
 
