@@ -156,6 +156,7 @@ Là encore, on clique sur le bouton "+" pour ajouter une plage de dates, on sais
 ## Motifs des rendez-vous
 
 Il est possible de préparer des motifs de rendez-vous afin de ne pas avoir à les saisir manuellement pour chaque rendez-vous futur.
+
 Il faut utiliser le bouton "+" pour créer un nouveau motif et ensuite, saisir son intitulé, son niveau d'autorisation (pour la prise de rendez-vous en ligne), sa durée par défaut (qui pourra bien entendu être modifiée lors de la prise d'un rendez-vous) et sa couleur :
 
 ![alt text](images/motif-rdv.png)
