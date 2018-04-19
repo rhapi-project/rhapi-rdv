@@ -142,6 +142,14 @@ class Main extends React.Component {
                   }}
                 />
                 <Menu.Item
+                  name="Patients"
+                  icon="users"
+                  onClick={() => {
+                    window.location = originPath + "#Praticiens/Patients";
+                    this.setState({ visible: false });
+                  }}
+                />
+                <Menu.Item
                   name="Profil"
                   icon="address card"
                   onClick={() => {
