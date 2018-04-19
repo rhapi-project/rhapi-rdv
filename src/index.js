@@ -60,6 +60,19 @@ class Main extends React.Component {
             vertical={true}
           >
             <Menu.Item
+              style={{ paddingTop: "10px", paddingBottom: "24px" }}
+              onClick={() => {
+                this.setState({ visible: false });
+              }}
+            >
+              <Icon
+                name="close"
+                onClick={() => {
+                  this.setState({ visible: false });
+                }}
+              />
+            </Menu.Item>
+            <Menu.Item
               header={true}
               name="home"
               onClick={() => {
@@ -111,6 +124,19 @@ class Main extends React.Component {
             width="wide"
             vertical={true}
           >
+            <Menu.Item
+              style={{ paddingTop: "10px", paddingBottom: "24px" }}
+              onClick={() => {
+                this.setState({ visible: false });
+              }}
+            >
+              <Icon
+                name="close"
+                onClick={() => {
+                  this.setState({ visible: false });
+                }}
+              />
+            </Menu.Item>
             <Menu.Item
               header={true}
               name="home"
@@ -192,8 +218,13 @@ class Main extends React.Component {
       );
     } else {
       sidebar = (
-        <Sidebar.Pushable style={{ minHeight: "400px" }}>
+        <Sidebar.Pushable>
           <Sidebar
+            style={{
+              position: "fixed",
+              top: 0,
+              zIndex: 100
+            }}
             as={Menu}
             animation="overlay"
             direction={menuPos}
@@ -203,6 +234,19 @@ class Main extends React.Component {
             width="wide"
             vertical={true}
           >
+            <Menu.Item
+              style={{ paddingTop: "10px", paddingBottom: "24px" }}
+              onClick={() => {
+                this.setState({ visible: false });
+              }}
+            >
+              <Icon
+                name="close"
+                onClick={() => {
+                  this.setState({ visible: false });
+                }}
+              />
+            </Menu.Item>
             <Menu.Item
               header={true}
               name="home"
@@ -247,14 +291,24 @@ class Main extends React.Component {
 
     return (
       <React.Fragment>
-        <Icon
-          size="large"
-          style={{ cursor: "pointer" }}
-          name={this.state.visible ? "close" : "bars"}
-          onClick={() => {
-            this.setState({ visible: !this.state.visible });
-          }}
-        />Menu
+        {this.state.visible ? (
+          ""
+        ) : (
+          <Icon
+            size="large"
+            style={{
+              cursor: "pointer",
+              position: "fixed",
+              top: 0,
+              zIndex: 100
+            }}
+            name="bars"
+            onClick={() => {
+              this.setState({ visible: true });
+              window.scrollTo(0, 0);
+            }}
+          />
+        )}
         {help}
         {sidebar}
         <Modal

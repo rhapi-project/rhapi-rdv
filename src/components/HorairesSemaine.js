@@ -89,7 +89,7 @@ export default class HorairesSemaine extends React.Component {
     return (
       <Accordion>
         <Button
-          content="Saisir les plages horaires sur l'agenda d'un semaine type"
+          content="Saisir les plages horaires sur l'agenda d'une semaine type"
           icon="calendar"
           onClick={() =>
             alert(

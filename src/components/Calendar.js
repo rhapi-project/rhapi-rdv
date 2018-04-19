@@ -171,7 +171,24 @@ export default class Calendar extends React.Component {
       eventRender: function(event, element) {
         let elt = element[0];
         if (elt.className === "fc-bgevent") {
-          $(elt).css("color", "white");
+          // met en black si fond clair sur les events "background"
+          // note : fc ne prend en compte ni le texte ni textColor sur les "fc-bgevent"
+          let color = event.color;
+          if (color.substr(0, 1) === "#") {
+            let lightness =
+              (parseInt(color.substr(1, 2), 16) +
+                parseInt(color.substr(3, 2), 16) +
+                parseInt(color.substr(5, 2), 16)) /
+              3;
+            if (lightness > 140) {
+              $(elt).css("color", "#000000");
+            } else {
+              $(elt).css("color", "#FFFFFF");
+            }
+          } else {
+            $(elt).css("color", "#FFFFFF");
+          }
+          $(elt).css("padding-left", "2px");
           elt.innerText = event.title;
         }
       },
@@ -239,7 +256,7 @@ export default class Calendar extends React.Component {
 
             // évènements récurrents
             // https://fullcalendar.io/docs/event-object
-            console.log(datas.informations.recurrents);
+            //console.log(datas.informations.recurrents);
             _.forEach(datas.informations.recurrents, (recurrent, i) => {
               events.push({
                 start: recurrent.startAt,
@@ -281,7 +298,7 @@ export default class Calendar extends React.Component {
           (error, response) => {
             //console.log(error);
             if (error.networkError === 304) {
-              // not modified
+              //console.log("not modified");
               callback(that.rhapiCache);
             }
           }
