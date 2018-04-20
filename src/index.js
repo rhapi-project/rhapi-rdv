@@ -7,7 +7,9 @@ import { render } from "react-dom";
 import "react-dates/lib/css/_datepicker.css";
 import "react-dates/initialize";
 
-import "./css/fullcalendar.css";
+import "fullcalendar/dist//fullcalendar.css";
+import "fullcalendar/dist/fullcalendar.print.css";
+
 import "semantic-ui-css/semantic.min.css";
 
 import "./css/index.css";
