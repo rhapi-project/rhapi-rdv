@@ -11,6 +11,9 @@ import CalendarPanel from "./CalendarPanel";
 export default class Calendars extends React.Component {
   componentWillMount() {
     this.setState({ plannings: [], index: -1, print: false });
+  }
+
+  componentDidMount() {
     this.reload();
   }
 

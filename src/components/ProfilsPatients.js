@@ -32,6 +32,9 @@ export default class ProfilsPatients extends React.Component {
       saved: true,
       errorOnSave: false
     });
+  }
+
+  componentDidMount() {
     this.reload();
   }
 

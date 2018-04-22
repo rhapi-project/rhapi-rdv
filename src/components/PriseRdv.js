@@ -49,9 +49,11 @@ export default class PriseRdv extends React.Component {
       completed: false,
       voirMesRdv: false
     });
+  }
 
+  componentDidMount() {
     this.props.client.Reservation.mesPlannings(
-      patient,
+      this.state.patient,
       result => {
         this.setState({ plannings: result.results });
       },

@@ -172,6 +172,9 @@ class MonRdv extends React.Component {
 export default class MesRdv extends React.Component {
   componentWillMount() {
     this.setState({ nouveauRdv: false, mesRdv: [], edited: false }); // default state
+  }
+
+  componentDidMount() {
     this.props.client.Reservation.mesPlannings(
       {
         ipp: this.props.patient.ipp,

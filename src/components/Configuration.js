@@ -34,10 +34,10 @@ export default class Configuration extends React.Component {
       reservationActiveIndex: -1,
       saved: true
     });
-    this.reload(0);
   }
 
   componentDidMount() {
+    this.reload(0);
     this.reload(0); // assure un affichage correct des plages horaires...
   }
 

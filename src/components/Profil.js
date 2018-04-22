@@ -40,9 +40,11 @@ const defaultProfil = {
 };
 
 export default class Profil extends React.Component {
-  state = { saved: true, passwordConfirm: "", ...defaultProfil };
-
   componentWillMount() {
+    this.setState({ saved: true, passwordConfirm: "", ...defaultProfil });
+  }
+
+  componentDidMount() {
     this.reload();
   }
 
@@ -161,7 +163,6 @@ export default class Profil extends React.Component {
   };
 
   render() {
-    console.log(this.state.saved);
     return (
       <React.Fragment>
         <Header size={hsize}>Profil</Header>
