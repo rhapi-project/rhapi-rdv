@@ -10,7 +10,7 @@ import React from "react";
 
 import { Header, Divider, Button } from "semantic-ui-react";
 
-import { PatientSearch } from "./CalendarModalRdv";
+import PatientSearch from "./PatientSearch";
 
 import CalendarModalRdv from "./CalendarModalRdv";
 

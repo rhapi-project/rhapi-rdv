@@ -13,6 +13,9 @@ import React from "react";
 
 import CalendarModalRdv from "./CalendarModalRdv";
 
+var currentDate = moment();
+var currentView = "agendaWeek";
+
 export default class Calendar extends React.Component {
   constructor(props) {
     super(props);
@@ -109,8 +112,12 @@ export default class Calendar extends React.Component {
       "calendarSlotHeight_" + planningId
     );
     calendarSlotHeight = _.isNull(calendarSlotHeight)
-      ? "20px"
-      : calendarSlotHeight + "px";
+      ? 20
+      : 0 + calendarSlotHeight;
+
+    if (calendarSlotHeight < 17) {
+      calendarSlotHeight = 17;
+    }
 
     let that = this; // that react component
 
@@ -122,14 +129,15 @@ export default class Calendar extends React.Component {
       locale: "fr",
       slotLabelFormat: "H:mm",
       nowIndicator: true,
-      defaultView: "agendaWeek", // month,basicWeek,basicDay,agendaWeek,agendaDay,listYear,listMonth,listWeek,listDay
+      defaultDate: currentDate,
+      defaultView: currentView, // month,basicWeek,basicDay,agendaWeek,agendaDay,listYear,listMonth,listWeek,listDay
       editable: true,
       droppable: true,
       selectable: true,
       hiddenDays: hiddenDays,
       businessHours: businessHours,
       slotDuration: slotDuration,
-      slotLabelInterval: "01:00",
+      slotLabelInterval: "01:00", //calendarSlotHeight < 17 ? "00:00" : "01:00",
       defaultDuration: duration,
       defaultTimedEventDuration: duration,
       minTime: minTime,
@@ -166,6 +174,11 @@ export default class Calendar extends React.Component {
 
       dayRender: function(date, cell) {
         $("td.fc-widget-content").css("height", calendarSlotHeight);
+      },
+
+      viewRender: function(view) {
+        currentView = view.name;
+        currentDate = view.calendar.getDate();
       },
 
       eventRender: function(event, element) {

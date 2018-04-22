@@ -129,7 +129,7 @@ export default class Praticiens extends React.Component {
       }
 
       return (
-        <Card.Group>
+        <Card.Group style={{ marginTop: 10 }}>
           <Card>
             <Card.Content>
               <Card.Header textAlign="right">
@@ -179,7 +179,7 @@ export default class Praticiens extends React.Component {
     return (
       <div className="login-form">
         <Grid textAlign="center">
-          <Grid.Column style={{ maxWidth: maxWidth }}>
+          <Grid.Column style={{ maxWidth: maxWidth, marginTop: 60 }}>
             <Header size={hsize} color="teal">
               {/*<Image src='/logo.png' />*/}
               Connexion praticien

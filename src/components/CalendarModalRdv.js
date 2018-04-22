@@ -1,6 +1,4 @@
-//import _ from 'lodash'
 import React from "react";
-import ReactDOM from "react-dom";
 
 import _ from "lodash";
 
@@ -8,8 +6,7 @@ import {
   Button,
   Header,
   Modal,
-  Image,
-  Search,
+  Icon,
   Segment,
   Form,
   Label,
@@ -22,105 +19,7 @@ import moment from "moment";
 
 import { maxWidth /*, hsize, fsize*/ } from "./Settings";
 
-export class PatientSearch extends React.Component {
-  componentWillMount() {
-    this.setState({ isLoading: false, results: [], value: "" });
-  }
-
-  componentDidMount() {
-    if (this.state.value === "") {
-      ReactDOM.findDOMNode(this)
-        .getElementsByTagName("input")[0]
-        .focus();
-    } else {
-      ReactDOM.findDOMNode(this)
-        .getElementsByTagName("button")[0]
-        .focus();
-    }
-  }
-
-  handleResultSelect = (e, { result }) => {
-    this.setState({ value: result.title });
-    this.props.patientChange(result.id, result.title);
-  };
-
-  handleSearchChange = (e, { value }) => {
-    if (value === "") {
-      this.setState({
-        isLoading: false,
-        results: [],
-        value
-      });
-      this.props.patientChange(0, "");
-      return;
-    }
-    this.setState({ isLoading: true, value });
-
-    this.props.client.Patients.completion(
-      {
-        texte: value,
-        format: this.props.format,
-        limit: 10
-      },
-      patients => {
-        const results = [];
-
-        // refact results
-        let prev, dupsCount;
-        _.forEach(patients, patient => {
-          let title = patient.completion;
-          if (title === prev) {
-            title += ` (${++dupsCount})`;
-          } else {
-            dupsCount = 1;
-          }
-          prev = title;
-          var result = {
-            id: patient.id,
-            title: title,
-            description: _.isEmpty(patient.naissance)
-              ? ""
-              : new Date(patient.naissance).toLocaleDateString("fr-FR")
-            /*image: faker.internet.avatar()*/
-          };
-          results.push(result);
-        });
-
-        this.setState({
-          isLoading: false,
-          results: results
-        });
-      },
-      () => {} // error
-    );
-  };
-
-  searchClear = () => {
-    this.setState({ isLoading: false, results: [], value: "" });
-    this.props.patientsChange(0, "");
-    ReactDOM.findDOMNode(this)
-      .getElementsByTagName("input")[0]
-      .focus();
-  };
-
-  render() {
-    const { isLoading, value, results } = this.state;
-
-    return (
-      <Search
-        size="large"
-        fluid={true}
-        loading={isLoading}
-        onResultSelect={this.handleResultSelect}
-        onSearchChange={this.handleSearchChange}
-        results={results}
-        placeholder="Recherche d'un patient..."
-        showNoResults={false}
-        value={value}
-      />
-    );
-  }
-}
+import PatientSearch from "./PatientSearch";
 
 class FromTo extends React.Component {
   componentWillMount() {
@@ -353,7 +252,7 @@ export default class CalendarModalRdv extends React.Component {
           </Header>
         </Segment>
         <Modal.Content image={true}>
-          <Image wrapped={true} size="small" src="images/patient.png" />
+          <Icon name="user" size="massive" />
           <Form>
             {this.props.isExternal ? (
               ""

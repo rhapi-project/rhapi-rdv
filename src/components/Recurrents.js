@@ -28,7 +28,7 @@ export default class Recurrents extends React.Component {
       start: "",
       end: "",
       recurrence: 0,
-      background: false,
+      background: true,
       horaires: [[], [], [], [], [], [], []]
     });
     this.props.onChange();

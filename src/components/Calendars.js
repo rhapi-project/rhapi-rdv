@@ -10,19 +10,18 @@ import CalendarPanel from "./CalendarPanel";
 
 export default class Calendars extends React.Component {
   componentWillMount() {
-    this.setState({ plannings: [], index: -1 });
+    this.setState({ plannings: [], index: -1, print: false });
     this.reload();
   }
 
-  /*
-  componentDidMount() {
-    window.addEventListener("resize", () => {
-      if (!this.aboutToMount) {
-        this.forceUpdate();
+  componentDidUpdate() {
+    setTimeout(() => {
+      if (this.state.print) {
+        window.print();
+        this.setState({ print: false });
       }
-    });
+    }, 1000);
   }
-  */
 
   reload = () => {
     this.props.client.Plannings.mesPlannings(
@@ -41,6 +40,10 @@ export default class Calendars extends React.Component {
     this.setState({ index: d.value });
   };
 
+  print = () => {
+    this.setState({ print: true });
+  };
+
   zoomOut = () => {
     let id =
       this.state.index < 0 ? "0" : this.state.plannings[this.state.index].id;
@@ -48,7 +51,9 @@ export default class Calendars extends React.Component {
     if (_.isNull(h)) {
       h = 20;
     }
-    if (h < 4) return;
+    if (h < 14) {
+      return;
+    }
     localStorage.setItem("calendarSlotHeight_" + id, --h);
     this.setState({});
   };
@@ -65,6 +70,30 @@ export default class Calendars extends React.Component {
   };
 
   render() {
+    if (this.state.print) {
+      return (
+        <Calendar
+          client={this.props.client}
+          couleur={
+            this.state.index < 0
+              ? ""
+              : this.state.plannings[this.state.index].couleur
+          }
+          options={
+            this.state.index < 0
+              ? {}
+              : this.state.plannings[this.state.index].optionsJO
+          }
+          planning={
+            this.state.index < 0
+              ? "0"
+              : this.state.plannings[this.state.index].id
+          }
+          externalRefetch={this.state.externalRefetch}
+        />
+      );
+    }
+
     let width =
       window.innerWidth ||
       document.documentElement.clientWidth ||
@@ -83,6 +112,10 @@ export default class Calendars extends React.Component {
               style={{ maxWidth: "300px" }}
             >
               <div style={{ textAlign: "right" }}>
+                <Button.Group basic={true} size="mini">
+                  <Button icon="print" onClick={this.print} />
+                </Button.Group>
+                &nbsp;
                 <Button.Group basic={true} size="mini">
                   <Button icon="zoom out" onClick={this.zoomOut} />
                   <Button icon="zoom in" onClick={this.zoomIn} />

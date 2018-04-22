@@ -101,7 +101,7 @@ const defaultPlanning = {
         couleur: "#000000",
         start: "",
         end: "",
-        background: false,
+        background: true,
         recurrence: 0,
         horaires: [
           [],
@@ -253,8 +253,8 @@ const defaultPlanning = {
           ],
           []
         ],
-        [],
-        []
+        [[], [], [], [], [], [], []],
+        [[], [], [], [], [], [], []]
       ]
     }
   }

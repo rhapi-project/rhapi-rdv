@@ -21,7 +21,7 @@ import {
   ANCHOR_LEFT
 } from "react-dates/constants";
 
-import isInclusivelyAfterDay from "react-dates/src/utils/isInclusivelyAfterDay";
+//import isInclusivelyAfterDay from "react-dates/src/utils/isInclusivelyAfterDay";
 
 // Note importante :
 // rhapi-rdv Periode reprend le fonctionnement du airbnb DateRangePickerWrapper
@@ -95,7 +95,7 @@ const defaultProps = {
   minimumNights: 1,
   enableOutsideDays: false,
   isDayBlocked: () => false,
-  isOutsideRange: day => !isInclusivelyAfterDay(day, moment()),
+  isOutsideRange: day => false, //!isInclusivelyAfterDay(day, moment()),
   isDayHighlighted: () => false,
 
   // internationalization

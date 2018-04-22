@@ -448,7 +448,6 @@ export default class Configuration extends React.Component {
                       icon="dropdown"
                       content={"Niveau d'autorisation " + i}
                     />
-
                     <Accordion.Content
                       active={this.state.reservationActiveIndex === i}
                     >
@@ -869,12 +868,15 @@ export default class Configuration extends React.Component {
                 />
               </Form.Input>
             </Form.Group>
-            <Accordion
-              defaultActiveIndex={-1}
-              panels={rootPanels}
-              styled={true}
-              fluid={true}
-            />
+            <div style={{ paddingRight: "5px" }}>
+              {/*Accordion right margin*/}
+              <Accordion
+                defaultActiveIndex={-1}
+                panels={rootPanels}
+                styled={true}
+                fluid={true}
+              />
+            </div>
             <Divider hidden={true} />
             <Button negative={true} onClick={this.supprimer}>
               Supprimer

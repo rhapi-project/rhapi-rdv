@@ -8,9 +8,7 @@ import {
   Divider,
   Button,
   Form,
-  Segment,
-  Icon,
-  Grid
+  Icon
 } from "semantic-ui-react";
 
 import { hsize } from "./Settings";
@@ -42,11 +40,9 @@ const defaultProfil = {
 };
 
 export default class Profil extends React.Component {
+  state = { saved: true, passwordConfirm: "", ...defaultProfil };
+
   componentWillMount() {
-    this.setState({
-      ...defaultProfil,
-      saved: true
-    });
     this.reload();
   }
 
@@ -70,23 +66,22 @@ export default class Profil extends React.Component {
         console.log(data);
       }
     );
-    this.setState({ saved: true, passwordConfirm: "" });
   };
 
   //gestion des "onChange" dans les input
   handleChangeInput = (e, d) => {
-    this.setState({ saved: false });
+    console.log("handleChangeInput");
     if (
       _.includes(["currentName", "userPassword", "passwordConfirm"], d.name)
     ) {
-      let obj = {};
+      let obj = { saved: false };
       obj[d.name] = e.target.value;
-      this.setState(obj);
+      this.setState({ obj });
     } else {
       //Modification dans l'objet account
       let obj = this.state.account;
       obj[d.name] = e.target.value;
-      this.setState({ account: obj });
+      this.setState({ account: obj, saved: false });
     }
   };
 
@@ -156,10 +151,6 @@ export default class Profil extends React.Component {
           });
         },
         () => {
-          //error
-          this.setState({
-            saved: false
-          });
           console.log("La sauvegarde a échoué !");
           this.reload();
         }
@@ -170,240 +161,210 @@ export default class Profil extends React.Component {
   };
 
   render() {
+    console.log(this.state.saved);
     return (
       <React.Fragment>
         <Header size={hsize}>Profil</Header>
+        {this.state.saved ? (
+          <Message
+            header={"Bienvenue " + this.state.userName}
+            content="Voici les données de votre profil utilisateur."
+          />
+        ) : (
+          <Message
+            warning={true}
+            header="Modifications non sauvegardées"
+            content={
+              "Les dernières modifications effectuées ne sont pas sauvegardées. Vous pouvez annuler pour revenir à la version précédente."
+            }
+          />
+        )}
 
-        <Segment className="formProfil">
-          <Form>
-            {this.state.saved ? (
-              <Message floating positive={true} icon={true}>
-                <Icon color="green" size="big" />
-                <Message.Content>
-                  <Message.Header>
-                    Bienvenue <strong>{this.state.userName}</strong>
-                  </Message.Header>
-                </Message.Content>
-              </Message>
-            ) : (
-              <Message floating negative={true} icon={true}>
-                <Icon name="warning circle" color="red" size="big" />
-                <Message.Content>
-                  <Message.Header>
-                    Des modifications ont été faites sur votre profil
-                  </Message.Header>
-                  <p>
-                    Pensez à faire une sauvegarde ou annulez les modifications !
-                  </p>
-                </Message.Content>
-              </Message>
-            )}
+        <Form>
+          <Form.Input
+            required={true}
+            label="Nom courant"
+            placeholder="Dr Jean DUPONT"
+            value={this.state.currentName}
+            name="currentName"
+            onChange={(e, d) => this.handleChangeInput(e, d)}
+          />
 
+          <Form.Group widths="equal">
             <Form.Input
               required={true}
-              label="Nom courant"
-              placeholder="ex : Dr Jean DUPONT"
-              value={this.state.currentName}
-              name="currentName"
+              label="Mot de passe"
+              type="password"
+              error={
+                this.state.userPassword !== this.state.passwordConfirm
+                  ? true
+                  : false
+              }
+              value={this.state.userPassword}
+              name="userPassword"
               onChange={(e, d) => this.handleChangeInput(e, d)}
             />
+            <Form.Input
+              required={true}
+              label="Confirmer le mot de passe"
+              type="password"
+              error={
+                this.state.userPassword !== this.state.passwordConfirm
+                  ? true
+                  : false
+              }
+              value={this.state.passwordConfirm}
+              name="passwordConfirm"
+              onChange={(e, d) => this.handleChangeInput(e, d)}
+            />
+          </Form.Group>
 
-            <Form.Group widths="equal">
-              <Form.Input
-                required={true}
-                label="Mot de passe"
-                type="password"
-                error={
-                  this.state.userPassword !== this.state.passwordConfirm
-                    ? true
-                    : false
-                }
-                value={this.state.userPassword}
-                name="userPassword"
-                onChange={(e, d) => this.handleChangeInput(e, d)}
-              />
-              <Form.Input
-                required={true}
-                label="Confirmer le mot de passe"
-                type="password"
-                error={
-                  this.state.userPassword !== this.state.passwordConfirm
-                    ? true
-                    : false
-                }
-                value={this.state.passwordConfirm}
-                name="passwordConfirm"
-                onChange={(e, d) => this.handleChangeInput(e, d)}
-              />
+          <Divider />
+
+          <Form.Group widths="equal">
+            <Form.Input
+              required={true}
+              label="Prénom"
+              placeholder="Votre prénom"
+              value={this.state.account.prenom}
+              name="prenom"
+              onChange={(e, d) => this.handleChangeInput(e, d)}
+            />
+            <Form.Input
+              required={true}
+              label="Nom"
+              placeholder="Votre nom"
+              name="nom"
+              value={this.state.account.nom}
+              onChange={(e, d) => this.handleChangeInput(e, d)}
+            />
+          </Form.Group>
+
+          <Form.Group widths="equal">
+            <Form.Input
+              required={true}
+              label="Adresse"
+              placeholder="Votre adresse"
+              name="adresse1"
+              value={this.state.account.adresse1}
+              onChange={(e, d) => this.handleChangeInput(e, d)}
+            />
+            <Form.Input
+              label="Adresse (ligne 2)"
+              placeholder="Votre adresse"
+              value={this.state.account.adresse2}
+              name="adresse2"
+              onChange={(e, d) => this.handleChangeInput(e, d)}
+            />
+            <Form.Input
+              label="Adresse (ligne 3)"
+              placeholder="Votre adresse"
+              name="adresse3"
+              value={this.state.account.adresse3}
+              onChange={(e, d) => this.handleChangeInput(e, d)}
+            />
+          </Form.Group>
+
+          <Form.Group widths="equal">
+            <Form.Input
+              required={true}
+              label="Code postal"
+              placeholder="Code postal"
+              name="codePostal"
+              error={
+                this.codePostalValide(this.state.account.codePostal) ||
+                this.state.account.codePostal === ""
+                  ? false
+                  : true
+              }
+              value={this.state.account.codePostal}
+              onChange={(e, d) => this.handleChangeInput(e, d)}
+            />
+            <Form.Input
+              required={true}
+              label="Ville"
+              placeholder="Votre ville"
+              name="ville"
+              value={this.state.account.ville}
+              onChange={(e, d) => this.handleChangeInput(e, d)}
+            />
+            <Form.Input
+              required={true}
+              label="Pays"
+              placeholder="Votre pays"
+              name="pays"
+              value={this.state.account.pays}
+              onChange={(e, d) => this.handleChangeInput(e, d)}
+            />
+          </Form.Group>
+
+          <Divider hidden={true} />
+          <Divider horizontal>Contact</Divider>
+
+          <Form.Group widths="equal">
+            <Form.Input
+              required={true}
+              label="Téléphone mobile"
+              value={this.state.account.telMobile}
+              name="telMobile"
+              error={
+                this.telephoneValide(this.state.account.telMobile) ||
+                this.state.account.telMobile === ""
+                  ? false
+                  : true
+              }
+              onChange={(e, d) => this.handleChangeInput(e, d)}
+            />
+            <Form.Input
+              required={true}
+              label="Téléphone bureau"
+              value={this.state.account.telBureau}
+              name="telBureau"
+              error={
+                this.telephoneValide(this.state.account.telBureau) ||
+                this.state.account.telBureau === ""
+                  ? false
+                  : true
+              }
+              onChange={(e, d) => this.handleChangeInput(e, d)}
+            />
+            <Form.Input
+              required={true}
+              label="E-mail"
+              placeholder="exemple@exemple.com"
+              name="email"
+              error={
+                this.emailValide(this.state.account.email) ||
+                this.state.account.email === ""
+                  ? false
+                  : true
+              }
+              value={this.state.account.email}
+              onChange={(e, d) => this.handleChangeInput(e, d)}
+            />
+          </Form.Group>
+
+          {!this.verification() && !this.state.saved ? (
+            <Form.Group>
+              <p>
+                <strong>Les champs obligatoires ( </strong>
+                <sup>
+                  <Icon name="asterisk" color="red" size="mini" />
+                </sup>
+                <strong>) doivent être renseignés !</strong>
+              </p>
             </Form.Group>
+          ) : (
+            <p />
+          )}
 
-            <Divider />
+          <Divider hidden={true} />
+          <Button onClick={this.reload}>Annuler / Actualiser</Button>
 
-            <Form.Group widths="equal">
-              <Form.Input
-                required={true}
-                label="Prénom"
-                placeholder="Votre prénom"
-                value={this.state.account.prenom}
-                name="prenom"
-                onChange={(e, d) => this.handleChangeInput(e, d)}
-              />
-              <Form.Input
-                required={true}
-                label="Nom"
-                placeholder="Votre nom"
-                name="nom"
-                value={this.state.account.nom}
-                onChange={(e, d) => this.handleChangeInput(e, d)}
-              />
-            </Form.Group>
-
-            <Form.Group widths="equal">
-              <Form.Input
-                required={true}
-                label="Adresse"
-                placeholder="Votre adresse"
-                name="adresse1"
-                value={this.state.account.adresse1}
-                onChange={(e, d) => this.handleChangeInput(e, d)}
-              />
-              <Form.Input
-                label="Adresse (ligne 2)"
-                placeholder="Votre adresse"
-                value={this.state.account.adresse2}
-                name="adresse2"
-                onChange={(e, d) => this.handleChangeInput(e, d)}
-              />
-              <Form.Input
-                label="Adresse (ligne 3)"
-                placeholder="Votre adresse"
-                name="adresse3"
-                value={this.state.account.adresse3}
-                onChange={(e, d) => this.handleChangeInput(e, d)}
-              />
-            </Form.Group>
-
-            <Form.Group widths="equal">
-              <Form.Input
-                required={true}
-                label="Code postal"
-                placeholder="Code postal"
-                name="codePostal"
-                error={
-                  this.codePostalValide(this.state.account.codePostal) ||
-                  this.state.account.codePostal === ""
-                    ? false
-                    : true
-                }
-                value={this.state.account.codePostal}
-                onChange={(e, d) => this.handleChangeInput(e, d)}
-              />
-              <Form.Input
-                required={true}
-                label="Ville"
-                placeholder="Votre ville"
-                name="ville"
-                value={this.state.account.ville}
-                onChange={(e, d) => this.handleChangeInput(e, d)}
-              />
-              <Form.Input
-                required={true}
-                label="Pays"
-                placeholder="Votre pays"
-                name="pays"
-                value={this.state.account.pays}
-                onChange={(e, d) => this.handleChangeInput(e, d)}
-              />
-            </Form.Group>
-
-            <Divider hidden={true} />
-            <Divider horizontal>Contact</Divider>
-
-            <Form.Group widths="equal">
-              <Form.Input
-                required={true}
-                label="Téléphone mobile"
-                value={this.state.account.telMobile}
-                name="telMobile"
-                error={
-                  this.telephoneValide(this.state.account.telMobile) ||
-                  this.state.account.telMobile === ""
-                    ? false
-                    : true
-                }
-                onChange={(e, d) => this.handleChangeInput(e, d)}
-              />
-              <Form.Input
-                required={true}
-                label="Téléphone bureau"
-                value={this.state.account.telBureau}
-                name="telBureau"
-                error={
-                  this.telephoneValide(this.state.account.telBureau) ||
-                  this.state.account.telBureau === ""
-                    ? false
-                    : true
-                }
-                onChange={(e, d) => this.handleChangeInput(e, d)}
-              />
-              <Form.Input
-                required={true}
-                label="E-mail"
-                placeholder="exemple@exemple.com"
-                name="email"
-                error={
-                  this.emailValide(this.state.account.email) ||
-                  this.state.account.email === ""
-                    ? false
-                    : true
-                }
-                value={this.state.account.email}
-                onChange={(e, d) => this.handleChangeInput(e, d)}
-              />
-            </Form.Group>
-
-            {!this.verification() && !this.state.saved ? (
-              <Form.Group>
-                <p>
-                  <strong>Les champs obligatoires ( </strong>
-                  <sup>
-                    <Icon name="asterisk" color="red" size="mini" />
-                  </sup>
-                  <strong>) doivent être renseignés !</strong>
-                </p>
-              </Form.Group>
-            ) : (
-              <p />
-            )}
-          </Form>
-        </Segment>
-
-        <Divider hidden={true} />
-
-        <Grid>
-          <Grid.Row centered columns={4}>
-            <Grid.Column>
-              <Button
-                fluid={true}
-                size="big"
-                color={this.state.saved ? "grey" : "blue"}
-                onClick={this.save}
-              >
-                Sauvegarder les modifications
-              </Button>
-            </Grid.Column>
-            <Grid.Column>
-              <Button
-                fluid={true}
-                size="big"
-                color="grey"
-                onClick={this.reload}
-              >
-                Annuler/Actualiser
-              </Button>
-            </Grid.Column>
-          </Grid.Row>
-        </Grid>
+          <Button primary={!this.state.saved} onClick={this.save}>
+            Sauvegarder
+          </Button>
+        </Form>
         <Divider hidden={true} />
       </React.Fragment>
     );

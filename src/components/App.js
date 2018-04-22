@@ -5,7 +5,7 @@ import { Card, Icon, Button } from "semantic-ui-react";
 export default class App extends React.Component {
   render() {
     return (
-      <Card.Group>
+      <Card.Group style={{ marginTop: 10 }}>
         <Card>
           <Card.Content>
             <Card.Header textAlign="right">

@@ -102,7 +102,7 @@ export default class Patients extends React.Component {
 
   render() {
     return (
-      <Grid textAlign="center">
+      <Grid textAlign="center" style={{ marginTop: 10 }}>
         <Grid.Column style={{ maxWidth: maxWidth }}>
           {this.state.gestionRDV ? (
             this.state.identified ? (

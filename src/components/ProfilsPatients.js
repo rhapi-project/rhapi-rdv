@@ -6,22 +6,21 @@ import {
   Header,
   Message,
   Divider,
-  Button,
-  Segment,
   Icon,
-  Grid
+  Form,
+  Button
 } from "semantic-ui-react";
 
 import { hsize } from "./Settings";
 
-import { PatientSearch } from "./CalendarModalRdv";
+import PatientSearch from "./PatientSearch";
 
 import FichePatient from "./FichePatient";
 
 /**
  * Bouton "Nouvelle recherche"
  * Il faut que ça puisse vider le Search
-*/
+ */
 
 export default class ProfilsPatients extends React.Component {
   componentWillMount() {
@@ -30,20 +29,20 @@ export default class ProfilsPatients extends React.Component {
       praticien: "",
       patient: {},
       age: {},
-      saved: true
-      });
+      saved: true,
+      errorOnSave: false
+    });
     this.reload();
   }
-
 
   reload = () => {
     //Pour récupérer le nombre de patients et le nom du praticien
     this.props.client.Patients.readAll(
-      {limit: 1},
+      { limit: 1 },
       result => {
         this.setState({
           npatients: result.informations.totalSize
-        })
+        });
       },
       data => {
         console.log("Erreur lecture des patients");
@@ -54,124 +53,169 @@ export default class ProfilsPatients extends React.Component {
     this.props.client.MonCompte.read(
       monProfil => {
         this.setState({
-          praticien: monProfil.currentName  
-        })
+          praticien: monProfil.currentName
+        });
       },
       data => {
         console.log("Erreur lecture des informations sur le praticien");
         console.log(data);
       }
-    )
-  }
+    );
+  };
 
-  onPatientChange = (id, texte) => {    
-    console.log(id);
+  onPatientChange = id => {
     this.props.client.Patients.read(
       id,
       {},
-      patient => { //success
-        console.log(patient);
-        this.setState({ patient: patient });
+      patient => {
+        this.setState({ patient: patient, saved: true, errorOnSave: false });
       },
-      data => { //Error
+      data => {
+        //Error
         console.log("Erreur");
         console.log(data);
       }
     );
+
     this.props.client.Patients.age(
       id,
       {},
-      result => { // success
-        console.log(result);
+      result => {
         this.setState({ age: result });
       },
-      data => { // error
+      data => {
+        // error
         console.log("Erreur");
       }
-    )
-  }
+    );
+    this.setState({ clearSearch: false });
+  };
 
   newSearch = () => {
-    // A revoir
     this.setState({
+      clearSearch: true,
       patient: {}
     });
-  }
+  };
 
-  onChange = modifiedPatient => {
+  onChange = patient => {
     this.setState({
-      patient: modifiedPatient
+      patient
     });
-  }
+  };
 
-  save = modifiedPatient => {
-
+  save = () => {
+    let patient = this.state.patient;
     this.props.client.Patients.update(
-      modifiedPatient.id,
-      modifiedPatient,
-      patient => { // success
+      patient.id,
+      patient,
+      patient => {
+        // success
         this.setState({
           patient: patient,
-          saved: true
+          saved: true,
+          errorOnSave: false
         });
+        // la date de naissance peut avoir été modifiée
+        // => l'âge est mis à jour
+        this.props.client.Patients.age(
+          patient.id,
+          {},
+          result => {
+            this.setState({ age: result });
+          },
+          data => {
+            // error
+            console.log("Erreur");
+          }
+        );
       },
-      () => { // error
+      () => {
+        // error
         this.setState({
-          patient: modifiedPatient,
-          saved: false
+          errorOnSave: true
         });
         console.log("Erreur de sauvegarde");
       }
     );
-  }
+  };
 
+  onChange = patient => {
+    this.setState({ patient: patient, saved: false });
+  };
 
-  render() {   
-    //console.log(this.state);
-    console.log(this.state.patient.civilite);
+  render() {
     return (
       <React.Fragment>
         <Header size={hsize}>Patients</Header>
-        <Divider hidden={true} />
-        <Segment>
-          <Message floating icon={true}>
-            <Icon name="doctor" size="big" />
+        {this.state.errorOnSave ? (
+          <Message negative={true} icon={true}>
+            <Icon name="warning" size="small" />
             <Message.Content>
-              <Message.Header>
-                {this.state.praticien}
-              </Message.Header>
-              <p>
-                Nombre de patients : {this.state.npatients}
-              </p>
+              <Message.Header>Erreur les sauvegarde</Message.Header>
+              Le données ont probablement été modifiées depuis un autre poste.
+              Merci de bien vouloir annuler pour actualiser la fiche.
             </Message.Content>
           </Message>
+        ) : this.state.saved ? (
+          <Message icon={true}>
+            <Icon name="doctor" size="small" />
+            <Message.Content>
+              <Message.Header>{this.state.praticien}</Message.Header>
+              Nombre de patients : {this.state.npatients}
+            </Message.Content>
+          </Message>
+        ) : (
+          <Message negative={true} icon={true}>
+            <Icon name="info" size="small" />
+            <Message.Content>
+              <Message.Header>
+                Les données du patient ont été modifiées
+              </Message.Header>
+              Vous pouvez sauvegarder ou annuler ces modifications.
+            </Message.Content>
+          </Message>
+        )}
 
-          <Grid>
-            <Grid.Row columns={6}>
-              <Grid.Column>
-                <PatientSearch
-                  client={this.props.client}
-                  patientChange={this.onPatientChange}
-                  format= "NP" //TODO récupérer le format en configuration
-                  />
-              </Grid.Column>
-              <Grid.Column>
-                <Button
-                  fluid={true}
-                  onClick={this.newSearch}>Nouvelle Recherche</Button>
-              </Grid.Column>
-            </Grid.Row>
-          </Grid>
-        </Segment>
-        
+        <Form.Input>
+          <PatientSearch
+            client={this.props.client}
+            patientChange={this.onPatientChange}
+            format="NP" //TODO récupérer le format en configuration
+            clear={this.state.clearSearch}
+          />
+
+          <Icon
+            style={{ cursor: "pointer", marginTop: 10, marginLeft: 10 }}
+            onClick={this.newSearch}
+            size="large"
+            name="remove user"
+          />
+        </Form.Input>
         <Divider hidden={true} />
 
         <FichePatient
           patient={this.state.patient}
           age={this.state.age}
-          save={this.save}
-          saved={this.state.saved} />
-            
+          onChange={this.onChange}
+        />
+        <Divider hidden={true} />
+
+        {this.state.patient.id ? <Button negative>Supprimer</Button> : ""}
+        <Button>Nouveau patient</Button>
+        {this.state.patient.id ? (
+          <React.Fragment>
+            <Button onClick={() => this.onPatientChange(this.state.patient.id)}>
+              Annuler / Actualiser
+            </Button>
+            <Button primary={!this.state.saved} onClick={this.save}>
+              Sauvegarder
+            </Button>
+          </React.Fragment>
+        ) : (
+          <div style={{ minHeight: "400px" }} />
+        )}
+        <Divider hidden={true} />
       </React.Fragment>
     );
   }
