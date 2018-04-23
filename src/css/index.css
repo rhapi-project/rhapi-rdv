@@ -1,5 +1,25 @@
-body {
-  margin-top: 4px;
+#calendars {
+  margin-left: 0px;
+  margin-right: 0px;
+  box-sizing: border-box;
+}
+
+#configuration {
+  margin-top: 24px;
+  margin-left: 8px;
+  margin-right: 8px;
+  box-sizing: border-box;
+}
+
+#profil {
+  margin-top: 24px;
+  margin-left: 8px;
+  margin-right: 8px;
+  box-sizing: border-box;
+}
+
+#profil-patients {
+  margin-top: 24px;
   margin-left: 8px;
   margin-right: 8px;
   box-sizing: border-box;
@@ -12,6 +32,12 @@ body {
 .ui.accordion {
   margin: 2px;
 }
+
+@import url("site.css"); /*intégration*/
+
+/*
+    Calendar printing
+*/
 
 @media print {
   #menu-icon {
