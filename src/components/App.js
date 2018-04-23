@@ -1,11 +1,12 @@
 import React from "react";
 
-import { Card, Icon, Button } from "semantic-ui-react";
+import { Card, Icon, Button, Divider } from "semantic-ui-react";
 
 export default class App extends React.Component {
   render() {
     return (
-      <Card.Group style={{ marginTop: 10 }}>
+      <Card.Group>
+        <Divider hidden={true} />
         <Card>
           <Card.Content>
             <Card.Header textAlign="right">

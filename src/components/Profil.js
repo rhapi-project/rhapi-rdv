@@ -164,7 +164,7 @@ export default class Profil extends React.Component {
 
   render() {
     return (
-      <React.Fragment>
+      <div id="profil">
         <Header size={hsize}>Profil</Header>
         {this.state.saved ? (
           <Message
@@ -367,7 +367,7 @@ export default class Profil extends React.Component {
           </Button>
         </Form>
         <Divider hidden={true} />
-      </React.Fragment>
+      </div>
     );
   }
 }

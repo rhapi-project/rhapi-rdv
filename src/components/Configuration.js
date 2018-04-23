@@ -909,7 +909,7 @@ export default class Configuration extends React.Component {
     }
 
     return (
-      <React.Fragment>
+      <div id="configuration">
         <Header size={hsize}>Configuration</Header>
         {saved ? (
           <Message
@@ -997,7 +997,7 @@ export default class Configuration extends React.Component {
         </Portal>
 
         <Divider hidden={true} />
-      </React.Fragment>
+      </div>
     );
   }
 }

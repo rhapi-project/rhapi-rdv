@@ -108,7 +108,7 @@ export default class Calendars extends React.Component {
 
     return (
       <React.Fragment>
-        <Grid divided="vertically">
+        <Grid divided="vertically" id="calendars">
           <Grid.Row columns={2}>
             <Grid.Column
               width={withPanel ? 3 : 2}

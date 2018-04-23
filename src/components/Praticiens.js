@@ -177,10 +177,10 @@ export default class Praticiens extends React.Component {
     }
 
     return (
-      <div className="login-form">
+      <div className="login-form" id="praticiens">
         <Grid textAlign="center">
           <Grid.Column style={{ maxWidth: maxWidth, marginTop: 60 }}>
-            <Header size={hsize} color="teal">
+            <Header size={hsize}>
               {/*<Image src='/logo.png' />*/}
               Connexion praticien
             </Header>

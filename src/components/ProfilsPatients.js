@@ -149,7 +149,7 @@ export default class ProfilsPatients extends React.Component {
 
   render() {
     return (
-      <React.Fragment>
+      <div id="profil-patients">
         <Header size={hsize}>Patients</Header>
         {this.state.errorOnSave ? (
           <Message negative={true} icon={true}>
@@ -219,7 +219,7 @@ export default class ProfilsPatients extends React.Component {
           <div style={{ minHeight: "400px" }} />
         )}
         <Divider hidden={true} />
-      </React.Fragment>
+      </div>
     );
   }
 }

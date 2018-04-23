@@ -102,7 +102,7 @@ export default class Patients extends React.Component {
 
   render() {
     return (
-      <Grid textAlign="center" style={{ marginTop: 10 }}>
+      <Grid textAlign="center" id="patients">
         <Grid.Column style={{ maxWidth: maxWidth }}>
           {this.state.gestionRDV ? (
             this.state.identified ? (
@@ -120,6 +120,7 @@ export default class Patients extends React.Component {
             )
           ) : (
             <React.Fragment>
+              <Divider hidden={true} />
               <Header size={hsize}>
                 Je m'identifie pour accéder au service
               </Header>

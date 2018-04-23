@@ -242,6 +242,7 @@ export default class MesRdv extends React.Component {
     // d'annulation ou de modification
     return (
       <React.Fragment>
+        <Divider hidden={true} />
         <Header size={hsize}>
           {this.state.mesRdv.length === 0
             ? "Aucun rendez-vous"

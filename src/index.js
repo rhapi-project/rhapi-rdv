@@ -27,7 +27,7 @@ import Patients from "./components/Patients";
 import Praticiens from "./components/Praticiens";
 
 class Main extends React.Component {
-  state = { visible: false, help: false };
+  state = { visible: false, help: false, login: false };
 
   render() {
     let sidebar = "";
@@ -49,70 +49,7 @@ class Main extends React.Component {
     let menuPos = wWidth < maxWidth ? "top" : "left";
 
     if (subApp === "#Patients") {
-      sidebar = (
-        <Sidebar.Pushable style={{ minHeight: "400px" }}>
-          <Sidebar
-            as={Menu}
-            animation="overlay"
-            direction={menuPos}
-            visible={this.state.visible}
-            inverted={true}
-            size="massive"
-            width="wide"
-            vertical={true}
-          >
-            <Menu.Item
-              style={{ paddingTop: "10px", paddingBottom: "24px" }}
-              onClick={() => {
-                this.setState({ visible: false });
-              }}
-            >
-              <Icon
-                name="close"
-                onClick={() => {
-                  this.setState({ visible: false });
-                }}
-              />
-            </Menu.Item>
-            <Menu.Item
-              header={true}
-              name="home"
-              onClick={() => {
-                window.location = originPath;
-              }}
-            >
-              <Icon name="home" />
-              Accueil
-            </Menu.Item>
-            <Menu.Item
-              header={true}
-              onClick={() => {
-                window.location = originPath + "#Praticiens";
-                window.location.reload();
-              }}
-            >
-              <Icon name="doctor" />
-              Praticien
-            </Menu.Item>
-            <Menu.Item
-              header={true}
-              name="patient"
-              onClick={() => {
-                window.location = originPath + "#Patients";
-                window.location.reload();
-              }}
-            >
-              <Icon name="user" />
-              Patient
-            </Menu.Item>
-          </Sidebar>
-          <Sidebar.Pusher>
-            <Divider fitted={true} hidden={true} />
-            <Patients />
-            <Divider fitted={true} hidden={true} />
-          </Sidebar.Pusher>
-        </Sidebar.Pushable>
-      );
+      return <Patients />; // no sidebar for patients
     } else if (subApp === "#Praticiens") {
       sidebar = (
         <Sidebar.Pushable style={{ minHeight: "400px" }}>
@@ -294,6 +231,8 @@ class Main extends React.Component {
     return (
       <React.Fragment>
         {this.state.visible ? (
+          ""
+        ) : subApp === "#Patients" ? (
           ""
         ) : (
           <Icon
