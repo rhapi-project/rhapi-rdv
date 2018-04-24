@@ -18,7 +18,6 @@ import PatientSearch from "./PatientSearch";
 
 import FichePatient from "./FichePatient";
 
-
 export default class ProfilsPatients extends React.Component {
   componentWillMount() {
     this.setState({
@@ -28,8 +27,7 @@ export default class ProfilsPatients extends React.Component {
       age: {},
       saved: true,
       errorOnSave: false,
-      modalDelete: false,
-      modaleSave: false
+      modalDelete: false
     });
   }
 
@@ -101,17 +99,13 @@ export default class ProfilsPatients extends React.Component {
     });
   };
 
-  onChange = patient => {
-    this.setState({
-      patient
-    });
-  };
-
-
-
   save = () => {
     let patient = this.state.patient;
-    if (this.state.patient.gestionRdvJO.reservation.password === this.state.patient.passwordConfirm){
+    //Les 2 champs de mots de passe doivent avoir les mêmes valeurs
+    if (
+      this.state.patient.gestionRdvJO.reservation.password ===
+      this.state.patient.passwordConfirm
+    ) {
       _.unset(patient, "passwordConfirm");
       this.props.client.Patients.update(
         patient.id,
@@ -121,7 +115,6 @@ export default class ProfilsPatients extends React.Component {
           this.setState({
             patient: patient,
             saved: true,
-            modalSave: true,
             errorOnSave: false
           });
           // la date de naissance peut avoir été modifiée
@@ -134,6 +127,7 @@ export default class ProfilsPatients extends React.Component {
             },
             data => {
               // error
+              console.log(data);
               console.log("Erreur");
             }
           );
@@ -155,16 +149,17 @@ export default class ProfilsPatients extends React.Component {
     this.setState({ patient: patient, saved: false });
   };
 
-  newPatient = () => {
+  create = () => {
     this.props.client.Patients.create(
       {},
       patient => {
         // success
+        _.set(patient, "passwordConfirm", "");
         this.setState({
           patient: patient
         });
-        //objet age
-        this.props.client.Patients.age(
+        //objet age qui sera passé en props au composant FichePatient
+        /*this.props.client.Patients.age(
           patient.id,
           {},
           result => {
@@ -173,7 +168,7 @@ export default class ProfilsPatients extends React.Component {
           data => {
             console.log("Erreur");
           }
-        );
+        );*/
         this.reload(); // Je récupère le nombre de patients mis à jour
       },
       () => {
@@ -183,7 +178,7 @@ export default class ProfilsPatients extends React.Component {
     );
   };
 
-  deletePatient = () => {
+  destroy = () => {
     this.props.client.Patients.destroy(
       this.state.patient.id,
       () => {
@@ -191,6 +186,7 @@ export default class ProfilsPatients extends React.Component {
         this.setState({
           patient: {},
           age: {},
+          saved: true,
           modalDelete: false
         });
       },
@@ -201,7 +197,7 @@ export default class ProfilsPatients extends React.Component {
     );
     this.reload(); // pour la relecture du nombre de patients
     this.newSearch();
-  }
+  };
 
   render() {
     return (
@@ -260,8 +256,19 @@ export default class ProfilsPatients extends React.Component {
         />
         <Divider hidden={true} />
 
-        {this.state.patient.id ? <Button negative={true} onClick={() => {this.setState({modalDelete: true})}}>Supprimer</Button> : ""}
-        <Button onClick={this.newPatient}>Nouveau patient</Button>
+        {this.state.patient.id ? (
+          <Button
+            negative={true}
+            onClick={() => {
+              this.setState({ modalDelete: true });
+            }}
+          >
+            Supprimer
+          </Button>
+        ) : (
+          ""
+        )}
+        <Button onClick={this.create}>Nouveau patient</Button>
         {this.state.patient.id ? (
           <React.Fragment>
             <Button onClick={() => this.onPatientChange(this.state.patient.id)}>
@@ -278,32 +285,22 @@ export default class ProfilsPatients extends React.Component {
 
         {/*Modal Delete*/}
         <Modal size="tiny" open={this.state.modalDelete}>
-          <Modal.Header>
-            Supprimer la fiche
-          </Modal.Header>
+          <Modal.Header>Supprimer la fiche</Modal.Header>
           <Modal.Content>
             <p>Voulez-vous supprimer cette fiche ?</p>
           </Modal.Content>
           <Modal.Actions>
-            <Button negative={true} onClick={() => {this.setState({modalDelete: false})}}>
+            <Button
+              negative={true}
+              onClick={() => {
+                this.setState({ modalDelete: false });
+              }}
+            >
               Non
             </Button>
-            <Button positive={true} onClick={this.deletePatient}>
+            <Button positive={true} onClick={this.destroy}>
               Oui
             </Button>
-          </Modal.Actions>
-        </Modal>
-
-        {/*Modal save*/}
-        <Modal size="tiny" open={this.state.modalSave}>
-          <Modal.Header>
-            Sauvegardé
-          </Modal.Header>
-          <Modal.Content>
-            <p>La fiche a été mise à jour !</p>
-          </Modal.Content>
-          <Modal.Actions>
-            <Button onClick={() => {this.setState({ modalSave: false })}}>OK</Button>
           </Modal.Actions>
         </Modal>
       </div>

@@ -11,6 +11,8 @@ import {
   Icon
 } from "semantic-ui-react";
 
+import { codePostalRegex, emailRegex, telRegex } from "./Settings";
+
 import { hsize } from "./Settings";
 
 /**
@@ -51,14 +53,17 @@ export default class Profil extends React.Component {
   reload = () => {
     this.props.client.MonCompte.read(
       monProfil => {
+        console.log(monProfil);
         if (!_.isEmpty(monProfil.account)) {
           this.setState({
-            ...monProfil
+            ...monProfil,
+            saved: true
           });
         } else {
           let account = defaultProfil.account;
           this.setState({
             ...monProfil,
+            saved: true,
             account
           });
         }
@@ -76,9 +81,11 @@ export default class Profil extends React.Component {
     if (
       _.includes(["currentName", "userPassword", "passwordConfirm"], d.name)
     ) {
-      let obj = { saved: false };
+      let obj = this.state;
       obj[d.name] = e.target.value;
-      this.setState({ obj });
+      //this.setState({ obj }); -- cette ligne une erreur car elle met dans le state tout l'objet en créant un champ
+      //erreur corrigée à la ligne suivante
+      this.setState({ ...obj, saved: false });
     } else {
       //Modification dans l'objet account
       let obj = this.state.account;
@@ -106,8 +113,7 @@ export default class Profil extends React.Component {
   };
 
   codePostalValide = code => {
-    let pattern = /^[0-9]{5}$/;
-    return pattern.test(code);
+    return codePostalRegex.test(code);
   };
 
   //Les formats valides :
@@ -116,17 +122,16 @@ export default class Profil extends React.Component {
   //  +33 6 00 00 00 00 pattern 3 (ou sans espace)
   //  00 33 6 00 00 00 00 pattern 4 (ou sans espace)
   telephoneValide = numero => {
-    let pattern1 = /^0[1-9]([\s.]?[0-9]{2}){4}$/; //pattern 1 et 2
-    let pattern3 = /^\+[1-9][0-9]{1,2}(\s)?[1-9](\s?[0-9]{2}){4}$/;
-    let pattern4 = /^00(\s)?[1-9][0-9]{1,2}([1-9])(\s?[0-9]{2}){4}$/;
-    return (
-      pattern1.test(numero) || pattern3.test(numero) || pattern4.test(numero)
-    );
+    for (let i = 0; i < telRegex.length; i++) {
+      if (telRegex[i].test(numero)) {
+        return true;
+      }
+    }
+    return false;
   };
 
   emailValide = email => {
-    let pattern = /(^\w)([\w+.-])*([\w+-])*(@)([\w+.-])+\.([a-z]{2,4})$/i;
-    return pattern.test(email);
+    return emailRegex.test(email);
   };
 
   formatsValides = () => {
@@ -140,21 +145,29 @@ export default class Profil extends React.Component {
 
   save = () => {
     if (this.verification() && this.formatsValides()) {
+      //L'erreur venait de la fonction handleChangeInput()
       let obj = this.state;
+      console.log(this.state);
       _.unset(obj, "passwordConfirm");
       _.unset(obj, "saved");
+      //console.log(obj);
       this.props.client.MonCompte.update(
         obj,
         monProfil => {
           //success
+          console.log(monProfil);
           this.setState({
             ...monProfil,
             saved: true
           });
         },
-        () => {
+        data => {
+          console.log(data);
           console.log("La sauvegarde a échoué !");
-          this.reload();
+          this.setState({
+            saved: false
+          });
+          //this.reload();
         }
       );
     } else {
@@ -163,6 +176,9 @@ export default class Profil extends React.Component {
   };
 
   render() {
+    //console.log(this.state.userPassword);
+    console.log(this.state.passwordConfirm);
+    //console.log(this.state);
     return (
       <div id="profil">
         <Header size={hsize}>Profil</Header>

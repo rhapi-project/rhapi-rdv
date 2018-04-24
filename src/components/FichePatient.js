@@ -31,13 +31,13 @@ import { SingleDatePicker } from "react-dates";
  * -> Gestion des rdv (Problème avec le mot de passe)
  */
 
- const gestionRdvJO = {
+const gestionRdvJO = {
   autorisationSMS: false,
   reservation: {
     autorisation: 0, // à voir
     password: ""
   }
- };
+};
 
 export default class FichePatient extends React.Component {
   civilites = [
@@ -124,7 +124,7 @@ export default class FichePatient extends React.Component {
   componentWillReceiveProps(next) {
     let patient = { ...next.patient };
     if (_.isEmpty(patient.gestionRdvJO)) {
-      patient.gestionRdvJO = gestionRdvJO;  
+      patient.gestionRdvJO = gestionRdvJO;
     }
     this.setState({
       patient: patient,
@@ -154,14 +154,14 @@ export default class FichePatient extends React.Component {
     return civiliteStr;
   };
 
-  testRegexTelephone = numero => {
+  telephoneValide = numero => {
     for (let i = 0; i < telRegex.length; i++) {
       if (telRegex[i].test(numero)) {
         return true;
       }
     }
     return false;
-  }
+  };
 
   handleClickAccordion = (e, i) => {
     if (this.state.activeIndex === i) {
@@ -186,7 +186,8 @@ export default class FichePatient extends React.Component {
 
   handleChangeInput = (e, d) => {
     let modifiedPatient = this.state.patient;
-    if (d.name === "password") { // modification dans l'objet gestionRdvJO
+    if (d.name === "password") {
+      // modification dans l'objet gestionRdvJO
       modifiedPatient.gestionRdvJO.reservation.password = e.target.value;
       this.setState({
         patient: modifiedPatient
@@ -194,37 +195,22 @@ export default class FichePatient extends React.Component {
     } else {
       modifiedPatient[d.name] = d.value;
     }
-
-
-
-    /*if (d.name === "passwordConfirm") {
-      this.setState({
-        passwordConfirm: e.target.value
-      });
-    } else if (d.name === "password") { // modification dans l'objet gestionRdvJO
-      modifiedPatient.gestionRdvJO.reservation.password = e.target.value;
-      this.setState({
-        patient: modifiedPatient
-      });
-    } else {
-      modifiedPatient[d.name] = d.value;
-    }*/
-
     this.props.onChange(modifiedPatient);
   };
 
   changeAutorisation = (e, d) => {
-    let modifiedPatient = this.state.patient; 
+    let modifiedPatient = this.state.patient;
     modifiedPatient.gestionRdvJO.reservation.autorisation = d.value;
     this.setState({
       patient: modifiedPatient
     });
     this.props.onChange(modifiedPatient);
-  }
+  };
 
   changeAutorisationSMS = (e, d) => {
     let modifiedPatient = this.state.patient;
-    modifiedPatient.gestionRdvJO.autorisationSMS = !modifiedPatient.gestionRdvJO.autorisationSMS;
+    modifiedPatient.gestionRdvJO.autorisationSMS = !modifiedPatient.gestionRdvJO
+      .autorisationSMS;
     this.setState({
       patient: modifiedPatient
     });
@@ -232,9 +218,11 @@ export default class FichePatient extends React.Component {
   };
 
   verificationPassword = () => {
-    return ((this.state.patient.gestionRdvJO.reservation.password === "" && this.state.patient.passwordConfirm === "") ||
-              (this.state.patient.gestionRdvJO.reservation.password === this.state.patient.passwordConfirm));
-  }
+    return (
+      this.state.patient.gestionRdvJO.reservation.password ===
+      this.state.patient.passwordConfirm
+    );
+  };
 
   render() {
     //console.log(this.state.patient.gestionRdvJO);
@@ -248,7 +236,7 @@ export default class FichePatient extends React.Component {
     let patient = {};
     if (!nofiche) {
       patient = this.state.patient;
-      console.log(this.state.patient.passwordConfirm);
+      //console.log(this.state.patient.passwordConfirm);
     }
 
     return (
@@ -454,7 +442,10 @@ export default class FichePatient extends React.Component {
                     <Form.Input
                       label="Code postal"
                       name="codePostal"
-                      error={!codePostalRegex.test(this.state.patient.codePostal) && (this.state.patient.codePostal !== "")}
+                      error={
+                        !codePostalRegex.test(this.state.patient.codePostal) &&
+                        this.state.patient.codePostal !== ""
+                      }
                       value={this.state.patient.codePostal}
                       placeholder="Code postal"
                       onChange={(e, d) => this.handleChangeInput(e, d)}
@@ -481,7 +472,10 @@ export default class FichePatient extends React.Component {
                     <Form.Input
                       label="Téléphone mobile"
                       name="telMobile"
-                      error={!this.testRegexTelephone(this.state.patient.telMobile) && (this.state.patient.telMobile !== "")}
+                      error={
+                        !this.telephoneValide(this.state.patient.telMobile) &&
+                        this.state.patient.telMobile !== ""
+                      }
                       value={this.state.patient.telMobile}
                       placeholder="Téléphone mobile"
                       onChange={(e, d) => this.handleChangeInput(e, d)}
@@ -489,7 +483,10 @@ export default class FichePatient extends React.Component {
                     <Form.Input
                       label="Téléphone bureau"
                       name="telBureau"
-                      error={!this.testRegexTelephone(this.state.patient.telBureau) && (this.state.patient.telBureau !== "")}
+                      error={
+                        !this.telephoneValide(this.state.patient.telBureau) &&
+                        this.state.patient.telBureau !== ""
+                      }
                       value={this.state.patient.telBureau}
                       placeholder="Téléphone bureau"
                       onChange={(e, d) => this.handleChangeInput(e, d)}
@@ -497,7 +494,10 @@ export default class FichePatient extends React.Component {
                     <Form.Input
                       label="Téléphone domicile"
                       name="telDomicile"
-                      error={!this.testRegexTelephone(this.state.patient.telDomicile) && (this.state.patient.telDomicile !== "")}
+                      error={
+                        !this.telephoneValide(this.state.patient.telDomicile) &&
+                        this.state.patient.telDomicile !== ""
+                      }
                       value={this.state.patient.telDomicile}
                       placeholder="Téléphone domicile"
                       onChange={(e, d) => this.handleChangeInput(e, d)}
@@ -505,7 +505,10 @@ export default class FichePatient extends React.Component {
                     <Form.Input
                       label="E-mail"
                       name="email"
-                      error={!emailRegex.test(this.state.patient.email) && (this.state.patient.email !== "")}
+                      error={
+                        !emailRegex.test(this.state.patient.email) &&
+                        this.state.patient.email !== ""
+                      }
                       value={this.state.patient.email}
                       placeholder="exemple@exemple.fr"
                       onChange={(e, d) => this.handleChangeInput(e, d)}
@@ -524,42 +527,50 @@ export default class FichePatient extends React.Component {
               <Accordion.Content active={this.state.activeIndex === 2}>
                 {/*Coder la gestion des rdv ici*/}
                 <Form>
-                  <Form.Input label="Autorisation SMS" >
-                    <Checkbox 
+                  <Form.Input label="Autorisation SMS">
+                    <Checkbox
                       toggle={true}
                       checked={this.state.patient.gestionRdvJO.autorisationSMS}
-                      onChange={(e, d) => this.changeAutorisationSMS(e, d)} />
+                      onChange={(e, d) => this.changeAutorisationSMS(e, d)}
+                    />
                   </Form.Input>
 
                   <Form.Group widths="equal">
-                    <Form.Input 
-                    label="Niveau d'autorisation" >
+                    <Form.Input label="Niveau d'autorisation">
                       <Dropdown
                         fluid={true}
                         selection={true}
                         multiple={false}
                         options={this.autorisations}
-                        value={this.state.patient.gestionRdvJO.reservation.autorisation}
-                        onChange={(e, d) => this.changeAutorisation(e, d)} />
+                        value={
+                          this.state.patient.gestionRdvJO.reservation
+                            .autorisation
+                        }
+                        onChange={(e, d) => this.changeAutorisation(e, d)}
+                      />
                     </Form.Input>
 
-                    <Form.Input 
+                    <Form.Input
                       label="Mot de passe"
                       name="password"
                       type="password"
                       error={!this.verificationPassword()}
                       //error={this.state.patient.gestionRdvJO.reservation.password !== this.state.password}
-                      value={this.state.patient.gestionRdvJO.reservation.password}
-                      onChange={(e, d) => this.handleChangeInput(e, d)} />
+                      value={
+                        this.state.patient.gestionRdvJO.reservation.password
+                      }
+                      onChange={(e, d) => this.handleChangeInput(e, d)}
+                    />
 
-                    <Form.Input 
+                    <Form.Input
                       label="Confirmation mot de passe"
                       name="passwordConfirm"
                       type="password"
                       error={!this.verificationPassword()}
                       //error={this.state.patient.gestionRdvJO.reservation.password !== this.state.password}
                       value={this.state.patient.passwordConfirm}
-                      onChange={(e, d) => this.handleChangeInput(e, d)} />
+                      onChange={(e, d) => this.handleChangeInput(e, d)}
+                    />
                   </Form.Group>
                 </Form>
               </Accordion.Content>
@@ -573,7 +584,6 @@ export default class FichePatient extends React.Component {
               </Accordion.Title>
               <Accordion.Content active={this.state.activeIndex === 3}>
                 {/*Coder les champs d'informations administratives ici*/}
-
               </Accordion.Content>
 
               <Accordion.Title

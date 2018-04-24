@@ -262,23 +262,23 @@ const defaultPlanning = {
 
 /**
  * Regex code postal, email, et téléphones
-*/
+ */
 const codePostalRegex = /^[0-9]{5}$/;
 
 const emailRegex = /(^\w)([\w+.-])*([\w+-])*(@)([\w+.-])+\.([a-z]{2,4})$/i;
 
 //Les formats valides :
-  //  01 12 45 78 14 pattern 1 (ou sans espace)
-  //  01.12.45.78.14 pattern 2
-  //  +33 6 00 00 00 00 pattern 3 (ou sans espace)
-  //  00 33 6 00 00 00 00 pattern 4 (ou sans espace)
+//  01 12 45 78 14 pattern 1 (ou sans espace)
+//  01.12.45.78.14 pattern 2
+//  +33 6 00 00 00 00 pattern 3 (ou sans espace)
+//  00 33 6 00 00 00 00 pattern 4 (ou sans espace)
 const telRegex = [
   /^0[1-9]([\s.]?[0-9]{2}){4}$/, // pattern 1 et 2
   /^\+[1-9][0-9]{1,2}(\s)?[1-9](\s?[0-9]{2}){4}$/, // pattern 3
   /^00(\s)?[1-9][0-9]{1,2}([1-9])(\s?[0-9]{2}){4}$/
 ];
 
-export { 
+export {
   maxWidth,
   fsize,
   hsize,
