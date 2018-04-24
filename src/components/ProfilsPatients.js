@@ -1,6 +1,6 @@
 import React from "react";
 
-//import _ from "lodash";
+import _ from "lodash";
 
 import {
   Header,
@@ -8,7 +8,8 @@ import {
   Divider,
   Icon,
   Form,
-  Button
+  Button,
+  Modal
 } from "semantic-ui-react";
 
 import { hsize } from "./Settings";
@@ -17,10 +18,6 @@ import PatientSearch from "./PatientSearch";
 
 import FichePatient from "./FichePatient";
 
-/**
- * Bouton "Nouvelle recherche"
- * Il faut que ça puisse vider le Search
- */
 
 export default class ProfilsPatients extends React.Component {
   componentWillMount() {
@@ -30,7 +27,9 @@ export default class ProfilsPatients extends React.Component {
       patient: {},
       age: {},
       saved: true,
-      errorOnSave: false
+      errorOnSave: false,
+      modalDelete: false,
+      modaleSave: false
     });
   }
 
@@ -71,6 +70,7 @@ export default class ProfilsPatients extends React.Component {
       id,
       {},
       patient => {
+        _.set(patient, "passwordConfirm", ""); // champ provisoire
         this.setState({ patient: patient, saved: true, errorOnSave: false });
       },
       data => {
@@ -107,20 +107,63 @@ export default class ProfilsPatients extends React.Component {
     });
   };
 
+
+
   save = () => {
     let patient = this.state.patient;
-    this.props.client.Patients.update(
-      patient.id,
-      patient,
+    if (this.state.patient.gestionRdvJO.reservation.password === this.state.patient.passwordConfirm){
+      _.unset(patient, "passwordConfirm");
+      this.props.client.Patients.update(
+        patient.id,
+        patient,
+        patient => {
+          // success
+          this.setState({
+            patient: patient,
+            saved: true,
+            modalSave: true,
+            errorOnSave: false
+          });
+          // la date de naissance peut avoir été modifiée
+          // => l'âge est mis à jour
+          this.props.client.Patients.age(
+            patient.id,
+            {},
+            result => {
+              this.setState({ age: result });
+            },
+            data => {
+              // error
+              console.log("Erreur");
+            }
+          );
+        },
+        () => {
+          // error
+          this.setState({
+            errorOnSave: true
+          });
+          console.log("Erreur de sauvegarde");
+        }
+      );
+    } else {
+      return;
+    }
+  };
+
+  onChange = patient => {
+    this.setState({ patient: patient, saved: false });
+  };
+
+  newPatient = () => {
+    this.props.client.Patients.create(
+      {},
       patient => {
         // success
         this.setState({
-          patient: patient,
-          saved: true,
-          errorOnSave: false
+          patient: patient
         });
-        // la date de naissance peut avoir été modifiée
-        // => l'âge est mis à jour
+        //objet age
         this.props.client.Patients.age(
           patient.id,
           {},
@@ -128,24 +171,37 @@ export default class ProfilsPatients extends React.Component {
             this.setState({ age: result });
           },
           data => {
-            // error
             console.log("Erreur");
           }
         );
+        this.reload(); // Je récupère le nombre de patients mis à jour
       },
       () => {
         // error
-        this.setState({
-          errorOnSave: true
-        });
-        console.log("Erreur de sauvegarde");
+        console.log("Erreur de création d'un patient");
       }
     );
   };
 
-  onChange = patient => {
-    this.setState({ patient: patient, saved: false });
-  };
+  deletePatient = () => {
+    this.props.client.Patients.destroy(
+      this.state.patient.id,
+      () => {
+        // success
+        this.setState({
+          patient: {},
+          age: {},
+          modalDelete: false
+        });
+      },
+      () => {
+        // error
+        console.log("Erreur lors de la suppression du patient");
+      }
+    );
+    this.reload(); // pour la relecture du nombre de patients
+    this.newSearch();
+  }
 
   render() {
     return (
@@ -204,8 +260,8 @@ export default class ProfilsPatients extends React.Component {
         />
         <Divider hidden={true} />
 
-        {this.state.patient.id ? <Button negative>Supprimer</Button> : ""}
-        <Button>Nouveau patient</Button>
+        {this.state.patient.id ? <Button negative={true} onClick={() => {this.setState({modalDelete: true})}}>Supprimer</Button> : ""}
+        <Button onClick={this.newPatient}>Nouveau patient</Button>
         {this.state.patient.id ? (
           <React.Fragment>
             <Button onClick={() => this.onPatientChange(this.state.patient.id)}>
@@ -219,6 +275,37 @@ export default class ProfilsPatients extends React.Component {
           <div style={{ minHeight: "400px" }} />
         )}
         <Divider hidden={true} />
+
+        {/*Modal Delete*/}
+        <Modal size="tiny" open={this.state.modalDelete}>
+          <Modal.Header>
+            Supprimer la fiche
+          </Modal.Header>
+          <Modal.Content>
+            <p>Voulez-vous supprimer cette fiche ?</p>
+          </Modal.Content>
+          <Modal.Actions>
+            <Button negative={true} onClick={() => {this.setState({modalDelete: false})}}>
+              Non
+            </Button>
+            <Button positive={true} onClick={this.deletePatient}>
+              Oui
+            </Button>
+          </Modal.Actions>
+        </Modal>
+
+        {/*Modal save*/}
+        <Modal size="tiny" open={this.state.modalSave}>
+          <Modal.Header>
+            Sauvegardé
+          </Modal.Header>
+          <Modal.Content>
+            <p>La fiche a été mise à jour !</p>
+          </Modal.Content>
+          <Modal.Actions>
+            <Button onClick={() => {this.setState({ modalSave: false })}}>OK</Button>
+          </Modal.Actions>
+        </Modal>
       </div>
     );
   }
