@@ -260,7 +260,7 @@ const defaultPlanning = {
   }
 };
 
-/**
+/*
  * Regex code postal, email, et téléphones
  */
 const codePostalRegex = /^[0-9]{5}$/;
@@ -278,6 +278,11 @@ const telRegex = [
   /^00(\s)?[1-9][0-9]{1,2}([1-9])(\s?[0-9]{2}){4}$/
 ];
 
+/*
+ * Format de dénomination
+ */
+const denominationDefaultFormat = "Np";
+
 export {
   maxWidth,
   fsize,
@@ -286,5 +291,6 @@ export {
   longDateTime,
   codePostalRegex,
   emailRegex,
-  telRegex
+  telRegex,
+  denominationDefaultFormat
 };

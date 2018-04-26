@@ -11,12 +11,18 @@ import {
   Divider,
   Dropdown,
   Message,
+  Modal,
   Icon,
   Button,
   Grid
 } from "semantic-ui-react";
 
-import { codePostalRegex, emailRegex, telRegex } from "./Settings";
+import {
+  codePostalRegex,
+  emailRegex,
+  telRegex,
+  denominationDefaultFormat
+} from "./Settings";
 
 import { SingleDatePicker } from "react-dates";
 
@@ -130,7 +136,10 @@ export default class FichePatient extends React.Component {
       patient: patient,
       saved: true,
       naissanceDate: moment(next.patient.naissance),
-      naissanceFocused: false
+      naissanceFocused: false,
+      modalPassword: false,
+      newPassword: "",
+      print: false
     });
   }
 
@@ -163,6 +172,88 @@ export default class FichePatient extends React.Component {
     return false;
   };
 
+  camelDenomination = text => {
+    let result = "";
+    let prev = "";
+    for (let i = 0 ; i < text.length ; i++){
+      let c = text[i];
+      if (i === 0 || prev === " " || prev === "'" || prev === "-") {
+        c = _.toUpper(c);
+      } else {
+        c = _.toLower(c);
+      }
+      prev = c;
+      result += c;
+    }
+    return result;
+  }
+
+  conversionDenominationFormat = (champ, value) => {
+    if (champ !== "nom" && champ !== "prenom") {
+      return value;
+    } else {
+      switch (denominationDefaultFormat) {
+        case "NP":
+          return _.toUpper(value);
+        case "Np":
+          return champ === "nom" ? _.toUpper(value) : this.camelDenomination(value);
+        case "PN":
+          return _.toUpper(value);
+        case "pN":
+          return champ === "nom" ? _.toUpper(value) : this.camelDenomination(value);
+        case "np":
+          return this.camelDenomination(value);
+        case "pn":
+          return this.camelDenomination(value);
+        default:
+          return value;
+      }
+    }
+  };
+
+  affichageDenomination = () => {
+    switch (denominationDefaultFormat) {
+      case "NP":
+        return (
+          _.toUpper(this.state.patient.nom) +
+          " " +
+          _.toUpper(this.state.patient.prenom)
+        );
+      case "Np":
+        return (
+          _.toUpper(this.state.patient.nom) +
+          " " +
+          this.camelDenomination(this.state.patient.prenom)
+        );
+      case "PN":
+        return (
+          _.toUpper(this.state.patient.prenom) +
+          " " +
+          _.toUpper(this.state.patient.nom)
+        );
+      case "pN":
+        return (
+          this.camelDenomination(this.state.patient.prenom) +
+          " " +
+          _.toUpper(this.state.patient.nom)
+        );
+      case "np":
+        return (
+          this.camelDenomination(this.state.patient.nom) +
+          " " +
+          this.camelDenomination(this.state.patient.prenom)
+        );
+      case "pn":
+        return (
+          this.camelDenomination(this.state.patient.prenom) +
+          " " +
+          this.camelDenomination(this.state.patient.nom)
+        );
+      default:
+        return this.state.patient.nom + " " + this.state.patient.prenom;
+    }
+  };
+
   handleClickAccordion = (e, i) => {
     if (this.state.activeIndex === i) {
       this.setState({ activeIndex: -1 });
@@ -189,11 +280,15 @@ export default class FichePatient extends React.Component {
     if (d.name === "password") {
       // modification dans l'objet gestionRdvJO
       modifiedPatient.gestionRdvJO.reservation.password = e.target.value;
-      this.setState({
+      /*this.setState({
         patient: modifiedPatient
-      });
+      });*/
     } else {
-      modifiedPatient[d.name] = d.value;
+      //modifiedPatient[d.name] = d.value;
+      modifiedPatient[d.name] = this.conversionDenominationFormat(
+        d.name,
+        d.value
+      );
     }
     this.props.onChange(modifiedPatient);
   };
@@ -209,8 +304,9 @@ export default class FichePatient extends React.Component {
 
   changeAutorisationSMS = (e, d) => {
     let modifiedPatient = this.state.patient;
-    modifiedPatient.gestionRdvJO.autorisationSMS = !modifiedPatient.gestionRdvJO
-      .autorisationSMS;
+    //modifiedPatient.gestionRdvJO.autorisationSMS = !modifiedPatient.gestionRdvJO
+    //  .autorisationSMS;
+    modifiedPatient.gestionRdvJO.autorisationSMS = d.checked;
     this.setState({
       patient: modifiedPatient
     });
@@ -224,9 +320,20 @@ export default class FichePatient extends React.Component {
     );
   };
 
+  makePasswd = () => {
+    let passwd = "";
+    const chars =
+      "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    for (let i = 0; i < 6; i++) {
+      let c = Math.floor(Math.random() * chars.length + 1);
+      passwd += chars.charAt(c);
+    }
+    return passwd;
+  };
+
   render() {
-    //console.log(this.state.patient.gestionRdvJO);
     //console.log(this.state.passwordConfirm);
+    console.log(this.state.naissanceDate);
     let nofiche =
       _.isNull(this.state) ||
       _.isUndefined(this.state.patient) ||
@@ -236,6 +343,7 @@ export default class FichePatient extends React.Component {
     let patient = {};
     if (!nofiche) {
       patient = this.state.patient;
+      console.log(this.state.patient.gestionRdvJO.reservation.password);
       //console.log(this.state.patient.passwordConfirm);
     }
 
@@ -281,16 +389,18 @@ export default class FichePatient extends React.Component {
                             " / " +
                             this.civilite(true) +
                             "  " +
-                            patient.nom +
+                            this.affichageDenomination() +
                             "  " +
-                            patient.prenom +
-                            " - " +
-                            (patient.genre === 2 ? "née" : "né") +
-                            " le " +
-                            _.split(this.props.age.naissanceSmall, " ")[0] +
-                            " (" +
-                            this.props.age.texte +
-                            ")"}
+                            (_.isNull(patient.naissance) ||
+                            _.isNull(this.state.naissanceDate)
+                              ? ""
+                              : " - " +
+                                (patient.genre === 2 ? "née" : "né") +
+                                " le " +
+                                _.split(this.props.age.naissanceSmall, " ")[0] +
+                                " (" +
+                                this.props.age.texte +
+                                ")")}
                         </strong>
                         <Divider hidden={true} fitted={true} />
 
@@ -328,15 +438,19 @@ export default class FichePatient extends React.Component {
                     />
                     <Form.Input
                       required={true}
-                      type="date"
                       label="Date de naissance"
                       name="naissance"
                     >
                       <SingleDatePicker
+                        placeholder="JJ/MM/AAAA"
                         hideKeyboardShortcutsPanel={true}
                         withPortal={true}
                         isOutsideRange={() => false}
-                        date={this.state.naissanceDate}
+                        date={
+                          _.isNull(this.state.patient.naissance)
+                            ? null
+                            : this.state.naissanceDate
+                        }
                         numberOfMonths={1}
                         readOnly={false}
                         onClose={() => {
@@ -559,6 +673,7 @@ export default class FichePatient extends React.Component {
                       value={
                         this.state.patient.gestionRdvJO.reservation.password
                       }
+                      //value="" //Provisoirement
                       onChange={(e, d) => this.handleChangeInput(e, d)}
                     />
 
@@ -572,6 +687,70 @@ export default class FichePatient extends React.Component {
                       onChange={(e, d) => this.handleChangeInput(e, d)}
                     />
                   </Form.Group>
+
+                  <Form.Group>
+                    <Form.Input label="Générer automatiquement un mot de passe">
+                      <Button
+                        onClick={() => {
+                          let passwd = this.makePasswd();
+                          this.setState({
+                            newPassword: passwd,
+                            modalPassword: true
+                          });
+                        }}
+                      >
+                        Générer
+                      </Button>
+                    </Form.Input>
+                  </Form.Group>
+
+                  <Modal size="tiny" open={this.state.modalPassword}>
+                    <Modal.Header>Infos</Modal.Header>
+                    <Modal.Content>
+                      <p>
+                        id : #{this.state.patient.id} <br />
+                        Mot de passe : {this.state.newPassword}
+                      </p>
+                    </Modal.Content>
+                    <Modal.Actions>
+                      <Button
+                        negative={true}
+                        onClick={() => this.setState({ modalPassword: false })}
+                      >
+                        Annuler
+                      </Button>
+                      <Button
+                        positive={true}
+                        onClick={() => {
+                          let modifiedPatient = this.state.patient;
+                          modifiedPatient.gestionRdvJO.reservation.password = this.state.newPassword;
+                          modifiedPatient.passwordConfirm = this.state.newPassword;
+                          this.props.onChange(modifiedPatient);
+                          this.setState({
+                            modalPassword: false
+                          });
+                        }}
+                      >
+                        Valider
+                      </Button>
+                      <Button
+                        primary={true}
+                        icon="print"
+                        labelPosition="right"
+                        content="Imprimer"
+                        onClick={() => {
+                          let modifiedPatient = this.state.patient;
+                          modifiedPatient.gestionRdvJO.reservation.password = this.state.newPassword;
+                          modifiedPatient.passwordConfirm = this.state.newPassword;
+                          this.props.onChange(modifiedPatient);
+                          this.props.print();
+                          this.setState({
+                            modalPassword: false
+                          });
+                        }}
+                      />
+                    </Modal.Actions>
+                  </Modal>
                 </Form>
               </Accordion.Content>
 

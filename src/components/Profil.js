@@ -146,6 +146,7 @@ export default class Profil extends React.Component {
   save = () => {
     if (this.verification() && this.formatsValides()) {
       //L'erreur venait de la fonction handleChangeInput()
+      this.setState({ passwordConfirm: "" }); // Forcer le champs passwordConfirm à être vide
       let obj = this.state;
       console.log(this.state);
       _.unset(obj, "passwordConfirm");

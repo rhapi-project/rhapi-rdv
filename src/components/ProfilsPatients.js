@@ -12,7 +12,7 @@ import {
   Modal
 } from "semantic-ui-react";
 
-import { hsize } from "./Settings";
+import { hsize, denominationDefaultFormat } from "./Settings";
 
 import PatientSearch from "./PatientSearch";
 
@@ -27,12 +27,22 @@ export default class ProfilsPatients extends React.Component {
       age: {},
       saved: true,
       errorOnSave: false,
-      modalDelete: false
+      modalDelete: false,
+      print: false
     });
   }
 
   componentDidMount() {
     this.reload();
+  }
+
+  componentDidUpdate() {
+    setTimeout(() => {
+      if (this.state.print) {
+        window.print();
+        this.setState({ print: false });
+      }
+    }, 1000);
   }
 
   reload = () => {
@@ -69,6 +79,7 @@ export default class ProfilsPatients extends React.Component {
       {},
       patient => {
         _.set(patient, "passwordConfirm", ""); // champ provisoire
+        patient.gestionRdvJO.reservation.password = "";
         this.setState({ patient: patient, saved: true, errorOnSave: false });
       },
       data => {
@@ -106,17 +117,25 @@ export default class ProfilsPatients extends React.Component {
       this.state.patient.gestionRdvJO.reservation.password ===
       this.state.patient.passwordConfirm
     ) {
+      this.setState({
+        patient: {
+          passwordConfirm: ""
+        }
+      });
       _.unset(patient, "passwordConfirm");
       this.props.client.Patients.update(
         patient.id,
         patient,
         patient => {
           // success
+          patient.gestionRdvJO.reservation.password = "";
+          _.set(patient, "passwordConfirm", ""); // Forcer le passwordConfirm à être vide
           this.setState({
             patient: patient,
             saved: true,
             errorOnSave: false
           });
+
           // la date de naissance peut avoir été modifiée
           // => l'âge est mis à jour
           this.props.client.Patients.age(
@@ -154,6 +173,7 @@ export default class ProfilsPatients extends React.Component {
       {},
       patient => {
         // success
+        //console.log(patient);
         _.set(patient, "passwordConfirm", "");
         this.setState({
           patient: patient
@@ -199,7 +219,30 @@ export default class ProfilsPatients extends React.Component {
     this.newSearch();
   };
 
+  print = () => {
+    this.setState({
+      print: true
+    });
+  };
+
   render() {
+    if (this.state.print) {
+      return (
+        <div
+          style={{
+            height: "500px",
+            width: "50%",
+            backgroundColor: "red"
+          }}
+        >
+          Nom&nbsp;&nbsp;&nbsp; :&nbsp;{this.state.patient.nom} <br />
+          Prenom :&nbsp;{this.state.patient.prenom} <br />
+          id : {this.state.patient.id} <br />
+          Mot de passe : {this.state.patient.gestionRdvJO.reservation.password}
+        </div>
+      );
+    }
+
     return (
       <div id="profil-patients">
         <Header size={hsize}>Patients</Header>
@@ -236,7 +279,7 @@ export default class ProfilsPatients extends React.Component {
           <PatientSearch
             client={this.props.client}
             patientChange={this.onPatientChange}
-            format="NP" //TODO récupérer le format en configuration
+            format={denominationDefaultFormat} //TODO récupérer le format en configuration
             clear={this.state.clearSearch}
           />
 
@@ -253,6 +296,7 @@ export default class ProfilsPatients extends React.Component {
           patient={this.state.patient}
           age={this.state.age}
           onChange={this.onChange}
+          print={this.print}
         />
         <Divider hidden={true} />
 
