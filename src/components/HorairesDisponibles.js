@@ -25,6 +25,7 @@ export default class HorairesDisponibles extends React.Component {
   }
 
   loadNext = nextProps => {
+    console.log(nextProps);
     const params = { ...nextProps.patient };
     const index = this.state.joursIndex;
     if (index >= 0) {

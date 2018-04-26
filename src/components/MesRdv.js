@@ -64,12 +64,16 @@ class MonRdv extends React.Component {
 
   render() {
     let titrePlanning = "";
-    if (!_.isUndefined(this.props.plannings)) {
-      titrePlanning = this.props.plannings[this.props.rdv.idPlanningsJA[0]]
+    if (
+      !_.isUndefined(this.props.plannings) &&
+      !_.isUndefined(this.props.rdv.planningsJA)
+    ) {
+      titrePlanning = this.props.plannings[this.props.rdv.planningsJA[0].id]
         .titre;
       if (_.isUndefined(titrePlanning)) titrePlanning = "Planning non défini";
     }
 
+    console.log(this.props.rdv);
     return (
       <React.Fragment>
         <Header>{titrePlanning}</Header>
@@ -106,8 +110,8 @@ class MonRdv extends React.Component {
                 <Modal.Content scrolling={true}>
                   <HorairesDisponibles
                     patient={this.props.patient}
-                    planningId={this.props.rdv.idPlanningsJA[0]}
-                    motifId={-this.props.rdv.idObjet}
+                    planningId={this.props.rdv.planningsJA[0].id}
+                    motifId={-this.props.rdv.planningsJA[0].motif}
                     validation={horaire =>
                       this.setState({
                         openModif: false,

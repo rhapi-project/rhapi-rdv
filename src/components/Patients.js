@@ -21,7 +21,7 @@ import MesRdv from "./MesRdv";
 
 var client = new Client(
   // local dev no auth (décommenter la ligne suivante)
-  "http://localhost",
+  //"http://localhost",
   (datas, response) => {
     //if (datas.networkError === 401) {
     // eq response.statusCode === 401
@@ -31,31 +31,67 @@ var client = new Client(
 
 export default class Patients extends React.Component {
   componentWillMount() {
+    // l'identifiant d'établissement peut être récupéré directement de l'URL
+    // => le patient non identifié accède via l'URL du cabinet
+    // Sinon si depuis le site global lors de la saisie de l'identifiant patient
+    // => forme identifiant@etablissement
+    let hashParts = window.location.hash.split("/");
+    let etablissement = "";
+    let identified = false;
+    if (hashParts.length > 1) {
+      etablissement = hashParts[1];
+    } else {
+      identified = true;
+    }
+
+    // identifiant => 123@etablissement
+    let identifiant = _.isEmpty(etablissement) ? "" : "@" + etablissement;
+
     this.setState({
+      identifiant,
+      etablissement,
+      identified,
       gestionRDV: false,
-      identified: false,
+      clientOk: false,
       patient: {}
     });
   }
+
+  authorize = (etablissement, gestionRDVOnSuccess) => {
+    client.authorize(
+      "https://auth-dev.rhapi.net", // auth url
+      "bXlhcHA6bXlhcHBteWFwcA", // app token
+      "reservation@" + etablissement, // username
+      "reservation@" + etablissement, //password
+      () => {
+        // success
+        console.log("client ok");
+        let gestionRDV =
+          !_.isUndefined(gestionRDVOnSuccess) && gestionRDVOnSuccess;
+        this.setState({ clientOk: true, etablissement, gestionRDV });
+      },
+      (datas, response) => {
+        console.log("erreur auth client");
+        console.log(datas);
+        this.setState({ identified: true, etablissement: "" });
+        //alert("Impossible de se connecter au serveur d'authentification. Essayer à nouveau...");
+        //window.location.reload();
+      }
+    );
+  };
 
   componentDidMount() {
     // local dev no auth (décommenter les 2 lignes suivantes)
     //this.setState({ validation: "success", errorMessage: "" });
     //return;
 
-    client.authorize(
-      "https://auth-dev.rhapi.net", // auth url
-      "bXlhcHA6bXlhcHBteWFwcA", // app token
-      "masteragenda", // username
-      "masteragenda", //password
-      () => {
-        // success
-        console.log("client ok");
-      },
-      (datas, response) => {
-        console.log("erreur auth client");
-      }
-    );
+    if (this.state.etablissement === "") {
+      console.log(this.state.patient);
+      this.setState({ identified: true });
+      return;
+    }
+
+    this.authorize(this.state.etablissement);
   }
 
   componentDidUpdate() {
@@ -77,9 +113,19 @@ export default class Patients extends React.Component {
   }
 
   handleChange = (e, d) => {
-    const patient = this.state.patient;
-    patient[d.name] = d.value;
-    this.setState({ patient: patient });
+    let { patient, etablissement, identifiant } = this.state;
+    let key = d.name;
+    if (key === "ipp") {
+      identifiant = d.value;
+      let parts = identifiant.split("@");
+      patient["ipp"] = parts[0];
+      if (parts.length > 1) {
+        etablissement = parts[1];
+      }
+    } else {
+      patient[key] = d.value;
+    }
+    this.setState({ patient, etablissement, identifiant });
   };
 
   gestionRDV = () => {
@@ -97,7 +143,21 @@ export default class Patients extends React.Component {
       patient = _.omit(patient, ["ipp", "ipp2", "password"]);
     }
     */
-    this.setState({ gestionRDV: true });
+
+    if (this.state.clientOk) {
+      this.setState({ gestionRDV: true });
+    } else {
+      let patient = this.state.patient;
+      let parts = patient.ipp.split("@");
+      if (parts.length > 1) {
+        patient.ipp = parts[0];
+        let etablissement = parts[1];
+        this.setState({ patient, etablissement });
+        this.authorize(etablissement, true);
+      } else {
+        this.authorize(this.state.etablissement, true);
+      }
+    }
   };
 
   render() {
@@ -146,9 +206,10 @@ export default class Patients extends React.Component {
                         iconPosition="left"
                         placeholder="Identifiant"
                         value={
-                          _.isUndefined(this.state.patient.ipp)
+                          /*_.isUndefined(this.state.patient.ipp)
                             ? ""
-                            : this.state.patient.ipp
+                            : this.state.patient.ipp + "@" + this.state.patient.etablissement*/
+                          this.state.identifiant
                         }
                         required={true}
                         type="text"
