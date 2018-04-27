@@ -24,6 +24,8 @@ import {
   denominationDefaultFormat
 } from "./Settings";
 
+import RdvPassCard from "./RdvPassCard";
+
 import { SingleDatePicker } from "react-dates";
 
 /**
@@ -175,7 +177,7 @@ export default class FichePatient extends React.Component {
   camelDenomination = text => {
     let result = "";
     let prev = "";
-    for (let i = 0 ; i < text.length ; i++){
+    for (let i = 0; i < text.length; i++) {
       let c = text[i];
       if (i === 0 || prev === " " || prev === "'" || prev === "-") {
         c = _.toUpper(c);
@@ -186,7 +188,7 @@ export default class FichePatient extends React.Component {
       result += c;
     }
     return result;
-  }
+  };
 
   conversionDenominationFormat = (champ, value) => {
     if (champ !== "nom" && champ !== "prenom") {
@@ -196,11 +198,15 @@ export default class FichePatient extends React.Component {
         case "NP":
           return _.toUpper(value);
         case "Np":
-          return champ === "nom" ? _.toUpper(value) : this.camelDenomination(value);
+          return champ === "nom"
+            ? _.toUpper(value)
+            : this.camelDenomination(value);
         case "PN":
           return _.toUpper(value);
         case "pN":
-          return champ === "nom" ? _.toUpper(value) : this.camelDenomination(value);
+          return champ === "nom"
+            ? _.toUpper(value)
+            : this.camelDenomination(value);
         case "np":
           return this.camelDenomination(value);
         case "pn":
@@ -437,7 +443,7 @@ export default class FichePatient extends React.Component {
                       onChange={(e, d) => this.handleChangeInput(e, d)}
                     />
                     <Form.Input
-                      required={true}
+                      //required={true}
                       label="Date de naissance"
                       name="naissance"
                     >
@@ -689,7 +695,7 @@ export default class FichePatient extends React.Component {
                   </Form.Group>
 
                   <Form.Group>
-                    <Form.Input label="Générer automatiquement un mot de passe">
+                    {/*<Form.Input label="Générer automatiquement un mot de passe">
                       <Button
                         onClick={() => {
                           let passwd = this.makePasswd();
@@ -701,6 +707,19 @@ export default class FichePatient extends React.Component {
                       >
                         Générer
                       </Button>
+                    </Form.Input>*/}
+                    <Form.Input label="Liste rendez-vous à partir de la date d'aujourd'hui">
+                      <RdvPassCard
+                        idPatient={this.state.patient.id}
+                        icon="calendar"
+                        label="Rendez-vous"
+                        client={this.props.client}
+                        newPassword={password => {
+                          let modifiedPatient = this.state.patient;
+                          modifiedPatient.gestionRdvJO.reservation.password = password;
+                          this.props.onChange(modifiedPatient);
+                        }}
+                      />
                     </Form.Input>
                   </Form.Group>
 

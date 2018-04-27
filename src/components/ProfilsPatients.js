@@ -79,6 +79,9 @@ export default class ProfilsPatients extends React.Component {
       {},
       patient => {
         _.set(patient, "passwordConfirm", ""); // champ provisoire
+        if (_.isUndefined(patient.gestionRdvJO.reservation)) {
+          patient.gestionRdvJO.reservation = {};
+        }
         patient.gestionRdvJO.reservation.password = "";
         this.setState({ patient: patient, saved: true, errorOnSave: false });
       },
@@ -226,6 +229,7 @@ export default class ProfilsPatients extends React.Component {
   };
 
   render() {
+    // pour le test d'impression
     if (this.state.print) {
       return (
         <div
@@ -297,6 +301,7 @@ export default class ProfilsPatients extends React.Component {
           age={this.state.age}
           onChange={this.onChange}
           print={this.print}
+          client={this.props.client}
         />
         <Divider hidden={true} />
 

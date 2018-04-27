@@ -281,7 +281,7 @@ const telRegex = [
 /*
  * Format de dénomination
  */
-const denominationDefaultFormat = "Np";
+const denominationDefaultFormat = "NP";
 
 export {
   maxWidth,
