@@ -14,12 +14,13 @@ import "semantic-ui-css/semantic.min.css";
 
 import "./css/index.css";
 
+// Iframe
 import Iframe from "react-iframe";
 
 // Semantic
 import { Icon, Divider, Sidebar, Menu, Modal } from "semantic-ui-react";
 
-import { maxWidth } from "./components/Settings";
+import { maxWidth, site } from "./components/Settings";
 
 //Components
 import App from "./components/App";
@@ -80,11 +81,11 @@ class Main extends React.Component {
               header={true}
               name="home"
               onClick={() => {
-                window.location = originPath;
+                window.location = site.url;
               }}
             >
               <Icon name="home" />
-              Accueil
+              {site.title}
             </Menu.Item>
             <Menu.Item header={true}>
               <Icon name="doctor" />
@@ -190,11 +191,11 @@ class Main extends React.Component {
               header={true}
               name="home"
               onClick={() => {
-                window.location = originPath;
+                window.location = site.url;
               }}
             >
               <Icon name="home" />
-              Accueil
+              {site.title}
             </Menu.Item>
             <Menu.Item
               header={true}
