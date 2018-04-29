@@ -73,7 +73,7 @@ export default class Patients extends React.Component {
       (datas, response) => {
         console.log("erreur auth client");
         console.log(datas);
-        this.setState({ identified: true, etablissement: "" });
+        this.setState({ identified: true, etablissement: "", identifiant: "" });
         //alert("Impossible de se connecter au serveur d'authentification. Essayer à nouveau...");
         //window.location.reload();
       }
@@ -186,16 +186,20 @@ export default class Patients extends React.Component {
               </Header>
               <Form onSubmit={this.gestionRDV} size={fsize}>
                 <Segment stacked={true}>
-                  <Checkbox
-                    label="Je dispose d'un identifiant personnel"
-                    toggle={true}
-                    checked={this.state.identified}
-                    onChange={(e, d) => {
-                      this.setState({
-                        identified: d.checked
-                      });
-                    }}
-                  />
+                  {!_.isEmpty(this.state.etablissement) ? (
+                    <Checkbox
+                      label="Je dispose d'un identifiant personnel"
+                      toggle={true}
+                      checked={this.state.identified}
+                      onChange={(e, d) => {
+                        this.setState({
+                          identified: d.checked
+                        });
+                      }}
+                    />
+                  ) : (
+                    ""
+                  )}
                   <Divider hidden={true} />
                   {this.state.identified ? (
                     <React.Fragment>

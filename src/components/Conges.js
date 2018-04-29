@@ -1,5 +1,7 @@
 import React from "react";
-import { Button, Input, List, Label } from "semantic-ui-react";
+
+import { Button, Input, List } from "semantic-ui-react";
+
 import _ from "lodash";
 
 import PropTypes from "prop-types";
@@ -59,7 +61,7 @@ const defaultProps = {
   required: false,
   screenReaderInputMessage: "",
   showClearDates: false,
-  showDefaultInputIcon: false,
+  showDefaultInputIcon: true,
   customInputIcon: null,
   customArrowIcon: null,
   customCloseIcon: null,
@@ -72,7 +74,7 @@ const defaultProps = {
   orientation: HORIZONTAL_ORIENTATION,
   anchorDirection: ANCHOR_LEFT,
   horizontalMargin: 0,
-  daySize: 70,
+  daySize: undefined,
   withPortal: true,
   withFullScreenPortal: false,
   initialVisibleMonth: null,
@@ -92,7 +94,7 @@ const defaultProps = {
   // day presentation and interaction related props
   renderCalendarDay: undefined,
   renderDayContents: null,
-  minimumNights: 1,
+  minimumNights: 0,
   enableOutsideDays: false,
   isDayBlocked: () => false,
   isOutsideRange: day => false, //!isInclusivelyAfterDay(day, moment()),
@@ -104,7 +106,7 @@ const defaultProps = {
   phrases: DateRangePickerPhrases
 };
 
-class Periode extends React.Component {
+export class Periode extends React.Component {
   constructor(props) {
     super(props);
 
@@ -272,17 +274,16 @@ export default class Conges extends React.Component {
                     this.onPeriodeChange(i, start, end)
                   }
                 />
-                <Label size="large" style={{ verticalAlign: "bottom" }}>
-                  Intitulé :{" "}
-                </Label>
+                &nbsp;Intitulé :&nbsp;
                 <Input
                   type="text"
                   placeholder="Intitulé de la période"
                   value={plageConges.titre}
                   onChange={(e, d) => this.onTitreChange(i, d.value)}
                 />
+                &nbsp;
                 <Button
-                  style={{ verticalAlign: "bottom" }}
+                  style={{ verticalAlign: "middle" }}
                   size="tiny"
                   icon="minus"
                   circular={true}

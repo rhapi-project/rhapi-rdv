@@ -1,3 +1,5 @@
+import site from "./SiteSettings";
+
 /*
  * maxWidth : Largeur de la colonne centrale
  * (d'autres largeurs sont définies
@@ -99,10 +101,12 @@ const defaultPlanning = {
       {
         titre: "Réunion début de semaine",
         couleur: "#000000",
-        start: "",
-        end: "",
         background: true,
         recurrence: 0,
+        from: 0,
+        step: 0,
+        start: "",
+        end: "",
         horaires: [
           [],
           [
@@ -284,6 +288,7 @@ const telRegex = [
 const denominationDefaultFormat = "NP";
 
 export {
+  site,
   maxWidth,
   fsize,
   hsize,

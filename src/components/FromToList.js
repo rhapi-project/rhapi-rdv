@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Button, List, Label } from "semantic-ui-react";
+import { Button, List } from "semantic-ui-react";
 
 import TimeField from "react-simple-timefield";
 
@@ -35,7 +35,7 @@ class FromTo extends React.Component {
 
     return (
       <div>
-        <Label size="large" style={{ marginTop: 7 }} content="De" />
+        De&nbsp;
         <TimeField
           value={hfrom} // {String}   required, format '00:00' or '00:00:00'
           onChange={value => this.handleChange(value, "hfrom")}
@@ -44,7 +44,7 @@ class FromTo extends React.Component {
           //showSeconds={false} // {Boolean}  default: false
           style={{ minWidth: maxWidth / 5, maxWidth: maxWidth / 5 }}
         />
-        <Label size="large" style={{ marginTop: 7 }} content="à" />
+        &nbsp;à&nbsp;
         <TimeField
           value={hto} // {String}   required, format '00:00' or '00:00:00'
           onChange={value => this.handleChange(value, "hto")}
@@ -53,6 +53,7 @@ class FromTo extends React.Component {
           //showSeconds={false} // {Boolean}  default: false
           style={{ minWidth: maxWidth / 5, maxWidth: maxWidth / 5 }}
         />
+        &nbsp;
         <Button
           style={{ marginTop: 7 }}
           size="tiny"

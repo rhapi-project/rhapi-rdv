@@ -6,6 +6,10 @@ import ColorPicker from "./ColorPicker";
 
 import HorairesSemaine from "./HorairesSemaine";
 
+import { Periode } from "./Conges";
+
+import moment from "moment";
+
 export default class Recurrents extends React.Component {
   componentWillMount() {
     this.setState({ index: -1 });
@@ -25,9 +29,11 @@ export default class Recurrents extends React.Component {
     this.props.recurrents.push({
       titre: "Nouvel évènement",
       couleur: "#000000",
-      start: "",
-      end: "",
       recurrence: 0,
+      from: 0, // à compter de la semaine...
+      step: 0, // une semaine sur...
+      start: "", // tous les ans periode du start à end
+      end: "",
       background: true,
       horaires: [[], [], [], [], [], [], []]
     });
@@ -35,6 +41,13 @@ export default class Recurrents extends React.Component {
   };
 
   render() {
+    let semainesOptions = [];
+    _.times(53, i =>
+      semainesOptions.push({
+        value: i + 1,
+        text: "" + (i + 1)
+      })
+    );
     return (
       <React.Fragment>
         <Accordion>
@@ -94,12 +107,90 @@ export default class Recurrents extends React.Component {
                         />
                       </Form.Input>
                     </Form.Group>
-                    <HorairesSemaine
-                      style={{ padding: "20px" }}
-                      horaires={recurrent.horaires}
-                      onHorairesChange={this.props.onChange}
-                      allday={true}
-                    />
+                    <Form.Group>
+                      <Form.Select
+                        label="Récurrence"
+                        options={[
+                          {
+                            text: "Toutes les semaines",
+                            value: 0
+                          },
+                          {
+                            text: "Une semaine sur...",
+                            value: 1
+                          },
+                          {
+                            text: "Tous les ans durant la période...",
+                            value: 2
+                          }
+                        ]}
+                        value={recurrent.recurrence}
+                        onChange={(e, d) => {
+                          recurrent.recurrence = d.value;
+                          this.props.onChange();
+                        }}
+                      />
+                      {recurrent.recurrence === 1 ? (
+                        <React.Fragment>
+                          <Form.Select
+                            label="&nbsp;"
+                            scrolling={true}
+                            options={semainesOptions}
+                            value={recurrent.step}
+                            onChange={(e, d) => {
+                              recurrent.step = d.value;
+                              this.props.onChange();
+                            }}
+                          />
+                          <span>
+                            <br />
+                            <br />
+                            à partir de la semaine...
+                          </span>
+                          <Form.Select
+                            label="&nbsp;"
+                            scrolling={true}
+                            options={semainesOptions}
+                            value={recurrent.from}
+                            onChange={(e, d) => {
+                              recurrent.from = d.value;
+                              this.props.onChange();
+                            }}
+                          />
+                        </React.Fragment>
+                      ) : recurrent.recurrence === 2 ? (
+                        <Form.Input label="&nbsp;">
+                          <Periode
+                            initialStartDate={moment(
+                              _.isEmpty(recurrent.start)
+                                ? Date()
+                                : recurrent.start
+                            )}
+                            initialEndDate={moment(
+                              _.isEmpty(recurrent.end) ? Date() : recurrent.end
+                            )}
+                            clearFocus={this.state.clearFocus}
+                            onPeriodeChange={(start, end) => {
+                              recurrent.start = start;
+                              recurrent.end = end;
+                              this.props.onChange();
+                            }}
+                          />
+                        </Form.Input>
+                      ) : (
+                        ""
+                      )}
+                    </Form.Group>
+                    {recurrent.recurrence === 2 ? (
+                      ""
+                    ) : (
+                      <HorairesSemaine
+                        style={{ padding: "20px" }}
+                        horaires={recurrent.horaires}
+                        onHorairesChange={this.props.onChange}
+                        allday={true}
+                      />
+                    )}
                   </Accordion.Content>
                 </Accordion.Content>
               </React.Fragment>

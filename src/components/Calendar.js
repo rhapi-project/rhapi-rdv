@@ -234,18 +234,6 @@ export default class Calendar extends React.Component {
           });
         }
 
-        // autres plages réservées / récurrentes => même format que businessHours
-        /*
-        events.push({
-          // days of week. an array of zero-based day of week integers (0=Sunday)
-          dow: [1, 2, 3, 4], // Monday - Thursday
-          start: "10:00", // a start time (10am in this example)
-          end: "18:00", // an end time (6pm in this example)
-          rendering: "background",
-          color: "blue"
-        });
-        */
-
         client.RendezVous.actualiser(
           params,
           (datas, response) => {

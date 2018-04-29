@@ -1,10 +1,16 @@
 import React from "react";
-import { Accordion, Button, Checkbox } from "semantic-ui-react";
+
+import { Accordion, Checkbox } from "semantic-ui-react";
+
 import _ from "lodash";
 
 import FromToList from "./FromToList";
 
 class HorairesJour extends React.Component {
+  componentWillMount() {
+    this.setState({ horaires: this.props.horaires });
+  }
+
   componentWillReceiveProps(next) {
     this.setState({ horaires: next.horaires });
   }
@@ -88,6 +94,7 @@ export default class HorairesSemaine extends React.Component {
     ];
     return (
       <Accordion>
+        {/*
         <Button
           content="Saisir les plages horaires sur l'agenda d'une semaine type"
           icon="calendar"
@@ -97,6 +104,7 @@ export default class HorairesSemaine extends React.Component {
             )
           }
         />
+        */}
         {_.map(this.props.horaires, (horairesJour, i) => {
           return (
             <HorairesJour

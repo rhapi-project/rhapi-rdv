@@ -23,7 +23,7 @@ import Profil from "./Profil";
 import ProfilsPatients from "./ProfilsPatients";
 
 var client = new Client(
-  // local dev no auth (décommenter la ligne suivante)
+  // local dev no auth : décommenter la ligne suivante (et 2 lignes sur accept)
   //"http://localhost",
   (datas, response) => {
     if (datas.networkError === 401) {
@@ -39,6 +39,43 @@ export default class Praticiens extends React.Component {
     password: "masteruser",
     validation: null,
     errorMessage: ""
+  };
+
+  accept = () => {
+    // local dev no auth : décommenter les 2 lignes suivantes
+    //this.setState({ validation: "success", errorMessage: "" });
+    //return;
+
+    client.authorize(
+      "https://auth-dev.rhapi.net", // auth url
+      "bXlhcHA6bXlhcHBteWFwcA", // app token
+      this.state.user, // username
+      this.state.password, // password
+      () => {
+        // success
+        // auth ok
+        // les groupes et méthodes RHAPI sont accessibles ici
+        this.setState({ validation: "success", errorMessage: "" });
+      },
+      (datas, response) => {
+        this.setState({
+          validation: "warning",
+          errorMessage:
+            datas.userMessage + " Identifiant ou mot de passe incorrect."
+        });
+      }
+    );
+  };
+
+  reject = () => {
+    // disconnect
+    this.setState({
+      user: "",
+      password: "",
+      validation: null,
+      errorMessage: ""
+    });
+    client = new Client();
   };
 
   /*
@@ -75,43 +112,6 @@ export default class Praticiens extends React.Component {
       validation: null,
       errorMessage: ""
     });
-  };
-
-  accept = () => {
-    // local dev no auth (décommenter les 2 lignes suivantes)
-    //this.setState({ validation: "success", errorMessage: "" });
-    //return;
-
-    client.authorize(
-      "https://auth-dev.rhapi.net", // auth url
-      "bXlhcHA6bXlhcHBteWFwcA", // app token
-      this.state.user, // username
-      this.state.password, // password
-      () => {
-        // success
-        // auth ok
-        // les groupes et méthodes RHAPI sont accessibles ici
-        this.setState({ validation: "success", errorMessage: "" });
-      },
-      (datas, response) => {
-        this.setState({
-          validation: "warning",
-          errorMessage:
-            datas.userMessage + " Identifiant ou mot de passe incorrect."
-        });
-      }
-    );
-  };
-
-  reject = () => {
-    // disconnect
-    this.setState({
-      user: "",
-      password: "",
-      validation: null,
-      errorMessage: ""
-    });
-    client = new Client();
   };
 
   render() {

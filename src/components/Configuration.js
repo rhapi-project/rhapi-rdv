@@ -38,7 +38,6 @@ export default class Configuration extends React.Component {
 
   componentDidMount() {
     this.reload(0);
-    this.reload(0); // assure un affichage correct des plages horaires...
   }
 
   reload = index => {

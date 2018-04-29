@@ -39,13 +39,15 @@ import { SingleDatePicker } from "react-dates";
  * -> Gestion des rdv (Problème avec le mot de passe)
  */
 
+/* inutile depuis que défini par défaut en backend
 const gestionRdvJO = {
-  autorisationSMS: false,
+  autoriseSMS: false,
   reservation: {
     autorisation: 0, // à voir
     password: ""
   }
 };
+*/
 
 export default class FichePatient extends React.Component {
   civilites = [
@@ -131,9 +133,11 @@ export default class FichePatient extends React.Component {
 
   componentWillReceiveProps(next) {
     let patient = { ...next.patient };
+    /* inutile depuis que défini par défaut en backend
     if (_.isEmpty(patient.gestionRdvJO)) {
       patient.gestionRdvJO = gestionRdvJO;
     }
+    */
     this.setState({
       patient: patient,
       saved: true,
@@ -308,11 +312,9 @@ export default class FichePatient extends React.Component {
     this.props.onChange(modifiedPatient);
   };
 
-  changeAutorisationSMS = (e, d) => {
+  changeAutoriseSMS = (e, d) => {
     let modifiedPatient = this.state.patient;
-    //modifiedPatient.gestionRdvJO.autorisationSMS = !modifiedPatient.gestionRdvJO
-    //  .autorisationSMS;
-    modifiedPatient.gestionRdvJO.autorisationSMS = d.checked;
+    modifiedPatient.gestionRdvJO.autoriseSMS = d.checked;
     this.setState({
       patient: modifiedPatient
     });
@@ -376,9 +378,21 @@ export default class FichePatient extends React.Component {
                   <Grid divided={true}>
                     <Grid.Row>
                       <Grid.Column width={4}>
-                        {/*Photo*/}
+                        {/*
+                            Photo de profil voir le nouveau champ patient.profilJO et plus exactement
+                            patient.profilJO.base64 qui doit contenir l'image/la photo de profil au format base 64
+                            IMPORTANT : pour ne pas prendre trop de place en bdd, l'image doit se limiter à 128 x 128 pixels
+                            Pour charger une image, la convertir en base 64 puis la placer dans patient.profilJO.base64 
+                            https://stackoverflow.com/questions/22172604/convert-image-url-to-base64/22172860 
+                            => s'inspirer du dernier exemple et de sa démo sur jsfiddle : 
+                            https://jsfiddle.net/vibs2006/ed9j7epr/
+                            Pour afficher une image on doit juste avoir quelque chose comme :
+                            <img src="data:image/png;base64, iVBORw0KGgoAA...AANSUhEUgkJggg==" alt="Mon profil" />
+                            soit pour nous :
+                            <img src={patient.profilJO.base64} alt="Mon profil" />
+                          */}
                         <div style={{ textAlign: "center" }}>
-                          {this.state.patient.idPhoto === 0 ? (
+                          {_.isEmpty(this.state.patient.profilJO.base64) ? (
                             <Icon name="user" size="massive" />
                           ) : (
                             ""
@@ -412,12 +426,12 @@ export default class FichePatient extends React.Component {
 
                         {"Création le " +
                           moment(this.props.patient.createdAt).format(
-                            "dddd d MMMM YYYY à HH:mm"
+                            "dddd D MMMM YYYY à HH:mm"
                           )}
                         <Divider hidden={true} fitted={true} />
                         {"Dernière modification le " +
                           moment(this.props.patient.modifiedAt).format(
-                            "dddd d MMMM YYYY à HH:mm"
+                            "dddd D MMMM YYYY à HH:mm"
                           )}
                       </Grid.Column>
                     </Grid.Row>
@@ -650,8 +664,8 @@ export default class FichePatient extends React.Component {
                   <Form.Input label="Autorisation SMS">
                     <Checkbox
                       toggle={true}
-                      checked={this.state.patient.gestionRdvJO.autorisationSMS}
-                      onChange={(e, d) => this.changeAutorisationSMS(e, d)}
+                      checked={this.state.patient.gestionRdvJO.autoriseSMS}
+                      onChange={(e, d) => this.changeAutoriseSMS(e, d)}
                     />
                   </Form.Input>
 
