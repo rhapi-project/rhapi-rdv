@@ -88,7 +88,7 @@ export default class RdvPassCard extends React.Component {
     const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     // pas de chiffre car ça peut entrainer des confusions entre 0 et O ou entre 1 et I
     for (let i = 0; i < 6; i++) {
-      let c = Math.floor(Math.random() * chars.length + 1);
+      let c = Math.floor(Math.random() * chars.length);
       passwd += chars.charAt(c);
     }
     return passwd;
