@@ -6,7 +6,7 @@ import moment from "moment";
 
 import { rdvDateTime } from "./Settings";
 // la date/heure du RDV dans un format commun
-// voir dans Settings => il n'y pas de split et autres complication ;-)
+// voir dans Settings => il n'y pas de split et autres complications ;-)
 
 import { Button, Icon, List, Message, Modal, Segment } from "semantic-ui-react";
 
