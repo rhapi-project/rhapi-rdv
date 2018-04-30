@@ -1,5 +1,7 @@
 import site from "./SiteSettings";
 
+import moment from "moment";
+
 /*
  * maxWidth : Largeur de la colonne centrale
  * (d'autres largeurs sont définies
@@ -17,18 +19,11 @@ const fsize = "large";
 const hsize = "large";
 
 /*
- * Affichage Date/Heure d'un rendez-vous (format long en Français)
+ * Affichage par défaut Date/Heure d'un rendez-vous (format long en Français)
  */
 
-const longDateTime = dateStr =>
-  new Date(dateStr).toLocaleDateString("fr-FR", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "numeric",
-    minute: "numeric"
-  });
+const rdvDateTime = dateStr =>
+  moment(dateStr).format("dddd D MMMM YYYY à HH:mm");
 
 /* 
  * defaultPlanning : Planning par défaut
@@ -293,7 +288,7 @@ export {
   fsize,
   hsize,
   defaultPlanning,
-  longDateTime,
+  rdvDateTime,
   codePostalRegex,
   emailRegex,
   telRegex,

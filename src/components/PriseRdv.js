@@ -11,7 +11,7 @@ import {
 
 import _ from "lodash";
 
-import { hsize, longDateTime } from "./Settings";
+import { hsize, rdvDateTime } from "./Settings";
 
 import MesRdv from "./MesRdv";
 
@@ -191,7 +191,7 @@ export default class PriseRdv extends React.Component {
               <Step.Content>
                 <Step.Title>
                   {this.state.completed
-                    ? "RDV le " + longDateTime(this.state.horaire)
+                    ? "RDV le " + rdvDateTime(this.state.horaire)
                     : "Je choisis un horaire"}
                 </Step.Title>
                 <Step.Description>

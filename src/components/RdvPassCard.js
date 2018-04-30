@@ -4,6 +4,10 @@ import _ from "lodash";
 
 import moment from "moment";
 
+import { rdvDateTime } from "./Settings";
+// la date/heure du RDV dans un format commun
+// voir dans Settings => il n'y pas de split et autres complication ;-)
+
 import { Button, Icon, List, Message, Modal, Segment } from "semantic-ui-react";
 
 export default class RdvPassCard extends React.Component {
@@ -21,14 +25,32 @@ export default class RdvPassCard extends React.Component {
   }
 
   reload = () => {
-    let today = moment().format("L"); // La date est en français
-    let t = _.split(today, "/");
+    //
+    // Les 2 lignes ci-dessous étaient à revoir :
+    // moment propose une fonction qui donne directement la date au format UTC
+    // Là vous prenez la date du jour (qui à l'origine est en UTC),
+    // vous supposez que le navigateur est français et ensuite
+    // vous convertissez en UTC avec des split sur '/'
+    // => ce n'est vraiment pas top et sujet à de multiples bugs
+    //
+    //let today = moment().format("L"); // La date est en français => vous êtes sûr ?????
+    //let t = _.split(today, "/");
 
-    console.log(t[2] + "-" + t[1] + "-" + t[0]);
+    //console.log(t[2] + "-" + t[1] + "-" + t[0]);
+
+    console.log(
+      moment()
+        .toISOString()
+        .split("T")[0]
+    );
 
     let params = {
       _idPatient: this.props.idPatient,
-      q1: "startAt,GreaterThan," + t[2] + "-" + t[1] + "-" + t[0],
+      q1:
+        "startAt,GreaterThan," +
+        moment()
+          .toISOString()
+          .split("T")[0], //t[2] + "-" + t[1] + "-" + t[0],
       limit: "1000",
       sort: "startAt",
       fields: "startAt,endAt,planningsJA"
@@ -63,8 +85,8 @@ export default class RdvPassCard extends React.Component {
 
   makePasswd = () => {
     let passwd = "";
-    const chars =
-      "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    // pas de chiffre car ça peut entrainer des confusions entre 0 et O ou entre 1 et I
     for (let i = 0; i < 6; i++) {
       let c = Math.floor(Math.random() * chars.length + 1);
       passwd += chars.charAt(c);
@@ -72,7 +94,11 @@ export default class RdvPassCard extends React.Component {
     return passwd;
   };
 
+  /*
   dateTransformation = date => {
+      // 
+      // trop compliqué et pas robuste
+      //
     // JJ/MM/AAAA
     let utc = moment(date)._i; //  ex : 2018-04-27T09:00:00
     let onlyDate = _.split(utc, "T")[0];
@@ -81,6 +107,9 @@ export default class RdvPassCard extends React.Component {
   };
 
   timeTransformation = date => {
+      // 
+      // trop compliqué et pas robuste
+      //
     // 09h00
     let utc = moment(date)._i;
     let onlyTime = _.split(utc, "T")[1];
@@ -91,6 +120,7 @@ export default class RdvPassCard extends React.Component {
   getDay = date => {
     return _.upperFirst(_.split(moment(date).format("LLLL"), " ")[0]);
   };
+  */
 
   render() {
     const newPassword = this.makePasswd();
@@ -119,6 +149,9 @@ export default class RdvPassCard extends React.Component {
                     <List.Item
                       key={i}
                       content={
+                        _.upperFirst(rdvDateTime(item.startAt))
+                        // on n'indique pas la durée du RDV !
+                        /*
                         this.getDay(item.startAt) +
                         " " +
                         "le " +
@@ -127,6 +160,7 @@ export default class RdvPassCard extends React.Component {
                         this.timeTransformation(item.startAt) +
                         " - " +
                         this.timeTransformation(item.endAt)
+                          */
                       }
                     />
                   );
@@ -195,6 +229,9 @@ export default class RdvPassCard extends React.Component {
                       <List.Item
                         key={i}
                         content={
+                          _.upperFirst(rdvDateTime(item.startAt))
+                          // inutile de mentionner la fin du rdv
+                          /*
                           this.getDay(item.startAt) +
                           " " +
                           "le " +
@@ -203,6 +240,7 @@ export default class RdvPassCard extends React.Component {
                           this.timeTransformation(item.startAt) +
                           " - " +
                           this.timeTransformation(item.endAt)
+                          */
                         }
                       />
                     );
@@ -260,6 +298,9 @@ export default class RdvPassCard extends React.Component {
                       <List.Item
                         key={i}
                         content={
+                          _.upperFirst(rdvDateTime(item.startAt))
+                          // inutile de mentionner la fin du rdv
+                          /*
                           this.getDay(item.startAt) +
                           " " +
                           "le " +
@@ -268,6 +309,7 @@ export default class RdvPassCard extends React.Component {
                           this.timeTransformation(item.startAt) +
                           " - " +
                           this.timeTransformation(item.endAt)
+                          */
                         }
                       />
                     );
@@ -311,6 +353,12 @@ export default class RdvPassCard extends React.Component {
                     printWithPassword: true
                   });
                   // le mot de passe va être sauvegardé
+                  // => Non il est sauvegardé maintenant dès qu'on a une réponse favorable à
+                  // "Êtes-vous sûr de vouloir remplacer l'ancien mot de passe ?"
+                  // Il ne faut pas "remonter" le password dans le component parent
+                  // ... qui ne sera d'ailleurs pas toujours en mesure de le gérer
+                  // la prop newPassword ne figure pas au le cahier des charges de RdvPassCard
+                  // => il faut le sauvegarder ici directement avec un update patient !
                   this.props.newPassword(this.state.newPassword);
                 }}
               >

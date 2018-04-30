@@ -3,7 +3,7 @@ import { Header, Button, Divider, Modal } from "semantic-ui-react";
 
 import _ from "lodash";
 
-import { hsize, longDateTime } from "./Settings";
+import { hsize, rdvDateTime } from "./Settings";
 
 import PriseRdv from "./PriseRdv";
 import HorairesDisponibles from "./HorairesDisponibles";
@@ -73,12 +73,12 @@ class MonRdv extends React.Component {
       if (_.isUndefined(titrePlanning)) titrePlanning = "Planning non défini";
     }
 
-    console.log(this.props.rdv);
+    //console.log(this.props.rdv);
     return (
       <React.Fragment>
         <Header>{titrePlanning}</Header>
         <Button onClick={() => this.setState({ edited: !this.state.edited })}>
-          {longDateTime(this.props.rdv.startAt)}
+          {rdvDateTime(this.props.rdv.startAt)}
         </Button>
         {this.state.edited ? (
           <React.Fragment>
@@ -133,8 +133,8 @@ class MonRdv extends React.Component {
                 <Modal.Header icon="archive" content="Confirmation" />
                 <Modal.Content>
                   Je confirme vouloir déplacer ce RDV du{" "}
-                  {longDateTime(this.props.rdv.startAt)} au{" "}
-                  {longDateTime(this.state.nouvelHoraire)} ?
+                  {rdvDateTime(this.props.rdv.startAt)} au{" "}
+                  {rdvDateTime(this.state.nouvelHoraire)} ?
                 </Modal.Content>
                 <Modal.Actions>
                   <Button onClick={this.close}>Non</Button>
@@ -153,7 +153,7 @@ class MonRdv extends React.Component {
                 <Modal.Header icon="archive" content="Annulation" />
                 <Modal.Content>
                   Je confirme vouloir annuler ce RDV du{" "}
-                  {longDateTime(this.props.rdv.startAt)} ?
+                  {rdvDateTime(this.props.rdv.startAt)} ?
                 </Modal.Content>
                 <Modal.Actions>
                   <Button onClick={this.close}>Non</Button>
