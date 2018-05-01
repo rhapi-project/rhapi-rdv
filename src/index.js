@@ -27,8 +27,21 @@ import App from "./components/App";
 import Patients from "./components/Patients";
 import Praticiens from "./components/Praticiens";
 
+window.qWebChannel = false;
+
 class Main extends React.Component {
   state = { visible: false, help: false, login: false };
+
+  componentDidMount = () => {
+    // Qt Mixed App ?
+    if (typeof QWebChannel !== "undefined") {
+      /*eslint no-undef: "off"*/
+      new QWebChannel(qt.webChannelTransport, channel => {
+        window.qWebChannel = channel.objects.qWebChannel;
+        this.setState({}); // rerender
+      });
+    }
+  };
 
   render() {
     let sidebar = "";
@@ -52,6 +65,15 @@ class Main extends React.Component {
     if (subApp === "#Patients") {
       return <Patients />; // no sidebar for patients
     } else if (subApp === "#Praticiens") {
+      if (window.qWebChannel) {
+        return (
+          // no sidebar for praticien on Qt App
+          <React.Fragment>
+            <Divider hidden={true} fitted={true} />
+            <Praticiens />
+          </React.Fragment>
+        );
+      }
       sidebar = (
         <Sidebar.Pushable style={{ minHeight: "400px" }}>
           <Sidebar

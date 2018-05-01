@@ -13,7 +13,7 @@ import {
   Icon
 } from "semantic-ui-react";
 
-//import _ from "lodash";
+import _ from "lodash";
 
 import { Client } from "rhapi-client";
 import { maxWidth, hsize, fsize } from "./Settings";
@@ -78,6 +78,37 @@ export default class Praticiens extends React.Component {
     client = new Client();
   };
 
+  componentWillMount() {
+    if (window.qWebChannel) {
+      // Qt App auto login
+      let parts = window.location.hash.split("/")[1].split("?");
+      if (parts.length === 2) {
+        parts = parts[1].split("&");
+        let params = {};
+        _.forEach(parts, part => {
+          let kv = part.split("=");
+          if (kv.length === 2) {
+            params[kv[0]] = kv[1];
+          }
+        });
+        if (!_.isUndefined(params.user) && !_.isUndefined(params.password)) {
+          this.setState({
+            user: params.user,
+            password: params.password,
+            autoLog: true
+          });
+        }
+      }
+    }
+  }
+
+  componentDidMount() {
+    if (this.state.autoLog) {
+      // Qt App auto login
+      this.accept();
+    }
+  }
+
   /*
   componentDidUpdate() {
     // https://developer.mozilla.org/en-US/docs/Web/API/History_API
@@ -117,6 +148,11 @@ export default class Praticiens extends React.Component {
   render() {
     if (this.state.validation === "success") {
       let option = window.location.hash.split("/")[1];
+      if (_.isUndefined(option)) {
+        option = "";
+      } else {
+        option = option.split("?")[0];
+      }
 
       if (option === "Agendas") {
         return <Calendars client={client} user={this.state.user} />;
@@ -174,56 +210,57 @@ export default class Praticiens extends React.Component {
           </Card>
         </Card.Group>
       );
-    }
-
-    return (
-      <div className="login-form" id="praticiens">
-        <Grid textAlign="center">
-          <Grid.Column style={{ maxWidth: maxWidth, marginTop: 60 }}>
-            <Header size={hsize}>
-              {/*<Image src='/logo.png' />*/}
-              Connexion praticien
-            </Header>
-            <Segment>
-              <Form size={fsize}>
-                <Form.Input
-                  id="form-login-user"
-                  fluid={true}
-                  icon="doctor"
-                  iconPosition="left"
-                  placeholder="Identifiant"
-                  onChange={this.userChange}
-                  value={this.state.user}
-                  error={this.state.validation === "warning"}
-                />
-                <Form.Input
-                  fluid={true}
-                  icon="lock"
-                  iconPosition="left"
-                  placeholder="Mot de passe"
-                  type="password"
-                  onChange={this.passwordChange}
-                  value={this.state.password}
-                  error={this.state.validation === "warning"}
-                />
-              </Form>
-              {/*Important : No Form submission => Button (not Form.Button and outside the form*/}
-              <Divider hidden={true} />
-              <Button primary={true} fluid={true} onClick={this.accept}>
-                Connexion
-              </Button>
-              <Divider fitted={true} />
-              <Button secondary={true} fluid={true} onClick={this.reject}>
-                Déconnexion
-              </Button>
-            </Segment>
-            <Message>
-              Ouvrir un compte ?{" "}
-              <a href="http://lambdasoft.fr">&nbsp;Nous contacter</a>
-            </Message>
-          </Grid.Column>
-        </Grid>
-      </div>
-    );
+    } else
+      return window.qWebChannel ? (
+        ""
+      ) : (
+        <div className="login-form" id="praticiens">
+          <Grid textAlign="center">
+            <Grid.Column style={{ maxWidth: maxWidth, marginTop: 60 }}>
+              <Header size={hsize}>
+                {/*<Image src='/logo.png' />*/}
+                Connexion praticien
+              </Header>
+              <Segment>
+                <Form size={fsize}>
+                  <Form.Input
+                    id="form-login-user"
+                    fluid={true}
+                    icon="doctor"
+                    iconPosition="left"
+                    placeholder="Identifiant"
+                    onChange={this.userChange}
+                    value={this.state.user}
+                    error={this.state.validation === "warning"}
+                  />
+                  <Form.Input
+                    fluid={true}
+                    icon="lock"
+                    iconPosition="left"
+                    placeholder="Mot de passe"
+                    type="password"
+                    onChange={this.passwordChange}
+                    value={this.state.password}
+                    error={this.state.validation === "warning"}
+                  />
+                </Form>
+                {/*Important : No Form submission => Button (not Form.Button and outside the form*/}
+                <Divider hidden={true} />
+                <Button primary={true} fluid={true} onClick={this.accept}>
+                  Connexion
+                </Button>
+                <Divider fitted={true} />
+                <Button secondary={true} fluid={true} onClick={this.reject}>
+                  Déconnexion
+                </Button>
+              </Segment>
+              <Message>
+                Ouvrir un compte ?{" "}
+                <a href="http://lambdasoft.fr">&nbsp;Nous contacter</a>
+              </Message>
+            </Grid.Column>
+          </Grid>
+        </div>
+      );
   }
 }
