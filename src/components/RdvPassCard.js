@@ -4,11 +4,13 @@ import _ from "lodash";
 
 import moment from "moment";
 
-import { rdvDateTime } from "./Settings";
-// la date/heure du RDV dans un format commun
-// voir dans Settings => il n'y pas de split et autres complication ;-)
+import NewWindow from "react-new-window";
 
-import { Button, Icon, List, Message, Modal, Segment } from "semantic-ui-react";
+//import ReactToPrint from "react-to-print";
+
+import { rdvDateTime } from "./Settings";
+
+import { Button, Divider, Icon, List, Message, Modal, Segment, Table } from "semantic-ui-react";
 
 export default class RdvPassCard extends React.Component {
   state = {
@@ -25,19 +27,6 @@ export default class RdvPassCard extends React.Component {
   }
 
   reload = () => {
-    //
-    // Les 2 lignes ci-dessous étaient à revoir :
-    // moment propose une fonction qui donne directement la date au format UTC
-    // Là vous prenez la date du jour (qui à l'origine est en UTC),
-    // vous supposez que le navigateur est français et ensuite
-    // vous convertissez en UTC avec des split sur '/'
-    // => ce n'est vraiment pas top et sujet à de multiples bugs
-    //
-    //let today = moment().format("L"); // La date est en français => vous êtes sûr ?????
-    //let t = _.split(today, "/");
-
-    //console.log(t[2] + "-" + t[1] + "-" + t[0]);
-
     console.log(
       moment()
         .toISOString()
@@ -50,7 +39,7 @@ export default class RdvPassCard extends React.Component {
         "startAt,GreaterThan," +
         moment()
           .toISOString()
-          .split("T")[0], //t[2] + "-" + t[1] + "-" + t[0],
+          .split("T")[0],
       limit: "1000",
       sort: "startAt",
       fields: "startAt,endAt,planningsJA"
@@ -73,7 +62,7 @@ export default class RdvPassCard extends React.Component {
     this.props.client.MonCompte.read(
       monProfil => {
         this.setState({
-          praticien: monProfil.currentName
+          praticien: monProfil
         });
       },
       data => {
@@ -94,85 +83,73 @@ export default class RdvPassCard extends React.Component {
     return passwd;
   };
 
-  /*
-  dateTransformation = date => {
-      // 
-      // trop compliqué et pas robuste
-      //
-    // JJ/MM/AAAA
-    let utc = moment(date)._i; //  ex : 2018-04-27T09:00:00
-    let onlyDate = _.split(utc, "T")[0];
-    let t = _.split(onlyDate, "-");
-    return t[2] + "/" + t[1] + "/" + t[0];
-  };
-
-  timeTransformation = date => {
-      // 
-      // trop compliqué et pas robuste
-      //
-    // 09h00
-    let utc = moment(date)._i;
-    let onlyTime = _.split(utc, "T")[1];
-    let t = _.split(onlyTime, ":");
-    return " " + t[0] + " h " + t[1] + " ";
-  };
-
-  getDay = date => {
-    return _.upperFirst(_.split(moment(date).format("LLLL"), " ")[0]);
-  };
-  */
-
   render() {
-    const newPassword = this.makePasswd();
-
     // feuille d'impression
-    // attention, le retour ne doit pas se faire dans le composant RdvPassCard...
-    // A revoir
-    if (this.state.chosenFormat === 1) {
+    if (this.state.chosenFormat === 1) { // carton
+      // avec window.open -> difficulté de rendre un component React
+
+    /*  let carton = window.open("localhost:3000/#Praticiens/Patients", "RHAPI RDV - Impression carton", "width=300, height=600");
+
+      carton.document.write("<div>");
+      carton.document.write("<h3>Vos prochains rendez-vous</h3>");
+
+      if (this.state.mesRdv.length === 0) {
+        carton.document.write("<span>Aucun rendez-vous trouvé !</span>");
+      } else {
+        let mesRdv = this.state.mesRdv;
+        let newPwd = this.state.newPassword;
+        //carton.document.write("<span>" + mesRdv.length + " rendez-vous trouvés !</span><br />");
+
+        carton.document.write("<ul>");
+        for (let i = 0; i < mesRdv.length; i++) {
+          carton.document.write("<li>");
+          carton.document.write(_.upperFirst(rdvDateTime(mesRdv[i].startAt)));
+          carton.document.write("</li>");
+          //carton.document.write("<Divider hidden />");
+        }
+        carton.document.write("</ul>");
+
+        if (this.state.printWithPassword) {
+          carton.document.write("<div>");
+          carton.document.write("Nouveau mot de passe : " + newPwd);
+          carton.document.write("</div>");
+        }
+      }
+
+      carton.document.write("</div>");
+
+      carton.print();
+      carton.close();
+      this.setState({ chosenFormat: 0 }); */
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////
       return (
-        <React.Fragment>
-          <Segment
-            style={{
-              marginLeft: "10%",
-              marginRight: "10%"
-            }}
-          >
-            <p>
-              <h3>Vos prochains rendez-vous</h3>
-            </p>
-            {this.state.mesRdv.length === 0 ? (
-              <span>Aucun rendez-vous trouvé !</span>
-            ) : (
-              <List bulleted={true}>
-                {_.map(this.state.mesRdv, (item, i) => {
-                  return (
-                    <List.Item
-                      key={i}
-                      content={
-                        _.upperFirst(rdvDateTime(item.startAt))
-                        // on n'indique pas la durée du RDV !
-                        /*
-                        this.getDay(item.startAt) +
-                        " " +
-                        "le " +
-                        this.dateTransformation(item.startAt) +
-                        " : " +
-                        this.timeTransformation(item.startAt) +
-                        " - " +
-                        this.timeTransformation(item.endAt)
-                          */
-                      }
-                    />
-                  );
-                })}
-              </List>
-            )}
-            {/*Rajouter le mot de passe s'il y en a eu un*/}
-          </Segment>
-        </React.Fragment>
-      );
+        <Carton 
+          mesRdv={this.state.mesRdv}
+          printWithPassword={this.state.printWithPassword}
+          newPassword={this.state.newPassword}/>
+      ); // attention, ceci remplace tout le composant RdvPassCard.js
+        
+        /*return (
+          <div>
+            <ReactToPrint
+              trigger={() => <a href="#">Imprimer</a>}
+              content={() => this.componentRef}/>
+            <Carton 
+              ref={el => (this.componentRef = el)}
+              mesRdv={this.state.mesRdv}
+              printWithPassword={this.state.printWithPassword}
+              newPassword={this.state.newPassword}/>
+          </div>
+        );*/
     } else if (this.state.chosenFormat === 2) {
       // Impression d'une feuille de format A4 (avec plus de détails)
+      return (
+        <FormatA4
+          praticien={this.state.praticien}
+          mesRdv={this.state.mesRdv}
+          printWithPassword={this.state.printWithPassword}
+          newPassword={this.state.newPassword}/>
+      );
     }
 
     // modal choix du format d'impression
@@ -228,20 +205,7 @@ export default class RdvPassCard extends React.Component {
                     return (
                       <List.Item
                         key={i}
-                        content={
-                          _.upperFirst(rdvDateTime(item.startAt))
-                          // inutile de mentionner la fin du rdv
-                          /*
-                          this.getDay(item.startAt) +
-                          " " +
-                          "le " +
-                          this.dateTransformation(item.startAt) +
-                          " : " +
-                          this.timeTransformation(item.startAt) +
-                          " - " +
-                          this.timeTransformation(item.endAt)
-                          */
-                        }
+                        content={ _.upperFirst(rdvDateTime(item.startAt)) }
                       />
                     );
                   })}
@@ -256,7 +220,8 @@ export default class RdvPassCard extends React.Component {
                 onClick={() =>
                   this.setState({
                     printFormat: true,
-                    open: false
+                    open: false,
+                    chosenFormat: 0
                   })
                 }
               >
@@ -269,7 +234,8 @@ export default class RdvPassCard extends React.Component {
                   let pwd = this.makePasswd();
                   this.setState({
                     newPassword: pwd,
-                    modalPassword: true
+                    modalPassword: true,
+                    chosenFormat: 0
                   });
                 }}
               >
@@ -297,20 +263,7 @@ export default class RdvPassCard extends React.Component {
                     return (
                       <List.Item
                         key={i}
-                        content={
-                          _.upperFirst(rdvDateTime(item.startAt))
-                          // inutile de mentionner la fin du rdv
-                          /*
-                          this.getDay(item.startAt) +
-                          " " +
-                          "le " +
-                          this.dateTransformation(item.startAt) +
-                          " : " +
-                          this.timeTransformation(item.startAt) +
-                          " - " +
-                          this.timeTransformation(item.endAt)
-                          */
-                        }
+                        content={ _.upperFirst(rdvDateTime(item.startAt)) }
                       />
                     );
                   })}
@@ -347,19 +300,41 @@ export default class RdvPassCard extends React.Component {
               <Button
                 positive={true}
                 onClick={() => {
-                  this.setState({
-                    modalPassword: false,
-                    printFormat: true,
-                    printWithPassword: true
-                  });
-                  // le mot de passe va être sauvegardé
-                  // => Non il est sauvegardé maintenant dès qu'on a une réponse favorable à
-                  // "Êtes-vous sûr de vouloir remplacer l'ancien mot de passe ?"
-                  // Il ne faut pas "remonter" le password dans le component parent
-                  // ... qui ne sera d'ailleurs pas toujours en mesure de le gérer
-                  // la prop newPassword ne figure pas au le cahier des charges de RdvPassCard
-                  // => il faut le sauvegarder ici directement avec un update patient !
-                  this.props.newPassword(this.state.newPassword);
+                  this.props.client.Patients.read(
+                    this.props.idPatient,
+                    {},
+                    result => {
+                      // success
+                      console.log(result);
+                      let obj = result;
+                      obj.gestionRdvJO.reservation.password = this.state.newPassword;
+                      
+                      this.props.client.Patients.update(
+                        this.props.idPatient,
+                        obj,
+                        () => {
+                          // success
+                          this.setState({
+                            modalPassword: false,
+                            printFormat: true,
+                            printWithPassword: true,
+                            open: false
+                          });
+                          console.log("Mise à jour terminée");
+                        },
+                        data => {
+                          // error
+                          console.log("Erreur update patient");
+                          console.log(data);
+                        }
+                      );
+                    },
+                    data => {
+                      // error
+                      console.log("Erreur lecture patient");
+                      console.log(data);
+                    }
+                  );
                 }}
               >
                 Oui
@@ -391,5 +366,145 @@ export default class RdvPassCard extends React.Component {
         )
       );
     }
+  }
+}
+
+class Carton extends React.Component {
+  /*componentDidMount() {
+    setTimeout(() => window.print(), 1000);
+  }*/
+  componentWillMount() {
+    this.setState({
+      mesRdv: this.props.mesRdv,
+      printWithPassword: this.props.printWithPassword,
+      newPassword: this.props.newPassword
+    })
+  }
+
+  componentDidMount() {
+    this.setState({
+      print: true
+    })
+  }
+
+  render() {
+    console.log(this.props.mesRdv);
+    return (  
+      <NewWindow
+        title="RHAPI RDV - Impression Carton"
+        features={{ width: "300", height: "600"}}>
+        <React.Fragment>
+          <h3>Vos prochains rendez-vous</h3>
+          {
+            (this.state.mesRdv.length === 0)
+              ? <Message compact={true}>
+                  <Message.Content>
+                    <p>
+                      Aucun rendez-vous n'a été trouvé !
+                    </p>
+                  </Message.Content>
+                </Message>
+              : <List bulleted={true}>
+                  {_.map(this.state.mesRdv, (item, i) => {
+                    return (
+                      <List.Item
+                        key={i}
+                        content={ _.upperFirst(rdvDateTime(item.startAt)) }
+                      />
+                    );
+                  })}
+                </List>
+          }
+          {
+            (this.state.printWithPassword)
+              ? <p>
+                  Votre nouveau mot de passe : <br />
+                  <strong>{this.state.newPassword}</strong>
+                </p>
+              : ""
+          }
+        </React.Fragment>
+      </NewWindow>
+    );
+  }
+}
+
+class FormatA4 extends React.Component {
+  componentWillMount() {
+    this.setState({
+      praticien: this.props.praticien,
+      mesRdv: this.props.mesRdv,
+      printWithPassword: this.props.printWithPassword,
+      newPassword: this.props.newPassword
+    })
+  }
+  render() {
+    return (
+      <NewWindow
+        title="RHAPI RDV - Impression A4">
+        <React.Fragment>
+          <Segment
+            basic={true} >
+            <strong>{this.state.praticien.currentName}</strong><br />
+            Tél Bureau : {this.state.praticien.account.telBureau} <br />
+            Tél Mobile : {this.state.praticien.account.telMobile} <br />
+            E-mail : {this.state.praticien.account.email}
+            <Divider hidden={true} />
+            Adresse : {this.state.praticien.account.adresse1} <br />
+            {this.state.praticien.account.adresse2 + " " + this.state.praticien.account.adresse3} <br />
+            {this.state.praticien.account.codePostal + " " + this.state.praticien.account.ville}
+          </Segment>
+
+          <Divider hidden={true} />
+
+          <h3>Vos prochains rendez-vous</h3>
+          {
+            (this.state.mesRdv.length === 0)
+              ? <Message compact={true}>
+                  <Message.Content>
+                    <p>
+                      Aucun rendez-vous n'a été trouvé !
+                    </p>
+                  </Message.Content>
+                </Message>
+              : <Table
+                  basic={true}
+                  fixed={true}
+                  stackable={true} >
+                  <Table.Header>
+                    <Table.Row>
+                      <Table.HeaderCell>Date et Heure</Table.HeaderCell>
+                      <Table.HeaderCell>Description</Table.HeaderCell>
+                    </Table.Row>
+                  </Table.Header>
+
+                  <Table.Body>
+                    {_.map(this.state.mesRdv, (item, i) => {
+                      return (
+                        <Table.Row key={i}>
+                          <Table.Cell collapsing>
+                            {_.upperFirst(rdvDateTime(item.startAt))}
+                          </Table.Cell>
+                          <Table.Cell>
+                            {"description " + i}
+                          </Table.Cell>
+                        </Table.Row>
+                      );
+                    })}
+                  </Table.Body>
+                </Table>
+          }
+          <Divider hidden={true} />
+          {
+            (this.state.printWithPassword)
+              ? <p>
+                  Un nouveau mot de passe a été généré. <br />
+                  Le nouveau mot de passe que vous utiliserez pour acceder à vos rendez-vous en ligne est : <strong>{this.state.newPassword}</strong>
+                </p>
+              : ""
+          }
+        </React.Fragment>
+      </NewWindow>
+    );
   }
 }

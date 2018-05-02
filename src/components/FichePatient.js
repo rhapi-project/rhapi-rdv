@@ -28,27 +28,6 @@ import RdvPassCard from "./RdvPassCard";
 
 import { SingleDatePicker } from "react-dates";
 
-/**
- * A faire
- * Vérification avant enregistrement (champs obligatoires)
- *
- * Ce qui est fait :
- * -> Modification et mise à jour des informations sur la fiche du patient
- * -> Création d'une nouvelle fiche
- * -> Suppression d'une fiche
- * -> Gestion des rdv (Problème avec le mot de passe)
- */
-
-/* inutile depuis que défini par défaut en backend
-const gestionRdvJO = {
-  autoriseSMS: false,
-  reservation: {
-    autorisation: 0, // à voir
-    password: ""
-  }
-};
-*/
-
 export default class FichePatient extends React.Component {
   civilites = [
     {
@@ -290,9 +269,6 @@ export default class FichePatient extends React.Component {
     if (d.name === "password") {
       // modification dans l'objet gestionRdvJO
       modifiedPatient.gestionRdvJO.reservation.password = e.target.value;
-      /*this.setState({
-        patient: modifiedPatient
-      });*/
     } else {
       //modifiedPatient[d.name] = d.value;
       modifiedPatient[d.name] = this.conversionDenominationFormat(
@@ -689,11 +665,9 @@ export default class FichePatient extends React.Component {
                       name="password"
                       type="password"
                       error={!this.verificationPassword()}
-                      //error={this.state.patient.gestionRdvJO.reservation.password !== this.state.password}
                       value={
                         this.state.patient.gestionRdvJO.reservation.password
                       }
-                      //value="" //Provisoirement
                       onChange={(e, d) => this.handleChangeInput(e, d)}
                     />
 
@@ -702,41 +676,23 @@ export default class FichePatient extends React.Component {
                       name="passwordConfirm"
                       type="password"
                       error={!this.verificationPassword()}
-                      //error={this.state.patient.gestionRdvJO.reservation.password !== this.state.password}
                       value={this.state.patient.passwordConfirm}
                       onChange={(e, d) => this.handleChangeInput(e, d)}
                     />
                   </Form.Group>
 
                   <Form.Group>
-                    {/*<Form.Input label="Générer automatiquement un mot de passe">
-                      <Button
-                        onClick={() => {
-                          let passwd = this.makePasswd();
-                          this.setState({
-                            newPassword: passwd,
-                            modalPassword: true
-                          });
-                        }}
-                      >
-                        Générer
-                      </Button>
-                    </Form.Input>*/}
                     <Form.Input label="Liste rendez-vous à partir de la date d'aujourd'hui">
                       <RdvPassCard
                         idPatient={this.state.patient.id}
                         icon="calendar"
                         label="Rendez-vous"
                         client={this.props.client}
-                        newPassword={password => {
-                          let modifiedPatient = this.state.patient;
-                          modifiedPatient.gestionRdvJO.reservation.password = password;
-                          this.props.onChange(modifiedPatient);
-                        }}
                       />
                     </Form.Input>
                   </Form.Group>
 
+                  
                   <Modal size="tiny" open={this.state.modalPassword}>
                     <Modal.Header>Infos</Modal.Header>
                     <Modal.Content>
