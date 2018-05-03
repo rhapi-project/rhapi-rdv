@@ -692,7 +692,6 @@ export default class FichePatient extends React.Component {
                     </Form.Input>
                   </Form.Group>
 
-                  
                   <Modal size="tiny" open={this.state.modalPassword}>
                     <Modal.Header>Infos</Modal.Header>
                     <Modal.Content>
