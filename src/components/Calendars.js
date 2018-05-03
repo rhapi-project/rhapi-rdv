@@ -10,21 +10,45 @@ import CalendarPanel from "./CalendarPanel";
 
 export default class Calendars extends React.Component {
   componentWillMount() {
-    this.setState({ plannings: [], index: -1, print: false });
+    this.setState({ plannings: [], index: -1, print: 0 });
   }
 
   componentDidMount() {
+    // cross browser window.print callback
+    // window.onafterprint is not defined on Safari
+    if (_.isUndefined(window.onafterprint) && window.matchMedia) {
+      let mediaQueryList = window.matchMedia("print");
+      mediaQueryList.addListener(mql => {
+        //console.log(mql);
+        if (!mql.matches) {
+          this.afterPrint();
+        }
+      });
+    } else {
+      window.onafterprint = this.afterPrint;
+    }
+    //
+
     this.reload();
   }
 
   componentDidUpdate() {
+    //console.log(document.getElementById("calendars"));
     setTimeout(() => {
       if (this.state.print) {
         window.print();
-        this.setState({ print: false });
       }
     }, 1000);
   }
+
+  afterPrint = () => {
+    //console.log("Functionality to run after printing");
+    this.setState({ print: false });
+  };
+
+  print = () => {
+    this.setState({ print: true });
+  };
 
   reload = () => {
     this.props.client.Plannings.mesPlannings(
@@ -41,10 +65,6 @@ export default class Calendars extends React.Component {
 
   onPlanningChange = (e, d) => {
     this.setState({ index: d.value });
-  };
-
-  print = () => {
-    this.setState({ print: true });
   };
 
   zoomOut = () => {
@@ -73,28 +93,28 @@ export default class Calendars extends React.Component {
   };
 
   render() {
+    let calendar = (
+      <Calendar
+        client={this.props.client}
+        couleur={
+          this.state.index < 0
+            ? ""
+            : this.state.plannings[this.state.index].couleur
+        }
+        options={
+          this.state.index < 0
+            ? {}
+            : this.state.plannings[this.state.index].optionsJO
+        }
+        planning={
+          this.state.index < 0 ? "0" : this.state.plannings[this.state.index].id
+        }
+        externalRefetch={this.state.externalRefetch}
+      />
+    );
+
     if (this.state.print) {
-      return (
-        <Calendar
-          client={this.props.client}
-          couleur={
-            this.state.index < 0
-              ? ""
-              : this.state.plannings[this.state.index].couleur
-          }
-          options={
-            this.state.index < 0
-              ? {}
-              : this.state.plannings[this.state.index].optionsJO
-          }
-          planning={
-            this.state.index < 0
-              ? "0"
-              : this.state.plannings[this.state.index].id
-          }
-          externalRefetch={this.state.externalRefetch}
-        />
-      );
+      return calendar;
     }
 
     let width =
@@ -166,29 +186,7 @@ export default class Calendars extends React.Component {
               )}
             </Grid.Column>
             <Grid.Column width={withPanel ? 13 : 14}>
-              {this.state.index < 0 ? (
-                ""
-              ) : (
-                <Calendar
-                  client={this.props.client}
-                  couleur={
-                    this.state.index < 0
-                      ? ""
-                      : this.state.plannings[this.state.index].couleur
-                  }
-                  options={
-                    this.state.index < 0
-                      ? {}
-                      : this.state.plannings[this.state.index].optionsJO
-                  }
-                  planning={
-                    this.state.index < 0
-                      ? "0"
-                      : this.state.plannings[this.state.index].id
-                  }
-                  externalRefetch={this.state.externalRefetch}
-                />
-              )}
+              {this.state.index < 0 ? "" : calendar}
             </Grid.Column>
           </Grid.Row>
         </Grid>
