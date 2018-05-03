@@ -22,7 +22,6 @@ export default class RdvPassCard extends React.Component {
     open: false,
     newPassword: "",
     modalPassword: false,
-    printFormat: false,
     printWithPassword: false,
     chosenFormat: 0 // 1 : carton, 2 : A4
   };
@@ -32,12 +31,6 @@ export default class RdvPassCard extends React.Component {
   }
 
   reload = () => {
-    console.log(
-      moment()
-        .toISOString()
-        .split("T")[0]
-    );
-
     let params = {
       _idPatient: this.props.idPatient,
       q1:
@@ -54,7 +47,7 @@ export default class RdvPassCard extends React.Component {
       params,
       result => {
         // success
-        console.log(result);
+        //console.log(result);
         this.setState({ mesRdv: result.results });
       },
       () => {
@@ -88,117 +81,53 @@ export default class RdvPassCard extends React.Component {
     return passwd;
   };
 
-  render() {
-    // feuille d'impression
+  print = () => {
     if (this.state.chosenFormat === 1) {
-      // carton
-      // avec window.open -> difficulté de rendre un component React
-
-      /*  let carton = window.open("localhost:3000/#Praticiens/Patients", "RHAPI RDV - Impression carton", "width=300, height=600");
-
-      carton.document.write("<div>");
-      carton.document.write("<h3>Vos prochains rendez-vous</h3>");
-
-      if (this.state.mesRdv.length === 0) {
-        carton.document.write("<span>Aucun rendez-vous trouvé !</span>");
-      } else {
-        let mesRdv = this.state.mesRdv;
-        let newPwd = this.state.newPassword;
-        //carton.document.write("<span>" + mesRdv.length + " rendez-vous trouvés !</span><br />");
-
-        carton.document.write("<ul>");
-        for (let i = 0; i < mesRdv.length; i++) {
-          carton.document.write("<li>");
-          carton.document.write(_.upperFirst(rdvDateTime(mesRdv[i].startAt)));
-          carton.document.write("</li>");
-          //carton.document.write("<Divider hidden />");
-        }
-        carton.document.write("</ul>");
-
-        if (this.state.printWithPassword) {
-          carton.document.write("<div>");
-          carton.document.write("Nouveau mot de passe : " + newPwd);
-          carton.document.write("</div>");
-        }
-      }
-
-      carton.document.write("</div>");
-
-      carton.print();
-      carton.close();
-      this.setState({ chosenFormat: 0 }); */
-      ////////////////////////////////////////////////////////////////////////////////////////////////////////
-      return (
-        <Carton
-          mesRdv={this.state.mesRdv}
-          printWithPassword={this.state.printWithPassword}
-          newPassword={this.state.newPassword}
-        />
-      ); // attention, ceci remplace tout le composant RdvPassCard.js
-
-      /*return (
-          <div>
-            <ReactToPrint
-              trigger={() => <a href="#">Imprimer</a>}
-              content={() => this.componentRef}/>
-            <Carton 
-              ref={el => (this.componentRef = el)}
-              mesRdv={this.state.mesRdv}
-              printWithPassword={this.state.printWithPassword}
-              newPassword={this.state.newPassword}/>
-          </div>
-        );*/
+      let content = document.getElementById("carton");
+      let pri = document.getElementById("iframeToPrint").contentWindow;
+      pri.document.open();
+      pri.document.write(content.innerHTML);
+      pri.document.close();
+      pri.focus();
+      pri.print();
     } else if (this.state.chosenFormat === 2) {
-      // Impression d'une feuille de format A4 (avec plus de détails)
-      return (
-        <FormatA4
-          praticien={this.state.praticien}
-          mesRdv={this.state.mesRdv}
-          printWithPassword={this.state.printWithPassword}
-          newPassword={this.state.newPassword}
-        />
-      );
-    }
+      let content = document.getElementById("a4");
+      let pri = document.getElementById("iframeToPrint").contentWindow;
+      pri.document.open();
+      pri.document.write(content.innerHTML);
+      pri.document.close();
+      pri.focus();
+      pri.print();
+    } else return;
+  };
 
-    // modal choix du format d'impression
-    if (this.state.printFormat) {
-      return (
-        <Modal size="tiny" open={this.state.printFormat}>
-          <Modal.Header>Choisissez le format d'impression</Modal.Header>
-          <Modal.Content>
-            <p>
-              <strong>A4</strong> : Liste des prochains rendez-vous avec
-              détails. <br />
-              <strong>Carton</strong> : Liste des prochains rendez-vous sans
-              détails.
-            </p>
-          </Modal.Content>
-          <Modal.Actions>
-            <Button
-              onClick={() => {
-                this.setState({
-                  chosenFormat: 1,
-                  printFormat: false
-                });
-              }}
-            >
-              Carton
-            </Button>
-            <Button
-              onClick={() => {
-                this.setState({
-                  chosenFormat: 2,
-                  printFormat: false
-                });
-              }}
-            >
-              A4
-            </Button>
-          </Modal.Actions>
-        </Modal>
-      );
+  componentDidMount() {
+    if (_.isUndefined(window.onafterprint) && window.matchMedia) {
+      let mediaQueryList = window.matchMedia("print");
+      mediaQueryList.addListener(mql => {
+        //console.log(mql);
+        if (!mql.matches) {
+          this.afterPrint();
+        }
+      });
+    } else {
+      window.onafterprint = this.afterPrint;
     }
+    //this.reload();
+  }
 
+  afterPrint = () => {
+    // fermeture de toutes les modals
+    this.setState({
+      open: false,
+      newPassword: "",
+      modalPassword: false,
+      printWithPassword: false,
+      chosenFormat: 0 // 1 : carton, 2 : A4
+    });
+  };
+
+  render() {
     if (this.state.open) {
       return (
         <div>
@@ -219,21 +148,32 @@ export default class RdvPassCard extends React.Component {
                   })}
                 </List>
               )}
+              {this.state.printWithPassword ? (
+                <p>
+                  Votre nouveau mot de passe : <br />
+                  <strong>{this.state.newPassword}</strong>
+                </p>
+              ) : (
+                ""
+              )}
             </Modal.Content>
             <Modal.Actions>
               <Button
-                icon={true}
                 primary={true}
+                icon={true}
                 labelPosition="right"
-                onClick={() =>
-                  this.setState({
-                    printFormat: true,
-                    open: false,
-                    chosenFormat: 0
-                  })
-                }
+                onClick={() => this.setState({ chosenFormat: 2 })}
               >
-                Imprimer
+                Format A4
+                <Icon name="print" />
+              </Button>
+              <Button
+                primary={true}
+                icon={true}
+                labelPosition="right"
+                onClick={() => this.setState({ chosenFormat: 1 })}
+              >
+                Format Carton
                 <Icon name="print" />
               </Button>
               <Button
@@ -313,7 +253,7 @@ export default class RdvPassCard extends React.Component {
                     {},
                     result => {
                       // success
-                      console.log(result);
+                      //console.log(result);
                       let obj = result;
                       obj.gestionRdvJO.reservation.password = this.state.newPassword;
 
@@ -324,11 +264,10 @@ export default class RdvPassCard extends React.Component {
                           // success
                           this.setState({
                             modalPassword: false,
-                            printFormat: true,
                             printWithPassword: true,
-                            open: false
+                            open: true
                           });
-                          console.log("Mise à jour terminée");
+                          //console.log("Mise à jour terminée");
                         },
                         data => {
                           // error
@@ -348,6 +287,57 @@ export default class RdvPassCard extends React.Component {
                 Oui
               </Button>
             </Modal.Actions>
+          </Modal>
+
+          {/*Modal Carton*/}
+
+          <Modal
+            size="small"
+            open={this.state.chosenFormat === 1}
+            closeIcon={true}
+            onClose={() => this.setState({ chosenFormat: 0 })}
+          >
+            <Modal.Header>Impression format carton</Modal.Header>
+            <Modal.Content>
+              <Carton
+                id="carton"
+                mesRdv={this.state.mesRdv}
+                printWithPassword={this.state.printWithPassword}
+                newPassword={this.state.newPassword}
+                print={this.print}
+              />
+              <iframe
+                id="iframeToPrint"
+                title="carton"
+                style={{ height: "0px", width: "0px", position: "absolute" }}
+              />
+            </Modal.Content>
+          </Modal>
+
+          {/*Modal A4*/}
+
+          <Modal
+            size="small"
+            open={this.state.chosenFormat === 2}
+            closeIcon={true}
+            onClose={() => this.setState({ chosenFormat: 0 })}
+          >
+            <Modal.Header>Impression format A4</Modal.Header>
+            <Modal.Content>
+              <FormatA4
+                id="a4"
+                praticien={this.state.praticien}
+                mesRdv={this.state.mesRdv}
+                printWithPassword={this.state.printWithPassword}
+                newPassword={this.state.newPassword}
+                print={this.print}
+              />
+              <iframe
+                id="iframeToPrint"
+                title="carton"
+                style={{ height: "0px", width: "0px", position: "absolute" }}
+              />
+            </Modal.Content>
           </Modal>
         </div>
       );
@@ -378,9 +368,6 @@ export default class RdvPassCard extends React.Component {
 }
 
 class Carton extends React.Component {
-  /*componentDidMount() {
-    setTimeout(() => window.print(), 1000);
-  }*/
   componentWillMount() {
     this.setState({
       mesRdv: this.props.mesRdv,
@@ -391,17 +378,15 @@ class Carton extends React.Component {
   }
 
   componentDidMount() {
-    this.setState({
-      print: true
-    });
+    setTimeout(() => {
+      this.props.print();
+    }, 1000);
   }
 
-  print;
-
   render() {
-    console.log(this.props.mesRdv);
+    //console.log(this.props.mesRdv);
     return (
-      <React.Fragment>
+      <div id={this.props.id}>
         <h3>Vos prochains rendez-vous</h3>
         {this.state.mesRdv.length === 0 ? (
           <Message compact={true}>
@@ -429,7 +414,7 @@ class Carton extends React.Component {
         ) : (
           ""
         )}
-      </React.Fragment>
+      </div>
     );
   }
 }
@@ -437,30 +422,35 @@ class Carton extends React.Component {
 class FormatA4 extends React.Component {
   componentWillMount() {
     this.setState({
-      praticien: this.props.praticien,
       mesRdv: this.props.mesRdv,
       printWithPassword: this.props.printWithPassword,
       newPassword: this.props.newPassword
     });
   }
+
+  componentDidMount() {
+    setTimeout(() => {
+      this.props.print();
+    }, 1000);
+  }
   render() {
     return (
-      <React.Fragment>
+      <div id={this.props.id}>
         <Segment basic={true}>
-          <strong>{this.state.praticien.currentName}</strong>
+          <strong>{this.props.praticien.currentName}</strong>
           <br />
-          Tél Bureau : {this.state.praticien.account.telBureau} <br />
-          Tél Mobile : {this.state.praticien.account.telMobile} <br />
-          E-mail : {this.state.praticien.account.email}
+          Tél Bureau : {this.props.praticien.account.telBureau} <br />
+          Tél Mobile : {this.props.praticien.account.telMobile} <br />
+          E-mail : {this.props.praticien.account.email}
           <Divider hidden={true} />
-          Adresse : {this.state.praticien.account.adresse1} <br />
-          {this.state.praticien.account.adresse2 +
+          Adresse : {this.props.praticien.account.adresse1} <br />
+          {this.props.praticien.account.adresse2 +
             " " +
-            this.state.praticien.account.adresse3}{" "}
+            this.props.praticien.account.adresse3}{" "}
           <br />
-          {this.state.praticien.account.codePostal +
+          {this.props.praticien.account.codePostal +
             " " +
-            this.state.praticien.account.ville}
+            this.props.praticien.account.ville}
         </Segment>
 
         <Divider hidden={true} />
@@ -505,7 +495,7 @@ class FormatA4 extends React.Component {
         ) : (
           ""
         )}
-      </React.Fragment>
+      </div>
     );
   }
 }

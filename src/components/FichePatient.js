@@ -112,11 +112,6 @@ export default class FichePatient extends React.Component {
 
   componentWillReceiveProps(next) {
     let patient = { ...next.patient };
-    /* inutile depuis que défini par défaut en backend
-    if (_.isEmpty(patient.gestionRdvJO)) {
-      patient.gestionRdvJO = gestionRdvJO;
-    }
-    */
     this.setState({
       patient: patient,
       saved: true,
@@ -316,8 +311,7 @@ export default class FichePatient extends React.Component {
   };
 
   render() {
-    //console.log(this.state.passwordConfirm);
-    console.log(this.state.naissanceDate);
+    //console.log(this.state.naissanceDate);
     let nofiche =
       _.isNull(this.state) ||
       _.isUndefined(this.state.patient) ||
@@ -327,8 +321,7 @@ export default class FichePatient extends React.Component {
     let patient = {};
     if (!nofiche) {
       patient = this.state.patient;
-      console.log(this.state.patient.gestionRdvJO.reservation.password);
-      //console.log(this.state.patient.passwordConfirm);
+      //console.log(this.state.patient.gestionRdvJO.reservation.password);
     }
 
     return (
@@ -432,11 +425,7 @@ export default class FichePatient extends React.Component {
                       value={patient.prenom}
                       onChange={(e, d) => this.handleChangeInput(e, d)}
                     />
-                    <Form.Input
-                      //required={true}
-                      label="Date de naissance"
-                      name="naissance"
-                    >
+                    <Form.Input label="Date de naissance" name="naissance">
                       <SingleDatePicker
                         placeholder="JJ/MM/AAAA"
                         hideKeyboardShortcutsPanel={true}
