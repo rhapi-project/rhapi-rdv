@@ -126,7 +126,6 @@ export default class FichePatient extends React.Component {
       naissanceFocused: false,
       modalPassword: false,
       newPassword: "",
-      print: false,
       modalPhoto: false,
       photo: "",
       errorPhoto: false,
