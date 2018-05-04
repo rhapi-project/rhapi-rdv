@@ -27,8 +27,7 @@ export default class ProfilsPatients extends React.Component {
       age: {},
       saved: true,
       errorOnSave: false,
-      modalDelete: false,
-      print: false
+      modalDelete: false
     });
   }
 
@@ -220,12 +219,6 @@ export default class ProfilsPatients extends React.Component {
     );
     this.reload(); // pour la relecture du nombre de patients
     this.newSearch();
-  };
-
-  print = () => {
-    this.setState({
-      print: true
-    });
   };
 
   render() {
