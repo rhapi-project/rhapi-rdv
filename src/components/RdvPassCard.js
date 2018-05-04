@@ -82,39 +82,36 @@ export default class RdvPassCard extends React.Component {
   };
 
   print = () => {
-    if (this.state.chosenFormat === 1) {
-      let content = document.getElementById("carton");
-      let pri = document.getElementById("iframeToPrint").contentWindow;
-      pri.document.open();
-      pri.document.write(content.innerHTML);
-      pri.document.close();
-      pri.focus();
-      pri.print();
-    } else if (this.state.chosenFormat === 2) {
-      let content = document.getElementById("a4");
-      let pri = document.getElementById("iframeToPrint").contentWindow;
-      pri.document.open();
-      pri.document.write(content.innerHTML);
-      pri.document.close();
-      pri.focus();
-      pri.print();
-    } else return;
-  };
+    let format = this.state.chosenFormat;
+    if (format !== 1 && format !== 2) {
+      return;
+    }
 
-  componentDidMount() {
-    if (_.isUndefined(window.onafterprint) && window.matchMedia) {
-      let mediaQueryList = window.matchMedia("print");
+    let pri = document.getElementById("iframeToPrint").contentWindow;
+
+    if (pri.matchMedia) {
+      // Safari
+      let mediaQueryList = pri.matchMedia("print");
       mediaQueryList.addListener(mql => {
-        //console.log(mql);
         if (!mql.matches) {
+          console.log("ok");
           this.afterPrint();
         }
       });
-    } else {
-      window.onafterprint = this.afterPrint;
     }
-    //this.reload();
-  }
+
+    let content =
+      format === 1
+        ? document.getElementById("carton")
+        : document.getElementById("a4");
+    pri.document.open();
+    pri.document.write(content.innerHTML);
+    pri.document.close();
+    pri.focus();
+    pri.onbeforeunload = this.afterPrint; // // Firefox
+    pri.onafterprint = this.afterPrint; // Chrome
+    pri.print();
+  };
 
   afterPrint = () => {
     // fermeture de toutes les modals

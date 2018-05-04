@@ -10,7 +10,7 @@ import "react-dates/initialize";
 //import "fullcalendar/dist/fullcalendar.print.css";
 import "fullcalendar/dist/fullcalendar.css";
 
-import "semantic-ui-css/semantic.min.css";
+import "semantic-ui-css/semantic.css";
 
 import "./css/index.css";
 
@@ -280,10 +280,13 @@ class Main extends React.Component {
           size="fullscreen"
           open={this.state.help}
           closeIcon={true}
-          onClose={() => this.setState({ help: false })}
+          onClose={() => {
+            this.setState({ help: false });
+          }}
         >
           <Modal.Header>Aide</Modal.Header>
           <Iframe
+            id="contentstoprint"
             url="docs/Agendas.html"
             height={wHeight * 0.8 + "px"}
             display="initial"
