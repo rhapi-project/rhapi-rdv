@@ -775,11 +775,11 @@ export default class FichePatient extends React.Component {
                   </Form.Group>
 
                   <Form.Group>
-                    <Form.Input label="Mot de passe et impression des rendez-vous">
+                    <Form.Input label="Impression des rendez-vous et génération d'un mot de passe">
                       <RdvPassCard
                         idPatient={this.state.patient.id}
-                        icon2="calendar"
-                        label2="Rendez-vous"
+                        icon="list layout"
+                        content="Rendez-vous"
                         client={this.props.client}
                       />
                     </Form.Input>
