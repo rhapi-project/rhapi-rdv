@@ -2,7 +2,7 @@ import React from "react";
 
 import _ from "lodash";
 
-import moment from "moment";
+//import moment from "moment";
 
 import { rdvDateTime } from "./Settings";
 
@@ -24,7 +24,8 @@ export default class RdvPassCard extends React.Component {
     modalPassword: false,
     printWithPassword: false,
     chosenFormat: 0, // 1 : carton, 2 : A4
-    mesRdv: []
+    mesRdv: [],
+    mesPlannings: []
   };
 
   componentWillReceiveProps() {
@@ -32,20 +33,8 @@ export default class RdvPassCard extends React.Component {
   }
 
   reload = () => {
-    let params = {
-      _idPatient: this.props.idPatient,
-      q1:
-        "startAt,GreaterThan," +
-        moment()
-          .toISOString()
-          .split("T")[0],
-      limit: "1000",
-      sort: "startAt",
-      fields: "startAt,endAt,planningsJA"
-    };
-
-    this.props.client.RendezVous.readAll(
-      params,
+    this.props.client.RendezVous.mesRendezVous(
+      { ipp: this.props.idPatient },
       result => {
         // success
         //console.log(result);
@@ -53,11 +42,43 @@ export default class RdvPassCard extends React.Component {
       },
       () => {
         // error
-        console.log("Erreur this.props.client.RendezVous.readAll");
+        console.log("Erreur this.props.client.RendezVous.mesRendezVous");
       }
     );
 
-    // à voir si on garde cette information ou pas
+    this.props.client.Plannings.mesPlannings(
+      {},
+      result => {
+        // success
+        console.log(result);
+        /*
+        TODO
+        L'objet mesPlannings permettra de renseigner toutes les informations utiles
+        pour chaque rendez-vous du patient (surtout sur la version détaillée en A4)
+        - nom du/des plannings concerné(s) par le rendez-vous (champ planningsJA du rdv)
+        - motif (le texte en clair)
+        - etc... (mise en couleur ?)
+    
+        voir exemple ligne 66 de mesRdv.js
+        let titrePlanning = "";
+        if (
+            !_.isUndefined(this.props.plannings) &&
+            !_.isUndefined(this.props.rdv.planningsJA)
+           ) {
+             titrePlanning = this.props.plannings[this.props.rdv.planningsJA[0].id]
+             .titre;
+             if (_.isUndefined(titrePlanning)) titrePlanning = "Planning non défini";
+        }
+        */
+        this.setState({ mesPlannings: result.results });
+      },
+      () => {
+        // error
+        console.log("Erreur this.props.client.Plannings.mesPlannings");
+      }
+    );
+
+    //
     this.props.client.MonCompte.read(
       monProfil => {
         this.setState({
@@ -353,8 +374,8 @@ export default class RdvPassCard extends React.Component {
           </Modal.Content>
         </Modal>
         <Button
-          icon={this.props.icon}
-          content={this.props.label}
+          icon={this.props.icon2}
+          content={this.props.label2}
           onClick={() => {
             this.setState({ open: true });
           }}
