@@ -234,7 +234,8 @@ export default class RdvPassCard extends React.Component {
           <Modal.Content scrolling={true}>
             {this.state.mesRdv.length === 0 ? (
               <span>Aucun rendez-vous trouvé !</span>
-            ) : ( ""
+            ) : (
+              ""
             )}
 
             <Message warning={true}>
@@ -318,8 +319,8 @@ export default class RdvPassCard extends React.Component {
           onClose={() => this.setState({ chosenFormat: 0 })}
         >
           <Modal.Header>Impression format carton</Modal.Header>
-          Préparation de l'impression...
           <Modal.Content>
+            Préparation de l'impression...
             <Carton
               id="carton"
               mesRdv={this.state.mesRdv}
@@ -331,7 +332,12 @@ export default class RdvPassCard extends React.Component {
             <iframe
               id="iframeToPrint"
               title="Impression"
-              style={{ height: "0px", width: "0px", position: "absolute" }}
+              style={{
+                border: "0px",
+                height: "0px",
+                width: "0px",
+                position: "absolute"
+              }}
             />
           </Modal.Content>
         </Modal>
@@ -359,7 +365,12 @@ export default class RdvPassCard extends React.Component {
             <iframe
               id="iframeToPrint"
               title="Impression"
-              style={{ height: "0px", width: "0px", position: "absolute" }}
+              style={{
+                border: "0px",
+                height: "0px",
+                width: "0px",
+                position: "absolute"
+              }}
             />
           </Modal.Content>
         </Modal>
@@ -412,8 +423,7 @@ class Carton extends React.Component {
               {this.props.idPatient + "@forme-de-l'indentifiant-à-(re)definir"}
             </strong>
             <br />
-            Mot de passe :{" "}
-            <strong>{this.props.newPassword}</strong>
+            Mot de passe : <strong>{this.props.newPassword}</strong>
           </p>
         ) : (
           ""
@@ -490,8 +500,7 @@ class FormatA4 extends React.Component {
               {this.props.idPatient + "@forme-de-l'indentifiant-à-(re)definir"}
             </strong>
             <br />
-            Mot de passe :{" "}
-            <strong>{this.props.newPassword}</strong>
+            Mot de passe : <strong>{this.props.newPassword}</strong>
           </p>
         ) : (
           ""
