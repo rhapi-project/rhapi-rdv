@@ -22,7 +22,6 @@
     "react-dates": "^16.6.1",
     "react-dom": "^16.3.2",
     "react-iframe": "^1.1.0",
-    "react-scripts": "1.0.17",
     "react-simple-timefield": "^2.0.0",
     "rhapi-client": "^1.0.12",
     "semantic-ui-css": "2.2",
@@ -38,6 +37,7 @@
   },
   "devDependencies": {
     "markdown-folder-to-html": "^1.6.0",
-    "prettier": "^1.12.1"
+    "prettier": "^1.12.1",
+    "react-scripts": "^1.1.4"
   }
 }

@@ -348,7 +348,7 @@ export default class Profil extends React.Component {
             />
             <Form.Input
               required={true}
-              label="E-mail"
+              label="E-Mail"
               placeholder="exemple@exemple.com"
               name="email"
               error={

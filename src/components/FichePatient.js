@@ -706,7 +706,7 @@ export default class FichePatient extends React.Component {
                       onChange={(e, d) => this.handleChangeInput(e, d)}
                     />
                     <Form.Input
-                      label="E-mail"
+                      label="E-Mail"
                       name="email"
                       error={
                         !emailRegex.test(this.state.patient.email) &&
@@ -775,7 +775,7 @@ export default class FichePatient extends React.Component {
                   </Form.Group>
 
                   <Form.Group>
-                    <Form.Input label="Liste rendez-vous à partir de la date d'aujourd'hui">
+                    <Form.Input label="Mot de passe et impression des rendez-vous">
                       <RdvPassCard
                         idPatient={this.state.patient.id}
                         icon="calendar"

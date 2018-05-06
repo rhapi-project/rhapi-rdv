@@ -35,15 +35,6 @@ export default class ProfilsPatients extends React.Component {
     this.reload();
   }
 
-  componentDidUpdate() {
-    setTimeout(() => {
-      if (this.state.print) {
-        window.print();
-        this.setState({ print: false });
-      }
-    }, 1000);
-  }
-
   reload = () => {
     //Pour récupérer le nombre de patients et le nom du praticien
     this.props.client.Patients.readAll(
@@ -108,7 +99,8 @@ export default class ProfilsPatients extends React.Component {
   newSearch = () => {
     this.setState({
       clearSearch: true,
-      patient: {}
+      patient: {},
+      saved: true
     });
   };
 
@@ -222,24 +214,6 @@ export default class ProfilsPatients extends React.Component {
   };
 
   render() {
-    // pour le test d'impression
-    if (this.state.print) {
-      return (
-        <div
-          style={{
-            height: "500px",
-            width: "50%",
-            backgroundColor: "red"
-          }}
-        >
-          Nom&nbsp;&nbsp;&nbsp; :&nbsp;{this.state.patient.nom} <br />
-          Prenom :&nbsp;{this.state.patient.prenom} <br />
-          id : {this.state.patient.id} <br />
-          Mot de passe : {this.state.patient.gestionRdvJO.reservation.password}
-        </div>
-      );
-    }
-
     return (
       <div id="profil-patients">
         <Header size={hsize}>Patients</Header>
@@ -293,7 +267,6 @@ export default class ProfilsPatients extends React.Component {
           patient={this.state.patient}
           age={this.state.age}
           onChange={this.onChange}
-          print={this.print}
           client={this.props.client}
         />
         <Divider hidden={true} />
