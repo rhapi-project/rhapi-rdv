@@ -21,6 +21,7 @@ export default class RdvPassCard extends React.Component {
   state = {
     open: false,
     newPassword: "",
+    oldPassword: "",
     modalPassword: false,
     printWithPassword: false,
     chosenFormat: 0, // 1 : carton, 2 : A4
@@ -203,11 +204,20 @@ export default class RdvPassCard extends React.Component {
               icon="lock"
               onClick={() => {
                 let pwd = this.makePasswd();
-                this.setState({
-                  newPassword: pwd,
-                  modalPassword: true,
-                  chosenFormat: 0
-                });
+                if (this.state.newPassword === "") {
+                  this.setState({
+                    newPassword: pwd,
+                    modalPassword: true,
+                    chosenFormat: 0
+                  });
+                } else {
+                  this.setState({
+                    oldPassword: this.state.newPassword,
+                    newPassword: pwd,
+                    modalPassword: true,
+                    chosenFormat: 0
+                  });
+                }
               }}
             />
             <Ref
@@ -304,7 +314,12 @@ export default class RdvPassCard extends React.Component {
               <Button
                 primary={true}
                 content="Non"
-                onClick={() => this.setState({ modalPassword: false })}
+                onClick={() =>
+                  this.setState({
+                    newPassword: this.state.oldPassword,
+                    modalPassword: false
+                  })
+                }
               />
             </Ref>
           </Modal.Actions>
