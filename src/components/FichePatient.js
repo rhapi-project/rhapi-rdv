@@ -12,7 +12,6 @@ import {
   Dropdown,
   Image,
   Message,
-  Modal,
   Icon,
   Button,
   Grid
@@ -25,15 +24,11 @@ import {
   denominationDefaultFormat
 } from "./Settings";
 
+import ImageReader from "./ImageReader";
+
 import RdvPassCard from "./RdvPassCard";
 
 import { SingleDatePicker } from "react-dates";
-
-/**
- * à faire
- * limitation de la taille de l'image (photo de profil)
- * ajout du drag and drop (photo de profil)
- */
 
 export default class FichePatient extends React.Component {
   civilites = [
@@ -125,11 +120,7 @@ export default class FichePatient extends React.Component {
       naissanceDate: moment(next.patient.naissance),
       naissanceFocused: false,
       modalPassword: false,
-      newPassword: "",
-      modalPhoto: false,
-      photo: "",
-      errorPhoto: false,
-      photoPreview: false
+      newPassword: ""
     });
   }
 
@@ -320,80 +311,13 @@ export default class FichePatient extends React.Component {
     return passwd;
   };
 
-  base64Photo = (e, d) => {
-    let filesSelected = document.getElementById(d.id).files;
-
-    console.log(filesSelected);
-
-    if (
-      !(
-        filesSelected[0].type === "image/png" ||
-        filesSelected[0].type === "image/jpeg"
-      )
-    ) {
-      this.setState({
-        errorPhoto: true
-      });
-      return;
-    }
-
-    if (filesSelected.length > 0) {
-      let fileToLoad = filesSelected[0];
-      //console.log(fileToLoad);
-      let fileReader = new FileReader();
-
-      fileReader.onload = fileLoadedEvent => {
-        let srcData = fileLoadedEvent.target.result;
-        // srcData -> base64
-
-        let newImage = document.createElement("img");
-        newImage.src = srcData;
-
-        //console.log(newImage.width + " - " + newImage.height);
-
-        if (newImage.height > 128) {
-          newImage.height = 128;
-        }
-
-        if (newImage.width > 128) {
-          newImage.width = 128;
-        }
-
-        /*let canvas = document.createElement("canvas");
-        canvas.width = newImage.width;
-        canvas.height = newImage.height;
-
-        let ctx = canvas.getContext("2d");
-        ctx.drawImage(newImage, 0, 0);*/
-
-        //let dataURL = canvas.toDataURL("image/png");
-
-        this.setState({
-          photo: srcData,
-          errorPhoto: false,
-          photoPreview: true
-        });
-
-        document.getElementById("photoPreview").innerHTML = newImage.outerHTML;
-      };
-      fileReader.readAsDataURL(fileToLoad);
-    }
-  };
-
-  updatePhoto = () => {
+  onImageChange = image => {
     let modifiedPatient = this.state.patient;
-    modifiedPatient.profilJO.base64 = this.state.photo;
-    this.props.onChange(modifiedPatient);
-  };
-
-  removePhoto = () => {
-    let modifiedPatient = this.state.patient;
-    modifiedPatient.profilJO.base64 = "";
+    modifiedPatient.profilJO.base64 = image;
     this.props.onChange(modifiedPatient);
   };
 
   render() {
-    //console.log(this.state.photo);
     //console.log(this.state.patient);
     let nofiche =
       _.isNull(this.state) ||
@@ -446,31 +370,33 @@ export default class FichePatient extends React.Component {
                           {_.isEmpty(this.state.patient.profilJO.base64) ? (
                             <div>
                               <Icon name="user" size="massive" /> <br />
-                              <Button
-                                onClick={() =>
-                                  this.setState({ modalPhoto: true })
+                              <ImageReader
+                                image=""
+                                content="Modifier"
+                                icon="photo"
+                                onImageChange={image =>
+                                  this.onImageChange(image)
                                 }
-                              >
-                                Modifier
-                              </Button>
+                              />
                             </div>
                           ) : (
+                            // photo du patient
                             <div>
                               <Image
                                 src={this.state.patient.profilJO.base64}
                                 centered={true}
                               />{" "}
                               <Divider hidden={true} />
-                              <Button
-                                onClick={() =>
-                                  this.setState({ modalPhoto: true })
+                              <ImageReader
+                                image={this.state.patient.profilJO.base64}
+                                content="Modifier"
+                                icon="photo"
+                                onImageChange={image =>
+                                  this.onImageChange(image)
                                 }
-                              >
-                                Modifier
-                              </Button>
+                              />
                             </div>
-                          ) //Mettre la vraie photo du patient
-                          }
+                          )}
                         </div>
                       </Grid.Column>
                       <Grid.Column width={12}>
@@ -809,82 +735,6 @@ export default class FichePatient extends React.Component {
                 {/*Infos administratives ici*/}
               </Accordion.Content>
             </Accordion>
-
-            {/*Modal Photo de profil*/}
-
-            <Modal
-              size="tiny"
-              open={this.state.modalPhoto}
-              closeIcon={true}
-              onClose={() => this.setState({ modalPhoto: false })}
-            >
-              <Modal.Header>Photo de profil</Modal.Header>
-              <Modal.Content>
-                {_.isEmpty(this.state.patient.profilJO.base64) ? (
-                  <Icon name="user" size="massive" />
-                ) : (
-                  <div>
-                    {" "}
-                    {/* vraie photo */}
-                    <Image
-                      src={this.state.patient.profilJO.base64}
-                      centered={true}
-                    />
-                  </div>
-                )}
-                <Form>
-                  <Form.Input
-                    id="photo"
-                    type="file"
-                    onChange={(e, d) => this.base64Photo(e, d)}
-                  />
-                </Form>
-                {this.state.errorPhoto ? (
-                  <Message warning={true}>
-                    <Message.Header>Erreur de format</Message.Header>
-                    <Message.Content>
-                      <p>
-                        Une erreur s'est produite lors du chargement de la photo
-                        de profil. <br />
-                        <strong>JPEG</strong> et <strong>PNG</strong> sont les
-                        formats d'images supportés !
-                      </p>
-                    </Message.Content>
-                  </Message>
-                ) : (
-                  ""
-                )}
-              </Modal.Content>
-              <Modal.Actions>
-                {!_.isEmpty(this.state.patient.profilJO.base64) ? (
-                  <Button negative={true} onClick={() => this.removePhoto()}>
-                    Supprimer la photo
-                  </Button>
-                ) : (
-                  ""
-                )}
-              </Modal.Actions>
-            </Modal>
-
-            {/*Modal preview photo de profil*/}
-
-            <Modal size="mini" open={this.state.photoPreview}>
-              <Modal.Header>Photo de profil</Modal.Header>
-              <Modal.Content>
-                <div id="photoPreview" style={{ textAlign: "center" }} />
-              </Modal.Content>
-              <Modal.Actions>
-                <Button
-                  negative={true}
-                  onClick={() => this.setState({ photoPreview: false })}
-                >
-                  Annuler
-                </Button>
-                <Button positive={true} onClick={() => this.updatePhoto()}>
-                  Valider
-                </Button>
-              </Modal.Actions>
-            </Modal>
           </div>
         )}
       </React.Fragment>
