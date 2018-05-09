@@ -1,6 +1,14 @@
 import React from "react";
 
-import { Button, Form, Icon, Image, Message, Modal } from "semantic-ui-react";
+import {
+  Button,
+  Form,
+  Icon,
+  Image,
+  Message,
+  Modal,
+  Ref
+} from "semantic-ui-react";
 
 import _ from "lodash";
 
@@ -162,18 +170,20 @@ export default class ImageReader extends React.Component {
             >
               Annuler
             </Button>
-            <Button
-              positive={true}
-              onClick={() => {
-                this.props.onImageChange(this.state.image);
-                this.setState({
-                  photoPreview: false,
-                  open: false
-                });
-              }}
-            >
-              Valider
-            </Button>
+            <Ref innerRef={node => node.firstChild.parentElement.focus()}>
+              <Button
+                primary={true}
+                onClick={() => {
+                  this.props.onImageChange(this.state.image);
+                  this.setState({
+                    photoPreview: false,
+                    open: false
+                  });
+                }}
+              >
+                Valider
+              </Button>
+            </Ref>
           </Modal.Actions>
         </Modal>
 
