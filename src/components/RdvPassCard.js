@@ -6,16 +6,7 @@ import _ from "lodash";
 
 import { rdvDateTime } from "./Settings";
 
-import {
-  Button,
-  Divider,
-  Ref,
-  List,
-  Message,
-  Modal,
-  Segment,
-  Table
-} from "semantic-ui-react";
+import { Button, Divider, Ref, List, Message, Modal } from "semantic-ui-react";
 
 export default class RdvPassCard extends React.Component {
   state = {
@@ -38,7 +29,7 @@ export default class RdvPassCard extends React.Component {
       { ipp: this.props.idPatient },
       result => {
         // success
-        //console.log(result);
+        console.log(result);
         this.setState({ mesRdv: result.results });
       },
       () => {
@@ -372,6 +363,7 @@ export default class RdvPassCard extends React.Component {
               id="a4"
               praticien={this.state.praticien}
               mesRdv={this.state.mesRdv}
+              mesPlannings={this.state.mesPlannings}
               printWithPassword={this.state.printWithPassword}
               newPassword={this.state.newPassword}
               print={this.print}
@@ -456,13 +448,12 @@ class FormatA4 extends React.Component {
   render() {
     return (
       <div id={this.props.id} hidden={true}>
-        <Segment basic={true}>
+        <div>
           <strong>{this.props.praticien.currentName}</strong>
           <br />
           Tél Bureau : {this.props.praticien.account.telBureau} <br />
           Tél Mobile : {this.props.praticien.account.telMobile} <br />
-          E-mail : {this.props.praticien.account.email}
-          <Divider hidden={true} />
+          E-mail : {this.props.praticien.account.email} <br />
           Adresse : {this.props.praticien.account.adresse1} <br />
           {this.props.praticien.account.adresse2 +
             " " +
@@ -471,9 +462,9 @@ class FormatA4 extends React.Component {
           {this.props.praticien.account.codePostal +
             " " +
             this.props.praticien.account.ville}
-        </Segment>
+        </div>
 
-        <Divider hidden={true} />
+        <Divider />
 
         <h3>Vos prochains rendez-vous</h3>
         {this.props.mesRdv.length === 0 ? (
@@ -483,27 +474,47 @@ class FormatA4 extends React.Component {
             </Message.Content>
           </Message>
         ) : (
-          <Table basic={true} fixed={true} stackable={true}>
-            <Table.Header>
-              <Table.Row>
-                <Table.HeaderCell>Date et Heure</Table.HeaderCell>
-                <Table.HeaderCell>Description</Table.HeaderCell>
-              </Table.Row>
-            </Table.Header>
-
-            <Table.Body>
+          <table style={{ borderCollapse: "collapse", textAlign: "center" }}>
+            <thead>
+              <tr>
+                <th style={{ border: "1px solid black" }}>Date et heure</th>
+                <th style={{ border: "1px solid black" }}>Rendez-vous</th>
+                <th style={{ border: "1px solid black" }}>Motif</th>
+                <th style={{ border: "1px solid black" }}>Plannings</th>
+              </tr>
+            </thead>
+            <tbody>
               {_.map(this.props.mesRdv, (item, i) => {
+                let planningId = item.planningsJA[0].id;
+                let motifNumero = item.planningsJA[0].motif; // number
+                let motif = "";
+                let rdv = "";
+                let nomPlanning = "";
+                for (let j = 0; j < this.props.mesPlannings.length; j++) {
+                  if (this.props.mesPlannings[j].id === planningId) {
+                    rdv = this.props.mesPlannings[j].titre;
+                    nomPlanning = this.props.mesPlannings[j].description;
+                    motif = this.props.mesPlannings[j].optionsJO.reservation
+                      .motifs[motifNumero].motif;
+                  }
+                }
                 return (
-                  <Table.Row key={i}>
-                    <Table.Cell collapsing>
+                  <tr key={i}>
+                    <td style={{ border: "1px solid black", width: "25%" }}>
                       {_.upperFirst(rdvDateTime(item.startAt))}
-                    </Table.Cell>
-                    <Table.Cell>{"description " + i}</Table.Cell>
-                  </Table.Row>
+                    </td>
+                    <td style={{ border: "1px solid black", width: "20%" }}>
+                      {_.upperFirst(rdv)}
+                    </td>
+                    <td style={{ border: "1px solid black" }}>{motif}</td>
+                    <td style={{ border: "1px solid black", width: "20%" }}>
+                      {nomPlanning}
+                    </td>
+                  </tr>
                 );
               })}
-            </Table.Body>
-          </Table>
+            </tbody>
+          </table>
         )}
         <Divider hidden={true} />
         {this.props.printWithPassword ? (
