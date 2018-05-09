@@ -9,7 +9,8 @@ import {
   Icon,
   Form,
   Button,
-  Modal
+  Modal,
+  Ref
 } from "semantic-ui-react";
 
 import { hsize, denominationDefaultFormat } from "./Settings";
@@ -305,17 +306,19 @@ export default class ProfilsPatients extends React.Component {
             <p>Voulez-vous supprimer cette fiche ?</p>
           </Modal.Content>
           <Modal.Actions>
-            <Button
-              negative={true}
-              onClick={() => {
-                this.setState({ modalDelete: false });
-              }}
-            >
-              Non
-            </Button>
-            <Button positive={true} onClick={this.destroy}>
+            <Button negative={true} onClick={this.destroy}>
               Oui
             </Button>
+            <Ref innerRef={node => node.firstChild.parentElement.focus()}>
+              <Button
+                primary={true}
+                onClick={() => {
+                  this.setState({ modalDelete: false });
+                }}
+              >
+                Non
+              </Button>
+            </Ref>
           </Modal.Actions>
         </Modal>
       </div>
