@@ -53,7 +53,7 @@ export default class PatientSearch extends React.Component {
       {
         texte: value,
         format: this.props.format,
-        limit: 10
+        limit: 100
       },
       patients => {
         const results = [];
