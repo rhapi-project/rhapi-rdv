@@ -33,6 +33,12 @@
   margin: 2px;
 }
 
+/* Search scrolling */
+.search .results {
+  overflow-y: auto;
+  max-height: 300px;
+}
+
 @import url("site.css"); /*intégration*/
 
 /*
