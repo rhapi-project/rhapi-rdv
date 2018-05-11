@@ -67,7 +67,7 @@ export default class PatientSearch extends React.Component {
           } else {
             dupsCount = 1;
           }
-          prev = title.split(" (")[0];
+          prev = patient.completion;
           var result = {
             id: patient.id,
             title: title,
