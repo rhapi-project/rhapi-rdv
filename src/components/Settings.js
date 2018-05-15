@@ -274,8 +274,60 @@ const emailRegex = /(^\w)([\w+.-])*([\w+-])*(@)([\w+.-])+\.([a-z]{2,4})$/i;
 const telRegex = [
   /^0[1-9]([\s.]?[0-9]{2}){4}$/, // pattern 1 et 2
   /^\+[1-9][0-9]{1,2}(\s)?[1-9](\s?[0-9]{2}){4}$/, // pattern 3
-  /^00(\s)?[1-9][0-9]{1,2}([1-9])(\s?[0-9]{2}){4}$/
+  /^00(\s)?[1-9][0-9]{1,2}(\s)?([1-9])(\s?[0-9]{2}){4}$/
 ];
+
+const affichageTel = telephone => {
+  let result = "";
+  for (let i = 0; i < telRegex.length; i++) {
+    if (i === 0 && telRegex[i].test(telephone)) { // match avec les patterns 1 et 2
+      result = telephone.replace(/\./g, " "); // remplacer tous les . par des espaces
+      return result;
+    } else if (i === 1 && telRegex[i].test(telephone)) { // match avec le pattern 3
+      let val = telephone.replace(/\s/g, "");
+      if (val.length === 12) {
+        for (let j = 0; j < val.length; j++) {
+          if ((j === 1 || j === val.length - 1 || j % 2 === 0) && j !== 2) {
+            result += val[j];
+          } else {
+            result = result + val[j] + " ";
+          }
+        }
+        return result;
+      } else if (val.length === 13) {
+        for (let j = 0; j < val.length; j++) {
+          if (j === 0 || j === 2 || j === val.length - 1 || (j % 2 !== 0 && j !== 3)) {
+            result += val[j];
+          } else {
+            result = result + val[j] + " ";
+          }
+        }
+        return result;
+      }
+    } else if (i === 2 && telRegex[i].test(telephone)) { // match avec le pattern 4
+        let val = telephone.replace(/\s/g, "");
+        if (val.length === 13) {
+          for (let j = 0; j < val.length; j++) {
+            if (j === 0 || j === 2 || j === val.length - 1 || (j % 2 !== 0 && j !== 1 && j !== 3)) {
+              result += val[j];
+            } else {
+              result = result + val[j] + " ";
+            }
+          }
+          return result;
+        } else if (val.length === 14) {
+          for (let j = 0; j < val.length; j++) {
+            if (j === 4 || (j % 2 !== 0 && j !== 3 && j !== val.length - 1)) {
+              result = result + val[j] + " ";
+            } else {
+              result += val[j];
+            }
+          }
+          return result;
+        }
+    }
+  }
+};
 
 /*
  * Format de dénomination
@@ -289,6 +341,7 @@ export {
   hsize,
   defaultPlanning,
   rdvDateTime,
+  affichageTel,
   codePostalRegex,
   emailRegex,
   telRegex,

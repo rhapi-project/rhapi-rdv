@@ -7,11 +7,12 @@ import {
   Message,
   Divider,
   Button,
+  Checkbox,
   Form,
   Icon
 } from "semantic-ui-react";
 
-import { codePostalRegex, emailRegex, telRegex } from "./Settings";
+import { affichageTel, codePostalRegex, emailRegex, telRegex } from "./Settings";
 
 import { hsize } from "./Settings";
 
@@ -55,14 +56,19 @@ export default class Profil extends React.Component {
       monProfil => {
         console.log(monProfil);
         if (!_.isEmpty(monProfil.account)) {
+          monProfil.account.telBureau = affichageTel(monProfil.account.telBureau);
+          monProfil.account.telMobile = affichageTel(monProfil.account.telMobile);
           this.setState({
             ...monProfil,
+            changePassword: false,
             saved: true
           });
         } else {
           let account = defaultProfil.account;
+
           this.setState({
             ...monProfil,
+            changePassword: false,
             saved: true,
             account
           });
@@ -96,19 +102,19 @@ export default class Profil extends React.Component {
 
   //Une fonction qui vérifie si tous les champs obligatoires sont renseignés
   verification = () => {
-    return (
+    let valideForm = (
       this.state.currentName !== "" &&
-      (this.state.userPassword === "" ||
-        this.state.userPassword === this.state.passwordConfirm) &&
       this.state.account.nom !== "" &&
       this.state.account.prenom !== "" &&
       this.state.account.adresse1 !== "" &&
-      this.state.account.codePostal !== "" &&
       this.state.account.ville !== "" &&
       this.state.account.pays !== "" &&
-      this.state.account.telMobile !== "" &&
-      this.state.account.telBureau !== "" &&
-      this.state.account.email !== ""
+      this.formatsValides()
+    );
+    return (
+      this.state.changePassword
+        ? valideForm && this.state.userPassword !== "" && this.state.userPassword === this.state.passwordConfirm
+        : valideForm
     );
   };
 
@@ -151,6 +157,11 @@ export default class Profil extends React.Component {
       console.log(this.state);
       _.unset(obj, "passwordConfirm");
       _.unset(obj, "saved");
+      _.unset(obj, "changePassword");
+      if (!this.state.changePassword) {
+        // si le mot de passe n'est pas modifié, on ne le met pas à jour dans la BDD
+        _.unset(obj, "userPassword");
+      }
       //console.log(obj);
       this.props.client.MonCompte.update(
         obj,
@@ -161,6 +172,7 @@ export default class Profil extends React.Component {
             ...monProfil,
             saved: true
           });
+          this.reload();
         },
         data => {
           console.log(data);
@@ -208,11 +220,20 @@ export default class Profil extends React.Component {
             onChange={(e, d) => this.handleChangeInput(e, d)}
           />
 
+          <Form.Input label="Changer le mot de passe">
+            <Checkbox
+              toggle={true}
+              checked={this.state.changePassword}
+              onChange={(e, d) => this.setState({ changePassword: !this.state.changePassword })}
+            />
+          </Form.Input>
+
           <Form.Group widths="equal">
             <Form.Input
               required={true}
               label="Mot de passe"
               type="password"
+              disabled={!this.state.changePassword}
               error={
                 this.state.userPassword !== this.state.passwordConfirm
                   ? true
@@ -226,6 +247,7 @@ export default class Profil extends React.Component {
               required={true}
               label="Confirmer le mot de passe"
               type="password"
+              disabled={!this.state.changePassword}
               error={
                 this.state.userPassword !== this.state.passwordConfirm
                   ? true
