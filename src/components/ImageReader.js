@@ -20,9 +20,9 @@ export default class ImageReader extends React.Component {
     photoPreview: false
   };
 
-  componentWillMount() {
+  componentWillReceiveProps(next) {
     this.setState({
-      image: this.props.image
+      image: next.image
     });
   }
 

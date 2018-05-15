@@ -108,13 +108,14 @@ export default class FichePatient extends React.Component {
     }
   ];
 
-  componentWillMount() {
+  /*componentWillMount() {
     this.setState({ activeIndex: 0 });
-  }
+  }*/
 
   componentWillReceiveProps(next) {
     let patient = { ...next.patient };
     this.setState({
+      activeIndex: 0,
       patient: patient,
       saved: true,
       naissanceDate: moment(next.patient.naissance),
