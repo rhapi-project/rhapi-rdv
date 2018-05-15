@@ -280,10 +280,12 @@ const telRegex = [
 const affichageTel = telephone => {
   let result = "";
   for (let i = 0; i < telRegex.length; i++) {
-    if (i === 0 && telRegex[i].test(telephone)) { // match avec les patterns 1 et 2
+    if (i === 0 && telRegex[i].test(telephone)) {
+      // match avec les patterns 1 et 2
       result = telephone.replace(/\./g, " "); // remplacer tous les . par des espaces
       return result;
-    } else if (i === 1 && telRegex[i].test(telephone)) { // match avec le pattern 3
+    } else if (i === 1 && telRegex[i].test(telephone)) {
+      // match avec le pattern 3
       let val = telephone.replace(/\s/g, "");
       if (val.length === 12) {
         for (let j = 0; j < val.length; j++) {
@@ -296,7 +298,12 @@ const affichageTel = telephone => {
         return result;
       } else if (val.length === 13) {
         for (let j = 0; j < val.length; j++) {
-          if (j === 0 || j === 2 || j === val.length - 1 || (j % 2 !== 0 && j !== 3)) {
+          if (
+            j === 0 ||
+            j === 2 ||
+            j === val.length - 1 ||
+            (j % 2 !== 0 && j !== 3)
+          ) {
             result += val[j];
           } else {
             result = result + val[j] + " ";
@@ -304,27 +311,33 @@ const affichageTel = telephone => {
         }
         return result;
       }
-    } else if (i === 2 && telRegex[i].test(telephone)) { // match avec le pattern 4
-        let val = telephone.replace(/\s/g, "");
-        if (val.length === 13) {
-          for (let j = 0; j < val.length; j++) {
-            if (j === 0 || j === 2 || j === val.length - 1 || (j % 2 !== 0 && j !== 1 && j !== 3)) {
-              result += val[j];
-            } else {
-              result = result + val[j] + " ";
-            }
+    } else if (i === 2 && telRegex[i].test(telephone)) {
+      // match avec le pattern 4
+      let val = telephone.replace(/\s/g, "");
+      if (val.length === 13) {
+        for (let j = 0; j < val.length; j++) {
+          if (
+            j === 0 ||
+            j === 2 ||
+            j === val.length - 1 ||
+            (j % 2 !== 0 && j !== 1 && j !== 3)
+          ) {
+            result += val[j];
+          } else {
+            result = result + val[j] + " ";
           }
-          return result;
-        } else if (val.length === 14) {
-          for (let j = 0; j < val.length; j++) {
-            if (j === 4 || (j % 2 !== 0 && j !== 3 && j !== val.length - 1)) {
-              result = result + val[j] + " ";
-            } else {
-              result += val[j];
-            }
-          }
-          return result;
         }
+        return result;
+      } else if (val.length === 14) {
+        for (let j = 0; j < val.length; j++) {
+          if (j === 4 || (j % 2 !== 0 && j !== 3 && j !== val.length - 1)) {
+            result = result + val[j] + " ";
+          } else {
+            result += val[j];
+          }
+        }
+        return result;
+      }
     }
   }
 };

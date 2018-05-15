@@ -12,7 +12,12 @@ import {
   Icon
 } from "semantic-ui-react";
 
-import { affichageTel, codePostalRegex, emailRegex, telRegex } from "./Settings";
+import {
+  affichageTel,
+  codePostalRegex,
+  emailRegex,
+  telRegex
+} from "./Settings";
 
 import { hsize } from "./Settings";
 
@@ -56,8 +61,12 @@ export default class Profil extends React.Component {
       monProfil => {
         console.log(monProfil);
         if (!_.isEmpty(monProfil.account)) {
-          monProfil.account.telBureau = affichageTel(monProfil.account.telBureau);
-          monProfil.account.telMobile = affichageTel(monProfil.account.telMobile);
+          monProfil.account.telBureau = affichageTel(
+            monProfil.account.telBureau
+          );
+          monProfil.account.telMobile = affichageTel(
+            monProfil.account.telMobile
+          );
           this.setState({
             ...monProfil,
             changePassword: false,
@@ -102,20 +111,19 @@ export default class Profil extends React.Component {
 
   //Une fonction qui vérifie si tous les champs obligatoires sont renseignés
   verification = () => {
-    let valideForm = (
+    let valideForm =
       this.state.currentName !== "" &&
       this.state.account.nom !== "" &&
       this.state.account.prenom !== "" &&
       this.state.account.adresse1 !== "" &&
       this.state.account.ville !== "" &&
       this.state.account.pays !== "" &&
-      this.formatsValides()
-    );
-    return (
-      this.state.changePassword
-        ? valideForm && this.state.userPassword !== "" && this.state.userPassword === this.state.passwordConfirm
-        : valideForm
-    );
+      this.formatsValides();
+    return this.state.changePassword
+      ? valideForm &&
+          this.state.userPassword !== "" &&
+          this.state.userPassword === this.state.passwordConfirm
+      : valideForm;
   };
 
   codePostalValide = code => {
@@ -224,7 +232,9 @@ export default class Profil extends React.Component {
             <Checkbox
               toggle={true}
               checked={this.state.changePassword}
-              onChange={(e, d) => this.setState({ changePassword: !this.state.changePassword })}
+              onChange={(e, d) =>
+                this.setState({ changePassword: !this.state.changePassword })
+              }
             />
           </Form.Input>
 
