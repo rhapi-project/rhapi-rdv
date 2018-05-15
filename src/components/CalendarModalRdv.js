@@ -7,10 +7,12 @@ import {
   Header,
   Modal,
   Icon,
+  Image,
   Segment,
   Form,
   Label,
-  Dropdown
+  Dropdown,
+  Ref
 } from "semantic-ui-react";
 
 import TimeField from "react-simple-timefield";
@@ -80,7 +82,24 @@ export default class CalendarModalRdv extends React.Component {
     if (next.open) {
       this.reload(next);
     }
+    this.setState({ image: "" });
   }
+
+  imageLoad = idPatient => {
+    this.props.client.Patients.read(
+      idPatient,
+      {},
+      patient => {
+        // success
+        this.setState({ image: patient.profilJO.base64 });
+      },
+      data => {
+        // error
+        console.log("Error lecture patient");
+        this.setState({ image: "" });
+      }
+    );
+  };
 
   reload = next => {
     const event = next.event;
@@ -107,6 +126,8 @@ export default class CalendarModalRdv extends React.Component {
         event.id,
         { planning: this.props.planning },
         rdv => {
+          //console.log(rdv);
+          this.imageLoad(rdv.idPatient);
           this.setState({ rdv: rdv });
         },
         () => {}
@@ -202,6 +223,7 @@ export default class CalendarModalRdv extends React.Component {
     rdv.idPatient = id;
     rdv.titre = title;
     this.setState({ rdv: rdv });
+    this.imageLoad(rdv.idPatient);
   };
 
   render() {
@@ -252,7 +274,11 @@ export default class CalendarModalRdv extends React.Component {
           </Header>
         </Segment>
         <Modal.Content image={true}>
-          <Icon name="user" size="massive" />
+          {_.isEmpty(this.state.image) ? (
+            <Icon name="user" size="massive" />
+          ) : (
+            <Image src={this.state.image} centered={true} />
+          )}
           <Form>
             {this.props.isExternal ? (
               ""
@@ -307,9 +333,11 @@ export default class CalendarModalRdv extends React.Component {
           <Button negative={true} onClick={this.handleRemove}>
             {this.state.isNewOne ? "Annuler" : "Supprimer"}
           </Button>
-          <Button primary={true} onClick={this.handleOk}>
-            OK
-          </Button>
+          <Ref innerRef={node => node.firstChild.parentElement.focus()}>
+            <Button primary={true} onClick={this.handleOk}>
+              OK
+            </Button>
+          </Ref>
         </Modal.Actions>
       </Modal>
     );
