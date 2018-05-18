@@ -21,6 +21,7 @@ import {
   codePostalRegex,
   emailRegex,
   telRegex,
+  telFormat,
   denominationDefaultFormat
 } from "./Settings";
 
@@ -108,14 +109,14 @@ export default class FichePatient extends React.Component {
     }
   ];
 
-  /*componentWillMount() {
+  componentWillMount() {
     this.setState({ activeIndex: 0 });
-  }*/
+  }
 
   componentWillReceiveProps(next) {
     let patient = { ...next.patient };
     this.setState({
-      activeIndex: 0,
+      //activeIndex: this.state.activeIndex,
       patient: patient,
       saved: true,
       naissanceDate: moment(next.patient.naissance),
@@ -319,7 +320,6 @@ export default class FichePatient extends React.Component {
   };
 
   render() {
-    //console.log(this.state.patient);
     let nofiche =
       _.isNull(this.state) ||
       _.isUndefined(this.state.patient) ||
@@ -329,6 +329,7 @@ export default class FichePatient extends React.Component {
     let patient = {};
     if (!nofiche) {
       patient = this.state.patient;
+      console.log("Fiche : " + patient.id);
     }
 
     return (
@@ -606,7 +607,7 @@ export default class FichePatient extends React.Component {
                         !this.telephoneValide(this.state.patient.telMobile) &&
                         this.state.patient.telMobile !== ""
                       }
-                      value={this.state.patient.telMobile}
+                      value={telFormat(this.state.patient.telMobile)}
                       placeholder="Téléphone mobile"
                       onChange={(e, d) => this.handleChangeInput(e, d)}
                     />
@@ -617,7 +618,7 @@ export default class FichePatient extends React.Component {
                         !this.telephoneValide(this.state.patient.telBureau) &&
                         this.state.patient.telBureau !== ""
                       }
-                      value={this.state.patient.telBureau}
+                      value={telFormat(this.state.patient.telBureau)}
                       placeholder="Téléphone bureau"
                       onChange={(e, d) => this.handleChangeInput(e, d)}
                     />
@@ -628,7 +629,7 @@ export default class FichePatient extends React.Component {
                         !this.telephoneValide(this.state.patient.telDomicile) &&
                         this.state.patient.telDomicile !== ""
                       }
-                      value={this.state.patient.telDomicile}
+                      value={telFormat(this.state.patient.telDomicile)}
                       placeholder="Téléphone domicile"
                       onChange={(e, d) => this.handleChangeInput(e, d)}
                     />

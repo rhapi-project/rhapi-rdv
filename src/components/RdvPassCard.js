@@ -446,6 +446,32 @@ class FormatA4 extends React.Component {
   }
 
   render() {
+    const style = {
+      a4: {
+        table: {
+          borderCollapse: "collapse",
+          textAlign: "center"
+        },
+        th: {
+          border: "1px solid black"
+        },
+        tdDate: {
+          border: "1px solid black",
+          width: "25%"
+        },
+        tdRdv: {
+          border: "1px solid black",
+          width: "20%"
+        },
+        tdMotif: {
+          border: "1px solid black"
+        },
+        tdPlannings: {
+          border: "1px solid black",
+          width: "20%"
+        }
+      }
+    };
     return (
       <div id={this.props.id} hidden={true}>
         <div>
@@ -474,13 +500,13 @@ class FormatA4 extends React.Component {
             </Message.Content>
           </Message>
         ) : (
-          <table style={{ borderCollapse: "collapse", textAlign: "center" }}>
+          <table style={style.a4.table}>
             <thead>
               <tr>
-                <th style={{ border: "1px solid black" }}>Date et heure</th>
-                <th style={{ border: "1px solid black" }}>Rendez-vous</th>
-                <th style={{ border: "1px solid black" }}>Motif</th>
-                <th style={{ border: "1px solid black" }}>Plannings</th>
+                <th style={style.a4.th}>Date et heure</th>
+                <th style={style.a4.th}>Rendez-vous</th>
+                <th style={style.a4.th}>Motif</th>
+                <th style={style.a4.th}>Plannings</th>
               </tr>
             </thead>
             <tbody>
@@ -500,16 +526,12 @@ class FormatA4 extends React.Component {
                 }
                 return (
                   <tr key={i}>
-                    <td style={{ border: "1px solid black", width: "25%" }}>
+                    <td style={style.a4.tdDate}>
                       {_.upperFirst(rdvDateTime(item.startAt))}
                     </td>
-                    <td style={{ border: "1px solid black", width: "20%" }}>
-                      {_.upperFirst(rdv)}
-                    </td>
-                    <td style={{ border: "1px solid black" }}>{motif}</td>
-                    <td style={{ border: "1px solid black", width: "20%" }}>
-                      {nomPlanning}
-                    </td>
+                    <td style={style.a4.tdRdv}>{_.upperFirst(rdv)}</td>
+                    <td style={style.a4.tdMotif}>{motif}</td>
+                    <td style={style.a4.tdPlannings}>{nomPlanning}</td>
                   </tr>
                 );
               })}

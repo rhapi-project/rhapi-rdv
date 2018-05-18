@@ -65,6 +65,7 @@ export default class ProfilsPatients extends React.Component {
   };
 
   onPatientChange = id => {
+    //this.setState({ patient: {} });
     this.props.client.Patients.read(
       id,
       {},
