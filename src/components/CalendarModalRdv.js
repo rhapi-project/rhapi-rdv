@@ -19,9 +19,11 @@ import TimeField from "react-simple-timefield";
 
 import moment from "moment";
 
-import { maxWidth /*, hsize, fsize*/ } from "./Settings";
+import { imageSize, maxWidth /*, hsize, fsize*/ } from "./Settings";
 
 import PatientSearch from "./PatientSearch";
+
+import ColorPicker from "./ColorPicker";
 
 class FromTo extends React.Component {
   componentWillMount() {
@@ -73,7 +75,14 @@ class FromTo extends React.Component {
   }
 }
 
+/*
+ * Travailler sur la gestion des motifs et le changement des plannings dans la modal
+ *
+ */
+
 export default class CalendarModalRdv extends React.Component {
+  //plannings = [];
+
   componentWillMount() {
     this.reload(this.props);
   }
@@ -126,14 +135,14 @@ export default class CalendarModalRdv extends React.Component {
         event.id,
         { planning: this.props.planning },
         rdv => {
-          //console.log(rdv);
+          console.log(rdv);
           this.imageLoad(rdv.idPatient);
           this.setState({ rdv: rdv });
         },
         () => {}
       );
     }
-
+    this.planningsSelect();
     this.setState({ isNewOne: isNewOne, rdv: rdv });
   };
 
@@ -226,6 +235,90 @@ export default class CalendarModalRdv extends React.Component {
     this.imageLoad(rdv.idPatient);
   };
 
+  planningsSelect = () => {
+    this.props.client.Plannings.mesPlannings(
+      {},
+      result => {
+        // success
+        let plannings = [];
+        for (let i = 0; i < result.results.length; i++) {
+          let pl = {};
+          pl.text = result.results[i].titre;
+          pl.value = i;
+          plannings.push(pl);
+        }
+        this.setState({
+          plannings: plannings,
+          currentPlanning: this.props.planning - 1,
+          rdvIsOnCurrentPlanning: true
+        });
+      },
+      data => {
+        // error
+        console.log("Erreur chargement mesPlannings");
+        console.log(data);
+        this.setState({
+          plannings: [],
+          currentPlanning: -1,
+          rdvIsOnCurrentPlanning: false
+        });
+      }
+    );
+  };
+
+  onPlanningChange = (e, d) => {
+    this.setState({ currentPlanning: d.value });
+    if (this.rdvIsOnCurrentPlanning(d.value)) {
+      this.setState({ rdvIsOnCurrentPlanning: true });
+      // modification de plannigJO si le rdv existe sur ce planning
+      let rdv = this.state.rdv;
+      for (let i = 0; i < rdv.planningsJA.length; i++) {
+        if (rdv.planningsJA[i].id === d.value + 1) {
+          rdv.planningJO = rdv.planningsJA[i];
+        }
+      }
+      this.setState({ rdv: rdv });
+    } else {
+      this.setState({ rdvIsOnCurrentPlanning: false });
+    }
+  };
+
+  rdvIsOnCurrentPlanning = currentPlanning => {
+    // le rendez-vous existe sur le planning courant
+    let rdv = this.state.rdv;
+    for (let i = 0; i < rdv.planningsJA.length; i++) {
+      if (rdv.planningsJA[i].id === currentPlanning + 1) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  addPlanning = currentPlanning => {
+    let rdv = this.state.rdv;
+    let newPlanning = {
+      id: currentPlanning + 1,
+      liste1: 0,
+      liste2: 0,
+      motif: -1
+    };
+    rdv.planningsJA.push(newPlanning);
+    this.setState({ rdv: rdv, rdvIsOnCurrentPlanning: true });
+  };
+
+  removePlanning = currentPlanning => {
+    let newPlanningsJA = [];
+    let rdv = this.state.rdv;
+    for (let i = 0; i < rdv.planningsJA.length; i++) {
+      if (rdv.planningsJA[i].id !== currentPlanning + 1) {
+        newPlanningsJA.push(rdv.planningsJA[i]);
+      }
+    }
+    rdv.planningsJA = newPlanningsJA;
+    console.log(rdv.planningsJA);
+    this.setState({ rdv: rdv, rdvIsOnCurrentPlanning: false });
+  };
+
   render() {
     if (!this.props.open) {
       return "";
@@ -251,7 +344,8 @@ export default class CalendarModalRdv extends React.Component {
     if (!this.props.isExternal && _.isUndefined(rdv.startAt)) {
       return "";
     }
-
+    //console.log(this.state.rdv.planningJO);
+    //console.log(this.state.rdv.planningsJA);
     return (
       <Modal size="small" open={this.props.open}>
         <Segment clearing={true}>
@@ -274,59 +368,162 @@ export default class CalendarModalRdv extends React.Component {
           </Header>
         </Segment>
         <Modal.Content image={true}>
-          {_.isEmpty(this.state.image) ? (
-            <Icon name="user" size="massive" />
-          ) : (
-            <Image src={this.state.image} centered={true} />
-          )}
           <Form>
-            {this.props.isExternal ? (
-              ""
-            ) : (
-              <Form.Input label="Horaire">
-                <FromTo
-                  hfrom={rdv.startAt.split("T")[1]}
-                  hto={rdv.endAt.split("T")[1]}
-                  handleChange={(hfrom, hto) => {
-                    rdv.startAt = rdv.startAt.split("T")[0] + "T" + hfrom;
-                    rdv.endAt = rdv.endAt.split("T")[0] + "T" + hto;
-                    this.setState({ rdv: rdv });
+            <Form.Group>
+              {_.isEmpty(this.state.image) ? (
+                <Icon name="user" size="massive" style={{ marginTop: "5%" }} />
+              ) : (
+                <Image
+                  src={this.state.image}
+                  width={imageSize.width}
+                  height={imageSize.height}
+                  alt="Photo de profil"
+                  style={{
+                    marginRight: "4%",
+                    marginLeft: "5%",
+                    marginTop: "5%"
                   }}
                 />
-              </Form.Input>
-            )}
-            {motifId < 0 ? (
-              <Form.Input label="Motif du RDV pris en ligne">
-                <p>{motifs[-motifId - 1].motif}</p>
-              </Form.Input>
-            ) : (
-              <Form.Input label="Motif du RDV">
-                <Dropdown
-                  style={{ minWidth: maxWidth, maxWidth: maxWidth }}
-                  //fluid={true}
-                  selection={true}
-                  options={_.filter(
-                    _.map(motifs, (motif, i) => {
-                      return {
-                        text: motif.motif,
-                        value: i,
-                        motif: motif
-                      };
-                    }),
-                    (item, i) => {
-                      return (
-                        item.motif.autorisationMin >= autorisationMinAgenda
-                      );
-                    }
+              )}
+              <div>
+                {this.props.isExternal ? (
+                  ""
+                ) : (
+                  <Form.Group>
+                    <Form.Input label="Horaire">
+                      <FromTo
+                        hfrom={rdv.startAt.split("T")[1]}
+                        hto={rdv.endAt.split("T")[1]}
+                        handleChange={(hfrom, hto) => {
+                          rdv.startAt = rdv.startAt.split("T")[0] + "T" + hfrom;
+                          rdv.endAt = rdv.endAt.split("T")[0] + "T" + hto;
+                          this.setState({ rdv: rdv });
+                        }}
+                      />
+                    </Form.Input>
+                    <Form.Input label="Couleur">
+                      <ColorPicker
+                        color={this.state.rdv.couleur}
+                        onChange={color => {
+                          let rdv = this.state.rdv;
+                          rdv.couleur = color;
+                          this.setState({ rdv: rdv });
+                        }}
+                      />
+                      <Button
+                        icon="remove"
+                        onClick={() => {
+                          let rdv = this.state.rdv;
+                          rdv.couleur = "";
+                          this.setState({ rdv: rdv });
+                        }}
+                      />
+                    </Form.Input>
+                    <Form.Input label="Origine" floated="right">
+                      <span>
+                        <strong>#masteruser</strong>
+                        {/* il faut rentrer la bonne valeur... l'identifiant de la personne qui a ajouté le rdv*/}
+                      </span>
+                    </Form.Input>
+                  </Form.Group>
+                )}
+
+                <Form.Group>
+                  <Form.Dropdown
+                    label="Plannings"
+                    selection={true}
+                    value={this.state.currentPlanning}
+                    options={this.state.plannings}
+                    onChange={this.onPlanningChange}
+                  />
+
+                  {this.props.planning !== this.state.currentPlanning + 1 ? (
+                    <Form.Input label="RDV sur ce planning">
+                      {this.state.rdvIsOnCurrentPlanning ? (
+                        <Button
+                          content="Supprimer"
+                          onClick={() =>
+                            this.removePlanning(this.state.currentPlanning)
+                          }
+                        />
+                      ) : (
+                        <Button
+                          content="Ajouter"
+                          onClick={() =>
+                            this.addPlanning(this.state.currentPlanning)
+                          }
+                        />
+                      )}
+                    </Form.Input>
+                  ) : (
+                    ""
                   )}
-                  value={rdv.planningJO.motif - 1}
+                </Form.Group>
+
+                {motifId < 0 ? (
+                  <Form.Input label="Motif du RDV pris en ligne">
+                    <p>{motifs[-motifId - 1].motif}</p>
+                  </Form.Input>
+                ) : (
+                  <Form.Input label="Motif du RDV">
+                    <Dropdown
+                      style={{ minWidth: 450 /*, maxWidth: maxWidth*/ }}
+                      fluid={true}
+                      selection={true}
+                      options={_.filter(
+                        _.map(motifs, (motif, i) => {
+                          return {
+                            text: motif.motif,
+                            value: i,
+                            motif: motif
+                          };
+                        }),
+                        (item, i) => {
+                          return (
+                            item.motif.autorisationMin >= autorisationMinAgenda
+                          );
+                        }
+                      )}
+                      value={rdv.planningJO.motif - 1}
+                      onChange={(e, d) => {
+                        rdv.planningJO.motif = d.value + 1;
+                        this.setState({ rdv: rdv });
+                      }}
+                    />
+                    <Button icon="remove" />
+                  </Form.Input>
+                )}
+              </div>
+            </Form.Group>
+            <div
+              style={{
+                paddingLeft: "5%",
+                minWidth: 600 /*, maxWidth: maxWidth*/
+              }}
+            >
+              <Form.Group widths="equal">
+                <Form.TextArea
+                  label="Description"
+                  placeholder="Description du rendez-vous"
+                  value={this.state.rdv.description}
                   onChange={(e, d) => {
-                    rdv.planningJO.motif = d.value + 1;
+                    let rdv = this.state.rdv;
+                    rdv.description = e.target.value;
                     this.setState({ rdv: rdv });
                   }}
                 />
-              </Form.Input>
-            )}
+                <Form.TextArea
+                  label="Commentaire"
+                  placeholder="Ajouter un commentaire"
+                  value={this.state.rdv.commentaire}
+                  onChange={(e, d) => {
+                    let rdv = this.state.rdv;
+                    rdv.commentaire = e.target.value;
+                    this.setState({ rdv: rdv });
+                  }}
+                />
+              </Form.Group>
+            </div>
           </Form>
         </Modal.Content>
         <Modal.Actions>
