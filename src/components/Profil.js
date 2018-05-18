@@ -12,12 +12,7 @@ import {
   Icon
 } from "semantic-ui-react";
 
-import {
-  affichageTel,
-  codePostalRegex,
-  emailRegex,
-  telRegex
-} from "./Settings";
+import { codePostalRegex, emailRegex, telRegex, telFormat } from "./Settings";
 
 import { hsize } from "./Settings";
 
@@ -61,12 +56,8 @@ export default class Profil extends React.Component {
       monProfil => {
         console.log(monProfil);
         if (!_.isEmpty(monProfil.account)) {
-          monProfil.account.telBureau = affichageTel(
-            monProfil.account.telBureau
-          );
-          monProfil.account.telMobile = affichageTel(
-            monProfil.account.telMobile
-          );
+          //monProfil.account.telBureau = telFormat(monProfil.account.telBureau);
+          //monProfil.account.telMobile = telFormat(monProfil.account.telMobile);
           this.setState({
             ...monProfil,
             changePassword: false,
@@ -355,7 +346,7 @@ export default class Profil extends React.Component {
             <Form.Input
               required={true}
               label="Téléphone mobile"
-              value={this.state.account.telMobile}
+              value={telFormat(this.state.account.telMobile)}
               name="telMobile"
               error={
                 this.telephoneValide(this.state.account.telMobile) ||
@@ -368,7 +359,7 @@ export default class Profil extends React.Component {
             <Form.Input
               required={true}
               label="Téléphone bureau"
-              value={this.state.account.telBureau}
+              value={telFormat(this.state.account.telBureau)}
               name="telBureau"
               error={
                 this.telephoneValide(this.state.account.telBureau) ||

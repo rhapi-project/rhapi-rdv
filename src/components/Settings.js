@@ -277,12 +277,19 @@ const telRegex = [
   /^00(\s)?[1-9][0-9]{1,2}(\s)?([1-9])(\s?[0-9]{2}){4}$/
 ];
 
-const affichageTel = telephone => {
+const telFormat = telephone => {
   let result = "";
   for (let i = 0; i < telRegex.length; i++) {
     if (i === 0 && telRegex[i].test(telephone)) {
       // match avec les patterns 1 et 2
-      result = telephone.replace(/\./g, " "); // remplacer tous les . par des espaces
+      let val = telephone.replace(/(\.|\s)/g, ""); // remplacer tous les . par des espaces
+      for (let j = 0; j < val.length; j++) {
+        if (j % 2 === 0 || j === val.length - 1) {
+          result += val[j];
+        } else {
+          result = result + val[j] + " ";
+        }
+      }
       return result;
     } else if (i === 1 && telRegex[i].test(telephone)) {
       // match avec le pattern 3
@@ -347,16 +354,25 @@ const affichageTel = telephone => {
  */
 const denominationDefaultFormat = "NP";
 
+/*
+ * Taille de la photo de profil
+ */
+const imageSize = {
+  height: "125px",
+  width: "100px"
+};
+
 export {
   site,
   maxWidth,
   fsize,
   hsize,
   defaultPlanning,
+  imageSize,
   rdvDateTime,
-  affichageTel,
   codePostalRegex,
   emailRegex,
   telRegex,
+  telFormat,
   denominationDefaultFormat
 };
