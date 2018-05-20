@@ -47,7 +47,7 @@ export default class Praticiens extends React.Component {
     //return;
 
     client.authorize(
-      "https://auth-dev2.rhapi.net", // auth url
+      "https://auth-dev.rhapi.net", // auth url
       "bXlhcHA6bXlhcHBteWFwcA", // app token
       this.state.user, // username
       this.state.password, // password
