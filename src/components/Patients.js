@@ -59,7 +59,7 @@ export default class Patients extends React.Component {
 
   authorize = (etablissement, gestionRDVOnSuccess) => {
     client.authorize(
-      "https://auth-dev.rhapi.net", // auth url
+      "https://auth-dev2.rhapi.net", // auth url
       "bXlhcHA6bXlhcHBteWFwcA", // app token
       "reservation@" + etablissement, // username
       "reservation@" + etablissement, //password
