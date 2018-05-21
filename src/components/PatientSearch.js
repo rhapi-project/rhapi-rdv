@@ -93,7 +93,7 @@ export default class PatientSearch extends React.Component {
 
     return (
       <Search
-        size="large"
+        size="small"
         fluid={true}
         loading={isLoading}
         onResultSelect={this.handleResultSelect}

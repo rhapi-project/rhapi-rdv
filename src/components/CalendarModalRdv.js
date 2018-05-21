@@ -12,6 +12,9 @@ import {
   Form,
   Label,
   Dropdown,
+  Grid,
+  List,
+  Checkbox,
   Ref
 } from "semantic-ui-react";
 
@@ -19,7 +22,7 @@ import TimeField from "react-simple-timefield";
 
 import moment from "moment";
 
-import { imageSize, maxWidth /*, hsize, fsize*/ } from "./Settings";
+import { maxWidth /*, hsize, fsize*/ } from "./Settings";
 
 import PatientSearch from "./PatientSearch";
 
@@ -135,7 +138,7 @@ export default class CalendarModalRdv extends React.Component {
         event.id,
         { planning: this.props.planning },
         rdv => {
-          console.log(rdv);
+          //console.log(rdv);
           this.imageLoad(rdv.idPatient);
           this.setState({ rdv: rdv });
         },
@@ -188,6 +191,7 @@ export default class CalendarModalRdv extends React.Component {
         () => this.close()
       );
     } else {
+      _.unset(rdv, "planningJO");
       this.props.client.RendezVous.update(
         rdv.id,
         rdv,
@@ -241,16 +245,26 @@ export default class CalendarModalRdv extends React.Component {
       result => {
         // success
         let plannings = [];
-        for (let i = 0; i < result.results.length; i++) {
+        _.forEach(result.results, planning => {
           let pl = {};
-          pl.text = result.results[i].titre;
-          pl.value = i;
-          plannings.push(pl);
-        }
+          pl.text = planning.titre;
+          pl.value = planning.id;
+          pl.motifs = _.isUndefined(planning.optionsJO.reservation)
+            ? []
+            : planning.optionsJO.reservation.motifs;
+          pl.autorisationMinAgenda = _.isUndefined(
+            planning.optionsJO.reservation
+          )
+            ? []
+            : planning.optionsJO.reservation.autorisationMinAgenda;
+          if (planning.id === this.props.planning) {
+            plannings.unshift(pl); // place en premier le planning courant
+          } else {
+            plannings.push(pl);
+          }
+        });
         this.setState({
-          plannings: plannings,
-          currentPlanning: this.props.planning - 1,
-          rdvIsOnCurrentPlanning: true
+          plannings: plannings
         });
       },
       data => {
@@ -258,65 +272,55 @@ export default class CalendarModalRdv extends React.Component {
         console.log("Erreur chargement mesPlannings");
         console.log(data);
         this.setState({
-          plannings: [],
-          currentPlanning: -1,
-          rdvIsOnCurrentPlanning: false
+          plannings: []
         });
       }
     );
   };
 
-  onPlanningChange = (e, d) => {
-    this.setState({ currentPlanning: d.value });
-    if (this.rdvIsOnCurrentPlanning(d.value)) {
-      this.setState({ rdvIsOnCurrentPlanning: true });
-      // modification de plannigJO si le rdv existe sur ce planning
-      let rdv = this.state.rdv;
-      for (let i = 0; i < rdv.planningsJA.length; i++) {
-        if (rdv.planningsJA[i].id === d.value + 1) {
-          rdv.planningJO = rdv.planningsJA[i];
-        }
-      }
-      this.setState({ rdv: rdv });
+  planningCheckboxChange = d => {
+    let rdv = this.state.rdv;
+
+    if (_.isUndefined(rdv.planningsJA)) {
+      rdv.planningsJA = [];
+    }
+
+    if (d.checked) {
+      rdv.planningsJA.push({
+        id: d.value,
+        liste1: 0,
+        liste2: 0,
+        motif: -1
+      });
     } else {
-      this.setState({ rdvIsOnCurrentPlanning: false });
+      _.remove(rdv.planningsJA, pl => {
+        return pl.id === d.value;
+      });
     }
+
+    this.setState({ rdv: rdv });
   };
 
-  rdvIsOnCurrentPlanning = currentPlanning => {
-    // le rendez-vous existe sur le planning courant
+  planningMotifChange = d => {
     let rdv = this.state.rdv;
-    for (let i = 0; i < rdv.planningsJA.length; i++) {
-      if (rdv.planningsJA[i].id === currentPlanning + 1) {
+
+    if (_.isUndefined(rdv.planningsJA)) {
+      rdv.planningsJA = [];
+    }
+
+    _.find(rdv.planningsJA, pl => {
+      if (pl.id === d.planning) {
+        if (d.planning === this.props.planning) {
+          rdv.planningJO.motif = d.value;
+        }
+        pl.motif = d.value;
         return true;
+      } else {
+        return false;
       }
-    }
-    return false;
-  };
+    });
 
-  addPlanning = currentPlanning => {
-    let rdv = this.state.rdv;
-    let newPlanning = {
-      id: currentPlanning + 1,
-      liste1: 0,
-      liste2: 0,
-      motif: -1
-    };
-    rdv.planningsJA.push(newPlanning);
-    this.setState({ rdv: rdv, rdvIsOnCurrentPlanning: true });
-  };
-
-  removePlanning = currentPlanning => {
-    let newPlanningsJA = [];
-    let rdv = this.state.rdv;
-    for (let i = 0; i < rdv.planningsJA.length; i++) {
-      if (rdv.planningsJA[i].id !== currentPlanning + 1) {
-        newPlanningsJA.push(rdv.planningsJA[i]);
-      }
-    }
-    rdv.planningsJA = newPlanningsJA;
-    console.log(rdv.planningsJA);
-    this.setState({ rdv: rdv, rdvIsOnCurrentPlanning: false });
+    this.setState({ rdv: rdv });
   };
 
   render() {
@@ -330,15 +334,15 @@ export default class CalendarModalRdv extends React.Component {
       return "";
     }
 
-    let motifId = rdv.planningJO.motif;
+    let motifIndex = Math.abs(rdv.planningJO.motif) - 1;
+    // TODO gérer les rendez-vous pris en ligne (motif < 0) => juste afficher ?
+
     let motifs = this.props.options.reservation.motifs;
 
-    let autorisationMinAgenda = this.props.options.reservation
-      .autorisationMinAgenda;
-
     let couleur = "";
-    if (motifId) {
-      couleur = motifs[Math.abs(motifId) - 1].couleur;
+
+    if (motifIndex >= 0 && motifIndex < motifs.length) {
+      couleur = motifs[motifIndex].couleur;
     }
 
     if (!this.props.isExternal && _.isUndefined(rdv.startAt)) {
@@ -347,10 +351,10 @@ export default class CalendarModalRdv extends React.Component {
     //console.log(this.state.rdv.planningJO);
     //console.log(this.state.rdv.planningsJA);
     return (
-      <Modal size="small" open={this.props.open}>
+      <Modal open={this.props.open}>
         <Segment clearing={true}>
           <Label circular={true} style={{ background: couleur }} />
-          <Header size="large" floated="left">
+          <Header size="medium" floated="left">
             {this.state.isNewOne ? (
               <PatientSearch
                 client={this.props.client}
@@ -361,31 +365,27 @@ export default class CalendarModalRdv extends React.Component {
               this.state.rdv.titre
             )}
           </Header>
-          <Header size="large" floated="right">
+          <Header size="medium" floated="right">
             {this.props.isExternal
               ? "Rendez-vous en attente"
               : moment(this.state.rdv.startAt).format("LL")}
           </Header>
         </Segment>
-        <Modal.Content image={true}>
-          <Form>
-            <Form.Group>
+        <Modal.Content>
+          <Grid>
+            <Grid.Column width={3}>
               {_.isEmpty(this.state.image) ? (
-                <Icon name="user" size="massive" style={{ marginTop: "5%" }} />
+                <Icon name="user" size="massive" />
               ) : (
                 <Image
+                  size="massive"
                   src={this.state.image}
-                  width={imageSize.width}
-                  height={imageSize.height}
                   alt="Photo de profil"
-                  style={{
-                    marginRight: "4%",
-                    marginLeft: "5%",
-                    marginTop: "5%"
-                  }}
                 />
               )}
-              <div>
+            </Grid.Column>
+            <Grid.Column width={13}>
+              <Form>
                 {this.props.isExternal ? (
                   ""
                 ) : (
@@ -427,107 +427,92 @@ export default class CalendarModalRdv extends React.Component {
                     </Form.Input>
                   </Form.Group>
                 )}
+                {/* plannings et motifs */}
+                <List>
+                  {_.map(this.state.plannings, (planning, i) => {
+                    let motifsOptions = [];
 
-                <Form.Group>
-                  <Form.Dropdown
-                    label="Plannings"
-                    selection={true}
-                    value={this.state.currentPlanning}
-                    options={this.state.plannings}
-                    onChange={this.onPlanningChange}
-                  />
+                    _.forEach(planning.motifs, (motif, i) => {
+                      if (
+                        !motif.hidden &&
+                        motif.autorisationMin >= planning.autorisationMinAgenda
+                      ) {
+                        motifsOptions.push({ value: i + 1, text: motif.motif });
+                      }
+                    });
 
-                  {this.props.planning !== this.state.currentPlanning + 1 ? (
-                    <Form.Input label="RDV sur ce planning">
-                      {this.state.rdvIsOnCurrentPlanning ? (
-                        <Button
-                          content="Supprimer"
-                          onClick={() =>
-                            this.removePlanning(this.state.currentPlanning)
-                          }
-                        />
-                      ) : (
-                        <Button
-                          content="Ajouter"
-                          onClick={() =>
-                            this.addPlanning(this.state.currentPlanning)
-                          }
-                        />
-                      )}
-                    </Form.Input>
-                  ) : (
-                    ""
-                  )}
-                </Form.Group>
+                    let checked = false;
+                    let motif = -1;
+                    let pl = _.find(rdv.planningsJA, p => {
+                      return p.id === planning.value;
+                    });
 
-                {motifId < 0 ? (
-                  <Form.Input label="Motif du RDV pris en ligne">
-                    <p>{motifs[-motifId - 1].motif}</p>
-                  </Form.Input>
-                ) : (
-                  <Form.Input label="Motif du RDV">
-                    <Dropdown
-                      style={{ minWidth: 450 /*, maxWidth: maxWidth*/ }}
-                      fluid={true}
-                      selection={true}
-                      options={_.filter(
-                        _.map(motifs, (motif, i) => {
-                          return {
-                            text: motif.motif,
-                            value: i,
-                            motif: motif
-                          };
-                        }),
-                        (item, i) => {
-                          return (
-                            item.motif.autorisationMin >= autorisationMinAgenda
-                          );
-                        }
-                      )}
-                      value={rdv.planningJO.motif - 1}
-                      onChange={(e, d) => {
-                        rdv.planningJO.motif = d.value + 1;
-                        this.setState({ rdv: rdv });
-                      }}
-                    />
-                    <Button icon="remove" />
-                  </Form.Input>
-                )}
-              </div>
+                    if (!_.isUndefined(pl)) {
+                      checked = true;
+                      motif = pl.motif;
+                    }
+
+                    return (
+                      <List.Item key={planning.value}>
+                        <Form.Group widths="equal">
+                          <Form.Input label={i ? "" : "Plannings"}>
+                            <Checkbox
+                              toggle={true}
+                              label={planning.text}
+                              value={planning.value}
+                              checked={checked}
+                              onChange={(e, d) =>
+                                this.planningCheckboxChange(d)
+                              }
+                            />
+                          </Form.Input>
+                          <Form.Input label={i ? "" : "Motifs"}>
+                            <Dropdown
+                              disabled={!checked}
+                              fluid={true}
+                              value={motif}
+                              planning={planning.value}
+                              selection={true}
+                              options={motifsOptions}
+                              onChange={(e, d) => this.planningMotifChange(d)}
+                            />
+                          </Form.Input>
+                        </Form.Group>
+                      </List.Item>
+                    );
+                  })}
+                </List>
+                {/* plannings et motifs - fin */}
+              </Form>
+            </Grid.Column>
+          </Grid>
+          <Form>
+            <Form.Group widths="equal">
+              <Form.TextArea
+                label="Description"
+                placeholder="Description du rendez-vous"
+                value={this.state.rdv.description}
+                onChange={(e, d) => {
+                  let rdv = this.state.rdv;
+                  rdv.description = e.target.value;
+                  this.setState({ rdv: rdv });
+                }}
+              />
+              <Form.TextArea
+                label="Commentaire"
+                placeholder="Ajouter un commentaire"
+                value={this.state.rdv.commentaire}
+                onChange={(e, d) => {
+                  let rdv = this.state.rdv;
+                  rdv.commentaire = e.target.value;
+                  this.setState({ rdv: rdv });
+                }}
+              />
             </Form.Group>
-            <div
-              style={{
-                paddingLeft: "5%",
-                minWidth: 600 /*, maxWidth: maxWidth*/
-              }}
-            >
-              <Form.Group widths="equal">
-                <Form.TextArea
-                  label="Description"
-                  placeholder="Description du rendez-vous"
-                  value={this.state.rdv.description}
-                  onChange={(e, d) => {
-                    let rdv = this.state.rdv;
-                    rdv.description = e.target.value;
-                    this.setState({ rdv: rdv });
-                  }}
-                />
-                <Form.TextArea
-                  label="Commentaire"
-                  placeholder="Ajouter un commentaire"
-                  value={this.state.rdv.commentaire}
-                  onChange={(e, d) => {
-                    let rdv = this.state.rdv;
-                    rdv.commentaire = e.target.value;
-                    this.setState({ rdv: rdv });
-                  }}
-                />
-              </Form.Group>
-            </div>
           </Form>
         </Modal.Content>
         <Modal.Actions>
-          <Button negative={true} onClick={this.handleRemove}>
+          <Button negative={!this.state.isNewOne} onClick={this.handleRemove}>
             {this.state.isNewOne ? "Annuler" : "Supprimer"}
           </Button>
           <Ref innerRef={node => node.firstChild.parentElement.focus()}>

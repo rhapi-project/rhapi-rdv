@@ -391,7 +391,7 @@ export default class Configuration extends React.Component {
           </Form.Group>
           <Form.Group>
             <Form.Input
-              label="Niveau d'autorisation minimum des motifs proposés pour la prise de RDV depuis l'agenda"
+              label="Niveau d'autorisation minimum des motifs exposés aux menus l'agenda"
               style={{ maxWidth: maxWidth / 5 }}
             >
               <Dropdown

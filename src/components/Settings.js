@@ -354,21 +354,12 @@ const telFormat = telephone => {
  */
 const denominationDefaultFormat = "NP";
 
-/*
- * Taille de la photo de profil
- */
-const imageSize = {
-  height: "125px",
-  width: "100px"
-};
-
 export {
   site,
   maxWidth,
   fsize,
   hsize,
   defaultPlanning,
-  imageSize,
   rdvDateTime,
   codePostalRegex,
   emailRegex,
