@@ -14,20 +14,29 @@ import _ from "lodash";
 
 import { Client } from "rhapi-client";
 
-import { maxWidth, fsize, hsize } from "./Settings";
+import {
+  maxWidth,
+  fsize,
+  hsize,
+  localdev,
+  authUrl,
+  appToken
+} from "./Settings";
 import PriseRdv from "./PriseRdv";
 
 import MesRdv from "./MesRdv";
 
-var client = new Client(
-  // local dev no auth (décommenter la ligne suivante)
-  //"http://localhost",
-  (datas, response) => {
-    //if (datas.networkError === 401) {
-    // eq response.statusCode === 401
-    //  window.location.reload();
-  }
-);
+var client = localdev
+  ? new Client("http://localhost", (datas, response) => {
+      //if (datas.networkError === 401) {
+      // eq response.statusCode === 401
+      //  window.location.reload();
+    })
+  : new Client((datas, response) => {
+      //if (datas.networkError === 401) {
+      // eq response.statusCode === 401
+      //  window.location.reload();
+    });
 
 export default class Patients extends React.Component {
   componentWillMount() {
@@ -59,8 +68,8 @@ export default class Patients extends React.Component {
 
   authorize = (etablissement, gestionRDVOnSuccess) => {
     client.authorize(
-      "https://auth-dev.rhapi.net", // auth url
-      "bXlhcHA6bXlhcHBteWFwcA", // app token
+      authUrl,
+      appToken,
       "reservation@" + etablissement, // username
       "reservation@" + etablissement, //password
       () => {
@@ -86,7 +95,7 @@ export default class Patients extends React.Component {
     //return;
 
     if (this.state.etablissement === "") {
-      console.log(this.state.patient);
+      //console.log(this.state.patient);
       this.setState({ identified: true });
       return;
     }
@@ -144,7 +153,7 @@ export default class Patients extends React.Component {
     }
     */
 
-    if (this.state.clientOk) {
+    if (localdev || this.state.clientOk) {
       this.setState({ gestionRDV: true });
     } else {
       let patient = this.state.patient;

@@ -142,11 +142,11 @@ export default class PriseRdv extends React.Component {
               options={_.map(this.state.plannings, (planning, i) => {
                 return {
                   text: planning.titre,
-                  value: i,
-                  image: {
-                    avatar: true,
-                    src: "./images/praticien.png"
-                  }
+                  value: i //,
+                  //image: {
+                  //  avatar: true,
+                  //  src: "./images/praticien.png"
+                  //}
                 };
               })}
             />

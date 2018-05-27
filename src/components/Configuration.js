@@ -40,7 +40,7 @@ export default class Configuration extends React.Component {
     this.reload(0);
   }
 
-  reload = index => {
+  reload = (index, id) => {
     if (_.isUndefined(index)) {
       index = this.state.index;
     }
@@ -48,9 +48,16 @@ export default class Configuration extends React.Component {
     this.props.client.Plannings.mesPlannings(
       { admin: true },
       result => {
+        // se placer sur le planning d'id id ?
+        if (!_.isUndefined(id)) {
+          let i = _.findIndex(result.results, { id: id });
+          index = i < 0 ? index : i;
+        } else {
+          index = index < result.results.length ? index : -1;
+        }
         this.setState({
           plannings: result.results,
-          index: index < result.results.length ? index : -1,
+          index: index,
           saved: true
         });
       },
@@ -145,8 +152,8 @@ export default class Configuration extends React.Component {
     let ajouterAction = () => {
       this.props.client.Plannings.create(
         defaultPlanning,
-        () => {
-          this.reload(this.state.plannings.length);
+        pl => {
+          this.reload(this.state.plannings.length, pl.id);
         },
         datas => {
           console.log("erreur sur ajouter() :");

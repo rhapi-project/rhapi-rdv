@@ -1,7 +1,9 @@
 import React from "react";
-import { Header, Button, Divider, Modal } from "semantic-ui-react";
+import { Header, Button, Divider, Modal, Label } from "semantic-ui-react";
 
 import _ from "lodash";
+
+import moment from "moment";
 
 import { hsize, rdvDateTime } from "./Settings";
 
@@ -63,17 +65,36 @@ class MonRdv extends React.Component {
   };
 
   render() {
-    let titrePlanning = "";
     if (
-      !_.isUndefined(this.props.plannings) &&
-      !_.isUndefined(this.props.rdv.planningsJA)
+      _.isUndefined(this.props.plannings) ||
+      _.isUndefined(this.props.rdv.planningsJA) ||
+      !this.props.rdv.planningsJA.length
     ) {
-      titrePlanning = this.props.plannings[this.props.rdv.planningsJA[0].id]
-        .titre;
-      if (_.isUndefined(titrePlanning)) titrePlanning = "Planning non défini";
+      return "";
     }
 
-    //console.log(this.props.rdv);
+    let planning = this.props.rdv.planningsJA[0];
+
+    if (_.isUndefined(this.props.plannings[planning.id])) {
+      //console.log(
+      //  "Inscription unique sur un planning non géré : ",
+      //  planning.id,
+      //  this.props.plannings
+      //);
+      return "";
+    }
+
+    let titrePlanning = this.props.plannings[planning.id].titre;
+
+    if (_.isUndefined(titrePlanning)) titrePlanning = "Planning non défini";
+
+    let prevenance = this.props.plannings[planning.id].prevenance;
+
+    if (_.isUndefined(prevenance)) prevenance = 0;
+
+    let revolu =
+      moment(this.props.rdv.startAt).subtract(prevenance, "hours") < moment();
+
     return (
       <React.Fragment>
         <Header>{titrePlanning}</Header>
@@ -83,86 +104,102 @@ class MonRdv extends React.Component {
         {this.state.edited ? (
           <React.Fragment>
             <Divider fitted={true} hidden={true} />
-            <Button.Group>
-              <Button
-                positive={true}
-                onClick={() => this.setState({ openModif: true })}
-              >
-                Je modifie ce RDV
-              </Button>
+            {/*
+                Ne sont modifiables/annulables en ligne que les RDV pris en ligne,
+                tout en respectant le délai de prévenance
+            */}
+            {planning.motif < 0 && !revolu ? (
+              <Button.Group>
+                <Button
+                  positive={true}
+                  onClick={() => this.setState({ openModif: true })}
+                >
+                  Je modifie ce RDV
+                </Button>
 
-              <Button.Or text="ou" />
-              <Button
-                negative={true}
-                onClick={() => this.setState({ openSupp: true })}
-              >
-                J'annule ce RDV
-              </Button>
+                <Button.Or text="ou" />
+                <Button
+                  negative={true}
+                  onClick={() => this.setState({ openSupp: true })}
+                >
+                  J'annule ce RDV
+                </Button>
 
-              {/* Modals */}
-              <Modal
-                size="tiny"
-                open={this.state.openModif}
-                onClose={this.close}
-                dimmer={false}
-                closeOnDocumentClick={true}
-              >
-                <Modal.Content scrolling={true}>
-                  <HorairesDisponibles
-                    patient={this.props.patient}
-                    planningId={this.props.rdv.planningsJA[0].id}
-                    motifId={-this.props.rdv.planningsJA[0].motif}
-                    validation={horaire =>
-                      this.setState({
-                        openModif: false,
-                        openConfirmModif: true,
-                        nouvelHoraire: horaire
-                      })
-                    }
-                    client={this.props.client}
-                  />
-                </Modal.Content>
-              </Modal>
-              <Modal
-                size="tiny"
-                open={this.state.openConfirmModif}
-                onClose={this.close}
-                dimmer={false}
-                closeOnDocumentClick={true}
-              >
-                <Modal.Header icon="archive" content="Confirmation" />
-                <Modal.Content>
-                  Je confirme vouloir déplacer ce RDV du{" "}
-                  {rdvDateTime(this.props.rdv.startAt)} au{" "}
-                  {rdvDateTime(this.state.nouvelHoraire)} ?
-                </Modal.Content>
-                <Modal.Actions>
-                  <Button onClick={this.close}>Non</Button>
-                  <Button negative={true} onClick={this.updateRdv}>
-                    Oui
-                  </Button>
-                </Modal.Actions>
-              </Modal>
-              <Modal
-                size="tiny"
-                open={this.state.openSupp}
-                onClose={this.close}
-                dimmer={false}
-                closeOnDocumentClick={true}
-              >
-                <Modal.Header icon="archive" content="Annulation" />
-                <Modal.Content>
-                  Je confirme vouloir annuler ce RDV du{" "}
-                  {rdvDateTime(this.props.rdv.startAt)} ?
-                </Modal.Content>
-                <Modal.Actions>
-                  <Button onClick={this.close}>Non</Button>
-                  <Button negative={true} onClick={this.supprimerReservation}>
-                    Oui
-                  </Button>
-                </Modal.Actions>
-              </Modal>
-            </Button.Group>
+                {/* Modals */}
+                <Modal
+                  size="tiny"
+                  open={this.state.openModif}
+                  onClose={this.close}
+                  dimmer={false}
+                  closeOnDocumentClick={true}
+                >
+                  <Modal.Content scrolling={true}>
+                    <HorairesDisponibles
+                      patient={this.props.patient}
+                      planningId={planning.id}
+                      motifId={-planning.motif}
+                      validation={horaire =>
+                        this.setState({
+                          openModif: false,
+                          openConfirmModif: true,
+                          nouvelHoraire: horaire
+                        })
+                      }
+                      client={this.props.client}
+                    />
+                  </Modal.Content>
+                </Modal>
+                <Modal
+                  size="tiny"
+                  open={this.state.openConfirmModif}
+                  onClose={this.close}
+                  dimmer={false}
+                  closeOnDocumentClick={true}
+                >
+                  <Modal.Header icon="archive" content="Confirmation" />
+                  <Modal.Content>
+                    Je confirme vouloir déplacer ce RDV du{" "}
+                    {rdvDateTime(this.props.rdv.startAt)} au{" "}
+                    {rdvDateTime(this.state.nouvelHoraire)} ?
+                  </Modal.Content>
+                  <Modal.Actions>
+                    <Button onClick={this.close}>Non</Button>
+                    <Button negative={true} onClick={this.updateRdv}>
+                      Oui
+                    </Button>
+                  </Modal.Actions>
+                </Modal>
+                <Modal
+                  size="tiny"
+                  open={this.state.openSupp}
+                  onClose={this.close}
+                  dimmer={false}
+                  closeOnDocumentClick={true}
+                >
+                  <Modal.Header icon="archive" content="Annulation" />
+                  <Modal.Content>
+                    Je confirme vouloir annuler ce RDV du{" "}
+                    {rdvDateTime(this.props.rdv.startAt)} ?
+                  </Modal.Content>
+                  <Modal.Actions>
+                    <Button onClick={this.close}>Non</Button>
+                    <Button negative={true} onClick={this.supprimerReservation}>
+                      Oui
+                    </Button>
+                  </Modal.Actions>
+                </Modal>
+              </Button.Group>
+            ) : (
+              <Label
+                content={
+                  revolu
+                    ? "Ce RDV n'est plus modifiable en ligne"
+                    : "Ce RDV n'est pas modifiable en ligne"
+                }
+                size="large"
+                color="orange"
+              />
+            )}
           </React.Fragment>
         ) : (
           ""
@@ -173,6 +210,7 @@ class MonRdv extends React.Component {
     );
   }
 }
+
 export default class MesRdv extends React.Component {
   componentWillMount() {
     this.setState({ nouveauRdv: false, mesRdv: [], edited: false }); // default state
@@ -187,9 +225,11 @@ export default class MesRdv extends React.Component {
       result => {
         let planningsMap = {};
         _.forEach(result.results, planning => {
+          console.log(planning);
           planningsMap[planning.id] = {
             titre: planning.titre,
-            description: planning.description
+            description: planning.description,
+            prevenance: planning.prevenance
           };
         });
         this.setState({ plannings: planningsMap });
@@ -212,9 +252,6 @@ export default class MesRdv extends React.Component {
         password: this.props.patient.password
       },
       result => {
-        // Attention on récupère ici des rendez-vous sans distinction de planning
-        // Il peut donc y avoir des RDV pour lesquels le patient n'a aucune autorisation
-        // d'annulation ou de modification
         this.setState({ mesRdv: result.results });
       },
       datas => {

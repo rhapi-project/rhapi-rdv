@@ -16,22 +16,32 @@ import {
 import _ from "lodash";
 
 import { Client } from "rhapi-client";
-import { maxWidth, hsize, fsize } from "./Settings";
+import {
+  maxWidth,
+  hsize,
+  fsize,
+  localdev,
+  authUrl,
+  appToken
+} from "./Settings";
 import Configuration from "./Configuration";
 import Calendars from "./Calendars";
 import Profil from "./Profil";
 import ProfilsPatients from "./ProfilsPatients";
 
-var client = new Client(
-  // local dev no auth : décommenter la ligne suivante (et 2 lignes sur accept)
-  //"http://localhost",
-  (datas, response) => {
-    if (datas.networkError === 401) {
-      // eq response.statusCode === 401
-      window.location.reload();
-    }
-  }
-);
+var client = localdev
+  ? new Client("http://localhost", (datas, response) => {
+      if (datas.networkError === 401) {
+        // eq response.statusCode === 401
+        window.location.reload();
+      }
+    })
+  : new Client((datas, response) => {
+      if (datas.networkError === 401) {
+        // eq response.statusCode === 401
+        window.location.reload();
+      }
+    });
 
 export default class Praticiens extends React.Component {
   state = {
@@ -42,13 +52,14 @@ export default class Praticiens extends React.Component {
   };
 
   accept = () => {
-    // local dev no auth : décommenter les 2 lignes suivantes
-    //this.setState({ validation: "success", errorMessage: "" });
-    //return;
+    if (localdev) {
+      this.setState({ validation: "success", errorMessage: "" });
+      return;
+    }
 
     client.authorize(
-      "https://auth-dev.rhapi.net", // auth url
-      "bXlhcHA6bXlhcHBteWFwcA", // app token
+      authUrl,
+      appToken,
       this.state.user, // username
       this.state.password, // password
       () => {

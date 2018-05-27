@@ -365,7 +365,7 @@ export default class Calendar extends React.Component {
               event.data.id,
               {
                 action: "remove",
-                planning: planningId,
+                planning: 0, // supprime de toutes les listes de tous les plannings du RDV
                 liste: 1
               },
               () => {
@@ -409,7 +409,7 @@ export default class Calendar extends React.Component {
           event.id,
           {
             action: "push",
-            planning: planningId,
+            planning: 0, // push sur les listes de tous les plannings du RDV
             liste: 1
           },
           () => {

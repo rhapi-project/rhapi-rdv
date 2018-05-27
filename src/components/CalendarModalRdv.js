@@ -15,7 +15,8 @@ import {
   Grid,
   List,
   Checkbox,
-  Ref
+  Ref,
+  Accordion
 } from "semantic-ui-react";
 
 import TimeField from "react-simple-timefield";
@@ -94,7 +95,7 @@ export default class CalendarModalRdv extends React.Component {
     if (next.open) {
       this.reload(next);
     }
-    this.setState({ image: "" });
+    this.setState({ image: "", accordionIndex: -1 });
   }
 
   imageLoad = idPatient => {
@@ -155,28 +156,35 @@ export default class CalendarModalRdv extends React.Component {
 
   handleOk = () => {
     let pushToExternal = id => {
-      this.props.client.RendezVous.listeAction(
-        id,
-        {
-          action: "push",
-          planning: this.props.planning,
-          liste: 1
-        },
-        () => this.close()
-      );
+      let plannings = this.state.rdv.planningsJA;
+      let n = plannings.length;
+
+      let pushForPlanning = index => {
+        if (index === n) return this.close();
+        let planning = plannings[index];
+        if (planning.liste1 === 0) {
+          this.props.client.RendezVous.listeAction(
+            id,
+            {
+              action: "push",
+              planning: planning.id,
+              liste: 1
+            },
+            () => {
+              pushForPlanning(++index);
+            },
+            () => {
+              pushForPlanning(++index);
+            }
+          );
+        } else {
+          pushForPlanning(++index);
+        }
+      };
+      pushForPlanning(0);
     };
 
     let rdv = this.state.rdv;
-
-    /*
-    let motifId = rdv.planningJO.motif;
-    
-    if (motifId < 0) {
-        rdv.couleur = this.props.options.reservation.motifs[
-                   -motifId - 1
-                  ].couleur
-    }
-    */
 
     if (this.state.isNewOne) {
       this.props.client.RendezVous.create(
@@ -195,7 +203,13 @@ export default class CalendarModalRdv extends React.Component {
       this.props.client.RendezVous.update(
         rdv.id,
         rdv,
-        () => this.close(),
+        () => {
+          if (this.props.isExternal) {
+            pushToExternal(rdv.id);
+          } else {
+            this.close();
+          }
+        },
         () => this.close()
       );
     }
@@ -290,7 +304,7 @@ export default class CalendarModalRdv extends React.Component {
         id: d.value,
         liste1: 0,
         liste2: 0,
-        motif: -1
+        motif: 0
       });
     } else {
       _.remove(rdv.planningsJA, pl => {
@@ -328,6 +342,8 @@ export default class CalendarModalRdv extends React.Component {
       return "";
     }
 
+    let accordionIndex = this.state.accordionIndex;
+
     let rdv = this.state.rdv;
 
     if (_.isUndefined(rdv.planningJO)) {
@@ -348,8 +364,35 @@ export default class CalendarModalRdv extends React.Component {
     if (!this.props.isExternal && _.isUndefined(rdv.startAt)) {
       return "";
     }
-    //console.log(this.state.rdv.planningJO);
-    //console.log(this.state.rdv.planningsJA);
+
+    // plannings et motifs
+    let plannings = this.state.plannings;
+    let planning = _.head(plannings);
+    plannings = _.drop(plannings);
+
+    let checked = false;
+    let motif = 0;
+    let pl = _.find(rdv.planningsJA, p => {
+      return p.id === planning.value;
+    });
+
+    if (!_.isUndefined(pl)) {
+      checked = true;
+      motif = pl.motif;
+    }
+
+    let motifsOptions = [];
+
+    _.forEach(planning.motifs, (motif, i) => {
+      if (
+        !motif.hidden &&
+        motif.autorisationMin >= planning.autorisationMinAgenda
+      ) {
+        motifsOptions.push({ value: i + 1, text: motif.motif });
+      }
+    });
+    // plannings et motifs - fin
+
     return (
       <Modal open={this.props.open}>
         <Segment clearing={true}>
@@ -422,66 +465,113 @@ export default class CalendarModalRdv extends React.Component {
                     <Form.Input label="Origine" floated="right">
                       <span>
                         <strong>#masteruser</strong>
-                        {/* il faut rentrer la bonne valeur... l'identifiant de la personne qui a ajouté le rdv*/}
+                        {/* il faudra entrer la bonne valeur... l'identifiant de la personne qui a ajouté le rdv
+                            ainsi que :
+                            la date et l'heure de création du RDV
+                            la date et l'heure de la dernière modification du RDV
+                        */}
                       </span>
                     </Form.Input>
                   </Form.Group>
                 )}
                 {/* plannings et motifs */}
-                <List>
-                  {_.map(this.state.plannings, (planning, i) => {
-                    let motifsOptions = [];
+                <Form.Group widths="equal">
+                  <Form.Input label="Planning">
+                    <Checkbox
+                      toggle={true}
+                      label={planning.text}
+                      value={planning.value}
+                      checked={checked}
+                      onChange={(e, d) => this.planningCheckboxChange(d)}
+                    />
+                  </Form.Input>
+                  <Form.Input label="Motif">
+                    <Dropdown
+                      disabled={!checked}
+                      fluid={true}
+                      value={motif}
+                      planning={planning.value}
+                      selection={true}
+                      options={motifsOptions}
+                      onChange={(e, d) => this.planningMotifChange(d)}
+                    />
+                  </Form.Input>
+                </Form.Group>
 
-                    _.forEach(planning.motifs, (motif, i) => {
-                      if (
-                        !motif.hidden &&
-                        motif.autorisationMin >= planning.autorisationMinAgenda
-                      ) {
-                        motifsOptions.push({ value: i + 1, text: motif.motif });
-                      }
-                    });
+                <Accordion>
+                  <Accordion.Title
+                    content="Autres plannings"
+                    active={accordionIndex === 0}
+                    index={0}
+                    onClick={() => {
+                      this.setState({
+                        accordionIndex: accordionIndex === 0 ? -1 : 0
+                      });
+                    }}
+                  />
+                  <Accordion.Content active={accordionIndex === 0}>
+                    <List>
+                      {_.map(plannings, (planning, i) => {
+                        let motifsOptions = [];
 
-                    let checked = false;
-                    let motif = -1;
-                    let pl = _.find(rdv.planningsJA, p => {
-                      return p.id === planning.value;
-                    });
+                        _.forEach(planning.motifs, (motif, i) => {
+                          if (
+                            !motif.hidden &&
+                            motif.autorisationMin >=
+                              planning.autorisationMinAgenda
+                          ) {
+                            motifsOptions.push({
+                              value: i + 1,
+                              text: motif.motif
+                            });
+                          }
+                        });
 
-                    if (!_.isUndefined(pl)) {
-                      checked = true;
-                      motif = pl.motif;
-                    }
+                        let checked = false;
+                        let motif = 0;
+                        let pl = _.find(rdv.planningsJA, p => {
+                          return p.id === planning.value;
+                        });
 
-                    return (
-                      <List.Item key={planning.value}>
-                        <Form.Group widths="equal">
-                          <Form.Input label={i ? "" : "Plannings"}>
-                            <Checkbox
-                              toggle={true}
-                              label={planning.text}
-                              value={planning.value}
-                              checked={checked}
-                              onChange={(e, d) =>
-                                this.planningCheckboxChange(d)
-                              }
-                            />
-                          </Form.Input>
-                          <Form.Input label={i ? "" : "Motifs"}>
-                            <Dropdown
-                              disabled={!checked}
-                              fluid={true}
-                              value={motif}
-                              planning={planning.value}
-                              selection={true}
-                              options={motifsOptions}
-                              onChange={(e, d) => this.planningMotifChange(d)}
-                            />
-                          </Form.Input>
-                        </Form.Group>
-                      </List.Item>
-                    );
-                  })}
-                </List>
+                        if (!_.isUndefined(pl)) {
+                          checked = true;
+                          motif = pl.motif;
+                        }
+
+                        return (
+                          <List.Item key={planning.value}>
+                            <Form.Group widths="equal">
+                              <Form.Input>
+                                <Checkbox
+                                  toggle={true}
+                                  label={planning.text}
+                                  value={planning.value}
+                                  checked={checked}
+                                  onChange={(e, d) =>
+                                    this.planningCheckboxChange(d)
+                                  }
+                                />
+                              </Form.Input>
+                              <Form.Input>
+                                <Dropdown
+                                  disabled={!checked}
+                                  fluid={true}
+                                  value={motif}
+                                  planning={planning.value}
+                                  selection={true}
+                                  options={motifsOptions}
+                                  onChange={(e, d) =>
+                                    this.planningMotifChange(d)
+                                  }
+                                />
+                              </Form.Input>
+                            </Form.Group>
+                          </List.Item>
+                        );
+                      })}
+                    </List>
+                  </Accordion.Content>
+                </Accordion>
                 {/* plannings et motifs - fin */}
               </Form>
             </Grid.Column>

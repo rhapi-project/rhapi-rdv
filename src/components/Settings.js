@@ -354,7 +354,15 @@ const telFormat = telephone => {
  */
 const denominationDefaultFormat = "NP";
 
+// local dev => no auth -> identification patient par id + password
+const localdev = false;
+const appToken = "bXlhcHA6bXlhcHBteWFwcA";
+const authUrl = "https://auth-dev.rhapi.net";
+
 export {
+  localdev,
+  appToken,
+  authUrl,
   site,
   maxWidth,
   fsize,

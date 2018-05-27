@@ -67,7 +67,7 @@ export default class RdvPassCard extends React.Component {
       { ipp: this.props.idPatient },
       result => {
         // success
-        console.log(result);
+        //console.log(result);
         this.setState({ mesRdv: result.results });
       },
       () => {
@@ -185,7 +185,7 @@ export default class RdvPassCard extends React.Component {
   };
 
   render() {
-    console.log(this.state.mesPlannings);
+    //console.log(this.state.mesPlannings);
     //console.log(this.state.printParameters);
     return (
       <React.Fragment>
@@ -552,7 +552,7 @@ export default class RdvPassCard extends React.Component {
                                 } else {
                                   let pl = this.state.printParameters.plannings;
                                   pl.push(i + 1);
-                                  console.log(pl);
+                                  //console.log(pl);
                                   let printParameters = this.state
                                     .printParameters;
                                   printParameters.plannings = pl;
@@ -876,6 +876,7 @@ class FormatA4 extends React.Component {
   }
 
   render() {
+    /*
     const style = {
       a4: {
         table: {
@@ -902,7 +903,8 @@ class FormatA4 extends React.Component {
         }
       }
     };
-    console.log(this.props.id);
+    */
+    //console.log(this.props.id);
     return (
       <div id={this.props.id} hidden={true}>
         <div className="coordonnees-praticien">

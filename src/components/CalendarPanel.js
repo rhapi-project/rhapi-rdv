@@ -299,23 +299,23 @@ export default class CalendarPanel extends React.Component {
   };
 
   clearExternal = () => {
-    _.forEach(this.state.externalEventsDatas, (external, i) => {
-      this.props.client.RendezVous.destroy(external.id, () => {});
-      if (i === this.state.externalEventsDatas.length - 1) {
-        // clean the list (remove all... if any)
-        this.props.client.RendezVous.listeAction(
-          0,
-          {
-            action: "remove",
-            planning: this.props.planning,
-            liste: 1
-          },
-          () => {},
-          () => {}
-        );
-        this.setState({ externalEventsDatas: [] });
-      }
-    });
+    //_.forEach(this.state.externalEventsDatas, (external, i) => {
+    //  this.props.client.RendezVous.destroy(external.id, () => {});
+    //  if (i === this.state.externalEventsDatas.length - 1) {
+    // clean the list (remove all... if any)
+    this.props.client.RendezVous.listeAction(
+      0,
+      {
+        action: "remove",
+        planning: this.props.planning,
+        liste: 1
+      },
+      () => {},
+      () => {}
+    );
+    this.setState({ externalEventsDatas: [] });
+    //  }
+    //});
   };
 
   addExternal = () => {

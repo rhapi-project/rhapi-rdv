@@ -329,7 +329,7 @@ export default class FichePatient extends React.Component {
     let patient = {};
     if (!nofiche) {
       patient = this.state.patient;
-      console.log("Fiche : " + patient.id);
+      //console.log("Fiche : " + patient.id);
     }
 
     return (
