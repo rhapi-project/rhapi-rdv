@@ -79,11 +79,6 @@ class FromTo extends React.Component {
   }
 }
 
-/*
- * Travailler sur la gestion des motifs et le changement des plannings dans la modal
- *
- */
-
 export default class CalendarModalRdv extends React.Component {
   //plannings = [];
 
@@ -121,7 +116,52 @@ export default class CalendarModalRdv extends React.Component {
 
     let rdv = {};
     if (isNewOne) {
-      rdv = { planningJO: { id: this.props.planning } };
+      rdv = { planningJO: { id: this.props.planning }, planningsJA: [] };
+      rdv.planningsJA.push({
+        id: this.props.planning,
+        liste1: 0,
+        liste2: 0,
+        motif: 0
+      });
+      //
+      // planning associé sur tout motif (-1)
+      if (!_.isUndefined(this.props.options.reservation)) {
+        let planningsAssocies = this.props.options.reservation
+          .planningsAssocies;
+        let associe = _.find(planningsAssocies, p => {
+          return p.motif === -1;
+        });
+
+        if (!_.isUndefined(associe)) {
+          // il existe un planning associé
+
+          let i = _.findIndex(rdv.planningsJA, pl => {
+            return pl.id === associe.planning2;
+          });
+          if (i === -1) {
+            // associé non défini
+            //console.log(associe);
+            //
+            // supprime tous les associés
+            _.remove(rdv.planningsJA, pl => {
+              return (
+                _.findIndex(planningsAssocies, p => {
+                  return p.planning2 === pl.id;
+                }) !== -1
+              );
+            });
+            //
+            // ajoute l'associé défini pour le motif courant
+            rdv.planningsJA.push({
+              id: associe.planning2,
+              liste1: 0,
+              liste2: 0,
+              motif: associe.motif2 + 1
+            });
+          }
+        }
+      }
+
       if (next.isExternal) {
         rdv.startAt = event.startAt;
         rdv.endAt = event.endAt;
@@ -329,10 +369,47 @@ export default class CalendarModalRdv extends React.Component {
         }
         pl.motif = d.value;
         return true;
-      } else {
-        return false;
       }
+      return false;
     });
+
+    if (d.firstplanning) {
+      //
+      // planning associé à ce motif ?
+      let planningsAssocies = this.props.options.reservation.planningsAssocies;
+      let associe = _.find(planningsAssocies, p => {
+        return p.motif === Math.abs(d.value) - 1 || p.motif === -1;
+      });
+
+      if (!_.isUndefined(associe)) {
+        // il existe un planning associé
+
+        let i = _.findIndex(rdv.planningsJA, pl => {
+          return pl.id === associe.planning2;
+        });
+        if (i === -1) {
+          // associé non défini
+          //console.log(associe);
+          //
+          // supprime tous les associés
+          _.remove(rdv.planningsJA, pl => {
+            return (
+              _.findIndex(planningsAssocies, p => {
+                return p.planning2 === pl.id;
+              }) !== -1
+            );
+          });
+          //
+          // ajoute l'associé défini pour le motif courant
+          rdv.planningsJA.push({
+            id: associe.planning2,
+            liste1: 0,
+            liste2: 0,
+            motif: associe.motif2 + 1
+          });
+        }
+      }
+    }
 
     this.setState({ rdv: rdv });
   };
@@ -491,6 +568,7 @@ export default class CalendarModalRdv extends React.Component {
                       fluid={true}
                       value={motif}
                       planning={planning.value}
+                      firstplanning="true"
                       selection={true}
                       options={motifsOptions}
                       onChange={(e, d) => this.planningMotifChange(d)}
@@ -511,42 +589,56 @@ export default class CalendarModalRdv extends React.Component {
                   />
                   <Accordion.Content active={accordionIndex === 0}>
                     <List>
-                      {_.map(plannings, (planning, i) => {
+                      {_.map(plannings, (planning2, i) => {
                         let motifsOptions = [];
 
-                        _.forEach(planning.motifs, (motif, i) => {
+                        _.forEach(planning2.motifs, (motif2, i) => {
                           if (
-                            !motif.hidden &&
-                            motif.autorisationMin >=
+                            !motif2.hidden &&
+                            motif2.autorisationMin >=
                               planning.autorisationMinAgenda
                           ) {
                             motifsOptions.push({
                               value: i + 1,
-                              text: motif.motif
+                              text: motif2.motif
                             });
                           }
                         });
 
-                        let checked = false;
-                        let motif = 0;
-                        let pl = _.find(rdv.planningsJA, p => {
-                          return p.id === planning.value;
+                        let checked2 = false;
+                        let motif2 = 0;
+                        let pl2 = _.find(rdv.planningsJA, p => {
+                          return p.id === planning2.value;
                         });
 
-                        if (!_.isUndefined(pl)) {
-                          checked = true;
-                          motif = pl.motif;
+                        if (!_.isUndefined(pl2)) {
+                          checked2 = true;
+                          motif2 = pl2.motif;
+                        } else {
+                          // plannings associés ?
+                          /*
+                          let associe = _.find(planningsAssocies, p => {
+                            return (
+                              p.planning2 === planning2.value &&
+                              p.motif === Math.abs(motif) - 1
+                            );
+                          });
+                          if (!_.isUndefined(associe)) {
+                            checked2 = true;
+                            motif2 = associe.motif2;
+                          }
+                          */
                         }
 
                         return (
-                          <List.Item key={planning.value}>
+                          <List.Item key={planning2.value}>
                             <Form.Group widths="equal">
                               <Form.Input>
                                 <Checkbox
                                   toggle={true}
-                                  label={planning.text}
-                                  value={planning.value}
-                                  checked={checked}
+                                  label={planning2.text}
+                                  value={planning2.value}
+                                  checked={checked2}
                                   onChange={(e, d) =>
                                     this.planningCheckboxChange(d)
                                   }
@@ -554,10 +646,10 @@ export default class CalendarModalRdv extends React.Component {
                               </Form.Input>
                               <Form.Input>
                                 <Dropdown
-                                  disabled={!checked}
+                                  disabled={!checked2}
                                   fluid={true}
-                                  value={motif}
-                                  planning={planning.value}
+                                  value={motif2}
+                                  planning={planning2.value}
                                   selection={true}
                                   options={motifsOptions}
                                   onChange={(e, d) =>

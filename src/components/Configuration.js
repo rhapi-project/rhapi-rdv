@@ -273,6 +273,12 @@ export default class Configuration extends React.Component {
       let horairesReservation = options.reservation.horaires;
       let congesPrevus = options.reservation.conges;
 
+      if (_.isUndefined(options.reservation.planningsAssocies)) {
+        // si ancienne version du Settings
+        options.reservation.planningsAssocies = [];
+      }
+      let planningsAssocies = options.reservation.planningsAssocies;
+
       if (_.isUndefined(options.recurrents)) {
         // si ancienne version du Settings
         options.recurrents = [];
@@ -476,12 +482,10 @@ export default class Configuration extends React.Component {
             <Table.Header>
               <Table.Row>
                 <Table.HeaderCell>Motif</Table.HeaderCell>
-                <Table.HeaderCell collapsing={true}>
+                <Table.HeaderCell>
                   Niveau d'autorisation minimum requis
                 </Table.HeaderCell>
-                <Table.HeaderCell collapsing={true}>
-                  Durée par défaut (en mn)
-                </Table.HeaderCell>
+                <Table.HeaderCell>Durée par défaut (en mn)</Table.HeaderCell>
                 <Table.HeaderCell>Couleur</Table.HeaderCell>
                 <Table.HeaderCell />
               </Table.Row>
@@ -594,6 +598,126 @@ export default class Configuration extends React.Component {
         </React.Fragment>
       );
 
+      const PlanningsAssocies = (
+        <React.Fragment>
+          <Table basic={true}>
+            <Table.Header>
+              <Table.Row>
+                <Table.HeaderCell>Motif</Table.HeaderCell>
+                <Table.HeaderCell>Planning associé</Table.HeaderCell>
+                <Table.HeaderCell>
+                  Motif dans le planning associé
+                </Table.HeaderCell>
+                <Table.HeaderCell />
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {_.map(planningsAssocies, (associe, i) => {
+                let index = _.findIndex(
+                  plannings,
+                  o => o.id === associe.planning2
+                );
+                let optionsMotifs =
+                  index !== -1
+                    ? _.filter(
+                        _.map(
+                          plannings[index].optionsJO.reservation.motifs,
+                          (motif, i) => {
+                            return {
+                              text: motif.motif,
+                              value: motif.hidden ? -1 : i
+                            };
+                          }
+                        ),
+                        o => o.value !== -1
+                      )
+                    : [];
+                return (
+                  <Table.Row key={i}>
+                    <Table.Cell>
+                      <Dropdown
+                        value={associe.motif}
+                        onChange={(e, d) => {
+                          associe.motif = d.value;
+                          this.setState({ saved: false });
+                        }}
+                        fluid={true}
+                        selection={true}
+                        options={_.filter(
+                          _.map(options.reservation.motifs, (motif, i) => {
+                            return {
+                              text: motif.motif,
+                              value: motif.hidden ? -1 : i
+                            };
+                          }),
+                          o => o.value !== -1
+                        )}
+                      />
+                    </Table.Cell>
+                    <Table.Cell>
+                      <Dropdown
+                        value={associe.planning2}
+                        onChange={(e, d) => {
+                          associe.planning2 = d.value;
+                          this.setState({ saved: false });
+                        }}
+                        fluid={true}
+                        selection={true}
+                        options={_.filter(
+                          _.map(plannings, pl => {
+                            return {
+                              text: pl.titre,
+                              value: pl.id === planning.id ? -1 : pl.id
+                            };
+                          }),
+                          o => o.value !== -1
+                        )}
+                      />
+                    </Table.Cell>
+                    <Table.Cell>
+                      <Dropdown
+                        value={associe.motif2}
+                        onChange={(e, d) => {
+                          associe.motif2 = d.value;
+                          this.setState({ saved: false });
+                        }}
+                        fluid={true}
+                        selection={true}
+                        options={optionsMotifs}
+                      />
+                    </Table.Cell>
+                    <Table.Cell>
+                      <Button
+                        size="tiny"
+                        icon="minus"
+                        circular={true}
+                        onClick={() => {
+                          planningsAssocies.splice(i, 1);
+                          this.setState({ saved: false });
+                        }}
+                      />
+                    </Table.Cell>
+                  </Table.Row>
+                );
+              })}
+            </Table.Body>
+          </Table>
+          <Button
+            size="tiny"
+            icon="add"
+            circular={true}
+            onClick={() => {
+              planningsAssocies.push({
+                motif: -1,
+                planning2: -1,
+                motif2: -1
+              });
+              this.setState({ saved: false });
+            }}
+          />
+        </React.Fragment>
+      );
+
       const reservationsPanels = [
         {
           title: "Congés",
@@ -681,6 +805,10 @@ export default class Configuration extends React.Component {
         {
           title: "Motifs des rendez-vous",
           content: { content: MotifsRDV, key: "2" }
+        },
+        {
+          title: "Plannings et motifs associés",
+          content: { content: PlanningsAssocies, key: "3" }
         }
       ];
 

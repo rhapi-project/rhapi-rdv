@@ -141,6 +141,7 @@ const defaultPlanning = {
       delaiPrevenance: 48,
       denominationFormat: "NP",
       denominationDefaut: "Anonyme",
+      planningsAssocies: [],
       motifs: [
         {
           autorisationMin: 0,
