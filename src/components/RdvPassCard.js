@@ -6,6 +6,8 @@ import moment from "moment";
 
 import { rdvDateTime } from "./Settings";
 
+//import "../css/impressionDetails.css";
+
 import {
   Button,
   Checkbox,
@@ -63,11 +65,21 @@ export default class RdvPassCard extends React.Component {
   };
 
   reload = () => {
+    /*let today = this.state.printParameters.dateRef;
+
+    let params = {
+      _idPatient: this.props.idPatient,
+      q1: "startAt,GreaterThan," + today.toISOString().split("T")[0],
+      limit: 1000,
+      sort: "startAt"
+    };*/
+
     this.props.client.RendezVous.mesRendezVous(
-      { ipp: this.props.idPatient },
+      {
+        ipp: this.props.idPatient
+      },
       result => {
         // success
-        //console.log(result);
         this.setState({ mesRdv: result.results });
       },
       () => {
@@ -116,12 +128,19 @@ export default class RdvPassCard extends React.Component {
   };
 
   print = () => {
+    if (_.isEmpty(this.state.mesRdv) && !this.state.printWithPassword) {
+      return;
+    }
+
     let format = this.state.chosenFormat;
     if (format !== 1 && format !== 2) {
       return;
     }
 
-    let pri = document.getElementById("iframeToPrint").contentWindow;
+    //let pri = document.getElementById("iframeToPrint").contentWindow;
+    let pri = document.getElementById("iframeToPrint");
+    let doc = pri.contentDocument;
+    let head = doc.getElementsByTagName("head")[0];
 
     if (pri.matchMedia) {
       // Safari
@@ -137,14 +156,23 @@ export default class RdvPassCard extends React.Component {
     let content =
       format === 1
         ? document.getElementById("carton")
-        : document.getElementById("a4");
-    pri.document.open();
-    pri.document.write(content.innerHTML);
-    pri.document.close();
-    pri.focus();
-    pri.onbeforeunload = this.afterPrint; // // Firefox
-    pri.onafterprint = this.afterPrint; // Chrome
-    pri.print();
+        : document.getElementById("details");
+
+    // injection du contenu
+    doc.body.innerHTML = content.innerHTML;
+
+    // injection css
+    let link = doc.createElement("link");
+    link.rel = "stylesheet";
+    link.type = "text/css";
+    //link.href = "../src/css/index.css"; // par rapport à index.html mais ne trouve pas le css
+    link.href = "https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.1/semantic.css";
+    head.appendChild(link);
+
+    pri.contentWindow.onbeforeunload = this.afterPrint; // // Firefox
+    pri.contentWindow.onafterprint = this.afterPrint; // Chrome
+    pri.contentWindow.focus();
+    pri.contentWindow.print();
   };
 
   afterPrint = () => {
@@ -185,8 +213,6 @@ export default class RdvPassCard extends React.Component {
   };
 
   render() {
-    //console.log(this.state.mesPlannings);
-    //console.log(this.state.printParameters);
     return (
       <React.Fragment>
         <Modal size="small" open={this.state.open}>
@@ -365,10 +391,10 @@ export default class RdvPassCard extends React.Component {
         </Modal>
 
         {/*Modal Format détaillé Options*/}
-
         <Modal size="fullscreen" open={this.state.chosenFormat === 2}>
           <Modal.Header>Configuration des paramètres d'impression</Modal.Header>
-          <Modal.Content>
+
+          <Modal.Content className="modal-content">
             <Grid>
               <Grid.Row divided>
                 <Grid.Column width={12} floated="left">
@@ -388,7 +414,9 @@ export default class RdvPassCard extends React.Component {
                               printParameters: defaut
                             });
                           } else {
-                            this.setState({ printParameters: printParameters });
+                            this.setState({
+                              printParameters: printParameters
+                            });
                           }
                         }}
                       />
@@ -401,7 +429,16 @@ export default class RdvPassCard extends React.Component {
                       primary={true}
                       icon="print"
                       content="Imprimer"
-                      onClick={() => this.setState({ printFormat2: true })}
+                      onClick={() => {
+                        //this.setState({ printFormat2: true })
+                        this.props.print(this.state);
+                        this.afterPrint();
+                        /*this.setState({
+                          chosenFormat: 0,
+                          open: false,
+                          modalPassword: false
+                        });*/
+                      }}
                     />
                   </Ref>
                 </Grid.Column>
@@ -419,7 +456,9 @@ export default class RdvPassCard extends React.Component {
                             let printParameters = this.state.printParameters;
                             printParameters.defaut = false;
                             printParameters.dateRefCheckbox = !printParameters.dateRefCheckbox;
-                            this.setState({ printParameters: printParameters });
+                            this.setState({
+                              printParameters: printParameters
+                            });
                           }}
                         />
                       </Form.Input>
@@ -438,12 +477,16 @@ export default class RdvPassCard extends React.Component {
                           onClose={() => {
                             let printParameters = this.state.printParameters;
                             printParameters.dateRefFocused = false;
-                            this.setState({ printParameters: printParameters });
+                            this.setState({
+                              printParameters: printParameters
+                            });
                           }}
                           onDateChange={date => {
                             let printParameters = this.state.printParameters;
                             printParameters.dateRef = date;
-                            this.setState({ printParameters: printParameters });
+                            this.setState({
+                              printParameters: printParameters
+                            });
                           }}
                           focused={this.state.printParameters.dateRefFocused}
                           onFocusChange={() => {}}
@@ -453,7 +496,9 @@ export default class RdvPassCard extends React.Component {
                           onClick={() => {
                             let printParameters = this.state.printParameters;
                             printParameters.dateRefFocused = true;
-                            this.setState({ printParameters: printParameters });
+                            this.setState({
+                              printParameters: printParameters
+                            });
                           }}
                         />
                       </Form.Input>
@@ -476,7 +521,9 @@ export default class RdvPassCard extends React.Component {
                             let printParameters = this.state.printParameters;
                             printParameters.defaut = false;
                             printParameters.commentaires = !printParameters.commentaires;
-                            this.setState({ printParameters: printParameters });
+                            this.setState({
+                              printParameters: printParameters
+                            });
                           }}
                         />
                       </Form.Input>
@@ -488,7 +535,9 @@ export default class RdvPassCard extends React.Component {
                             let printParameters = this.state.printParameters;
                             printParameters.defaut = false;
                             printParameters.etatRdv = !printParameters.etatRdv;
-                            this.setState({ printParameters: printParameters });
+                            this.setState({
+                              printParameters: printParameters
+                            });
                           }}
                         />
                       </Form.Input>
@@ -509,7 +558,9 @@ export default class RdvPassCard extends React.Component {
                           if (printParameters.allPlannings) {
                             this.loadPlanningsId(this.state.mesPlannings);
                           }
-                          this.setState({ printParameters: printParameters });
+                          this.setState({
+                            printParameters: printParameters
+                          });
                         }}
                       />
                     </Form.Input>
@@ -571,177 +622,41 @@ export default class RdvPassCard extends React.Component {
 
             <Divider />
 
-            {/* preview*/}
+            {/* preview dans la modal */}
 
-            <div style={{ overflowY: "scroll", height: "300px" }}>
+            {_.isEmpty(this.state.mesRdv) && !this.state.printWithPassword ? (
+              ""
+            ) : (
               <div
-                style={{
-                  margin: "0 auto",
-                  border: "1px solid black",
-                  width: "210mm"
-                }}
+                className="preview-details"
+                style={{ overflowY: "scroll", height: "300px" }}
               >
-                {_.isUndefined(this.state.praticien) ? (
-                  ""
-                ) : (
-                  <div className="coordonnees-praticien">
-                    <strong>{this.state.praticien.currentName}</strong>
-                    <table>
-                      <tbody>
-                        <tr>
-                          <td>Tél bureau</td>
-                          <td>
-                            {" : " + this.state.praticien.account.telBureau}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>Tél mobile</td>
-                          <td>
-                            {" : " + this.state.praticien.account.telMobile}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>E-mail</td>
-                          <td>{" : " + this.state.praticien.account.email}</td>
-                        </tr>
-                        <tr>
-                          <td>Adresse</td>
-                          <td>
-                            {" : " + this.state.praticien.account.adresse1}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td />
-                          <td>
-                            {" : " +
-                              this.state.praticien.account.adresse2 +
-                              " " +
-                              this.state.praticien.account.adresse3}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td />
-                          <td>
-                            {" : " +
-                              this.state.praticien.account.codePostal +
-                              " " +
-                              this.state.praticien.account.ville}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-
-                <div
-                  style={{
-                    marginTop: "20px",
-                    marginBottom: "20px",
-                    textAlign: "center",
-                    fontSize: "20px",
-                    fontWeight: "900"
-                  }}
-                >
-                  FICHE DETAILLÉE DES RENDEZ-VOUS
-                </div>
-
-                <div style={{ marginLeft: "10px" }}>
-                  <List>
-                    {_.map(this.state.mesRdv, (item, i) => {
-                      return (
-                        <List.Item key={i}>
-                          {_.upperFirst(rdvDateTime(item.startAt))}
-                          <List.List>
-                            <List.Item>
-                              {this.state.printParameters.plannings.length ===
-                              0 ? (
-                                ""
-                              ) : (
-                                <table>
-                                  <tbody>
-                                    {_.map(
-                                      this.state.printParameters.plannings,
-                                      (planningId, p) => {
-                                        if (
-                                          this.rdvIsOnPlanning(item, planningId)
-                                        ) {
-                                          return (
-                                            <tr key={p}>
-                                              <td>Planning</td>
-                                              <td>
-                                                {" ( " +
-                                                  this.state.mesPlannings[
-                                                    planningId - 1
-                                                  ].titre +
-                                                  " ) "}
-                                              </td>
-                                              <td>
-                                                <Icon name="arrow right" />
-                                              </td>
-                                              <td>{" Motif : "}</td>
-                                              <td>
-                                                {this.motif(item, planningId)}
-                                              </td>
-                                            </tr>
-                                          );
-                                        }
-                                      }
-                                    )}
-                                  </tbody>
-                                </table>
-                              )}
-                            </List.Item>
-                            {item.description === "" ? (
-                              ""
-                            ) : (
-                              <List.Item>
-                                <table>
-                                  <tbody>
-                                    <tr style={{ verticalAlign: "middle" }}>
-                                      <td>
-                                        <strong>{" Description :  "}</strong>
-                                      </td>
-                                      <td>{item.description}</td>
-                                    </tr>
-                                  </tbody>
-                                </table>
-                              </List.Item>
-                            )}
-                            {this.state.printParameters.commentaires ? (
-                              <List.Item>
-                                <table>
-                                  <tbody>
-                                    {item.commentaire !== "" ? (
-                                      <tr style={{ verticalAlign: "middle" }}>
-                                        <td>
-                                          <strong>{" Commentaire :  "}</strong>
-                                        </td>
-                                        <td>{item.commentaire}</td>
-                                      </tr>
-                                    ) : (
-                                      ""
-                                    )}
-                                  </tbody>
-                                </table>
-                              </List.Item>
-                            ) : (
-                              ""
-                            )}
-                          </List.List>
-                        </List.Item>
-                      );
-                    })}
-                  </List>
-                </div>
+                <PreviewImpressionDetails
+                  id="details"
+                  praticien={this.state.praticien}
+                  mesRdv={this.state.mesRdv}
+                  mesPlannings={this.state.mesPlannings}
+                  printParameters={this.state.printParameters}
+                  printWithPassword={this.state.printWithPassword}
+                  newPassword={this.state.newPassword}
+                  //print={this.print}
+                  idPatient={this.props.idPatient}
+                  rdvIsOnPlanning={this.rdvIsOnPlanning}
+                  motif={this.motif}
+                  printFormat2={this.state.printFormat2}
+                />
               </div>
-            </div>
+            )}
           </Modal.Content>
+
           <Modal.Actions>
-            <Button
-              negative={true}
-              content="Annuler"
-              onClick={() => this.setState({ chosenFormat: 0 })}
-            />
+            <div className="modal-actions">
+              <Button
+                negative={true}
+                content="Annuler"
+                onClick={() => this.setState({ chosenFormat: 0 })}
+              />
+            </div>
           </Modal.Actions>
         </Modal>
 
@@ -756,7 +671,7 @@ export default class RdvPassCard extends React.Component {
           <Modal.Header>Impression format carton</Modal.Header>
           <Modal.Content>
             Préparation de l'impression...
-            <Carton
+            <Carte
               id="carton"
               mesRdv={this.state.mesRdv}
               printWithPassword={this.state.printWithPassword}
@@ -777,7 +692,7 @@ export default class RdvPassCard extends React.Component {
           </Modal.Content>
         </Modal>
 
-        {/*Modal A4*/}
+        {/*Modal impression avec détails*/}
 
         <Modal
           size="small"
@@ -788,19 +703,23 @@ export default class RdvPassCard extends React.Component {
           <Modal.Header>Impression format détaillé</Modal.Header>
           <Modal.Content>
             Préparation de l'impression...
-            <FormatA4
-              id="a4"
+            <PreviewImpressionDetails
+              id="details"
               praticien={this.state.praticien}
               mesRdv={this.state.mesRdv}
               mesPlannings={this.state.mesPlannings}
               printParameters={this.state.printParameters}
               printWithPassword={this.state.printWithPassword}
               newPassword={this.state.newPassword}
-              print={this.print}
+              //print={this.print}
               idPatient={this.props.idPatient}
+              rdvIsOnPlanning={this.rdvIsOnPlanning}
+              motif={this.motif}
+              printFormat2={this.state.printFormat2}
             />
             <iframe
               id="iframeToPrint"
+              className="i-print"
               title="Impression"
               style={{
                 border: "0px",
@@ -823,7 +742,7 @@ export default class RdvPassCard extends React.Component {
   }
 }
 
-class Carton extends React.Component {
+class Carte extends React.Component {
   componentDidMount() {
     this.props.print();
   }
@@ -831,7 +750,7 @@ class Carton extends React.Component {
   render() {
     //console.log(this.props.mesRdv);
     return (
-      <div id={this.props.id} hidden={true}>
+      <div id={this.props.id} /*hidden={true}*/>
         <h3>Vos prochains rendez-vous</h3>
         {this.props.mesRdv.length === 0 ? (
           <Message compact={true}>
@@ -870,148 +789,202 @@ class Carton extends React.Component {
   }
 }
 
-class FormatA4 extends React.Component {
+export class PreviewImpressionDetails extends React.Component {
   componentDidMount() {
-    this.props.print();
+    if (this.props.printFormat2) {
+      //this.props.print();
+    }
   }
 
   render() {
-    /*
-    const style = {
-      a4: {
-        table: {
-          borderCollapse: "collapse",
-          textAlign: "center"
-        },
-        th: {
-          border: "1px solid black"
-        },
-        tdDate: {
-          border: "1px solid black",
-          width: "25%"
-        },
-        tdRdv: {
-          border: "1px solid black",
-          width: "20%"
-        },
-        tdMotif: {
-          border: "1px solid black"
-        },
-        tdPlannings: {
-          border: "1px solid black",
-          width: "20%"
-        }
-      }
-    };
-    */
-    //console.log(this.props.id);
     return (
-      <div id={this.props.id} hidden={true}>
-        <div className="coordonnees-praticien">
-          <strong>{this.props.praticien.currentName}</strong>
-          <table>
-            <tbody>
-              <tr>
-                <td>Tél bureau</td>
-                <td>{" : " + this.props.praticien.account.telBureau}</td>
-              </tr>
-              <tr>
-                <td>Tél mobile</td>
-                <td>{" : " + this.props.praticien.account.telMobile}</td>
-              </tr>
-              <tr>
-                <td>E-mail</td>
-                <td>{" : " + this.props.praticien.account.email}</td>
-              </tr>
-              <tr>
-                <td>Adresse</td>
-                <td>{" : " + this.props.praticien.account.adresse1}</td>
-              </tr>
-              <tr>
-                <td />
-                <td>
-                  {" : " +
-                    this.props.praticien.account.adresse2 +
-                    " " +
-                    this.props.praticien.account.adresse3}
-                </td>
-              </tr>
-              <tr>
-                <td />
-                <td>
-                  {" : " +
-                    this.props.praticien.account.codePostal +
-                    " " +
-                    this.props.praticien.account.ville}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+      <div id={this.props.id} className="impression-details">
+        {_.isUndefined(this.props.praticien) ? (
+          ""
+        ) : (
+          <div className="coordonnees-praticien">
+            <strong>{this.props.praticien.currentName}</strong>
+            <table>
+              <tbody>
+                <tr>
+                  <td>Tél bureau</td>
+                  <td>{" : " + this.props.praticien.account.telBureau}</td>
+                </tr>
+                <tr>
+                  <td>Tél mobile</td>
+                  <td>{" : " + this.props.praticien.account.telMobile}</td>
+                </tr>
+                <tr>
+                  <td>E-mail</td>
+                  <td>{" : " + this.props.praticien.account.email}</td>
+                </tr>
+                <tr>
+                  <td>Adresse</td>
+                  <td>{" : " + this.props.praticien.account.adresse1}</td>
+                </tr>
+                <tr>
+                  <td />
+                  <td>
+                    <span>
+                      &nbsp;&nbsp;&nbsp;{this.props.praticien.account.adresse2}&nbsp;{
+                        this.props.praticien.account.adresse3
+                      }
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <td />
+                  <td>
+                    <span>
+                      &nbsp;&nbsp;&nbsp;{
+                        this.props.praticien.account.codePostal
+                      }&nbsp;{this.props.praticien.account.ville}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        <div className="principal-title">FICHE DETAILLÉE DES RENDEZ-VOUS</div>
+
+        <div className="new-password">
+          {this.props.printWithPassword ? (
+            <p>
+              Accédez directement à vos rendez-vous en ligne depuis le site (à
+              définir selon intégration)<br />
+              Identifiant :{" "}
+              <strong>
+                {this.props.idPatient +
+                  "@forme-de-l'indentifiant-à-(re)definir"}
+              </strong>
+              <br />
+              Mot de passe : <strong>{this.props.newPassword}</strong>
+            </p>
+          ) : (
+            ""
+          )}
         </div>
 
-        <Divider />
-
-        {/*<h3>Vos prochains rendez-vous</h3>
-        {this.props.mesRdv.length === 0 ? (
-          <Message compact={true}>
-            <Message.Content>
-              <p>Aucun rendez-vous n'a été trouvé !</p>
-            </Message.Content>
-          </Message>
-        ) : (
-          <table style={style.a4.table}>
-            <thead>
-              <tr>
-                <th style={style.a4.th}>Date et heure</th>
-                <th style={style.a4.th}>Rendez-vous</th>
-                <th style={style.a4.th}>Motif</th>
-                <th style={style.a4.th}>Plannings</th>
-              </tr>
-            </thead>
-            <tbody>
-              {_.map(this.props.mesRdv, (item, i) => {
-                let planningId = item.planningsJA[0].id;
-                let motifNumero = item.planningsJA[0].motif; // number
-                let motif = "";
-                let rdv = "";
-                let nomPlanning = "";
-                for (let j = 0; j < this.props.mesPlannings.length; j++) {
-                  if (this.props.mesPlannings[j].id === planningId) {
-                    rdv = this.props.mesPlannings[j].titre;
-                    nomPlanning = this.props.mesPlannings[j].description;
-                    //motif = this.props.mesPlannings[j].optionsJO.reservation
-                      //.motifs[motifNumero].motif;
-                  }
-                }
-                return (
-                  <tr key={i}>
-                    <td style={style.a4.tdDate}>
+        <div className="rdv-list">
+          <List>
+            {_.map(this.props.mesRdv, (item, i) => {
+              return (
+                <List.Item className="rdv-list-item" key={i}>
+                  <Icon
+                    name="calendar"
+                    //style={{ visibility: "visible" }}
+                  />
+                  <List.Content>
+                    <List.Header>
                       {_.upperFirst(rdvDateTime(item.startAt))}
-                    </td>
-                    <td style={style.a4.tdRdv}>{_.upperFirst(rdv)}</td>
-                    <td style={style.a4.tdMotif}>{motif}</td>
-                    <td style={style.a4.tdPlannings}>{nomPlanning}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table> 
-        )} */}
-        <Divider hidden={true} />
-        {this.props.printWithPassword ? (
-          <p>
-            Accédez directement à vos rendez-vous en ligne depuis le site (à
-            définir selon intégration)<br />
-            Identifiant :{" "}
-            <strong>
-              {this.props.idPatient + "@forme-de-l'indentifiant-à-(re)definir"}
-            </strong>
-            <br />
-            Mot de passe : <strong>{this.props.newPassword}</strong>
-          </p>
-        ) : (
-          ""
-        )}
+                    </List.Header>
+                    <List.List>
+                      <List.Item>
+                        {this.props.printParameters.plannings.length === 0 ? (
+                          ""
+                        ) : (
+                          <table>
+                            <tbody>
+                              {_.map(
+                                this.props.printParameters.plannings,
+                                (planningId, p) => {
+                                  if (
+                                    this.props.rdvIsOnPlanning(item, planningId)
+                                  ) {
+                                    return (
+                                      <tr key={p}>
+                                        <td>Planning</td>
+                                        <td>
+                                          {" ( " +
+                                            this.props.mesPlannings[
+                                              planningId - 1
+                                            ].titre +
+                                            " ) "}
+                                        </td>
+
+                                        <td>
+                                          {this.props.motif(
+                                            item,
+                                            planningId
+                                          ) !== "" ? (
+                                            <Icon name="arrow right" />
+                                          ) : (
+                                            ""
+                                          )}
+                                        </td>
+
+                                        <td>
+                                          {this.props.motif(
+                                            item,
+                                            planningId
+                                          ) !== ""
+                                            ? " Motif : "
+                                            : ""}
+                                        </td>
+
+                                        <td>
+                                          {this.props.motif(item, planningId)}
+                                        </td>
+                                      </tr>
+                                    );
+                                  }
+                                }
+                              )}
+                            </tbody>
+                          </table>
+                        )}
+                      </List.Item>
+                      {item.description === "" ? (
+                        ""
+                      ) : (
+                        <List.Item>
+                          <table>
+                            <tbody>
+                              <tr style={{ verticalAlign: "middle" }}>
+                                <td>
+                                  <strong>{" Description :  "}</strong>
+                                </td>
+                                <td>{item.description}</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </List.Item>
+                      )}
+                      {this.props.printParameters.commentaires ? (
+                        <List.Item>
+                          <table>
+                            <tbody>
+                              {item.commentaire !== "" ? (
+                                <tr style={{ verticalAlign: "middle" }}>
+                                  <td>
+                                    <strong>{" Commentaire :  "}</strong>
+                                  </td>
+                                  <td>{item.commentaire}</td>
+                                </tr>
+                              ) : (
+                                ""
+                              )}
+                            </tbody>
+                          </table>
+                        </List.Item>
+                      ) : (
+                        ""
+                      )}
+                    </List.List>
+                  </List.Content>
+                </List.Item>
+              );
+            })}
+          </List>
+        </div>
+        <div className="signature">
+          Fait à&nbsp;. . . . . . . . . . . . . . . . . . . . . . . . ,&nbsp;le
+          . . . .&nbsp;/ . . . .&nbsp;/ . . . . . .
+          <Divider hidden={true} />
+          Signature :
+        </div>
       </div>
     );
   }

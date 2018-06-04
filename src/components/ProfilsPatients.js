@@ -19,6 +19,8 @@ import PatientSearch from "./PatientSearch";
 
 import FichePatient from "./FichePatient";
 
+//import PreviewImpressionDetails from "./RdvPassCard";
+
 export default class ProfilsPatients extends React.Component {
   componentWillMount() {
     this.setState({
@@ -28,7 +30,8 @@ export default class ProfilsPatients extends React.Component {
       age: {},
       saved: true,
       errorOnSave: false,
-      modalDelete: false
+      modalDelete: false,
+      print: false
     });
   }
 
@@ -218,51 +221,60 @@ export default class ProfilsPatients extends React.Component {
   render() {
     return (
       <div id="profil-patients">
-        <Header size={hsize}>Patients</Header>
+        <div className="profil-patients-header">
+          <Header size={hsize}>Patients</Header>
+        </div>
         {this.state.errorOnSave ? (
-          <Message negative={true} icon={true}>
-            <Icon name="warning" size="small" />
-            <Message.Content>
-              <Message.Header>Erreur les sauvegarde</Message.Header>
-              Le données ont probablement été modifiées depuis un autre poste.
-              Merci de bien vouloir annuler pour actualiser la fiche.
-            </Message.Content>
-          </Message>
+          <div className="message-erreur-sauvegarde">
+            <Message negative={true} icon={true}>
+              <Icon name="warning" size="small" />
+              <Message.Content>
+                <Message.Header>Erreur les sauvegarde</Message.Header>
+                Le données ont probablement été modifiées depuis un autre poste.
+                Merci de bien vouloir annuler pour actualiser la fiche.
+              </Message.Content>
+            </Message>
+          </div>
         ) : this.state.saved ? (
-          <Message icon={true}>
-            <Icon name="doctor" size="small" />
-            <Message.Content>
-              <Message.Header>{this.state.praticien}</Message.Header>
-              Nombre de patients : {this.state.npatients}
-            </Message.Content>
-          </Message>
+          <div className="message-entete">
+            <Message icon={true}>
+              <Icon name="doctor" size="small" />
+              <Message.Content>
+                <Message.Header>{this.state.praticien}</Message.Header>
+                Nombre de patients : {this.state.npatients}
+              </Message.Content>
+            </Message>
+          </div>
         ) : (
-          <Message negative={true} icon={true}>
-            <Icon name="info" size="small" />
-            <Message.Content>
-              <Message.Header>
-                Les données du patient ont été modifiées
-              </Message.Header>
-              Vous pouvez sauvegarder ou annuler ces modifications.
-            </Message.Content>
-          </Message>
+          <div className="message-entete">
+            <Message negative={true} icon={true}>
+              <Icon name="info" size="small" />
+              <Message.Content>
+                <Message.Header>
+                  Les données du patient ont été modifiées
+                </Message.Header>
+                Vous pouvez sauvegarder ou annuler ces modifications.
+              </Message.Content>
+            </Message>
+          </div>
         )}
+        <div className="patient-search" style={{ marginTop: "5px" }}>
+          <Form.Input>
+            <PatientSearch
+              client={this.props.client}
+              patientChange={this.onPatientChange}
+              format={denominationDefaultFormat} //TODO récupérer le format en configuration
+              clear={this.state.clearSearch}
+            />
 
-        <Form.Input>
-          <PatientSearch
-            client={this.props.client}
-            patientChange={this.onPatientChange}
-            format={denominationDefaultFormat} //TODO récupérer le format en configuration
-            clear={this.state.clearSearch}
-          />
-
-          <Icon
-            style={{ cursor: "pointer", marginTop: 10, marginLeft: 10 }}
-            onClick={this.newSearch}
-            size="large"
-            name="remove user"
-          />
-        </Form.Input>
+            <Icon
+              style={{ cursor: "pointer", marginTop: 10, marginLeft: 10 }}
+              onClick={this.newSearch}
+              size="large"
+              name="remove user"
+            />
+          </Form.Input>
+        </div>
         <Divider hidden={true} />
 
         <FichePatient
@@ -273,33 +285,37 @@ export default class ProfilsPatients extends React.Component {
         />
         <Divider hidden={true} />
 
-        {this.state.patient.id ? (
-          <Button
-            negative={true}
-            onClick={() => {
-              this.setState({ modalDelete: true });
-            }}
-          >
-            Supprimer
-          </Button>
-        ) : (
-          ""
-        )}
-        <Button onClick={this.create}>Nouveau patient</Button>
-        {this.state.patient.id ? (
-          <React.Fragment>
-            <Button onClick={() => this.onPatientChange(this.state.patient.id)}>
-              Annuler / Actualiser
+        <div className="buttons">
+          {this.state.patient.id ? (
+            <Button
+              negative={true}
+              onClick={() => {
+                this.setState({ modalDelete: true });
+              }}
+            >
+              Supprimer
             </Button>
-            <Button primary={!this.state.saved} onClick={this.save}>
-              Sauvegarder
-            </Button>
-          </React.Fragment>
-        ) : (
-          <div style={{ minHeight: "400px" }} />
-        )}
-        <Divider hidden={true} />
+          ) : (
+            ""
+          )}
+          <Button onClick={this.create}>Nouveau patient</Button>
+          {this.state.patient.id ? (
+            <React.Fragment>
+              <Button
+                onClick={() => this.onPatientChange(this.state.patient.id)}
+              >
+                Annuler / Actualiser
+              </Button>
 
+              <Button primary={!this.state.saved} onClick={this.save}>
+                Sauvegarder
+              </Button>
+            </React.Fragment>
+          ) : (
+            <div style={{ minHeight: "400px" }} />
+          )}
+          <Divider hidden={true} />
+        </div>
         {/*Modal Delete*/}
         <Modal size="tiny" open={this.state.modalDelete}>
           <Modal.Header>Supprimer la fiche</Modal.Header>

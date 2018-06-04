@@ -29,6 +29,8 @@ import ImageReader from "./ImageReader";
 
 import RdvPassCard from "./RdvPassCard";
 
+import { PreviewImpressionDetails } from "./RdvPassCard";
+
 import { SingleDatePicker } from "react-dates";
 
 export default class FichePatient extends React.Component {
@@ -116,13 +118,15 @@ export default class FichePatient extends React.Component {
   componentWillReceiveProps(next) {
     let patient = { ...next.patient };
     this.setState({
+      activeIndex: 0,
       //activeIndex: this.state.activeIndex,
       patient: patient,
       saved: true,
       naissanceDate: moment(next.patient.naissance),
       naissanceFocused: false,
       modalPassword: false,
-      newPassword: ""
+      newPassword: "",
+      print: {}
     });
   }
 
@@ -319,6 +323,45 @@ export default class FichePatient extends React.Component {
     this.props.onChange(modifiedPatient);
   };
 
+  print = object => {
+    this.setState({
+      print: { ...object }
+    });
+
+    setTimeout(() => {
+      window.print();
+    }, 1000);
+  };
+
+  afterPrint = () => {
+    this.setState({ print: {} });
+  };
+
+  motif = (rdv, planningId) => {
+    let m = "";
+    for (let i = 0; i < rdv.planningsJA.length; i++) {
+      if (rdv.planningsJA[i].id === planningId) {
+        if (rdv.planningsJA[i].motif !== -1 && rdv.planningsJA[i].motif !== 0) {
+          // rechercher motif
+          m = this.state.print.mesPlannings[planningId - 1].optionsJO
+            .reservation.motifs[rdv.planningsJA[i].motif - 1].motif;
+        } else {
+          m = "";
+        }
+      }
+    }
+    return m;
+  };
+
+  rdvIsOnPlanning = (rdv, planningId) => {
+    for (let i = 0; i < rdv.planningsJA.length; i++) {
+      if (rdv.planningsJA[i].id === planningId) {
+        return true;
+      }
+    }
+    return false;
+  };
+
   render() {
     let nofiche =
       _.isNull(this.state) ||
@@ -335,13 +378,16 @@ export default class FichePatient extends React.Component {
     return (
       <React.Fragment>
         {nofiche ? (
-          <Message
-            header="Aucun patient n'est actuellement sélectionné"
-            content="Vous pouvez créer une nouvelle fiche ou effectuer une recherche sur celles existantes."
-          />
+          <div className="message-no-patient">
+            <Message
+              header="Aucun patient n'est actuellement sélectionné"
+              content="Vous pouvez créer une nouvelle fiche ou effectuer une recherche sur celles existantes."
+            />
+          </div>
         ) : (
-          <div style={{ paddingRight: "5px" }}>
+          <div className="accordion" style={{ paddingRight: "5px" }}>
             {/*Accordion right margin*/}
+
             <Accordion fluid={true} styled={true}>
               <Accordion.Title
                 active={this.state.activeIndex === 0}
@@ -355,19 +401,6 @@ export default class FichePatient extends React.Component {
                   <Grid divided={true}>
                     <Grid.Row>
                       <Grid.Column width={4}>
-                        {/*
-                            Photo de profil voir le nouveau champ patient.profilJO et plus exactement
-                            patient.profilJO.base64 qui doit contenir l'image/la photo de profil au format base 64
-                            IMPORTANT : pour ne pas prendre trop de place en bdd, l'image doit se limiter à 128 x 128 pixels
-                            Pour charger une image, la convertir en base 64 puis la placer dans patient.profilJO.base64 
-                            https://stackoverflow.com/questions/22172604/convert-image-url-to-base64/22172860 
-                            => s'inspirer du dernier exemple et de sa démo sur jsfiddle : 
-                            https://jsfiddle.net/vibs2006/ed9j7epr/
-                            Pour afficher une image on doit juste avoir quelque chose comme :
-                            <img src="data:image/png;base64, iVBORw0KGgoAA...AANSUhEUgkJggg==" alt="Mon profil" />
-                            soit pour nous :
-                            <img src={patient.profilJO.base64} alt="Mon profil" />
-                          */}
                         <div style={{ textAlign: "center" }}>
                           {_.isEmpty(this.state.patient.profilJO.base64) ? (
                             <div>
@@ -655,6 +688,7 @@ export default class FichePatient extends React.Component {
                 <Icon name="dropdown" />
                 Gestion des rendez-vous
               </Accordion.Title>
+
               <Accordion.Content active={this.state.activeIndex === 2}>
                 {/*Coder la gestion des rdv ici*/}
                 <Form>
@@ -709,6 +743,7 @@ export default class FichePatient extends React.Component {
                         icon="list layout"
                         content="Rendez-vous"
                         client={this.props.client}
+                        print={this.print}
                       />
                     </Form.Input>
                   </Form.Group>
@@ -738,6 +773,32 @@ export default class FichePatient extends React.Component {
               </Accordion.Content>
             </Accordion>
           </div>
+        )}
+        {!_.isEmpty(this.state.print) &&
+        (!_.isEmpty(this.state.print.mesRdv) ||
+          this.state.print.printWithPassword) ? (
+          this.state.print.chosenFormat === 2 ? (
+            <div id="preview">
+              <PreviewImpressionDetails
+                id="details"
+                praticien={this.state.print.praticien}
+                mesRdv={this.state.print.mesRdv}
+                mesPlannings={this.state.print.mesPlannings}
+                printParameters={this.state.print.printParameters}
+                printWithPassword={this.state.print.printWithPassword}
+                newPassword={this.state.print.newPassword}
+                //print={this.print}
+                idPatient={this.state.patient.id}
+                rdvIsOnPlanning={this.rdvIsOnPlanning}
+                motif={this.motif}
+                printFormat2={this.state.print.printFormat2}
+              />
+            </div>
+          ) : (
+            ""
+          )
+        ) : (
+          ""
         )}
       </React.Fragment>
     );

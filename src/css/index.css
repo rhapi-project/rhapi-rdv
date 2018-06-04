@@ -1,3 +1,5 @@
+@import "../../node_modules/semantic-ui-css/semantic.css";
+
 #calendars {
   margin-left: 0px;
   margin-right: 0px;
@@ -39,7 +41,15 @@
   max-height: 300px;
 }
 
+/* CalendarModalRdv.js */
+#description,
+#commentaire {
+  resize: none;
+}
+
 @import url("site.css"); /*intégration*/
+
+@import url("impression.css");
 
 /*
     Calendar printing
