@@ -10,7 +10,7 @@ import "react-dates/initialize";
 //import "fullcalendar/dist/fullcalendar.print.css";
 import "fullcalendar/dist/fullcalendar.css";
 
-//import "semantic-ui-css/semantic.css";
+import "semantic-ui-css/semantic.css";
 
 import "./css/index.css";
 
