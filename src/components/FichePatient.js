@@ -116,7 +116,7 @@ export default class FichePatient extends React.Component {
   componentWillReceiveProps(next) {
     let patient = { ...next.patient };
     this.setState({
-      //activeIndex: this.state.activeIndex,
+      activeIndex: 0,
       patient: patient,
       saved: true,
       naissanceDate: moment(next.patient.naissance),
@@ -256,7 +256,7 @@ export default class FichePatient extends React.Component {
   };
 
   handleChangeCivilite = (e, d) => {
-    console.log(d.value);
+    //console.log(d.value);
     let modifiedPatient = this.state.patient;
     modifiedPatient.civilite = d.value;
     this.props.onChange(modifiedPatient);
@@ -706,6 +706,11 @@ export default class FichePatient extends React.Component {
                     <Form.Input label="Impression des rendez-vous et génération d'un mot de passe">
                       <RdvPassCard
                         idPatient={this.state.patient.id}
+                        denomination={
+                          this.civilite(true) +
+                          " " +
+                          this.affichageDenomination()
+                        }
                         icon="list layout"
                         content="Rendez-vous"
                         client={this.props.client}

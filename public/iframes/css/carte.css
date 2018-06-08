@@ -1,0 +1,29 @@
+@import url("/iframes/css/semantic-ui-css/semantic.css");
+
+/* il faudra rajouter le semantic.css comme c'est indiqué sur l'import */
+
+@media print {
+
+  .titre-principal {
+    margin-top: 3px;
+    text-align: center;
+    font-size: 15px
+  }
+
+  .item-rdv {
+    /*font-size: 2px; ajuster la taille des caractère */
+  }
+
+  .new-password {
+    /*font-size: 11px;*/
+  }
+
+  .bottom-message {
+    text-align: center;
+    font-size: 10px;
+  }
+}
+
+@page {
+  size: 89mm 51mm;
+}

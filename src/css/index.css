@@ -41,6 +41,8 @@
 
 @import url("site.css"); /*intégration*/
 
+@import url("preview.css");
+
 /*
     Calendar printing
 */
