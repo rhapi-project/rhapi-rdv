@@ -9,6 +9,7 @@
 # production
 /build
 /public/docs
+/public/iframes/css/semantic-ui-css
 
 # misc
 .DS_Store
