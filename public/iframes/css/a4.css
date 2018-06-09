@@ -1,6 +1,4 @@
-@import url("/iframes/css/semantic-ui-css/semantic.css");
-
-/* il faudra rajouter le semantic.css comme c'est indiqué sur l'import */
+@import url("/iframes/css/semantic-ui-css/semantic.min.css");
 
 @media print {
 
