@@ -490,7 +490,6 @@ export default class RdvPassCard extends React.Component {
                             this.setState({ printParameters: printParameters });
                           }}
                           onDateChange={date => {
-                            this.setState({ dateRef: date });
                             let printParameters = this.state.printParameters;
                             printParameters.dateRef = date;
                             this.setState({ printParameters: printParameters });

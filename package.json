@@ -28,13 +28,14 @@
     "semantic-ui-react": "^0.80.0"
   },
   "scripts": {
-    "start": "npm run iframes; react-scripts start;",
+    "start": "npm run iframes && react-scripts start",
     "build": "npm run iframes; react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "prettier": "prettier --write src/components/* src/css/* src/index.js", 
+    "prettier": "prettier --write src/components/* src/css/* src/index.js",
     "docs": "markdown-folder-to-html; rm -fr public/docs; mv _docs public/docs;",
-    "iframes": "cp -fr ./node_modules/semantic-ui-css ./public/iframes/css/"
+    "os": "node -e require('os').platform()",
+    "iframes": "npm run os && node -e os.platform() === 'win*' ? xcopy '.\\node_modules\\semantic-ui-css\\*' '.\\public\\iframes\\css\\semantic-ui-css\\' : cp -fr ./node_modules/semantic-ui-css ./public/iframes/css"
   },
   "devDependencies": {
     "markdown-folder-to-html": "^1.6.0",
