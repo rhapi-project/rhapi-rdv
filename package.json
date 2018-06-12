@@ -34,10 +34,10 @@
     "eject": "react-scripts eject",
     "prettier": "prettier --write src/components/* src/css/* src/index.js",
     "docs": "markdown-folder-to-html; rm -fr public/docs; mv _docs public/docs;",
-    "os": "node -e require('os').platform()",
-    "iframes": "npm run os && node -e os.platform() === 'win*' ? xcopy '.\\node_modules\\semantic-ui-css\\*' '.\\public\\iframes\\css\\semantic-ui-css\\' : cp -fr ./node_modules/semantic-ui-css ./public/iframes/css"
+    "iframes": "cp-cli ./node_modules/semantic-ui-css ./public/iframes/css/semantic-ui-css"
   },
   "devDependencies": {
+    "cp-cli": "^1.1.2",
     "markdown-folder-to-html": "^1.6.0",
     "prettier": "^1.12.1",
     "react-scripts": "^1.1.4"
