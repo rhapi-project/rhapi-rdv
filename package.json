@@ -23,18 +23,18 @@
     "react-dom": "^16.3.2",
     "react-iframe": "^1.1.0",
     "react-simple-timefield": "^2.0.0",
-    "rhapi-client": "^1.0.13",
+    "rhapi-client": "^1.0.14",
     "semantic-ui-css": "2.2",
     "semantic-ui-react": "^0.80.0"
   },
   "scripts": {
-    "start": "npm run iframes && react-scripts start",
-    "build": "npm run iframes; react-scripts build",
+    "start": "npm run print-css && react-scripts start",
+    "build": "npm run print-css && react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "prettier": "prettier --write src/components/* src/css/* src/index.js",
     "docs": "markdown-folder-to-html; rm -fr public/docs; mv _docs public/docs;",
-    "iframes": "cp-cli ./node_modules/semantic-ui-css ./public/iframes/semantic-ui-css"
+    "print-css": "cp-cli ./node_modules/semantic-ui-css ./public/print-css/semantic-ui-css"
   },
   "devDependencies": {
     "cp-cli": "^1.1.2",
