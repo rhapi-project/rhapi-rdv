@@ -108,30 +108,26 @@ export default class RdvPassCard extends React.Component {
     voir index.html : <!-- préchargement semantic.min.css utilisé lors de l'impression --> 
     */
 
-    if (win.matchMedia) {
-      // Safari ou Firefox
-      let mediaQueryList = win.matchMedia("print");
-      // Safari mediaQueryList.addListener
+    let mediaQueryList = win.matchMedia("print");
+    // Safari mediaQueryList.addListener
+    if (mediaQueryList) {
       mediaQueryList.addListener(mql => {
         if (!mql.matches) {
           win.close();
           this.afterPrint();
         }
       });
-      // Firefox onafterprint
-      win.onafterprint = () => {
-        win.close();
-        this.afterPrint();
-      };
-      win.onload = win.print();
-    } else {
-      // Chrome
-      win.onload = () => {
-        win.print();
-        win.close();
-        this.afterPrint();
-      };
     }
+
+    // Firefox et Chrome onafterprint
+    win.onafterprint = () => {
+      win.close();
+      this.afterPrint();
+    };
+
+    win.onload = () => {
+      win.print();
+    };
   };
 
   afterPrint = () => {
@@ -219,7 +215,7 @@ export default class RdvPassCard extends React.Component {
             <Button
               icon="mobile"
               content="Confirmation SMS"
-              Click={this.sendSms}
+              onClick={this.sendSms}
             />
             <Button
               icon="print"

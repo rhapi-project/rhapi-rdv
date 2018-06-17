@@ -403,30 +403,27 @@ class Preview extends React.Component {
     voir index.html : <!-- préchargement semantic.min.css utilisé lors de l'impression --> 
     */
 
-    if (win.matchMedia) {
-      // Safari ou Firefox
-      let mediaQueryList = win.matchMedia("print");
-      // Safari mediaQueryList.addListener
+    let mediaQueryList = win.matchMedia("print");
+
+    // Safari mediaQueryList.addListener
+    if (mediaQueryList) {
       mediaQueryList.addListener(mql => {
         if (!mql.matches) {
           win.close();
-          this.props.afterPrint();
+          this.afterPrint();
         }
       });
-      // Firefox onafterprint
-      win.onafterprint = () => {
-        win.close();
-        this.props.afterPrint();
-      };
-      win.onload = win.print();
-    } else {
-      // Chrome
-      win.onload = () => {
-        win.print();
-        win.close();
-        this.props.afterPrint();
-      };
     }
+
+    // Firefox et Chrome onafterprint
+    win.onafterprint = () => {
+      win.close();
+      this.props.afterPrint();
+    };
+
+    win.onload = () => {
+      win.print();
+    };
   };
 
   render() {
