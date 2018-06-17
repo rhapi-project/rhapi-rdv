@@ -90,6 +90,9 @@ export default class RdvPassCard extends React.Component {
 
     win.document.write("<html><head>");
     win.document.write(
+      '<link rel="stylesheet" type="text/css" href="print-css/semantic-ui-css/semantic.min.css" />'
+    );
+    win.document.write(
       '<link rel="stylesheet" type="text/css" href="print-css/carte.css" />'
     );
     win.document.write("</head><body>");
@@ -98,15 +101,6 @@ export default class RdvPassCard extends React.Component {
 
     win.document.close();
     win.focus();
-
-    /*
-    Le css est chargé de manière asynchrone parallèlement au DOM.
-    Le trigger onload est déclenché à la fin du chargement du DOM, mais le ccs semantic -
-    plus lourd - n'est pas toujours totalement chargé à ce moment-là et il 
-    n'est pas encore en cache à la première impression...
-    Il est donc nécessaire de précharger le css semantic avec toutes les images associées
-    voir index.html : <!-- préchargement semantic.min.css utilisé lors de l'impression --> 
-    */
 
     let mediaQueryList = win.matchMedia("print");
     // Safari mediaQueryList.addListener
@@ -125,8 +119,16 @@ export default class RdvPassCard extends React.Component {
       this.afterPrint();
     };
 
+    /*
+    Delay :
+    Le css est chargé de manière asynchrone parallèlement au DOM.
+    Le trigger onload est déclenché à la fin du chargement du DOM, mais le ccs semantic -
+    plus lourd - n'est pas toujours totalement chargé à ce moment-là et il 
+    n'est pas encore en cache à la première impression...
+    */
+
     win.onload = () => {
-      _.delay(win.print(), 1500); // 1500 ms pour sécuriser mais fonctionne à 0 ms
+      _.delay(win.print(), 1500); // 1500 ms
     };
   };
 
