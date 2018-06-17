@@ -92,6 +92,9 @@ export default class RdvPassCard extends React.Component {
     win.document.write(
       '<link rel="stylesheet" type="text/css" href="print-css/carte.css" />'
     );
+    win.document.write(
+      '<link rel="stylesheet" type="text/css" href="print-css/semantic-ui-css/semantic.min.css" />'
+    );
     win.document.write("</head><body>");
     win.document.write(content.innerHTML);
     win.document.write("</body></html>");
@@ -101,7 +104,7 @@ export default class RdvPassCard extends React.Component {
 
     /*
     Le css est chargé de manière asynchrone parallèlement au DOM.
-    Le trigger onload est déclenché à la fin du chargement du DOM, mais le ccs -
+    Le trigger onload est déclenché à la fin du chargement du DOM, mais le ccs semantic -
     plus lourd - n'est pas toujours totalement chargé à ce moment-là et il 
     n'est pas encore en cache à la première impression...
     Il est donc nécessaire de précharger le css semantic avec toutes les images associées
