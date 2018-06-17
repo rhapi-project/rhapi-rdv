@@ -387,9 +387,6 @@ class Preview extends React.Component {
     win.document.write(
       '<link rel="stylesheet" type="text/css" href="print-css/a4.css" />'
     );
-    win.document.write(
-      '<link rel="stylesheet" type="text/css" href="print-css/semantic-ui-css/semantic.min.css" />'
-    );
     win.document.write("</head><body>");
     win.document.write(content.innerHTML);
     win.document.write("</body></html>");
