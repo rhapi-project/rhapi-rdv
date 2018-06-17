@@ -426,7 +426,7 @@ class Preview extends React.Component {
       => delay plus important la première fois (chargement en cache)
       */
 
-      this.browserDelay = _.isUndefined(this.browserDelay) ? 1500 : 500;
+      this.browserDelay = _.isUndefined(this.browserDelay) ? 2000 : 1000;
 
       win.onload = () => {
         // console.log("Browser delay : " + this.browserDelay);
