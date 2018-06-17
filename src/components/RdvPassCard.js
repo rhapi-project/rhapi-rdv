@@ -126,7 +126,7 @@ export default class RdvPassCard extends React.Component {
     };
 
     win.onload = () => {
-      win.print();
+      _.delay(win.print(), 500); // 500 ms pour sécuriser mais fonctionne à 0 ms
     };
   };
 
