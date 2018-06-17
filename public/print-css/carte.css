@@ -1,0 +1,51 @@
+@import url("/print-css/semantic-ui-css/semantic.min.css");
+
+@media print {
+  .carte {
+    position: relative;
+    /*margin-top: 5mm !important;
+    margin-bottom: 5mm !important;
+    margin-left: 5mm !important;
+    margin-right: 5mm !important;*/
+  }
+
+  .coordonnees-praticien {
+    font-size: 6px;
+  }
+
+  .praticien-currentName {
+    font-size: 7px;
+  }
+  .titre-principal {
+    margin-top: 2px;
+    text-align: center;
+    font-size: 8px
+  }
+
+  .item-rdv {
+    font-size: 8px;
+  }
+
+  .new-password {
+    font-size: 6px;
+  }
+
+  .separator {
+    margin-top: 0px !important;
+    margin-bottom: 0px !important;
+  }
+
+  .bottom-message {
+    width: 100%;
+    text-align: center;
+    font-size: 5px;
+    position: absolute;
+    bottom: 0;
+  }
+  
+}
+
+@page {
+  size: 89mm 51mm; /* paysage */
+}
+
