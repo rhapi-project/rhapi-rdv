@@ -79,23 +79,30 @@ export default class RdvPassCardA4 extends React.Component {
     if (!this.state.open) {
       return (
         <Button
-          content="Format detaillé"
+          icon="print"
+          content="Détail des RDV"
           onClick={() => this.setState({ open: true })}
         />
       );
     } else {
       return (
         <React.Fragment>
-          <Modal size="fullscreen" open={this.state.open}>
-            <Modal.Header>
-              Configuration des paramètres d'impression
-            </Modal.Header>
+          <Modal
+            size="fullscreen"
+            open={this.state.open}
+            closeIcon={true}
+            onClose={() => {
+              this.setState({ open: false });
+              this.defaut();
+            }}
+          >
+            <Modal.Header>Détail des rendez-vous</Modal.Header>
             <Modal.Content>
               <Grid>
                 <Grid.Row>
                   <Grid.Column width={12} floated="left">
                     <Form>
-                      <Form.Input label="Configurer les paramètres d'impression par défaut">
+                      <Form.Input label="Paramètres par défaut">
                         <Checkbox
                           toggle={true}
                           checked={this.state.defaut}
@@ -130,7 +137,7 @@ export default class RdvPassCardA4 extends React.Component {
                   <Grid.Column width={12}>
                     <Form>
                       <Form.Group widths="equal">
-                        <Form.Input label="Définir une date de référence">
+                        <Form.Input label="À partir d'une date">
                           <Checkbox
                             toggle={true}
                             checked={this.state.dateRefCheckbox}
@@ -288,16 +295,6 @@ export default class RdvPassCardA4 extends React.Component {
                 afterPrint={this.afterPrint}
               />
             </Modal.Content>
-            <Modal.Actions>
-              <Button
-                content="Annuler"
-                negative={true}
-                onClick={() => {
-                  this.setState({ open: false });
-                  this.defaut();
-                }}
-              />
-            </Modal.Actions>
           </Modal>
         </React.Fragment>
       );
@@ -377,51 +374,59 @@ class Preview extends React.Component {
       return;
     }
 
-    //Solution avec l'ouverture d'une window
-    // DEBUT
+    if (_.isEmpty(this.state.mesRdv) && !this.state.printWithPassword) {
+      this.afterPrint();
+      return;
+    }
+
     let content = document.getElementById("details");
 
-    let win = window.open("", "Print", "height=600,width=800");
+    let win = window.open("", "Impression", "height=600,width=800");
 
     win.document.write("<html><head>");
     win.document.write(
-      '<link rel="stylesheet" type="text/css" href="iframes/a4.css" />'
+      '<link rel="stylesheet" type="text/css" href="print-css/a4.css" />'
     );
     win.document.write("</head><body>");
     win.document.write(content.innerHTML);
     win.document.write("</body></html>");
+
     win.document.close();
     win.focus();
 
+    /*
+    Le css est chargé de manière asynchrone parallèlement au DOM.
+    Le trigger onload est déclenché à la fin du chargement du DOM, mais le ccs -
+    plus lourd - n'est pas toujours totalement chargé à ce moment-là et il 
+    n'est pas encore en cache à la première impression...
+    Il est donc nécessaire de précharger le css semantic avec toutes les images associées
+    voir index.html : <!-- préchargement semantic.min.css utilisé lors de l'impression --> 
+    */
+
     if (win.matchMedia) {
-      // Safari
+      // Safari ou Firefox
       let mediaQueryList = win.matchMedia("print");
+      // Safari mediaQueryList.addListener
       mediaQueryList.addListener(mql => {
         if (!mql.matches) {
-          console.log("ok");
-          this.props.afterPrint();
           win.close();
+          this.props.afterPrint();
         }
       });
-    }
-
-    setTimeout(() => {
-      win.print();
-    }, 1500);
-    // TODO : Supprimer le timeout ! (Voir ligne ci-dessous)
-    //win.onloadend = () =>{ win.print() };
-
-    win.onbeforeunload = this.props.afterPrint;
-
-    if (typeof InstallTrigger !== "undefined" && !document.documentMode) {
-      // firefox
-      setTimeout(() => {
+      // Firefox onafterprint
+      win.onafterprint = () => {
+        win.close();
+        this.props.afterPrint();
+      };
+      win.onload = win.print();
+    } else {
+      // Chrome
+      win.onload = () => {
         win.print();
         win.close();
-      }, 1500);
-      win.onafterprint = this.props.afterPrint;
+        this.props.afterPrint();
+      };
     }
-    // FIN
   };
 
   render() {

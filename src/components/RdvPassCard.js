@@ -78,114 +78,60 @@ export default class RdvPassCard extends React.Component {
 
   print = () => {
     // uniquement la carte
+
     if (_.isEmpty(this.state.mesRdv) && !this.state.printWithPassword) {
       this.afterPrint();
       return;
     }
 
-    //Solution avec l'ouverture d'une window
-    // DEBUT
     let content = document.getElementById("carte");
 
-    let win = window.open("", "Print", "height=600,width=800");
+    let win = window.open("", "Impression", "height=600,width=800");
 
     win.document.write("<html><head>");
     win.document.write(
-      '<link rel="stylesheet" type="text/css" href="iframes/carte.css" />'
+      '<link rel="stylesheet" type="text/css" href="print-css/carte.css" />'
     );
     win.document.write("</head><body>");
     win.document.write(content.innerHTML);
     win.document.write("</body></html>");
+
     win.document.close();
     win.focus();
 
+    /*
+    Le css est chargé de manière asynchrone parallèlement au DOM.
+    Le trigger onload est déclenché à la fin du chargement du DOM, mais le ccs -
+    plus lourd - n'est pas toujours totalement chargé à ce moment-là et il 
+    n'est pas encore en cache à la première impression...
+    Il est donc nécessaire de précharger le css semantic avec toutes les images associées
+    voir index.html : <!-- préchargement semantic.min.css utilisé lors de l'impression --> 
+    */
+
     if (win.matchMedia) {
-      // Safari
+      // Safari ou Firefox
       let mediaQueryList = win.matchMedia("print");
+      // Safari mediaQueryList.addListener
       mediaQueryList.addListener(mql => {
         if (!mql.matches) {
-          console.log("ok");
-          this.afterPrint();
           win.close();
+          this.afterPrint();
         }
       });
-    }
-
-    setTimeout(() => {
-      win.print();
-    }, 1500);
-    // TODO : Supprimer le timeout ! (Voir ligne ci-dessous)
-    //win.onloadend = () =>{ win.print() };
-
-    win.onbeforeunload = this.afterPrint;
-
-    if (typeof InstallTrigger !== "undefined" && !document.documentMode) {
-      // firefox
-      setTimeout(() => {
+      // Firefox onafterprint
+      win.onafterprint = () => {
+        win.close();
+        this.afterPrint();
+      };
+      win.onload = win.print();
+    } else {
+      // Chrome
+      win.onload = () => {
         win.print();
         win.close();
-      }, 1500);
-      win.onafterprint = this.afterPrint;
+        this.afterPrint();
+      };
     }
-    // FIN
-    // -----------------------------------------------------------------------------
-    /*
-    // cette solution ne marche pas forcement sur tous les navigateurs
-
-    // DEBUT
-
-    let pri = document.getElementById("iframeToPrint");
-
-    if (pri.contentWindow.matchMedia) {
-      // Safari
-      let mediaQueryList = pri.contentWindow.matchMedia("print");
-      mediaQueryList.addListener(mql => {
-        if (!mql.matches) {
-          console.log("ok");
-          this.afterPrint();
-        }
-      });
-    }
-
-    let content;
-
-    if (format === 1) {
-      content = document.getElementById("carton");
-    } else {
-      content = document.getElementById("details");
-    }
-
-    // écriture du contenu
-    pri.contentWindow.document.write("<html><head>");
-    if (format === 1) {
-      pri.contentWindow.document.write(
-        '<link rel="stylesheet" type="text/css" href="iframes/carte.css" />'
-      );
-    } else {
-      pri.contentWindow.document.write(
-        '<link rel="stylesheet" type="text/css" href="iframes/a4.css" />'
-      );
-    }
-    pri.contentWindow.document.write("</head><body>");
-    pri.contentWindow.document.write(content.innerHTML);
-    pri.contentWindow.document.write("</body></html>");
-
-    pri.contentWindow.focus();
-
-    pri.contentWindow.onbeforeunload = this.afterPrint;
-    pri.contentWindow.onafterprint = this.afterPrint;
-
-    console.log(this.state.printFormat2);
-
-    //pri.contentWindow.print(); pas sûr que ça marche partout
-
-    setTimeout(() => {
-      pri.contentWindow.print();
-    }, 1500);
-
-    // FIN*/
-
-    // autre solution c'est d'ouvrir une fenêtre, y mettre du contenu et l'imprimer
   };
 
   afterPrint = () => {
@@ -197,6 +143,45 @@ export default class RdvPassCard extends React.Component {
       printWithPassword: false,
       carte: false
     });
+  };
+
+  sendSms = () => {
+    alert("Envoi SMS à implémenter");
+    // Test lecture de l'historique des envois : n'a rien à faire ici mais devra être implémenté dans Profil.js
+    this.props.client.Sms.readAll(
+      {},
+      datas => {
+        console.log(datas);
+      },
+      errors => {
+        console.log(errors);
+      }
+    );
+    //
+    // Test envoi SMS
+    // à implémenter ici avec :
+    // - le bon numéro de tél
+    // - les données du praticien
+    // - les prochains RDV
+    // - le bon lien , l'identifiant et le mot de passe
+    // - mettre un checkbox verte (ou autre visualisation retour positif) si le SMS est bien parti
+    let receivers = ["+336xxxxxxxx"];
+    // tester ici avec votre numéro de téléphone ou mettre votre numéro de tél comme tel mobile du patient
+    // attention le nombre de SMS disponibles pour les tests est volontairement limité !
+    let message =
+      "RDV mardi 19/06 à 18h50 Dr Jean-Paul Durand 12 Bd Foch 49100 Angers 02 41 58 98 15\n";
+    message += "Infos et annulation : https://un-lien.fr\n";
+    message += "Identifiant : 1256\n";
+    message += "Mot de passe : dfTwr";
+    this.props.client.Sms.create(
+      { message: message, receivers: receivers },
+      datas => {
+        console.log(datas);
+      },
+      errors => {
+        console.log(errors);
+      }
+    );
   };
 
   render() {
@@ -231,6 +216,17 @@ export default class RdvPassCard extends React.Component {
             )}
           </Modal.Content>
           <Modal.Actions>
+            <Button
+              icon="mobile"
+              content="Confirmation SMS"
+              Click={this.sendSms}
+            />
+            <Button
+              icon="print"
+              content="Carte de RDV"
+              onClick={() => this.setState({ carte: true })}
+            />
+
             <RdvPassCardA4
               idPatient={this.props.idPatient}
               client={this.props.client}
@@ -241,21 +237,13 @@ export default class RdvPassCard extends React.Component {
               denomination={this.props.denomination}
               afterPrint={this.afterPrint}
             />
-            <Button
-              icon="print"
-              content="Carte"
-              onClick={() => this.setState({ carte: true })}
-            />
+            {/* L'envoi de mail ne sera pas nécessairement implémenté...
             <Button
               icon="mail"
               content="E-Mail"
-              onClick={() => alert("Envoi par mail à implémenter")}
-            />
-            <Button
-              icon="mobile"
-              content="SMS"
-              onClick={() => alert("Envoi par SMS à implémenter")}
-            />
+              onClick={() => alert("Envoi par mail")}
+            />*/}
+
             <Divider hidden={false} fitted={false} />
             <Button
               negative={true}
@@ -404,16 +392,6 @@ export default class RdvPassCard extends React.Component {
               print={this.print}
               idPatient={this.props.idPatient}
               //denomination={this.props.denomination}
-            />
-            <iframe
-              id="iframeToPrint"
-              title="Impression"
-              style={{
-                border: "0px",
-                height: "0px",
-                width: "0px",
-                position: "absolute"
-              }}
             />
           </Modal.Content>
         </Modal>
