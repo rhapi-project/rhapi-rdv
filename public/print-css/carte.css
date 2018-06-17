@@ -1,5 +1,3 @@
-@import url("/print-css/semantic-ui-css/semantic.min.css");
-
 @media print {
   .carte {
     position: relative;
