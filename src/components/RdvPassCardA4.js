@@ -415,17 +415,32 @@ class Preview extends React.Component {
       this.props.afterPrint();
     };
 
-    /*
-    Delay :
-    Le css est chargé de manière asynchrone parallèlement au DOM.
-    Le trigger onload est déclenché à la fin du chargement du DOM, mais le ccs semantic -
-    plus lourd - n'est pas toujours totalement chargé à ce moment-là et il 
-    n'est pas encore en cache à la première impression...
-    */
+    if (navigator.userAgent.indexOf("Firefox") === -1) {
+      /*
+      Delay requis par les navigateurs autres que Firefox :
+      Firefox déclenche onload lorsque le DOM ET les CSS sont complètement chargés.
+      Les autres navigateurs chargent le CSS de manière asynchrone parallèlement au DOM.
+      Le trigger onload est déclenché à la fin du chargement du DOM. Le CSS semantic -
+      plus volumineux - n'est alors pas toujours totalement chargé et il 
+      n'est pas encore en cache à la première impression...
+      => delay plus important la première fois (chargement en cache)
+      */
 
-    win.onload = () => {
-      _.delay(win.print(), 1500); // 1500 ms
-    };
+      this.browserDelay = _.isUndefined(this.browserDelay) ? 1500 : 500;
+
+      win.onload = () => {
+        // console.log("Browser delay : " + this.browserDelay);
+        _.delay(() => {
+          win.print();
+        }, this.browserDelay);
+      };
+    } else {
+      // Firefox (no delay)
+
+      win.onload = () => {
+        win.print();
+      };
+    }
   };
 
   render() {
