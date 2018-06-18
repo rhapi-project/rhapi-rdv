@@ -284,6 +284,18 @@ export default class Configuration extends React.Component {
         options.recurrents = [];
       }
 
+      if (_.isUndefined(options.sms)) {
+        options.sms = {
+          rappel12: false,
+          rappel24: false,
+          rappel48: false,
+          rappelTexte:
+            "Nous vous rappelons votre RDV {date-heure}.\nDr (saisir les coordonnées)\n{infos-annulation}",
+          confirmationTexte:
+            "RDV le {date-heure}.\nDr (saisir les coordonnées)\n{infos-annulation}"
+        };
+      }
+
       const Plages = (
         <React.Fragment>
           <Form.Group>
@@ -942,6 +954,107 @@ export default class Configuration extends React.Component {
         </React.Fragment>
       );
 
+      const SMS = (
+        <React.Fragment>
+          <Form.Group>
+            <Form.Input
+              label="Émettre des rappels par SMS"
+              style={{ maxWidth: maxWidth / 10 }}
+            >
+              <Checkbox
+                toggle={true}
+                checked={
+                  options.sms.rappel12 ||
+                  options.sms.rappel24 ||
+                  options.sms.rappel48
+                }
+                onChange={(e, d) => {
+                  options.sms.rappel12 = d.checked;
+                  options.sms.rappel24 = d.checked;
+                  options.sms.rappel48 = d.checked;
+                  plannings[index].optionsJO = options;
+                  this.setState({ /*plannings: plannings*/ saved: false });
+                }}
+              />
+            </Form.Input>
+            <Form.Input
+              label="48 heures avant le RDV"
+              style={{ maxWidth: maxWidth / 10 }}
+            >
+              <Checkbox
+                toggle={true}
+                checked={options.sms.rappel48}
+                onChange={(e, d) => {
+                  options.sms.rappel48 = d.checked;
+                  plannings[index].optionsJO = options;
+                  this.setState({
+                    /*plannings: plannings*/ saved: false
+                  });
+                }}
+              />
+            </Form.Input>
+            <Form.Input
+              label="24 heures avant le RDV"
+              style={{ maxWidth: maxWidth / 10 }}
+            >
+              <Checkbox
+                toggle={true}
+                checked={options.sms.rappel24}
+                onChange={(e, d) => {
+                  options.sms.rappel24 = d.checked;
+                  plannings[index].optionsJO = options;
+                  this.setState({
+                    /*plannings: plannings*/ saved: false
+                  });
+                }}
+              />
+            </Form.Input>
+            <Form.Input
+              label="12 heures avant le RDV"
+              style={{ maxWidth: maxWidth / 10 }}
+            >
+              <Checkbox
+                toggle={true}
+                checked={options.sms.rappel12}
+                onChange={(e, d) => {
+                  options.sms.rappel12 = d.checked;
+                  plannings[index].optionsJO = options;
+                  this.setState({
+                    /*plannings: plannings*/ saved: false
+                  });
+                }}
+              />
+            </Form.Input>
+          </Form.Group>
+          <Form.Group widths="equal">
+            <Form.TextArea
+              style={{ resize: "none" }}
+              label="Texte pour la confirmation initiale"
+              value={options.sms.confirmationTexte}
+              onChange={(e, d) => {
+                options.sms.confirmationTexte = e.target.value;
+                plannings[index].optionsJO = options;
+                this.setState({
+                  /*plannings: plannings*/ saved: false
+                });
+              }}
+            />
+            <Form.TextArea
+              style={{ resize: "none" }}
+              label="Texte pour les rappels"
+              value={options.sms.rappelTexte}
+              onChange={(e, d) => {
+                options.sms.rappelTexte = e.target.value;
+                plannings[index].optionsJO = options;
+                this.setState({
+                  /*plannings: plannings*/ saved: false
+                });
+              }}
+            />
+          </Form.Group>
+        </React.Fragment>
+      );
+
       const rootPanels = [
         {
           title: "Utilisateurs et droits d'accès",
@@ -966,6 +1079,10 @@ export default class Configuration extends React.Component {
         {
           title: "Prise de rendez-vous",
           content: { content: Reservations, key: "4" }
+        },
+        {
+          title: "Rappels par SMS",
+          content: { content: SMS, key: "5" }
         }
       ];
 

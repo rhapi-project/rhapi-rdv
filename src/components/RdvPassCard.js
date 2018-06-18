@@ -160,40 +160,52 @@ export default class RdvPassCard extends React.Component {
   };
 
   sendSms = () => {
-    alert("Envoi SMS à implémenter");
-    // Test lecture de l'historique des envois : n'a rien à faire ici mais devra être implémenté dans Profil.js
-    this.props.client.Sms.readAll(
-      {},
-      datas => {
-        console.log(datas);
-      },
-      errors => {
-        console.log(errors);
-      }
-    );
+    alert("Envoi d'une confirmation par SMS (work in progress...)");
+
+    // il faut prendre le premier planning autorisé à envoyer des SMS et possédant
+    // un template de texte de confirmation
+    let i = _.findIndex(this.state.mesPlannings, planning => {
+      return (
+        planning.optionsJO &&
+        planning.optionsJO.sms &&
+        planning.optionsJO.sms.confirmationTexte &&
+        planning.optionsJO.sms.confirmationTexte !== "" &&
+        (planning.optionsJO.sms.rappel12 ||
+          planning.optionsJO.sms.rappel24 ||
+          planning.optionsJO.sms.rappel48)
+      );
+    });
+    if (i === -1) {
+      // pas de planning autorisé à envoyer un SMS !
+      // TODO mettre un checkbox rouge (ou autre visualisation retour négatif)
+      return;
+    }
+    let message = this.state.mesPlannings[i].optionsJO.sms.confirmationTexte;
+    // tester la validité du template et placer les bonnes valeur {date-heure} et {infos-annulations} !!
+    // TODO mettre un checkbox rouge (ou autre visualisation retour négatif) si non valide et return
+
+    message = _.replace(message, "{date-heure}", "mardi 19/06 à 18h50");
+    let infos = "Infos et annulation : https://un-lien.fr\n";
+    infos += "Identifiant : 1256\n";
+    infos += "Mot de passe : dfTwr";
+    message = _.replace(message, "{infos-annulation}", infos);
     //
-    // Test envoi SMS
-    // à implémenter ici avec :
-    // - le bon numéro de tél
-    // - les données du praticien
-    // - les prochains RDV
-    // - le bon lien , l'identifiant et le mot de passe
-    // - mettre un checkbox verte (ou autre visualisation retour positif) si le SMS est bien parti
-    let receivers = ["+336xxxxxxxx"];
-    // tester ici avec votre numéro de téléphone ou mettre votre numéro de tél comme tel mobile du patient
+    let receivers = ["+336xxxxxxxx"]; // <= liste de numéros de téléphone (à priori 1 seul)
+    // tester ici avec votre numéro de téléphone
+    // et au final mettre votre numéro de tél comme tel mobile du patient puis récupérer le numéro mobile du patient
     // attention le nombre de SMS disponibles pour les tests est volontairement limité !
-    let message =
-      "RDV mardi 19/06 à 18h50 Dr Jean-Paul Durand 12 Bd Foch 49100 Angers 02 41 58 98 15\n";
-    message += "Infos et annulation : https://un-lien.fr\n";
-    message += "Identifiant : 1256\n";
-    message += "Mot de passe : dfTwr";
+
     this.props.client.Sms.create(
       { message: message, receivers: receivers },
       datas => {
         console.log(datas);
+        // TODO mettre un checkbox verte (ou autre visualisation retour positif) si le SMS est bien parti
+        // TODO mettre un checkbox rouge (ou autre visualisation retour négatif) si le SMS n'est pas conforme
+        // => tester les champ ad hoc pour savoir si le SMS a bien été envoyé ! 
       },
       errors => {
         console.log(errors);
+        // TODO mettre un checkbox rouge (ou autre visualisation retour négatif) si le SMS n'est pas parti (pb réseau)
       }
     );
   };

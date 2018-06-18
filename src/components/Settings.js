@@ -257,6 +257,15 @@ const defaultPlanning = {
         [[], [], [], [], [], [], []]
       ]
     }
+  },
+  sms: {
+    rappel12: false,
+    rappel24: false,
+    rappel48: false,
+    rappelTexte:
+      "Nous vous rappelons votre RDV {date-heure}.\nDr (saisir les coordonnées)\n{infos-annulation}",
+    confirmationTexte:
+      "RDV le {date-heure}.\nDr (saisir les coordonnées)\n{infos-annulation}"
   }
 };
 

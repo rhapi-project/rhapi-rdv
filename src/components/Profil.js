@@ -400,8 +400,29 @@ export default class Profil extends React.Component {
           )}
 
           <Divider hidden={true} />
+          <Button
+            onClick={() => {
+              alert(
+                "Ouvrir une modal avec options d'impression : Component SmsHistory (créer le fichier SmsHistory.js)."
+              );
+              // Test lecture de l'historique des envois :
+              // => devra être implémenté dans SmsHistory.js
+              this.props.client.Sms.readAll(
+                {},
+                datas => {
+                  // Prévoir un loader car ça peut être très long...
+                  // https://react.semantic-ui.com/elements/loader
+                  console.log(datas);
+                },
+                errors => {
+                  console.log(errors);
+                }
+              );
+            }}
+          >
+            Historique SMS
+          </Button>
           <Button onClick={this.reload}>Annuler / Actualiser</Button>
-
           <Button primary={!this.state.saved} onClick={this.save}>
             Sauvegarder
           </Button>

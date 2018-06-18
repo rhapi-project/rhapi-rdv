@@ -671,6 +671,7 @@ export default class CalendarModalRdv extends React.Component {
           <Form>
             <Form.Group widths="equal">
               <Form.TextArea
+                style={{ resize: "none" }}
                 label="Description"
                 placeholder="Description du rendez-vous"
                 value={this.state.rdv.description}
@@ -681,6 +682,7 @@ export default class CalendarModalRdv extends React.Component {
                 }}
               />
               <Form.TextArea
+                style={{ resize: "none" }}
                 label="Commentaire"
                 placeholder="Ajouter un commentaire"
                 value={this.state.rdv.commentaire}
