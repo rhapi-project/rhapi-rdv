@@ -134,7 +134,7 @@ export default class RdvPassCard extends React.Component {
       this.browserDelay = _.isUndefined(this.browserDelay) ? 1500 : 500;
 
       win.onload = () => {
-        // console.log("Browser delay : " + this.browserDelay);
+        //console.log("Browser delay : " + this.browserDelay);
         _.delay(() => {
           win.print();
         }, this.browserDelay);
@@ -198,13 +198,13 @@ export default class RdvPassCard extends React.Component {
     this.props.client.Sms.create(
       { message: message, receivers: receivers },
       datas => {
-        console.log(datas);
+        //console.log(datas);
         // TODO mettre un checkbox verte (ou autre visualisation retour positif) si le SMS est bien parti
         // TODO mettre un checkbox rouge (ou autre visualisation retour négatif) si le SMS n'est pas conforme
-        // => tester les champ ad hoc pour savoir si le SMS a bien été envoyé ! 
+        // => tester les champ ad hoc pour savoir si le SMS a bien été envoyé !
       },
       errors => {
-        console.log(errors);
+        //console.log(errors);
         // TODO mettre un checkbox rouge (ou autre visualisation retour négatif) si le SMS n'est pas parti (pb réseau)
       }
     );
@@ -435,13 +435,60 @@ export default class RdvPassCard extends React.Component {
 }
 
 class Carte extends React.Component {
+  state = {
+    mesRdv: []
+  };
+
+  componentWillMount() {
+    this.mesRdvLimitation();
+  }
+
   componentDidMount() {
     this.props.print();
   }
 
+  mesRdvLimitation = () => {
+    // Par défaut on affiche 4 rdv sur la carte
+    // si un nouveau mot de passe a été généré, on en affichera 2 avec le nouveau mot de passe
+    if (this.props.printWithPassword) {
+      if (this.props.mesRdv.length <= 2) {
+        this.setState({
+          mesRdv: this.props.mesRdv
+        });
+      } else {
+        let mesRdv = [];
+        for (let i = 0; i < 2; i++) {
+          mesRdv.push(this.props.mesRdv[i]);
+        }
+        this.setState({
+          mesRdv: mesRdv
+        });
+      }
+    } else {
+      if (this.props.mesRdv.length <= 4) {
+        this.setState({
+          mesRdv: this.props.mesRdv
+        });
+      } else {
+        let mesRdv = [];
+        for (let i = 0; i < 4; i++) {
+          mesRdv.push(this.props.mesRdv[i]);
+        }
+        this.setState({
+          mesRdv: mesRdv
+        });
+      }
+    }
+  };
+
   render() {
     return (
-      <div id={this.props.id} className="carte" hidden={true}>
+      <div
+        id={this.props.id}
+        className="carte"
+        hidden={true}
+        style={{ marginTop: "-10px" }}
+      >
         <div className="coordonnees-praticien">
           <p>
             <span className="praticien-currentName">
@@ -474,7 +521,7 @@ class Carte extends React.Component {
         <div className="titre-principal">
           <strong>Vos prochains rendez-vous</strong>
         </div>
-        {this.props.mesRdv.length === 0 ? (
+        {this.state.mesRdv.length === 0 ? (
           <Message compact={true}>
             <Message.Content>
               <p>Aucun rendez-vous n'a été trouvé !</p>
@@ -482,7 +529,7 @@ class Carte extends React.Component {
           </Message>
         ) : (
           <List>
-            {_.map(this.props.mesRdv, (item, i) => {
+            {_.map(this.state.mesRdv, (item, i) => {
               return (
                 <List.Item
                   icon="calendar"
