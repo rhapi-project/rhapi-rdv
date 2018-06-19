@@ -107,6 +107,52 @@ export default class ProfilsPatients extends React.Component {
   };
 
   save = () => {
+    // Avant la sauvegarde, on verifie si le nom et le prénom sont renseignés
+    // TODO : vérifier que tous les champs sont valides
+    let patient = this.state.patient;
+
+    if (patient.nom !== "" && patient.prenom !== "") {
+      this.props.client.Patients.update(
+        patient.id,
+        patient,
+        patient => {
+          // success
+          //patient.gestionRdvJO.reservation.password = "";
+          this.setState({
+            patient: patient,
+            saved: true,
+            errorOnSave: false
+          });
+
+          // la date de naissance peut avoir été modifiée
+          // => l'âge est mis à jour
+          this.props.client.Patients.age(
+            patient.id,
+            {},
+            result => {
+              this.setState({ age: result });
+            },
+            data => {
+              // error
+              console.log(data);
+              console.log("Erreur");
+            }
+          );
+        },
+        () => {
+          // error
+          this.setState({
+            errorOnSave: true
+          });
+          console.log("Erreur de sauvegarde");
+        }
+      );
+    } else {
+      return;
+    }
+  };
+
+  /*save = () => {
     let patient = this.state.patient;
     //Les 2 champs de mots de passe doivent avoir les mêmes valeurs
     if (
@@ -158,7 +204,7 @@ export default class ProfilsPatients extends React.Component {
     } else {
       return;
     }
-  };
+  };*/
 
   onChange = patient => {
     this.setState({ patient: patient, saved: false });
