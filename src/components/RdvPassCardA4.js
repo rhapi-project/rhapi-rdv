@@ -173,12 +173,6 @@ export default class RdvPassCardA4 extends React.Component {
                             focused={this.state.dateRefFocused}
                             onFocusChange={() => {}}
                           />
-                          <Button
-                            icon="calendar"
-                            onClick={() =>
-                              this.setState({ dateRefFocused: true })
-                            }
-                          />
                         </Form.Input>
                       </Form.Group>
                     </Form>
@@ -455,7 +449,11 @@ class Preview extends React.Component {
               : "300px"
         }}
       >
-        <div id="details" className="impression-details">
+        <div
+          id="details"
+          className="impression-details"
+          style={{ margin: "0 auto" }}
+        >
           {_.isEmpty(this.state.mesRdv) && !this.props.printWithPassword ? (
             <Message>
               <Message.Content style={{ textAlign: "center" }}>
@@ -467,8 +465,14 @@ class Preview extends React.Component {
               {_.isUndefined(this.props.praticien) ? (
                 ""
               ) : (
-                <div className="coordonnees-praticien">
-                  <span className="praticien-currentName">
+                <div
+                  className="coordonnees-praticien"
+                  style={{ marginLeft: "10px", marginTop: "0px" }}
+                >
+                  <span
+                    className="praticien-currentName"
+                    style={{ fontSize: "18px" }}
+                  >
                     <strong>{this.props.praticien.currentName}</strong>
                   </span>
                   <br />
@@ -501,7 +505,15 @@ class Preview extends React.Component {
                 </div>
               )}
 
-              <div className="titre-principal">
+              <div
+                className="titre-principal"
+                style={{
+                  marginTop: "20px",
+                  marginBottom: "20px",
+                  textAlign: "center",
+                  fontSize: "20px"
+                }}
+              >
                 <strong>{"Rendez-vous de " + this.props.denomination}</strong>
               </div>
 
