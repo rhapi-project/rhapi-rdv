@@ -116,7 +116,7 @@ export default class FichePatient extends React.Component {
   componentWillReceiveProps(next) {
     let patient = { ...next.patient };
     this.setState({
-      activeIndex: 0,
+      activeIndex: this.state.activeIndex, // correction bug de la fermeture de l'accordéon
       patient: patient,
       saved: true,
       naissanceDate: moment(next.patient.naissance),
@@ -658,15 +658,15 @@ export default class FichePatient extends React.Component {
               <Accordion.Content active={this.state.activeIndex === 2}>
                 {/*Coder la gestion des rdv ici*/}
                 <Form>
-                  <Form.Input label="Autorisation SMS">
-                    <Checkbox
-                      toggle={true}
-                      checked={this.state.patient.gestionRdvJO.autoriseSMS}
-                      onChange={(e, d) => this.changeAutoriseSMS(e, d)}
-                    />
-                  </Form.Input>
-
                   <Form.Group widths="equal">
+                    <Form.Input label="Autorisation SMS">
+                      <Checkbox
+                        toggle={true}
+                        checked={this.state.patient.gestionRdvJO.autoriseSMS}
+                        onChange={(e, d) => this.changeAutoriseSMS(e, d)}
+                      />
+                    </Form.Input>
+
                     <Form.Input label="Niveau d'autorisation">
                       <Dropdown
                         fluid={true}
@@ -681,28 +681,6 @@ export default class FichePatient extends React.Component {
                       />
                     </Form.Input>
 
-                    <Form.Input
-                      label="Mot de passe"
-                      name="password"
-                      type="password"
-                      error={!this.verificationPassword()}
-                      value={
-                        this.state.patient.gestionRdvJO.reservation.password
-                      }
-                      onChange={(e, d) => this.handleChangeInput(e, d)}
-                    />
-
-                    <Form.Input
-                      label="Confirmation mot de passe"
-                      name="passwordConfirm"
-                      type="password"
-                      error={!this.verificationPassword()}
-                      value={this.state.patient.passwordConfirm}
-                      onChange={(e, d) => this.handleChangeInput(e, d)}
-                    />
-                  </Form.Group>
-
-                  <Form.Group>
                     <Form.Input label="Impression des rendez-vous et génération d'un mot de passe">
                       <RdvPassCard
                         idPatient={this.state.patient.id}
