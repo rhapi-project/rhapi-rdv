@@ -287,6 +287,7 @@ const telRegex = [
   /^00(\s)?[1-9][0-9]{1,2}(\s)?([1-9])(\s?[0-9]{2}){4}$/
 ];
 
+// Formatage du numéro de téléphone pour l'affichage seulement
 const telFormat = telephone => {
   let result = "";
   for (let i = 0; i < telRegex.length; i++) {
