@@ -40,21 +40,34 @@ var client = localdev
 
 export default class Patients extends React.Component {
   componentWillMount() {
-    // l'identifiant d'établissement peut être récupéré directement de l'URL
-    // => le patient non identifié accède via l'URL du cabinet
-    // Sinon si depuis le site global lors de la saisie de l'identifiant patient
-    // => forme identifiant@etablissement
+    /*
+      3 accès possibles :
+      - /#Patients : l'établissement est inconnu => formulaire identification complète du patient
+        Cette forme est utilisée par le site générique et exige que le patient dispose d'identifiants complets
+      - /#Patients/master : l'établissement est connu => formulaire identification libre par défaut
+        Cette forme est utilisée dans un lien (Google Map ou site du cabinet par exemple)
+      - /#Patients/123@master : l'établissement et le patient sont connus => formulaire identification complète pré-rempli
+        Cette forme est utilisée dans un lien d'accès au compte (fourni au patient par mail par exemple) 
+    */
     let hashParts = window.location.hash.split("/");
     let etablissement = "";
     let identified = false;
-    if (hashParts.length > 1) {
+    if (hashParts.length > 1) { // #Patients/xxxx
       etablissement = hashParts[1];
     } else {
       identified = true;
     }
 
-    // identifiant => 123@etablissement
-    let identifiant = _.isEmpty(etablissement) ? "" : "@" + etablissement;
+    let identifiant;
+    let parts = etablissement.split("@");
+    if (parts.length > 1) { // #Patients/123@master
+        identifiant = etablissement;
+        etablissement = parts[1];
+        identified = true;
+    }
+    else { // #Patients/master
+        identifiant = _.isEmpty(etablissement) ? "" : "@" + etablissement;
+    }
 
     this.setState({
       identifiant,
