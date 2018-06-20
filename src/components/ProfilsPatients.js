@@ -13,7 +13,13 @@ import {
   Ref
 } from "semantic-ui-react";
 
-import { hsize, denominationDefaultFormat } from "./Settings";
+import {
+  hsize,
+  codePostalRegex,
+  denominationDefaultFormat,
+  emailRegex,
+  telRegex
+} from "./Settings";
 
 import PatientSearch from "./PatientSearch";
 
@@ -106,72 +112,45 @@ export default class ProfilsPatients extends React.Component {
     });
   };
 
-  save = () => {
-    // Avant la sauvegarde, on verifie si le nom et le prénom sont renseignés
-    // TODO : vérifier que tous les champs sont valides
-    let patient = this.state.patient;
+  telephoneValide = numero => {
+    for (let i = 0; i < telRegex.length; i++) {
+      if (telRegex[i].test(numero)) {
+        return true;
+      }
+    }
+    return false;
+  };
 
-    if (patient.nom !== "" && patient.prenom !== "") {
-      this.props.client.Patients.update(
-        patient.id,
-        patient,
-        patient => {
-          // success
-          //patient.gestionRdvJO.reservation.password = "";
-          this.setState({
-            patient: patient,
-            saved: true,
-            errorOnSave: false
-          });
-
-          // la date de naissance peut avoir été modifiée
-          // => l'âge est mis à jour
-          this.props.client.Patients.age(
-            patient.id,
-            {},
-            result => {
-              this.setState({ age: result });
-            },
-            data => {
-              // error
-              console.log(data);
-              console.log("Erreur");
-            }
-          );
-        },
-        () => {
-          // error
-          this.setState({
-            errorOnSave: true
-          });
-          console.log("Erreur de sauvegarde");
-        }
-      );
+  verification = () => {
+    if (
+      this.state.patient.nom !== "" &&
+      this.state.patient.prenom !== "" &&
+      (this.state.patient.codePostal === "" ||
+        codePostalRegex.test(this.state.patient.codePostal)) &&
+      (this.state.patient.telBureau === "" ||
+        this.telephoneValide(this.state.patient.telBureau)) &&
+      (this.state.patient.telMobile === "" ||
+        this.telephoneValide(this.state.patient.telMobile)) &&
+      (this.state.patient.telDomicile === "" ||
+        this.telephoneValide(this.state.patient.telDomicile)) &&
+      (this.state.patient.email === "" ||
+        emailRegex.test(this.state.patient.email))
+    ) {
+      return true;
     } else {
-      return;
+      return false;
     }
   };
 
-  /*save = () => {
+  save = () => {
     let patient = this.state.patient;
-    //Les 2 champs de mots de passe doivent avoir les mêmes valeurs
-    if (
-      this.state.patient.gestionRdvJO.reservation.password ===
-      this.state.patient.passwordConfirm
-    ) {
-      this.setState({
-        patient: {
-          passwordConfirm: ""
-        }
-      });
-      _.unset(patient, "passwordConfirm");
+
+    if (this.verification()) {
       this.props.client.Patients.update(
         patient.id,
         patient,
         patient => {
           // success
-          patient.gestionRdvJO.reservation.password = "";
-          _.set(patient, "passwordConfirm", ""); // Forcer le passwordConfirm à être vide
           this.setState({
             patient: patient,
             saved: true,
@@ -202,9 +181,12 @@ export default class ProfilsPatients extends React.Component {
         }
       );
     } else {
+      console.log(
+        "Impossible de faire une sauvegarde - les champs obligatoires ne sont pas renseignés ou certains champs ne sont pas valides !"
+      );
       return;
     }
-  };*/
+  };
 
   onChange = patient => {
     this.setState({ patient: patient, saved: false });
@@ -216,7 +198,6 @@ export default class ProfilsPatients extends React.Component {
       patient => {
         // success
         //console.log(patient);
-        _.set(patient, "passwordConfirm", "");
         this.setState({
           patient: patient
         });
