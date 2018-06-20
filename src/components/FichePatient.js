@@ -264,42 +264,23 @@ export default class FichePatient extends React.Component {
 
   handleChangeInput = (e, d) => {
     let modifiedPatient = this.state.patient;
-    if (d.name === "password") {
-      // modification dans l'objet gestionRdvJO
-      modifiedPatient.gestionRdvJO.reservation.password = e.target.value;
-    } else {
-      //modifiedPatient[d.name] = d.value;
-      modifiedPatient[d.name] = this.conversionDenominationFormat(
-        d.name,
-        d.value
-      );
-    }
+    modifiedPatient[d.name] = this.conversionDenominationFormat(
+      d.name,
+      d.value
+    );
     this.props.onChange(modifiedPatient);
   };
 
   changeAutorisation = (e, d) => {
     let modifiedPatient = this.state.patient;
     modifiedPatient.gestionRdvJO.reservation.autorisation = d.value;
-    this.setState({
-      patient: modifiedPatient
-    });
     this.props.onChange(modifiedPatient);
   };
 
   changeAutoriseSMS = (e, d) => {
     let modifiedPatient = this.state.patient;
     modifiedPatient.gestionRdvJO.autoriseSMS = d.checked;
-    this.setState({
-      patient: modifiedPatient
-    });
     this.props.onChange(modifiedPatient);
-  };
-
-  verificationPassword = () => {
-    return (
-      this.state.patient.gestionRdvJO.reservation.password ===
-      this.state.patient.passwordConfirm
-    );
   };
 
   makePasswd = () => {
