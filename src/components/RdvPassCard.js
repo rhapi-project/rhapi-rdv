@@ -114,6 +114,17 @@ export default class RdvPassCard extends React.Component {
       });
     }
 
+    // Microsoft Internet Explorer ou Edge
+    /*if (navigator.userAgent.indexOf("MSIE") !== -1) {
+      console.log("Coucou");
+      win.onbeforeunload = () => {
+        win.close();
+        this.afterPrint();
+        return;
+      }
+      setTimeout(() => { win.print() }, 1500);
+    }*/
+
     // Firefox et Chrome onafterprint
     win.onafterprint = () => {
       win.close();

@@ -24,9 +24,9 @@ import { SingleDatePicker } from "react-dates";
 export default class RdvPassCardA4 extends React.Component {
   state = {
     defaut: true,
-    dateRefCheckbox: false,
+    //dateRefCheckbox: false,
     dateRef: moment(),
-    dateRefFocused: false,
+    //dateRefFocused: false,
     commentaires: false,
     etatRdv: false,
     allPlannings: true,
@@ -57,9 +57,9 @@ export default class RdvPassCardA4 extends React.Component {
   defaut = () => {
     this.setState({
       defaut: true,
-      dateRefCheckbox: false,
+      //dateRefCheckbox: false,
       dateRef: moment(),
-      dateRefFocused: false,
+      //dateRefFocused: false,
       commentaires: false,
       etatRdv: false,
       allPlannings: true
@@ -80,7 +80,7 @@ export default class RdvPassCardA4 extends React.Component {
       return (
         <Button
           icon="print"
-          content="Détail des RDV"
+          content="Historique des RDV"
           onClick={() => this.setState({ open: true })}
         />
       );
@@ -96,7 +96,7 @@ export default class RdvPassCardA4 extends React.Component {
               this.defaut();
             }}
           >
-            <Modal.Header>Détail des rendez-vous</Modal.Header>
+            <Modal.Header>Historique des rendez-vous</Modal.Header>
             <Modal.Content>
               <Grid>
                 <Grid.Row verticalAlign="middle">
@@ -125,23 +125,23 @@ export default class RdvPassCardA4 extends React.Component {
                             date={this.state.dateRef}
                             numberOfMonths={1}
                             readOnly={false}
-                            onClose={() =>
+                            /*onClose={() =>
                               this.setState({ dateRefFocused: false })
-                            }
+                            }*/
                             onDateChange={date => {
                               this.setState({ dateRef: null });
                               if (!_.isNull(date)) {
                                 this.setState({ dateRef: date });
                               }
                             }}
-                            focused={this.state.dateRefFocused}
-                            onFocusChange={() => {}}
+                            //focused={this.state.dateRefFocused}
+                            //onFocusChange={() => {}}
                           />
                         </Form.Input>
                       </Form.Group>
                     </Form>
                   </Grid.Column>
-                  <Grid.Column width={4} textAlign="center">
+                  <Grid.Column width={4} /*textAlign="center"*/>
                     <Ref
                       innerRef={node => node.firstChild.parentElement.focus()}
                     >
