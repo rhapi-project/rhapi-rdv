@@ -12,21 +12,29 @@ import {
   Icon
 } from "semantic-ui-react";
 
-import { codePostalRegex, emailRegex, telRegex, telFormat } from "./Settings";
+import {
+  codePostalRegex,
+  emailRegex,
+  hsize,
+  telRegex,
+  telFormat
+} from "./Settings";
 
-import { hsize } from "./Settings";
+//import SmsHistory from "./SmsHistory";
 
-/**
- * Avant de sauvegarder les modifications,
- * On vérifie d'abord si tous les champs obligatoires sont renseignés
- * et que les formats du code postal, n° de téléphone et adresse e-mail sont valides. (regex)
- */
+/*
+  TODO : Warning à éviter sur l'interface du Profil
+  Ce warning se produit quand il y a des champs input dont la value est initialement undefined ou vide
+  A corriger
+  =>  https://github.com/reactstrap/reactstrap/issues/570
+*/
 
 const defaultProfil = {
   currentName: "",
   userName: "",
   userPassword: "",
   passwordConfirm: "",
+  sms: false, // historique SMS
   account: {
     nom: "",
     prenom: "",
@@ -54,7 +62,7 @@ export default class Profil extends React.Component {
   reload = () => {
     this.props.client.MonCompte.read(
       monProfil => {
-        console.log(monProfil);
+        //console.log(monProfil);
         if (!_.isEmpty(monProfil.account)) {
           //monProfil.account.telBureau = telFormat(monProfil.account.telBureau);
           //monProfil.account.telMobile = telFormat(monProfil.account.telMobile);
@@ -188,8 +196,6 @@ export default class Profil extends React.Component {
   };
 
   render() {
-    //console.log(this.state.userPassword);
-    console.log(this.state.passwordConfirm);
     //console.log(this.state);
     return (
       <div id="profil">
@@ -407,6 +413,7 @@ export default class Profil extends React.Component {
               );
               // Test lecture de l'historique des envois :
               // => devra être implémenté dans SmsHistory.js
+              this.setState({ sms: true });
               this.props.client.Sms.readAll(
                 {},
                 datas => {
@@ -422,6 +429,12 @@ export default class Profil extends React.Component {
           >
             Historique SMS
           </Button>
+          {/*<SmsHistory
+            open={this.state.sms}
+            //client={this.props.client}
+            //open={() => { this.setState({ sms: true }) }}
+            //close={() => { this.setState({ sms: false }) }}
+          />*/}
           <Button onClick={this.reload}>Annuler / Actualiser</Button>
           <Button primary={!this.state.saved} onClick={this.save}>
             Sauvegarder
