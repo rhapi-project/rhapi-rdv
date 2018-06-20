@@ -269,8 +269,12 @@ export default class RdvPassCard extends React.Component {
               content="E-Mail"
               onClick={() => alert("Envoi par mail")}
             />*/}
-
             <Divider hidden={false} fitted={false} />
+            <Button
+              icon="help"
+              content="Aide"
+              onClick={() => alert("Aide avec détection du navigateur")}
+            />
             <Button
               negative={true}
               content="Nouveau mot de passe"
@@ -301,7 +305,6 @@ export default class RdvPassCard extends React.Component {
               }}
             >
               <Button
-                icon="close"
                 primary={true}
                 content="Fermer"
                 onClick={() => this.setState({ open: false })}

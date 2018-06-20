@@ -52,7 +52,8 @@ export default class Patients extends React.Component {
     let hashParts = window.location.hash.split("/");
     let etablissement = "";
     let identified = false;
-    if (hashParts.length > 1) { // #Patients/xxxx
+    if (hashParts.length > 1) {
+      // #Patients/xxxx
       etablissement = hashParts[1];
     } else {
       identified = true;
@@ -60,13 +61,14 @@ export default class Patients extends React.Component {
 
     let identifiant;
     let parts = etablissement.split("@");
-    if (parts.length > 1) { // #Patients/123@master
-        identifiant = etablissement;
-        etablissement = parts[1];
-        identified = true;
-    }
-    else { // #Patients/master
-        identifiant = _.isEmpty(etablissement) ? "" : "@" + etablissement;
+    if (parts.length > 1) {
+      // #Patients/123@master
+      identifiant = etablissement;
+      etablissement = parts[1];
+      identified = true;
+    } else {
+      // #Patients/master
+      identifiant = _.isEmpty(etablissement) ? "" : "@" + etablissement;
     }
 
     this.setState({

@@ -681,7 +681,7 @@ export default class FichePatient extends React.Component {
                       />
                     </Form.Input>
 
-                    <Form.Input label="Impression des rendez-vous et génération d'un mot de passe">
+                    <Form.Input label="Rendez-vous / Mot de passe">
                       <RdvPassCard
                         idPatient={this.state.patient.id}
                         denomination={

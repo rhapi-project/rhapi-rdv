@@ -99,60 +99,24 @@ export default class RdvPassCardA4 extends React.Component {
             <Modal.Header>Détail des rendez-vous</Modal.Header>
             <Modal.Content>
               <Grid>
-                <Grid.Row>
-                  <Grid.Column width={12} floated="left">
-                    <Form>
-                      <Form.Input label="Paramètres par défaut">
-                        <Checkbox
-                          toggle={true}
-                          checked={this.state.defaut}
-                          onChange={(e, d) => {
-                            if (d.checked) {
-                              this.defaut();
-                            } else {
-                              this.setState({ defaut: !this.state.defaut });
-                            }
-                          }}
-                        />
-                      </Form.Input>
-                    </Form>
-                  </Grid.Column>
-                  <Grid.Column width={4} textAlign="center">
-                    <Ref
-                      innerRef={node => node.firstChild.parentElement.focus()}
-                    >
-                      <Button
-                        primary={true}
-                        icon="print"
-                        content="Imprimer"
-                        onClick={() => {
-                          this.setState({ print: true });
-                        }}
-                      />
-                    </Ref>
-                  </Grid.Column>
-                </Grid.Row>
-
-                <Grid.Row>
+                <Grid.Row verticalAlign="middle">
                   <Grid.Column width={12}>
                     <Form>
                       <Form.Group widths="equal">
-                        <Form.Input label="À partir d'une date">
+                        <Form.Input label="Paramètres par défaut">
                           <Checkbox
                             toggle={true}
-                            checked={this.state.dateRefCheckbox}
-                            onChange={(e, d) =>
-                              this.setState({
-                                defaut: false,
-                                dateRefCheckbox: !this.state.dateRefCheckbox
-                              })
-                            }
+                            checked={this.state.defaut}
+                            onChange={(e, d) => {
+                              if (d.checked) {
+                                this.defaut();
+                              } else {
+                                this.setState({ defaut: !this.state.defaut });
+                              }
+                            }}
                           />
                         </Form.Input>
-                        <Form.Input
-                          label="A partir du : "
-                          disabled={!this.state.dateRefCheckbox}
-                        >
+                        <Form.Input label="À partir du">
                           <SingleDatePicker
                             placeholder="JJ/MM/AAAA"
                             hideKeyboardShortcutsPanel={true}
@@ -177,8 +141,20 @@ export default class RdvPassCardA4 extends React.Component {
                       </Form.Group>
                     </Form>
                   </Grid.Column>
-
-                  <Grid.Column width={4} />
+                  <Grid.Column width={4} textAlign="center">
+                    <Ref
+                      innerRef={node => node.firstChild.parentElement.focus()}
+                    >
+                      <Button
+                        primary={true}
+                        icon="print"
+                        content="Imprimer"
+                        onClick={() => {
+                          this.setState({ print: true });
+                        }}
+                      />
+                    </Ref>
+                  </Grid.Column>
                 </Grid.Row>
 
                 <Grid.Row stretched={true} verticalAlign="middle">
