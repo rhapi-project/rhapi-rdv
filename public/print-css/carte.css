@@ -38,11 +38,11 @@
   }
 }
 
-/* Safari 
-
- * Vu qu'il n'y a pas possibilité de supprimer les marges sur la carte imprimée dans Safari,
- * une solution envisageable serait de réduire les caractères afin d'avoir un rendu proche de celui obtenu
- * avec Chrome et Firefox
+/* 
+    Safari
+    La solution ci-dessous réduit la taille des caractères imprimés (avec Safari)
+    CSS pour Safari 
+    => https://jeffclayton.wordpress.com/2015/04/28/css-hacks-for-safari-6-1-7-and-8-not-chrome/
  */
  @media not all and (min-resolution:.001dpcm) {
   @media print {
@@ -85,10 +85,6 @@
   }
  }
 
-/*
- * Les 3 dernières lignes suppriment les grandes marges dans Chrome et Firefox mais ce changement
- * n'est pas fait sur Safari
- */
 @page {
   size: 89mm 51mm; /* paysage */
   margin-top: 0.1in; 
