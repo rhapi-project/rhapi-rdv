@@ -46,7 +46,9 @@ export default class Patients extends React.Component {
         Cette forme est utilisée par le site générique et exige que le patient dispose d'identifiants complets
       - /#Patients/master : l'établissement est connu => formulaire identification libre par défaut
         Cette forme est utilisée dans un lien (Google Map ou site du cabinet par exemple)
-      - /#Patients/123@master : l'établissement et le patient sont connus => formulaire identification complète pré-rempli
+      - /#Patients/123:AVRJoC@master : l'établissement et les identifiants sont connus
+        => formulaire identification complète pré-rempli avec ouverture automatique sur la gestion des RDV si MDP
+        Le mot de passe (ici AVRJoC) est optionnel
         Cette forme est utilisée dans un lien d'accès au compte (fourni au patient par mail par exemple) 
     */
     let hashParts = window.location.hash.split("/");
@@ -61,10 +63,19 @@ export default class Patients extends React.Component {
 
     let identifiant;
     let parts = etablissement.split("@");
+    let patient = {}
     if (parts.length > 1) {
       // #Patients/123@master
       identifiant = etablissement;
       etablissement = parts[1];
+      patient.ipp = parts[0];
+      parts = patient.ipp.split(":");
+      if (parts.length > 1) {
+          patient.ipp = parts[0];
+          patient.password = parts[1];
+          identifiant = patient.ipp + "@" + etablissement;
+      }
+     
       identified = true;
     } else {
       // #Patients/master
@@ -77,7 +88,7 @@ export default class Patients extends React.Component {
       identified,
       gestionRDV: false,
       clientOk: false,
-      patient: {}
+      patient: patient
     });
   }
 
@@ -93,6 +104,10 @@ export default class Patients extends React.Component {
         let gestionRDV =
           !_.isUndefined(gestionRDVOnSuccess) && gestionRDVOnSuccess;
         this.setState({ clientOk: true, etablissement, gestionRDV });
+            
+        if (this.state.patient.ipp && this.state.patient.password) {
+            _.delay(this.gestionRDV, 1000);
+        }
       },
       (datas, response) => {
         console.log("erreur auth client");
