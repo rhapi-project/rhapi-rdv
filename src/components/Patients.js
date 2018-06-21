@@ -63,7 +63,7 @@ export default class Patients extends React.Component {
 
     let identifiant;
     let parts = etablissement.split("@");
-    let patient = {}
+    let patient = {};
     if (parts.length > 1) {
       // #Patients/123@master
       identifiant = etablissement;
@@ -71,11 +71,11 @@ export default class Patients extends React.Component {
       patient.ipp = parts[0];
       parts = patient.ipp.split(":");
       if (parts.length > 1) {
-          patient.ipp = parts[0];
-          patient.password = parts[1];
-          identifiant = patient.ipp + "@" + etablissement;
+        patient.ipp = parts[0];
+        patient.password = parts[1];
+        identifiant = patient.ipp + "@" + etablissement;
       }
-     
+
       identified = true;
     } else {
       // #Patients/master
@@ -104,9 +104,9 @@ export default class Patients extends React.Component {
         let gestionRDV =
           !_.isUndefined(gestionRDVOnSuccess) && gestionRDVOnSuccess;
         this.setState({ clientOk: true, etablissement, gestionRDV });
-            
+
         if (this.state.patient.ipp && this.state.patient.password) {
-            _.delay(this.gestionRDV, 1000);
+          _.delay(this.gestionRDV, 1000);
         }
       },
       (datas, response) => {

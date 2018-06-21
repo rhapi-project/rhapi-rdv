@@ -664,7 +664,7 @@ export default class FichePatient extends React.Component {
 
                     <Form.Input label="Rendez-vous / Mot de passe">
                       <RdvPassCard
-                        idPatient={this.state.patient.id}
+                        patient={this.state.patient}
                         denomination={
                           this.civilite(true) +
                           " " +

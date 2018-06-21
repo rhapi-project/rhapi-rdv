@@ -26,7 +26,7 @@ export default class RdvPassCard extends React.Component {
 
   reload = () => {
     this.props.client.RendezVous.mesRendezVous(
-      { ipp: this.props.idPatient },
+      { ipp: this.props.patient.id },
       result => {
         // success
         //console.log(result);
@@ -196,26 +196,34 @@ export default class RdvPassCard extends React.Component {
     // TODO mettre un checkbox rouge (ou autre visualisation retour négatif) si non valide et return
 
     message = _.replace(message, "{date-heure}", "mardi 19/06 à 18h50");
-    let infos = "Infos et annulation : https://un-lien.fr\n";
-    infos += "Identifiant : 1256\n";
-    infos += "Mot de passe : dfTwr";
+    let infos =
+      "Infos et annulation : " + window.location.origin + "/#Patients/";
+    infos += this.props.patient.id;
+    if (
+      !_.isUndefined(this.state.newPassword) &&
+      !_.isEmpty(this.state.newPassword)
+    ) {
+      infos += ":" + this.state.newPassword;
+    }
+    infos += "@master"; // TODO récupérer l'identifiant de l'établissement
     message = _.replace(message, "{infos-annulation}", infos);
-    //
-    let receivers = ["+336xxxxxxxx"]; // <= liste de numéros de téléphone (à priori 1 seul)
-    // tester ici avec votre numéro de téléphone
-    // et au final mettre votre numéro de tél comme tel mobile du patient puis récupérer le numéro mobile du patient
+    console.log(message);
+    
+    console.log(this.props.patient.telMobile);
+
+    let receivers = [this.props.patient.telMobile]; // <= liste de numéros de téléphone (à priori 1 seul)
     // attention le nombre de SMS disponibles pour les tests est volontairement limité !
 
     this.props.client.Sms.create(
       { message: message, receivers: receivers },
       datas => {
-        //console.log(datas);
+        console.log(datas);
         // TODO mettre un checkbox verte (ou autre visualisation retour positif) si le SMS est bien parti
         // TODO mettre un checkbox rouge (ou autre visualisation retour négatif) si le SMS n'est pas conforme
         // => tester les champ ad hoc pour savoir si le SMS a bien été envoyé !
       },
       errors => {
-        //console.log(errors);
+        console.log(errors);
         // TODO mettre un checkbox rouge (ou autre visualisation retour négatif) si le SMS n'est pas parti (pb réseau)
       }
     );
@@ -265,7 +273,7 @@ export default class RdvPassCard extends React.Component {
             />
 
             <RdvPassCardA4
-              idPatient={this.props.idPatient}
+              idPatient={this.props.patient.id}
               client={this.props.client}
               mesPlannings={this.state.mesPlannings}
               newPassword={this.state.newPassword}
@@ -362,7 +370,7 @@ export default class RdvPassCard extends React.Component {
               content="Oui"
               onClick={() => {
                 this.props.client.Patients.read(
-                  this.props.idPatient,
+                  this.props.patient.id,
                   {},
                   result => {
                     // success
@@ -371,7 +379,7 @@ export default class RdvPassCard extends React.Component {
                     obj.gestionRdvJO.reservation.password = this.state.newPassword;
 
                     this.props.client.Patients.update(
-                      this.props.idPatient,
+                      this.props.patient.id,
                       obj,
                       () => {
                         // success
@@ -430,7 +438,7 @@ export default class RdvPassCard extends React.Component {
               printWithPassword={this.state.printWithPassword}
               newPassword={this.state.newPassword}
               print={this.print}
-              idPatient={this.props.idPatient}
+              idPatient={this.props.patient.id}
               //denomination={this.props.denomination}
             />
           </Modal.Content>
@@ -561,7 +569,7 @@ class Carte extends React.Component {
             selon intégration)<br />
             Identifiant :{" "}
             <strong>
-              {this.props.idPatient + "@forme-de-l'indentifiant-à-(re)definir"}
+              {this.props.patient.id + "@forme-de-l'indentifiant-à-(re)definir"}
             </strong>
             <br />
             Mot de passe : <strong>{this.props.newPassword}</strong>
