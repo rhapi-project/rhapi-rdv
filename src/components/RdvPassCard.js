@@ -115,15 +115,21 @@ export default class RdvPassCard extends React.Component {
     }
 
     // Microsoft Internet Explorer ou Edge
-    /*if (navigator.userAgent.indexOf("MSIE") !== -1) {
-      console.log("Coucou");
-      win.onbeforeunload = () => {
-        win.close();
+    if (
+      navigator.userAgent.indexOf("Edge/") !== -1 ||
+      navigator.userAgent.indexOf("MSIE") !== -1
+    ) {
+      this.browserDelay = _.isUndefined(this.browserDelay) ? 1500 : 500;
+
+      win.onafterprint = () => {
+        // win.close(); // crash => impossibilité de fermer la fenêtre ici !
         this.afterPrint();
-        return;
-      }
-      setTimeout(() => { win.print() }, 1500);
-    }*/
+      };
+      _.delay(() => {
+        win.print();
+      }, this.browserDelay);
+      return;
+    }
 
     // Firefox et Chrome onafterprint
     win.onafterprint = () => {
@@ -143,9 +149,11 @@ export default class RdvPassCard extends React.Component {
       */
 
       this.browserDelay = _.isUndefined(this.browserDelay) ? 1500 : 500;
+      //console.log("Browser delay : " + this.browserDelay);
+      //console.log(win.onload);
 
       win.onload = () => {
-        //console.log("Browser delay : " + this.browserDelay);
+        console.log("Browser delay : " + this.browserDelay);
         _.delay(() => {
           win.print();
         }, this.browserDelay);
@@ -208,7 +216,7 @@ export default class RdvPassCard extends React.Component {
     infos += "@master"; // TODO récupérer l'identifiant de l'établissement
     message = _.replace(message, "{infos-annulation}", infos);
     console.log(message);
-    
+
     console.log(this.props.patient.telMobile);
 
     let receivers = [this.props.patient.telMobile]; // <= liste de numéros de téléphone (à priori 1 seul)
@@ -438,7 +446,8 @@ export default class RdvPassCard extends React.Component {
               printWithPassword={this.state.printWithPassword}
               newPassword={this.state.newPassword}
               print={this.print}
-              idPatient={this.props.patient.id}
+              patient={this.props.patient}
+              //idPatient={this.props.patient.id}
               //denomination={this.props.denomination}
             />
           </Modal.Content>
@@ -505,12 +514,7 @@ class Carte extends React.Component {
 
   render() {
     return (
-      <div
-        id={this.props.id}
-        className="carte"
-        hidden={true}
-        style={{ marginTop: "-10px" }}
-      >
+      <div id={this.props.id} className="carte" hidden={true}>
         <div className="coordonnees-praticien">
           <p>
             <span className="praticien-currentName">
@@ -544,11 +548,7 @@ class Carte extends React.Component {
           <strong>Vos prochains rendez-vous</strong>
         </div>
         {this.state.mesRdv.length === 0 ? (
-          <Message compact={true}>
-            <Message.Content>
-              <p>Aucun rendez-vous n'a été trouvé !</p>
-            </Message.Content>
-          </Message>
+          ""
         ) : (
           <List>
             {_.map(this.state.mesRdv, (item, i) => {

@@ -379,6 +379,24 @@ class Preview extends React.Component {
       });
     }
 
+    // Microsoft Internet Explorer ou Edge
+    if (
+      navigator.userAgent.indexOf("Edge/") !== -1 ||
+      navigator.userAgent.indexOf("MSIE") !== -1
+    ) {
+      this.browserDelay = _.isUndefined(this.browserDelay) ? 1500 : 500;
+
+      _.delay(() => {
+        win.print();
+      }, this.browserDelay);
+
+      win.onafterprint = () => {
+        // win.close(); // crash => impossibilité de fermer la fenêtre ici !
+        this.props.afterPrint();
+      };
+      return;
+    }
+
     // Firefox et Chrome onafterprint
     win.onafterprint = () => {
       win.close();
