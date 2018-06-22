@@ -8,7 +8,7 @@ import moment from "moment";
 
 import React from "react";
 
-import { Header, Divider, Button } from "semantic-ui-react";
+import { Divider, Button, Form, Icon } from "semantic-ui-react";
 
 import PatientSearch from "./PatientSearch";
 
@@ -39,8 +39,6 @@ export default class CalendarPanel extends React.Component {
   }
 
   componentDidMount() {
-    this.reactDateStyleHack();
-
     let dropZone = $("#external-droppable");
     dropZone.each((i, zone) => {
       droppable(
@@ -147,59 +145,6 @@ export default class CalendarPanel extends React.Component {
     });
   }
 
-  reactDateStyleHack = () => {
-    // Style hack for react-date
-    setTimeout(() => {
-      _.forEach(
-        document.getElementsByClassName("CalendarMonth_caption"),
-        elt => {
-          elt.style.paddingBottom = "47px";
-          elt.style.fontSize = "small";
-        }
-      );
-
-      _.forEach(
-        document.getElementsByClassName("DayPicker_weekHeader_li"),
-        elt => {
-          elt.style.width = "32px";
-          elt.style.height = "32px";
-        }
-      );
-
-      _.forEach(document.getElementsByClassName("CalendarDay"), elt => {
-        elt.style.width = "32px";
-        elt.style.height = "32px";
-        elt.style.fontSize = "0.8rem";
-      });
-
-      _.forEach(document.getElementsByClassName("DayPicker"), elt => {
-        elt.style.maxWidth = "250px";
-        elt.style.height = "300px";
-        elt.style.marginLeft = "1px";
-      });
-
-      _.forEach(
-        document.getElementsByClassName("DayPicker_transitionContainer"),
-        elt => {
-          elt.style.maxWidth = "250px";
-          elt.style.height = "300px";
-        }
-      );
-
-      _.forEach(document.getElementsByClassName("CalendarMonth"), elt => {
-        elt.style.paddingLeft = "0px";
-      });
-
-      _.forEach(
-        document.getElementsByClassName("DayPicker_focusRegion"),
-        elt => {
-          elt.style.maxWidth = "250px";
-          elt.style.height = "300px";
-        }
-      );
-    }, 0);
-  };
-
   onDateChange = date => {
     this.setState({ currentDate: date });
     $("#calendar").fullCalendar("gotoDate", date);
@@ -214,7 +159,12 @@ export default class CalendarPanel extends React.Component {
     }
     if (id === 0) {
       this.setState({
-        currentPatient: { id: 0, title: "", rdv: { liste: [], index: -1 } }
+        currentPatient: {
+          id: 0,
+          title: "",
+          rdv: { liste: [], index: -1 },
+          clearSearch: false
+        }
       });
     } else {
       // rdv du patient
@@ -267,7 +217,8 @@ export default class CalendarPanel extends React.Component {
               id: id,
               title: title,
               rdv: { liste: liste, index: index }
-            }
+            },
+            clearSearch: false
           });
         },
         () => {}
@@ -377,27 +328,53 @@ export default class CalendarPanel extends React.Component {
     return (
       <React.Fragment>
         <Divider />
-        <DayPickerSingleDateController
-          hideKeyboardShortcutsPanel={true}
-          enableOutsideDays={true}
-          onDateChange={this.onDateChange}
-          focused={false}
-          date={this.state.currentDate}
-          onNextMonthClick={this.reactDateStyleHack}
-          onPrevMonthClick={this.reactDateStyleHack}
-        />
+        <div style={{ marginLeft: -22, marginBottom: -14, marginTop: -14 }}>
+          <DayPickerSingleDateController
+            noBorder={true}
+            hideKeyboardShortcutsPanel={true}
+            enableOutsideDays={true}
+            onDateChange={this.onDateChange}
+            focused={false}
+            date={this.state.currentDate}
+          />
+        </div>
         <Divider />
-        <PatientSearch
-          client={this.props.client}
-          patientChange={this.onPatientChange}
-          format={
-            _.isUndefined(this.props.options.reservation)
-              ? "NP"
-              : this.props.options.reservation.denominationFormat
-          }
-        />
+        <Form.Input>
+          <PatientSearch
+            client={this.props.client}
+            patientChange={this.onPatientChange}
+            format={
+              _.isUndefined(this.props.options.reservation)
+                ? "NP"
+                : this.props.options.reservation.denominationFormat
+            }
+            clear={this.state.clearSearch}
+          />
+          <Icon
+            style={{ cursor: "pointer", marginTop: 8, marginLeft: 8 }}
+            onClick={() => {
+              this.setState({
+                clearSearch: true,
+                currentPatient: {
+                  id: 0,
+                  title: "",
+                  rdv: { liste: [], index: -1 }
+                }
+              });
+            }}
+            name="remove user"
+            disabled={this.state.currentPatient.id === 0}
+          />
+        </Form.Input>
+
         <br />
-        <div style={{ textAlign: "center" }}>
+        <div
+          style={{
+            textAlign: "center",
+            marginLeft: -15,
+            marginRight: -15
+          }}
+        >
           <Button
             icon="left chevron"
             style={{ fontSize: "0.7rem" }}
@@ -410,7 +387,6 @@ export default class CalendarPanel extends React.Component {
               }
             }}
           />
-
           <Button
             onClick={() => {
               this.onPatientChange(-1);
@@ -443,14 +419,13 @@ export default class CalendarPanel extends React.Component {
             }}
           />
         </div>
-        <Header size="small">Liste d'attente</Header>
+        <Divider />
         <div style={{ textAlign: "right" }}>
           <Button.Group basic={true} size="mini">
             <Button icon="eraser" onClick={this.clearExternal} />
             <Button icon="add" onClick={this.addExternal} />
           </Button.Group>
         </div>
-
         <div id="external-events">
           <div id="external-droppable">
             {_.map(this.state.externalEventsDatas, (data, i) => {

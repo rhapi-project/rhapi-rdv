@@ -25,9 +25,11 @@ export default class Calendars extends React.Component {
         }
       });
     } else {
-      window.onafterprint = this.afterPrint;
+      window.addEventListener("afterprint", () => this.afterPrint());
     }
-    //
+
+    // ajust panel & calendar widths
+    window.addEventListener("resize", () => this.setState({}));
 
     this.reload();
   }
@@ -117,23 +119,20 @@ export default class Calendars extends React.Component {
       return calendar;
     }
 
+    // panel & calendar widths
     let width =
       window.innerWidth ||
       document.documentElement.clientWidth ||
       document.body.clientWidth;
 
-    let withPanel = width > 1340;
-
-    let dropDownStyle = withPanel ? {} : { fontSize: "0.7rem" };
+    let panelWidth = 300;
+    let calendarWidth = width - 320;
 
     return (
       <React.Fragment>
         <Grid divided="vertically" id="calendars">
           <Grid.Row columns={2}>
-            <Grid.Column
-              width={withPanel ? 3 : 2}
-              style={{ maxWidth: "300px" }}
-            >
+            <Grid.Column style={{ minWidth: panelWidth, maxWidth: panelWidth }}>
               <div style={{ textAlign: "right" }}>
                 <Button.Group basic={true} size="mini">
                   <Button icon="print" onClick={this.print} />
@@ -146,7 +145,7 @@ export default class Calendars extends React.Component {
               </div>
               <Divider fitted={true} hidden={true} />
               <Dropdown
-                style={dropDownStyle}
+                style={{ fontSize: "0.8rem" }}
                 value={this.state.index}
                 onChange={this.onPlanningChange}
                 fluid={true}
@@ -159,33 +158,31 @@ export default class Calendars extends React.Component {
                   };
                 })}
               />
-              {withPanel ? (
-                <CalendarPanel
-                  client={this.props.client}
-                  couleur={
-                    this.state.index < 0
-                      ? ""
-                      : this.state.plannings[this.state.index].couleur
-                  }
-                  planning={
-                    this.state.index < 0
-                      ? "0"
-                      : this.state.plannings[this.state.index].id
-                  }
-                  options={
-                    this.state.index < 0
-                      ? {}
-                      : this.state.plannings[this.state.index].optionsJO
-                  }
-                  handleExternalRefetch={externalRefetch =>
-                    this.setState({ externalRefetch: externalRefetch })
-                  }
-                />
-              ) : (
-                ""
-              )}
+              <CalendarPanel
+                client={this.props.client}
+                couleur={
+                  this.state.index < 0
+                    ? ""
+                    : this.state.plannings[this.state.index].couleur
+                }
+                planning={
+                  this.state.index < 0
+                    ? "0"
+                    : this.state.plannings[this.state.index].id
+                }
+                options={
+                  this.state.index < 0
+                    ? {}
+                    : this.state.plannings[this.state.index].optionsJO
+                }
+                handleExternalRefetch={externalRefetch =>
+                  this.setState({ externalRefetch: externalRefetch })
+                }
+              />
             </Grid.Column>
-            <Grid.Column width={withPanel ? 13 : 14}>
+            <Grid.Column
+              style={{ minWidth: calendarWidth, maxWidth: calendarWidth }}
+            >
               {this.state.index < 0 ? "" : calendar}
             </Grid.Column>
           </Grid.Row>
