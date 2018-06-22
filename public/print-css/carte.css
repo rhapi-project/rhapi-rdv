@@ -38,52 +38,76 @@
   }
 }
 
-/* 
-    Safari
-    La solution ci-dessous réduit la taille des caractères imprimés (avec Safari)
-    CSS pour Safari 
-    => https://jeffclayton.wordpress.com/2015/04/28/css-hacks-for-safari-6-1-7-and-8-not-chrome/
+/*
+    Détection de IE et EDGE
+    => https://stackoverflow.com/questions/43528940/how-to-detect-ie-and-edge-browsers-in-css
  */
- @media not all and (min-resolution:.001dpcm) {
+@supports (-ms-ime-align:auto) {
+  /*IE Edge 16+ CSS*/
+  /* Augmentation de la taille des caractères */
   @media print {
     .carte {
       position: relative;
     }
 
     .coordonnees-praticien {
-      font-size: 7px;
-      margin-left: 15px;
+      font-size: 13px;
     }
 
     .praticien-currentName {
-      font-size: 8px;
+      font-size: 14px;
     }
-
     .titre-principal {
       margin-top: 1px;
       text-align: center;
-      font-size: 7px;
+      font-size: 14px
     }
 
     .item-rdv {
-      font-size: 7px;
-      margin-left: 15px;
+      font-size: 13px;
     }
 
     .new-password {
-      font-size: 6px;
-      margin-left: 15px;
+      font-size: 13px;
     }
 
     .separator {
-      display: none;
+      margin-top: 0px !important;
+      margin-bottom: 0px !important;
     }
 
     .bottom-message {
-      display: none;
+      width: 100%;
+      text-align: center;
+      font-size: 9px;
+      position: absolute;
+      bottom: 0;
+    }
+  }
+}
+
+/*
+    Problème sur Safari : les marges imposées par le navigateur sont trop grandes 
+    et cela réduit la surface d'impression sur la carte de rdv
+
+    Les modifications apportées à la classe "carte" ne sont pas prises en compte.
+    Il faut créer une sous div dans "carte" qui englobera tout le contenu.
+    La gestion des marges se fait manuellement dans le navigateur en spécifiant
+    la taille du papier et les marges à appliquer dessus.
+
+    Détection de Safari 
+    => https://jeffclayton.wordpress.com/2015/04/28/css-hacks-for-safari-6-1-7-and-8-not-chrome/
+ */
+
+ /*
+ @media not all and (min-resolution:.001dpcm) {
+  @media print {
+    .carte {
+      position: relative;
     }
   }
  }
+*/
 
 @page {
   size: 89mm 51mm; /* paysage */
