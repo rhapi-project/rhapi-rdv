@@ -20,7 +20,7 @@ import {
   telFormat
 } from "./Settings";
 
-//import SmsHistory from "./SmsHistory";
+import SmsHistory from "./SmsHistory";
 
 /*
   TODO : Warning à éviter sur l'interface du Profil
@@ -34,7 +34,7 @@ const defaultProfil = {
   userName: "",
   userPassword: "",
   passwordConfirm: "",
-  sms: false, // historique SMS
+  sms: false, // modal historique SMS
   account: {
     nom: "",
     prenom: "",
@@ -193,6 +193,12 @@ export default class Profil extends React.Component {
     } else {
       return;
     }
+  };
+
+  smsHistoryOpen = bool => {
+    this.setState({
+      sms: bool
+    });
   };
 
   render() {
@@ -406,35 +412,12 @@ export default class Profil extends React.Component {
           )}
 
           <Divider hidden={true} />
-          <Button
-            onClick={() => {
-              alert(
-                "Ouvrir une modal avec options d'impression : Component SmsHistory (créer le fichier SmsHistory.js)."
-              );
-              // Test lecture de l'historique des envois :
-              // => devra être implémenté dans SmsHistory.js
-              this.setState({ sms: true });
-              this.props.client.Sms.readAll(
-                {},
-                datas => {
-                  // Prévoir un loader car ça peut être très long...
-                  // https://react.semantic-ui.com/elements/loader
-                  console.log(datas);
-                },
-                errors => {
-                  console.log(errors);
-                }
-              );
-            }}
-          >
-            Historique SMS
-          </Button>
-          {/*<SmsHistory
-            open={this.state.sms}
-            //client={this.props.client}
-            //open={() => { this.setState({ sms: true }) }}
-            //close={() => { this.setState({ sms: false }) }}
-          />*/}
+
+          <SmsHistory
+            sms={this.state.sms}
+            smsHistoryOpen={this.smsHistoryOpen}
+            client={this.props.client}
+          />
           <Button onClick={this.reload}>Annuler / Actualiser</Button>
           <Button primary={!this.state.saved} onClick={this.save}>
             Sauvegarder
