@@ -2,7 +2,7 @@ import _ from "lodash";
 
 import React from "react";
 
-import { Dropdown, Grid, Button, Divider } from "semantic-ui-react";
+import { Dropdown, Button, Divider } from "semantic-ui-react";
 
 import Calendar from "./Calendar";
 
@@ -125,68 +125,74 @@ export default class Calendars extends React.Component {
       document.documentElement.clientWidth ||
       document.body.clientWidth;
 
-    let panelWidth = 300;
-    let calendarWidth = width - 320;
+    let panelWidth = 280;
+    let calendarWidth = width - 330;
 
     return (
       <React.Fragment>
-        <Grid divided="vertically" id="calendars">
-          <Grid.Row columns={2}>
-            <Grid.Column style={{ minWidth: panelWidth, maxWidth: panelWidth }}>
-              <div style={{ textAlign: "right" }}>
-                <Button.Group basic={true} size="mini">
-                  <Button icon="print" onClick={this.print} />
-                </Button.Group>
-                &nbsp;
-                <Button.Group basic={true} size="mini">
-                  <Button icon="zoom out" onClick={this.zoomOut} />
-                  <Button icon="zoom in" onClick={this.zoomIn} />
-                </Button.Group>
-              </div>
-              <Divider fitted={true} hidden={true} />
-              <Dropdown
-                style={{ fontSize: "0.8rem" }}
-                value={this.state.index}
-                onChange={this.onPlanningChange}
-                fluid={true}
-                selection={true}
-                multiple={false}
-                options={_.map(this.state.plannings, (planning, i) => {
-                  return {
-                    text: planning.titre,
-                    value: i
-                  };
-                })}
-              />
-              <CalendarPanel
-                client={this.props.client}
-                couleur={
-                  this.state.index < 0
-                    ? ""
-                    : this.state.plannings[this.state.index].couleur
-                }
-                planning={
-                  this.state.index < 0
-                    ? "0"
-                    : this.state.plannings[this.state.index].id
-                }
-                options={
-                  this.state.index < 0
-                    ? {}
-                    : this.state.plannings[this.state.index].optionsJO
-                }
-                handleExternalRefetch={externalRefetch =>
-                  this.setState({ externalRefetch: externalRefetch })
-                }
-              />
-            </Grid.Column>
-            <Grid.Column
-              style={{ minWidth: calendarWidth, maxWidth: calendarWidth }}
-            >
-              {this.state.index < 0 ? "" : calendar}
-            </Grid.Column>
-          </Grid.Row>
-        </Grid>
+        <div
+          style={{
+            width: panelWidth,
+            float: "left",
+            marginLeft: 10
+          }}
+        >
+          <div style={{ textAlign: "right" }}>
+            <Button.Group basic={true} size="mini">
+              <Button icon="print" onClick={this.print} />
+            </Button.Group>
+            &nbsp;
+            <Button.Group basic={true} size="mini">
+              <Button icon="zoom out" onClick={this.zoomOut} />
+              <Button icon="zoom in" onClick={this.zoomIn} />
+            </Button.Group>
+          </div>
+          <Divider fitted={true} hidden={true} />
+          <Dropdown
+            style={{ fontSize: "0.8rem" }}
+            value={this.state.index}
+            onChange={this.onPlanningChange}
+            fluid={true}
+            selection={true}
+            multiple={false}
+            options={_.map(this.state.plannings, (planning, i) => {
+              return {
+                text: planning.titre,
+                value: i
+              };
+            })}
+          />
+          <CalendarPanel
+            client={this.props.client}
+            couleur={
+              this.state.index < 0
+                ? ""
+                : this.state.plannings[this.state.index].couleur
+            }
+            planning={
+              this.state.index < 0
+                ? "0"
+                : this.state.plannings[this.state.index].id
+            }
+            options={
+              this.state.index < 0
+                ? {}
+                : this.state.plannings[this.state.index].optionsJO
+            }
+            handleExternalRefetch={externalRefetch =>
+              this.setState({ externalRefetch: externalRefetch })
+            }
+          />
+        </div>
+        <div
+          style={{
+            width: calendarWidth,
+            float: "right",
+            marginRight: 10
+          }}
+        >
+          {this.state.index < 0 ? "" : calendar}
+        </div>
       </React.Fragment>
     );
   }

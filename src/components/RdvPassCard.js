@@ -79,11 +79,6 @@ export default class RdvPassCard extends React.Component {
   print = () => {
     // uniquement la carte
 
-    if (_.isEmpty(this.state.mesRdv) && !this.state.printWithPassword) {
-      this.afterPrint();
-      return;
-    }
-
     let content = document.getElementById("carte");
 
     let win = window.open("", "Impression", "height=600,width=800");
@@ -153,7 +148,7 @@ export default class RdvPassCard extends React.Component {
       //console.log(win.onload);
 
       win.onload = () => {
-        console.log("Browser delay : " + this.browserDelay);
+        //console.log("Browser delay : " + this.browserDelay);
         _.delay(() => {
           win.print();
         }, this.browserDelay);
@@ -213,13 +208,12 @@ export default class RdvPassCard extends React.Component {
     ) {
       infos += ":" + this.state.newPassword;
     }
-    infos += "@master"; // TODO récupérer l'identifiant de l'établissement
+    infos += "@" + this.state.praticien.organisation.split("@")[0];
+    // split("@") si une forme master@master => master
     message = _.replace(message, "{infos-annulation}", infos);
-    console.log(message);
+    // console.log(message);
 
-    console.log(this.props.patient.telMobile);
-
-    let receivers = [this.props.patient.telMobile]; // <= liste de numéros de téléphone (à priori 1 seul)
+    let receivers = [ this.props.patient.telMobile ]; // <= liste de numéros de téléphone (à priori 1 seul)
     // attention le nombre de SMS disponibles pour les tests est volontairement limité !
 
     this.props.client.Sms.create(
@@ -346,7 +340,7 @@ export default class RdvPassCard extends React.Component {
           <Modal.Header>Nouveau mot de passe</Modal.Header>
           <Modal.Content scrolling={true}>
             {this.state.mesRdv.length === 0 ? (
-              <span>Aucun rendez-vous trouvé !</span>
+              <span>Aucun nouveau rendez-vous n'est actuellement fixé</span>
             ) : (
               ""
             )}
@@ -545,7 +539,13 @@ class Carte extends React.Component {
           </p>
         </div>
         <div className="titre-principal">
-          <strong>Vos prochains rendez-vous</strong>
+          <strong>
+            {this.state.mesRdv.length === 0
+              ? ""
+              : this.state.mesRdv.length === 1
+                ? "Votre prochain rendez-vous"
+                : "Vos prochains rendez-vous"}
+          </strong>
         </div>
         {this.state.mesRdv.length === 0 ? (
           ""
