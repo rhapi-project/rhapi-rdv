@@ -174,7 +174,19 @@ export default class RdvPassCard extends React.Component {
   };
 
   sendSms = () => {
-    alert("Envoi d'une confirmation par SMS (work in progress...)");
+    if (this.state.mesRdv.length === 0) {
+      alert("Aucun nouveau RDV n'est actuellement fixé !");
+      return;
+    }
+    if (
+      _.isUndefined(this.state.newPassword) ||
+      _.isEmpty(this.state.newPassword)
+    ) {
+      alert(
+        "Il faut générer un nouveau mot de passe avant de pouvoir envoyer un SMS de confirmation !"
+      );
+      return;
+    }
 
     // il faut prendre le premier planning autorisé à envoyer des SMS et possédant
     // un template de texte de confirmation
@@ -200,20 +212,19 @@ export default class RdvPassCard extends React.Component {
 
     message = _.replace(message, "{date-heure}", "mardi 19/06 à 18h50");
     let infos =
-      "Infos et annulation : " + window.location.origin + "/#Patients/";
+      "Infos et annulation : " +
+      window.location.origin +
+      window.location.pathname +
+      "/#Patients/";
     infos += this.props.patient.id;
-    if (
-      !_.isUndefined(this.state.newPassword) &&
-      !_.isEmpty(this.state.newPassword)
-    ) {
-      infos += ":" + this.state.newPassword;
-    }
+    infos += ":" + this.state.newPassword;
+
     infos += "@" + this.state.praticien.organisation.split("@")[0];
     // split("@") si une forme master@master => master
     message = _.replace(message, "{infos-annulation}", infos);
     // console.log(message);
 
-    let receivers = [ this.props.patient.telMobile ]; // <= liste de numéros de téléphone (à priori 1 seul)
+    let receivers = [this.props.patient.telMobile]; // <= liste de numéros de téléphone (à priori 1 seul)
     // attention le nombre de SMS disponibles pour les tests est volontairement limité !
 
     this.props.client.Sms.create(
