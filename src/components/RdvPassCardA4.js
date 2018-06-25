@@ -4,7 +4,7 @@ import _ from "lodash";
 
 import moment from "moment";
 
-import { rdvDateTime } from "./Settings";
+import { rdvDateTime, site } from "./Settings";
 
 import {
   Button,
@@ -251,7 +251,7 @@ export default class RdvPassCardA4 extends React.Component {
 
               <Preview
                 id="details"
-                idPatient={this.props.idPatient}
+                patient={this.props.patient}
                 client={this.props.client}
                 denomination={this.props.denomination}
                 praticien={this.props.praticien}
@@ -296,7 +296,7 @@ class Preview extends React.Component {
     if (!_.isNull(dateRef)) {
       this.props.client.RendezVous.mesRendezVous(
         {
-          ipp: this.props.idPatient,
+          ipp: this.props.patient.id,
           from: dateRef.toISOString()
         },
         result => {
@@ -316,27 +316,25 @@ class Preview extends React.Component {
 
   motif = (rdv, planningId) => {
     let m = "";
-    for (let i = 0; i < rdv.planningsJA.length; i++) {
-      if (rdv.planningsJA[i].id === planningId) {
-        if (rdv.planningsJA[i].motif !== -1 && rdv.planningsJA[i].motif !== 0) {
-          // rechercher motif
-          m = this.props.mesPlannings[planningId - 1].optionsJO.reservation
-            .motifs[rdv.planningsJA[i].motif - 1].motif;
-        } else {
-          m = "";
+    let index = _.findIndex(rdv.planningsJA, planning => {
+      return planning.id === planningId;
+    });
+    if (index !== -1) {
+      let motif = rdv.planningsJA[index].motif;
+      if (motif !== 0) {
+        // rechercher motif
+        let index2 = _.findIndex(this.props.mesPlannings, planning => {
+          return planning.id === planningId;
+        });
+        if (index2 !== -1) {
+          m =
+            this.props.mesPlannings[index2].optionsJO.reservation.motifs[
+              Math.abs(motif) - 1
+            ].motif + (motif < 0 ? " (RDV pris en ligne)" : "");
         }
       }
     }
     return m;
-  };
-
-  rdvIsOnPlanning = (rdv, planningId) => {
-    for (let i = 0; i < rdv.planningsJA.length; i++) {
-      if (rdv.planningsJA[i].id === planningId) {
-        return true;
-      }
-    }
-    return false;
   };
 
   print = () => {
@@ -432,6 +430,22 @@ class Preview extends React.Component {
   };
 
   render() {
+    let infos = "";
+    let siteUrl = "";
+    let identifiant = "";
+    if (this.props.printWithPassword) {
+      siteUrl =
+        window.location.origin + window.location.pathname + "#Patients/";
+      identifiant =
+        this.props.patient.id +
+        "@" +
+        this.props.praticien.organisation.split("@")[0];
+      infos = siteUrl;
+      infos += this.props.patient.id;
+      infos += ":" + this.props.newPassword;
+      infos += "@" + this.props.praticien.organisation.split("@")[0];
+    }
+
     return (
       <div
         className="preview-details"
@@ -508,21 +522,19 @@ class Preview extends React.Component {
                   fontSize: "20px"
                 }}
               >
-                <strong>{"Rendez-vous de " + this.props.denomination}</strong>
+                <b>{"Rendez-vous de " + this.props.denomination}</b>
               </div>
 
               <div className="new-password" style={{ marginBottom: "20px" }}>
                 {this.props.printWithPassword ? (
                   <p>
-                    Accédez directement à vos rendez-vous en ligne depuis le
-                    site (à définir selon intégration)<br />
-                    Identifiant :{" "}
-                    <strong>
-                      {this.props.idPatient +
-                        "@forme-de-l'indentifiant-à-(re)definir"}
-                    </strong>
+                    {site.title} : <b>{siteUrl}</b>
                     <br />
-                    Mot de passe : <strong>{this.props.newPassword}</strong>
+                    Identifiant : <b>{identifiant}</b>
+                    <br />
+                    Mot de passe : <b>{this.props.newPassword}</b>
+                    <br />
+                    Lien direct : <b>{infos}</b>
                   </p>
                 ) : (
                   ""
@@ -546,64 +558,44 @@ class Preview extends React.Component {
                               ) : (
                                 <table>
                                   <tbody>
-                                    {_.map(
-                                      this.props.plannings,
-                                      (planningId, p) => {
-                                        if (
-                                          this.rdvIsOnPlanning(item, planningId)
-                                        ) {
-                                          return (
-                                            <tr key={p}>
-                                              <td
-                                                style={{ verticalAlign: "top" }}
-                                              >
-                                                Planning
-                                              </td>
-                                              <td
-                                                style={{
-                                                  verticalAlign: "top",
-                                                  width: "180px"
-                                                }}
-                                              >
-                                                {" ( " +
-                                                  this.props.mesPlannings[
-                                                    planningId - 1
-                                                  ].titre +
-                                                  " ) "}
-                                              </td>
-                                              <td
-                                                style={{ verticalAlign: "top" }}
-                                              >
-                                                {this.motif(
-                                                  item,
-                                                  planningId
-                                                ) !== "" ? (
-                                                  <Icon name="arrow right" />
-                                                ) : (
-                                                  ""
-                                                )}
-                                              </td>
-                                              <td
-                                                style={{
-                                                  verticalAlign: "top",
-                                                  width: "50px"
-                                                }}
-                                              >
-                                                {this.motif(
-                                                  item,
-                                                  planningId
-                                                ) !== ""
-                                                  ? " Motif : "
-                                                  : ""}
-                                              </td>
-                                              <td>
-                                                {this.motif(item, planningId)}
-                                              </td>
-                                            </tr>
-                                          );
+                                    {_.map(item.planningsJA, (planning, p) => {
+                                      let index = _.findIndex(
+                                        this.props.mesPlannings,
+                                        planning2 => {
+                                          return planning.id === planning2.id;
                                         }
+                                      );
+                                      if (index === -1) {
+                                        return "";
+                                      } else {
+                                        let m = this.motif(item, planning.id);
+                                        return (
+                                          <tr key={p}>
+                                            <td
+                                              style={{
+                                                verticalAlign: "top",
+                                                width: "180px"
+                                              }}
+                                            >
+                                              {
+                                                this.props.mesPlannings[index]
+                                                  .titre
+                                              }
+                                            </td>
+                                            <td
+                                              style={{ verticalAlign: "top" }}
+                                            >
+                                              {m !== "" ? (
+                                                <Icon name="info circle" />
+                                              ) : (
+                                                ""
+                                              )}
+                                            </td>
+                                            <td>{m}</td>
+                                          </tr>
+                                        );
                                       }
-                                    )}
+                                    })}
                                   </tbody>
                                 </table>
                               )}
@@ -614,11 +606,27 @@ class Preview extends React.Component {
                               <List.Item>
                                 <table>
                                   <tbody>
-                                    <tr style={{ verticalAlign: "top" }}>
-                                      <td>
-                                        <strong>{" Description :  "}</strong>
+                                    <tr>
+                                      <td style={{ verticalAlign: "top" }}>
+                                        {item.description !== "" ? (
+                                          <Icon name="edit" />
+                                        ) : (
+                                          ""
+                                        )}
                                       </td>
-                                      <td>{item.description}</td>
+                                      <td>
+                                        {_.map(
+                                          item.description.split("\n"),
+                                          (line, i) => {
+                                            return (
+                                              <React.Fragment key={i}>
+                                                {line}
+                                                <br />
+                                              </React.Fragment>
+                                            );
+                                          }
+                                        )}
+                                      </td>
                                     </tr>
                                   </tbody>
                                 </table>
@@ -628,16 +636,28 @@ class Preview extends React.Component {
                               <List.Item>
                                 <table>
                                   <tbody>
-                                    {item.commentaire !== "" ? (
-                                      <tr style={{ verticalAlign: "top" }}>
-                                        <td>
-                                          <strong>{" Commentaire :  "}</strong>
-                                        </td>
-                                        <td>{item.commentaire}</td>
-                                      </tr>
-                                    ) : (
-                                      ""
-                                    )}
+                                    <tr>
+                                      <td style={{ verticalAlign: "top" }}>
+                                        {item.commentaire !== "" ? (
+                                          <Icon name="sticky note outline" />
+                                        ) : (
+                                          ""
+                                        )}
+                                      </td>
+                                      <td>
+                                        {_.map(
+                                          item.commentaire.split("\n"),
+                                          (line, i) => {
+                                            return (
+                                              <React.Fragment key={i}>
+                                                {line}
+                                                <br />
+                                              </React.Fragment>
+                                            );
+                                          }
+                                        )}
+                                      </td>
+                                    </tr>
                                   </tbody>
                                 </table>
                               </List.Item>

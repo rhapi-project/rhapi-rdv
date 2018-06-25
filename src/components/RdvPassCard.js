@@ -2,7 +2,7 @@ import React from "react";
 
 import _ from "lodash";
 
-import { rdvDateTime } from "./Settings";
+import { rdvDateTime, site } from "./Settings";
 
 import { Button, Divider, Ref, List, Message, Modal } from "semantic-ui-react";
 
@@ -178,6 +178,11 @@ export default class RdvPassCard extends React.Component {
       alert("Aucun nouveau RDV n'est actuellement fixé !");
       return;
     }
+    if (this.props.patient.telMobile.length < 8) {
+      // check basique mais suffisant ici
+      alert("Le téléphone mobile du patient n'est pas renseigné !");
+      return;
+    }
     if (
       _.isUndefined(this.state.newPassword) ||
       _.isEmpty(this.state.newPassword)
@@ -210,19 +215,22 @@ export default class RdvPassCard extends React.Component {
     // tester la validité du template et placer les bonnes valeur {date-heure} et {infos-annulations} !!
     // TODO mettre un checkbox rouge (ou autre visualisation retour négatif) si non valide et return
 
-    message = _.replace(message, "{date-heure}", "mardi 19/06 à 18h50");
+    message = _.replace(
+      message,
+      "{date-heure}",
+      rdvDateTime(this.state.mesRdv[0].startAt)
+    );
     let infos =
       "Infos et annulation : " +
       window.location.origin +
       window.location.pathname +
-      "/#Patients/";
+      "#Patients/";
     infos += this.props.patient.id;
     infos += ":" + this.state.newPassword;
 
     infos += "@" + this.state.praticien.organisation.split("@")[0];
     // split("@") si une forme master@master => master
     message = _.replace(message, "{infos-annulation}", infos);
-    // console.log(message);
 
     let receivers = [this.props.patient.telMobile]; // <= liste de numéros de téléphone (à priori 1 seul)
     // attention le nombre de SMS disponibles pour les tests est volontairement limité !
@@ -266,8 +274,7 @@ export default class RdvPassCard extends React.Component {
             )}
             {this.state.printWithPassword ? (
               <p>
-                Votre nouveau mot de passe :{" "}
-                <strong>{this.state.newPassword}</strong>
+                Nouveau mot de passe : <strong>{this.state.newPassword}</strong>
               </p>
             ) : (
               ""
@@ -286,7 +293,7 @@ export default class RdvPassCard extends React.Component {
             />
 
             <RdvPassCardA4
-              idPatient={this.props.patient.id}
+              patient={this.props.patient}
               client={this.props.client}
               mesPlannings={this.state.mesPlannings}
               newPassword={this.state.newPassword}
@@ -308,7 +315,6 @@ export default class RdvPassCard extends React.Component {
               onClick={() => alert("Aide avec détection du navigateur")}
             />
             <Button
-              negative={true}
               content="Nouveau mot de passe"
               icon="lock"
               onClick={() => {
@@ -378,58 +384,56 @@ export default class RdvPassCard extends React.Component {
             </p>
           </Modal.Content>
           <Modal.Actions>
-            <Button
-              negative={true}
-              content="Oui"
-              onClick={() => {
-                this.props.client.Patients.read(
-                  this.props.patient.id,
-                  {},
-                  result => {
-                    // success
-                    //console.log(result);
-                    let obj = result;
-                    obj.gestionRdvJO.reservation.password = this.state.newPassword;
-
-                    this.props.client.Patients.update(
-                      this.props.patient.id,
-                      obj,
-                      () => {
-                        // success
-                        this.setState({
-                          modalPassword: false,
-                          printWithPassword: true,
-                          open: true
-                        });
-                        //console.log("Mise à jour terminée");
-                      },
-                      data => {
-                        // error
-                        console.log("Erreur update patient");
-                        console.log(data);
-                      }
-                    );
-                  },
-                  data => {
-                    // error
-                    console.log("Erreur lecture patient");
-                    console.log(data);
-                  }
-                );
-              }}
-            />
             <Ref innerRef={node => node.firstChild.parentElement.focus()}>
               <Button
+                content="Oui"
                 primary={true}
-                content="Non"
-                onClick={() =>
-                  this.setState({
-                    newPassword: this.state.oldPassword,
-                    modalPassword: false
-                  })
-                }
+                onClick={() => {
+                  this.props.client.Patients.read(
+                    this.props.patient.id,
+                    {},
+                    result => {
+                      // success
+                      //console.log(result);
+                      let obj = result;
+                      obj.gestionRdvJO.reservation.password = this.state.newPassword;
+
+                      this.props.client.Patients.update(
+                        this.props.patient.id,
+                        obj,
+                        () => {
+                          // success
+                          this.setState({
+                            modalPassword: false,
+                            printWithPassword: true,
+                            open: true
+                          });
+                        },
+                        data => {
+                          // error
+                          console.log("Erreur update patient");
+                          console.log(data);
+                        }
+                      );
+                    },
+                    data => {
+                      // error
+                      console.log("Erreur lecture patient");
+                      console.log(data);
+                    }
+                  );
+                }}
               />
             </Ref>
+            <Button
+              content="Non"
+              onClick={() =>
+                this.setState({
+                  newPassword: this.state.oldPassword,
+                  modalPassword: false
+                })
+              }
+            />
           </Modal.Actions>
         </Modal>
 
@@ -518,6 +522,17 @@ class Carte extends React.Component {
   };
 
   render() {
+    let siteUrl = "";
+    let identifiant = "";
+    if (this.props.printWithPassword) {
+      siteUrl =
+        window.location.origin + window.location.pathname + "#Patients/";
+      identifiant =
+        this.props.patient.id +
+        "@" +
+        this.props.praticien.organisation.split("@")[0];
+    }
+
     return (
       <div id={this.props.id} className="carte" hidden={true}>
         <div className="coordonnees-praticien">
@@ -575,16 +590,18 @@ class Carte extends React.Component {
           </List>
         )}
         {this.props.printWithPassword ? (
-          <p className="new-password">
-            Accédez directement à vos rendez-vous en ligne le site (à définir
-            selon intégration)<br />
-            Identifiant :{" "}
-            <strong>
-              {this.props.patient.id + "@forme-de-l'indentifiant-à-(re)definir"}
-            </strong>
-            <br />
-            Mot de passe : <strong>{this.props.newPassword}</strong>
-          </p>
+          <div className="new-password" style={{ marginBottom: "20px" }}>
+            {this.props.printWithPassword ? (
+              <p>
+                {site.title} : <b>{siteUrl}</b>
+                <br />
+                Identifiant : <b>{identifiant}</b>
+                &nbsp;&nbsp; Mot de passe : <b>{this.props.newPassword}</b>
+              </p>
+            ) : (
+              ""
+            )}
+          </div>
         ) : (
           ""
         )}
