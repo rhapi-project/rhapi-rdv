@@ -100,13 +100,22 @@ export default class Patients extends React.Component {
       "reservation@" + etablissement, //password
       () => {
         // success
-        console.log("client ok");
+        //console.log("client ok");
         let gestionRDV =
           !_.isUndefined(gestionRDVOnSuccess) && gestionRDVOnSuccess;
+
         this.setState({ clientOk: true, etablissement, gestionRDV });
 
         if (this.state.patient.ipp && this.state.patient.password) {
-          _.delay(this.gestionRDV, 1000);
+          let n = 10;
+          let loop = () => {
+            if (!this.state.clientOk && n-- > 0) {
+              _.delay(loop, 100);
+              return;
+            }
+            this.gestionRDV();
+          };
+          loop();
         }
       },
       (datas, response) => {

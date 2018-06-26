@@ -58,7 +58,7 @@ class MonRdv extends React.Component {
         this.close();
       },
       datas => {
-        alert(datas.internalMessage + " : " + datas.userMessage);
+        console.log(datas.internalMessage + " : " + datas.userMessage);
         this.close();
       }
     );
@@ -73,16 +73,17 @@ class MonRdv extends React.Component {
       return "";
     }
 
-    let planning = this.props.rdv.planningsJA[0];
+    // le premier planning valide venu
+    let index = _.findIndex(
+      this.props.rdv.planningsJA,
+      planning => !_.isUndefined(this.props.plannings[planning.id])
+    );
 
-    if (_.isUndefined(this.props.plannings[planning.id])) {
-      //console.log(
-      //  "Inscription unique sur un planning non géré : ",
-      //  planning.id,
-      //  this.props.plannings
-      //);
+    if (index === -1) {
+      // Inscription unique sur un planning non géré => ne devrait pas survenir
       return "";
     }
+    let planning = this.props.rdv.planningsJA[index];
 
     let titrePlanning = this.props.plannings[planning.id].titre;
 
@@ -204,7 +205,7 @@ class MonRdv extends React.Component {
         ) : (
           ""
         )}
-        <p>{this.props.rdv.description}</p>
+        <p>{_.truncate(this.props.rdv.description.split("\n")[0])}</p>
         <Divider />
       </React.Fragment>
     );
@@ -225,7 +226,7 @@ export default class MesRdv extends React.Component {
       result => {
         let planningsMap = {};
         _.forEach(result.results, planning => {
-          console.log(planning);
+          //console.log(planning);
           planningsMap[planning.id] = {
             titre: planning.titre,
             description: planning.description,
@@ -238,7 +239,7 @@ export default class MesRdv extends React.Component {
         // ? erreur d'auth
         // TODO : Afficher le message en utilisant un Component semantic à la place de 'alert'
         console.log(datas);
-        alert(datas.internalMessage + " : " + datas.userMessage);
+        //alert(datas.internalMessage + " : " + datas.userMessage);
         window.history.back();
       }
     );
@@ -252,13 +253,14 @@ export default class MesRdv extends React.Component {
         password: this.props.patient.password
       },
       result => {
+        //console.log(result.informations);
         this.setState({ mesRdv: result.results });
       },
       datas => {
         // ? erreur d'auth
         // TODO : Afficher le message en utilisant un Component semantic à la place de 'alert'
         console.log(datas);
-        alert(datas.internalMessage + " : " + datas.userMessage);
+        //alert(datas.internalMessage + " : " + datas.userMessage);
         window.history.back();
       }
     );
