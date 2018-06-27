@@ -17,21 +17,19 @@ import {
   Segment
 } from "semantic-ui-react";
 
-import { telFormat } from "./Settings";
-
-// TODO : placer le bouton d'impression
+import { telFormat, rdvDateTime } from "./Settings";
 
 export default class SmsHistory extends React.Component {
   state = {
     loading: true,
-    mois: moment().month() - 1, // le mois précédent par défaut
+    mois: moment().month(),
     years: [], // select année
-    currentYear: moment().year(), // année en cours
+    currentYear: moment().year(),
     messages: [],
     openedMessage: -1 // index du message ouvert
   };
 
-  // les mois sont indicés à partir de 0
+  // les mois sont indicés à partir de 0 dans la bibliothèque Moment JS
   mois = [
     { text: "Janvier", value: 0 },
     { text: "Février", value: 1 },
@@ -49,26 +47,43 @@ export default class SmsHistory extends React.Component {
 
   componentWillReceiveProps(next) {
     if (next.sms) {
-      let argFrom = this.state.mois + 1 + "-" + this.state.currentYear;
+      let argFrom = this.formatYearMonth(
+        this.state.currentYear,
+        this.state.mois + 1
+      );
+      //console.log(argFrom);
       this.reload(argFrom);
     }
   }
 
   reload = argFrom => {
-    // argForm sera de la forme : "mois-année" ex: 11-2017
+    let argTo = "";
+    if (this.state.mois < 11) {
+      argTo = this.formatYearMonth(this.state.currentYear, this.state.mois + 2);
+    } else {
+      // janvier de l'année suivante
+      argTo = this.formatYearMonth(this.state.currentYear + 1, 1);
+    }
 
-    // TODO : à vérifier si "argFrom" est bien au bon format
-
-    //console.log(argFrom);
+    console.log(argFrom);
     this.props.client.Sms.readAll(
-      { from: argFrom },
+      { from: argFrom, to: argTo },
       datas => {
-        // Prévoir un loader car ça peut être très long...
-        // https://react.semantic-ui.com/elements/loader
         //console.log(datas);
+        let msg = datas.results;
+        // tri : du plus récent au plus ancien
+        msg.sort((msg1, msg2) => {
+          if (msg1.creationDatetime > msg2.creationDatetime) {
+            return -1;
+          } else if (msg1.creationDatetime < msg2.creationDatetime) {
+            return 1;
+          } else {
+            return 0;
+          }
+        });
         this.setState({
           loading: false,
-          messages: datas.results,
+          messages: msg,
           years: this.years(3),
           openedMessage: -1
         });
@@ -77,6 +92,16 @@ export default class SmsHistory extends React.Component {
         console.log(errors);
       }
     );
+  };
+
+  formatYearMonth = (year, month) => {
+    let format = "";
+    if (month < 10) {
+      format = year + "-0" + month + "-01";
+    } else {
+      format = year + "-" + month + "-01";
+    }
+    return format;
   };
 
   years = number => {
@@ -93,7 +118,7 @@ export default class SmsHistory extends React.Component {
 
   monthChange = (e, d) => {
     if (d.value !== this.state.mois) {
-      let argFrom = d.value + 1 + "-" + this.state.currentYear;
+      let argFrom = this.formatYearMonth(this.state.currentYear, d.value + 1);
       //console.log(argFrom);
       this.setState({ loading: true, mois: d.value });
       this.reload(argFrom);
@@ -104,7 +129,7 @@ export default class SmsHistory extends React.Component {
 
   yearChange = (e, d) => {
     if (d.value !== this.state.currentYear) {
-      let argFrom = this.state.mois + 1 + "-" + d.value;
+      let argFrom = this.formatYearMonth(d.value, this.state.mois + 1);
       this.setState({ loading: true, currentYear: d.value });
       this.reload(argFrom);
     } else {
@@ -119,7 +144,17 @@ export default class SmsHistory extends React.Component {
   };
 
   render() {
-    //console.log(this.state.messages);
+    console.log(this.state.mois);
+    //console.log(moment("2018-05"));
+    let nbSMS = 0;
+    if (_.isEmpty(this.state.messages)) {
+      nbSMS = 0;
+    } else {
+      for (let i = 0; i < this.state.messages.length; i++) {
+        nbSMS += this.state.messages[i].numberOfSms;
+      }
+    }
+
     return (
       <React.Fragment>
         <Modal size="small" open={this.props.sms}>
@@ -127,7 +162,11 @@ export default class SmsHistory extends React.Component {
             Historique SMS &nbsp;&nbsp;
             {this.state.loading
               ? ""
-              : "( " + this.state.messages.length + " messages )"}
+              : "( " +
+                this.state.messages.length +
+                " messages - " +
+                nbSMS +
+                " SMS )"}
           </Modal.Header>
           <Modal.Content>
             {this.state.loading ? (
@@ -141,7 +180,6 @@ export default class SmsHistory extends React.Component {
                 <div>
                   <Form>
                     <Form.Group inline={true}>
-                      <label>A partir de : </label>
                       <Form.Dropdown
                         placeholder="Mois"
                         selection={true}
@@ -186,7 +224,7 @@ export default class SmsHistory extends React.Component {
                                 </Menu.Header>
                                 <p style={{ fontSize: "12px", color: "grey" }}>
                                   Envoyé le{" "}
-                                  {moment(message.creationDateTime).format(
+                                  {moment(message.creationDatetime).format(
                                     "DD/MM/YYYY"
                                   )}
                                 </p>
@@ -209,8 +247,9 @@ export default class SmsHistory extends React.Component {
                           <div>
                             <div style={{ float: "right" }}>
                               <Icon
+                                style={{ cursor: "pointer" }}
                                 name="window close"
-                                color="red"
+                                color="grey"
                                 size="large"
                                 onClick={() =>
                                   this.setState({ openedMessage: -1 })
@@ -227,11 +266,13 @@ export default class SmsHistory extends React.Component {
                             </span>
                             <br />
                             <span>
-                              Date d'envoi :{" "}
-                              {moment(
-                                this.state.messages[this.state.openedMessage]
-                                  .creationDateTime
-                              ).format("DD/MM/YYYY")}
+                              Envoyé{" "}
+                              {_.upperFirst(
+                                rdvDateTime(
+                                  this.state.messages[this.state.openedMessage]
+                                    .creationDatetime
+                                )
+                              )}
                             </span>
                             <br />
                             <span>
@@ -243,11 +284,28 @@ export default class SmsHistory extends React.Component {
                                 <Icon name="circle" color="red" />
                               )}
                             </span>
+                            <br />
+                            <span>
+                              <strong>
+                                {
+                                  this.state.messages[this.state.openedMessage]
+                                    .messageLength
+                                }
+                              </strong>
+                              &nbsp;caractères&nbsp;-&nbsp;
+                              <strong>
+                                {
+                                  this.state.messages[this.state.openedMessage]
+                                    .numberOfSms
+                                }
+                              </strong>
+                              &nbsp;SMS
+                            </span>
                             <Divider />
                             <span>Contenu du message : </span>
                             <Divider hidden={true} />
                             <div
-                              style={{ overflowY: "scroll", height: "150px" }}
+                              style={{ overflowY: "scroll", height: "140px" }}
                             >
                               <p style={{ paddingRight: "15%" }}>
                                 {
