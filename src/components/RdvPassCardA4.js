@@ -135,7 +135,7 @@ export default class RdvPassCardA4 extends React.Component {
                               }
                             }}
                             //focused={this.state.dateRefFocused}
-                            //onFocusChange={() => {}}
+                            onFocusChange={() => {}}
                           />
                         </Form.Input>
                       </Form.Group>
@@ -202,6 +202,8 @@ export default class RdvPassCardA4 extends React.Component {
                             });
                             if (d.checked) {
                               this.loadPlanningsId(this.props.mesPlannings);
+                            } else {
+                              this.setState({ plannings: [] });
                             }
                           }}
                         />
@@ -209,24 +211,29 @@ export default class RdvPassCardA4 extends React.Component {
                     </Form>
                     {this.state.allPlannings
                       ? ""
-                      : _.map(this.props.mesPlannings, (item, i) => {
+                      : _.map(this.props.mesPlannings, (planning, i) => {
                           return (
                             <div key={i}>
                               <Divider />
                               <Checkbox
                                 toggle={true}
-                                label={item.titre}
+                                label={planning.titre}
                                 checked={_.includes(
                                   this.state.plannings,
-                                  i + 1
+                                  planning.id
                                 )}
                                 onChange={(e, d) => {
-                                  if (_.includes(this.state.plannings, i + 1)) {
+                                  if (
+                                    _.includes(
+                                      this.state.plannings,
+                                      planning.id
+                                    )
+                                  ) {
                                     // enlever planning
                                     let pl = [];
                                     let plannings = this.state.plannings;
                                     for (let j = 0; j < plannings.length; j++) {
-                                      if (plannings[j] !== i + 1) {
+                                      if (plannings[j] !== planning.id) {
                                         pl.push(plannings[j]);
                                       }
                                     }
@@ -234,7 +241,7 @@ export default class RdvPassCardA4 extends React.Component {
                                   } else {
                                     // ajouter planning
                                     let pl = this.state.plannings;
-                                    pl.push(i + 1);
+                                    pl.push(planning.id);
                                     //console.log(pl);
                                     this.setState({ plannings: pl });
                                   }
@@ -335,6 +342,15 @@ class Preview extends React.Component {
       }
     }
     return m;
+  };
+
+  afficherRdv = rdv => {
+    for (let i = 0; i < rdv.planningsJA.length; i++) {
+      if (_.includes(this.props.plannings, rdv.planningsJA[i].id)) {
+        return true;
+      }
+    }
+    return false;
   };
 
   print = () => {
@@ -544,130 +560,143 @@ class Preview extends React.Component {
               <div /*style={{ marginLeft: "10px" }}*/>
                 <List>
                   {_.map(this.state.mesRdv, (item, i) => {
-                    return (
-                      <List.Item className="rdv-list-item" key={i}>
-                        <Icon name="calendar" />
-                        <List.Content>
-                          <List.Header>
-                            {_.upperFirst(rdvDateTime(item.startAt))}
-                          </List.Header>
-                          <List.List>
-                            <List.Item>
-                              {this.props.plannings.length === 0 ? (
+                    if (this.afficherRdv(item)) {
+                      return (
+                        <List.Item className="rdv-list-item" key={i}>
+                          <Icon name="calendar" />
+                          <List.Content>
+                            <List.Header>
+                              {_.upperFirst(rdvDateTime(item.startAt))}
+                            </List.Header>
+                            <List.List>
+                              <List.Item>
+                                {this.props.plannings.length === 0 ? (
+                                  ""
+                                ) : (
+                                  <table>
+                                    <tbody>
+                                      {_.map(
+                                        item.planningsJA,
+                                        (planning, p) => {
+                                          let index = _.findIndex(
+                                            this.props.mesPlannings,
+                                            planning2 => {
+                                              return (
+                                                planning.id === planning2.id
+                                              );
+                                            }
+                                          );
+                                          if (index === -1) {
+                                            return "";
+                                          } else {
+                                            let m = this.motif(
+                                              item,
+                                              planning.id
+                                            );
+                                            return (
+                                              <tr key={p}>
+                                                <td
+                                                  style={{
+                                                    verticalAlign: "top",
+                                                    width: "180px"
+                                                  }}
+                                                >
+                                                  {
+                                                    this.props.mesPlannings[
+                                                      index
+                                                    ].titre
+                                                  }
+                                                </td>
+                                                <td
+                                                  style={{
+                                                    verticalAlign: "top"
+                                                  }}
+                                                >
+                                                  {m !== "" ? (
+                                                    <Icon name="info circle" />
+                                                  ) : (
+                                                    ""
+                                                  )}
+                                                </td>
+                                                <td>{m}</td>
+                                              </tr>
+                                            );
+                                          }
+                                        }
+                                      )}
+                                    </tbody>
+                                  </table>
+                                )}
+                              </List.Item>
+                              {item.description === "" ? (
                                 ""
                               ) : (
-                                <table>
-                                  <tbody>
-                                    {_.map(item.planningsJA, (planning, p) => {
-                                      let index = _.findIndex(
-                                        this.props.mesPlannings,
-                                        planning2 => {
-                                          return planning.id === planning2.id;
-                                        }
-                                      );
-                                      if (index === -1) {
-                                        return "";
-                                      } else {
-                                        let m = this.motif(item, planning.id);
-                                        return (
-                                          <tr key={p}>
-                                            <td
-                                              style={{
-                                                verticalAlign: "top",
-                                                width: "180px"
-                                              }}
-                                            >
-                                              {
-                                                this.props.mesPlannings[index]
-                                                  .titre
-                                              }
-                                            </td>
-                                            <td
-                                              style={{ verticalAlign: "top" }}
-                                            >
-                                              {m !== "" ? (
-                                                <Icon name="info circle" />
-                                              ) : (
-                                                ""
-                                              )}
-                                            </td>
-                                            <td>{m}</td>
-                                          </tr>
-                                        );
-                                      }
-                                    })}
-                                  </tbody>
-                                </table>
+                                <List.Item>
+                                  <table>
+                                    <tbody>
+                                      <tr>
+                                        <td style={{ verticalAlign: "top" }}>
+                                          {item.description !== "" ? (
+                                            <Icon name="edit" />
+                                          ) : (
+                                            ""
+                                          )}
+                                        </td>
+                                        <td>
+                                          {_.map(
+                                            item.description.split("\n"),
+                                            (line, i) => {
+                                              return (
+                                                <React.Fragment key={i}>
+                                                  {line}
+                                                  <br />
+                                                </React.Fragment>
+                                              );
+                                            }
+                                          )}
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </List.Item>
                               )}
-                            </List.Item>
-                            {item.description === "" ? (
-                              ""
-                            ) : (
-                              <List.Item>
-                                <table>
-                                  <tbody>
-                                    <tr>
-                                      <td style={{ verticalAlign: "top" }}>
-                                        {item.description !== "" ? (
-                                          <Icon name="edit" />
-                                        ) : (
-                                          ""
-                                        )}
-                                      </td>
-                                      <td>
-                                        {_.map(
-                                          item.description.split("\n"),
-                                          (line, i) => {
-                                            return (
-                                              <React.Fragment key={i}>
-                                                {line}
-                                                <br />
-                                              </React.Fragment>
-                                            );
-                                          }
-                                        )}
-                                      </td>
-                                    </tr>
-                                  </tbody>
-                                </table>
-                              </List.Item>
-                            )}
-                            {this.props.commentaires ? (
-                              <List.Item>
-                                <table>
-                                  <tbody>
-                                    <tr>
-                                      <td style={{ verticalAlign: "top" }}>
-                                        {item.commentaire !== "" ? (
-                                          <Icon name="sticky note outline" />
-                                        ) : (
-                                          ""
-                                        )}
-                                      </td>
-                                      <td>
-                                        {_.map(
-                                          item.commentaire.split("\n"),
-                                          (line, i) => {
-                                            return (
-                                              <React.Fragment key={i}>
-                                                {line}
-                                                <br />
-                                              </React.Fragment>
-                                            );
-                                          }
-                                        )}
-                                      </td>
-                                    </tr>
-                                  </tbody>
-                                </table>
-                              </List.Item>
-                            ) : (
-                              ""
-                            )}
-                          </List.List>
-                        </List.Content>
-                      </List.Item>
-                    );
+                              {this.props.commentaires ? (
+                                <List.Item>
+                                  <table>
+                                    <tbody>
+                                      <tr>
+                                        <td style={{ verticalAlign: "top" }}>
+                                          {item.commentaire !== "" ? (
+                                            <Icon name="sticky note outline" />
+                                          ) : (
+                                            ""
+                                          )}
+                                        </td>
+                                        <td>
+                                          {_.map(
+                                            item.commentaire.split("\n"),
+                                            (line, i) => {
+                                              return (
+                                                <React.Fragment key={i}>
+                                                  {line}
+                                                  <br />
+                                                </React.Fragment>
+                                              );
+                                            }
+                                          )}
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </List.Item>
+                              ) : (
+                                ""
+                              )}
+                            </List.List>
+                          </List.Content>
+                        </List.Item>
+                      );
+                    }
                   })}
                 </List>
               </div>
