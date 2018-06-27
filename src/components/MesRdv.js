@@ -1,5 +1,5 @@
 import React from "react";
-import { Header, Button, Divider, Modal, Label } from "semantic-ui-react";
+import { Header, Button, Divider, Modal, Label, Icon } from "semantic-ui-react";
 
 import _ from "lodash";
 
@@ -99,7 +99,12 @@ class MonRdv extends React.Component {
     return (
       <React.Fragment>
         <Header>{titrePlanning}</Header>
-        <Button onClick={() => this.setState({ edited: !this.state.edited })}>
+        <Button
+          onClick={() => this.setState({ edited: !this.state.edited })}
+          icon={true}
+          labelPosition="left"
+        >
+          <Icon name={this.state.edited ? "angle down" : "angle right"} />
           {rdvDateTime(this.props.rdv.startAt)}
         </Button>
         {this.state.edited ? (
@@ -201,11 +206,21 @@ class MonRdv extends React.Component {
                 color="orange"
               />
             )}
+            <p style={{textAlign: "left"}}>
+              {_.map(this.props.rdv.description.split("\n"), (line, i) => {
+                return (
+                  <React.Fragment key={i}>
+                    {line}
+                    <br />
+                  </React.Fragment>
+                );
+              })}
+            </p>
           </React.Fragment>
         ) : (
-          ""
+          <p>{_.truncate(this.props.rdv.description)}</p>
         )}
-        <p>{_.truncate(this.props.rdv.description.split("\n")[0])}</p>
+
         <Divider />
       </React.Fragment>
     );
