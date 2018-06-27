@@ -673,6 +673,9 @@ export default class FichePatient extends React.Component {
                         icon="list layout"
                         content="Rendez-vous"
                         client={this.props.client}
+                        saved={this.props.saved} // new
+                        save={this.props.save} // new
+                        onPatientChange={this.props.onPatientChange} // new
                       />
                     </Form.Input>
                   </Form.Group>

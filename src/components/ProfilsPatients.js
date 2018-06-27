@@ -251,7 +251,7 @@ export default class ProfilsPatients extends React.Component {
             <Icon name="warning" size="small" />
             <Message.Content>
               <Message.Header>Erreur les sauvegarde</Message.Header>
-              Le données ont probablement été modifiées depuis un autre poste.
+              Les données ont probablement été modifiées depuis un autre poste.
               Merci de bien vouloir annuler pour actualiser la fiche.
             </Message.Content>
           </Message>
@@ -297,6 +297,9 @@ export default class ProfilsPatients extends React.Component {
           age={this.state.age}
           onChange={this.onChange}
           client={this.props.client}
+          saved={this.state.saved} // new
+          save={this.save} // new
+          onPatientChange={this.onPatientChange} // new
         />
         <Divider hidden={true} />
 
