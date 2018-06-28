@@ -95,7 +95,7 @@ export default class RdvPassCard extends React.Component {
       "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     for (let i = 0; i < 10; i++) {
       // http://lastbit.com/pswcalc.asp
-      // 10 chars => Brute Force Attack will take up to 53968 years (1 computer, 500 passwords per second)
+      // 10 chars => Brute Force Attack will take up to 53968 years (500000 passwords per second)
       let c = Math.floor(Math.random() * chars.length);
       passwd += chars.charAt(c);
     }
