@@ -91,9 +91,11 @@ export default class RdvPassCard extends React.Component {
 
   makePasswd = () => {
     let passwd = "";
-    const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    // pas de chiffre car ça peut entrainer des confusions entre 0 et O ou entre 1 et I
-    for (let i = 0; i < 6; i++) {
+    const chars =
+      "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    for (let i = 0; i < 10; i++) {
+      // http://lastbit.com/pswcalc.asp
+      // 10 chars => Brute Force Attack will take up to 53968 years (1 computer, 500 passwords per second)
       let c = Math.floor(Math.random() * chars.length);
       passwd += chars.charAt(c);
     }
@@ -386,6 +388,16 @@ export default class RdvPassCard extends React.Component {
   };
 
   render() {
+    let infos = "";
+    if (this.state.printWithPassword) {
+      let siteUrl =
+        window.location.origin + window.location.pathname + "#Patients/";
+      infos = siteUrl;
+      infos += this.props.patient.id;
+      infos += ":" + this.state.newPassword;
+      infos += "@" + this.state.praticien.organisation.split("@")[0];
+    }
+
     return (
       <React.Fragment>
         <Modal size="small" open={this.state.open}>
@@ -408,9 +420,27 @@ export default class RdvPassCard extends React.Component {
               </List>
             )}
             {this.state.printWithPassword ? (
-              <p>
-                Nouveau mot de passe : <strong>{this.state.newPassword}</strong>
-              </p>
+              <div>
+                Nouveau mot de passe : <b>{this.state.newPassword}</b>
+                <br />
+                Lien direct : <b>{infos}</b>
+                &nbsp;
+                <Button
+                  icon="copy"
+                  size="mini"
+                  compact={true}
+                  circular={true}
+                  onClick={() => {
+                    // copy to clipboard
+                    const el = document.createElement("textarea");
+                    el.value = infos;
+                    document.body.appendChild(el);
+                    el.select();
+                    document.execCommand("copy");
+                    document.body.removeChild(el);
+                  }}
+                />
+              </div>
             ) : (
               ""
             )}

@@ -124,7 +124,7 @@ export default class PriseRdv extends React.Component {
       <React.Fragment>
         <Divider hidden={true} />
         <Header size={hsize}>Prendre un rendez-vous</Header>
-        <Step.Group vertical={true}>
+        <Step.Group vertical={true} fluid={true} unstackable={true}>
           <Step completed={this.state.currentPlanningId !== 0}>
             <Icon name="calendar" />
             <Step.Content>

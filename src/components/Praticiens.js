@@ -4,7 +4,6 @@ import React from "react";
 import {
   Button,
   Form,
-  Grid,
   Header,
   Message,
   Segment,
@@ -225,53 +224,56 @@ export default class Praticiens extends React.Component {
       return window.qWebChannel ? (
         ""
       ) : (
-        <div className="login-form" id="praticiens">
-          <Grid textAlign="center">
-            <Grid.Column style={{ maxWidth: maxWidth, marginTop: 60 }}>
-              <Header size={hsize}>
-                {/*<Image src='/logo.png' />*/}
-                Connexion praticien
-              </Header>
-              <Segment>
-                <Form size={fsize}>
-                  <Form.Input
-                    id="form-login-user"
-                    fluid={true}
-                    icon="doctor"
-                    iconPosition="left"
-                    placeholder="Identifiant"
-                    onChange={this.userChange}
-                    value={this.state.user}
-                    error={this.state.validation === "warning"}
-                  />
-                  <Form.Input
-                    fluid={true}
-                    icon="lock"
-                    iconPosition="left"
-                    placeholder="Mot de passe"
-                    type="password"
-                    onChange={this.passwordChange}
-                    value={this.state.password}
-                    error={this.state.validation === "warning"}
-                  />
-                </Form>
-                {/*Important : No Form submission => Button (not Form.Button and outside the form*/}
-                <Divider hidden={true} />
-                <Button primary={true} fluid={true} onClick={this.accept}>
-                  Connexion
-                </Button>
-                <Divider fitted={true} />
-                <Button secondary={true} fluid={true} onClick={this.reject}>
-                  Déconnexion
-                </Button>
-              </Segment>
-              <Message>
-                Ouvrir un compte ?{" "}
-                <a href="http://lambdasoft.fr">&nbsp;Nous contacter</a>
-              </Message>
-            </Grid.Column>
-          </Grid>
-        </div>
+        <React.Fragment>
+          <Divider hidden={true} />
+          <div
+            className="login-form"
+            id="praticiens"
+            style={{ maxWidth: maxWidth, textAlign: "center", margin: "auto" }}
+          >
+            <Header size={hsize}>
+              {/*<Image src='/logo.png' />*/}
+              Connexion praticien
+            </Header>
+            <Segment>
+              <Form size={fsize}>
+                <Form.Input
+                  id="form-login-user"
+                  fluid={true}
+                  icon="doctor"
+                  iconPosition="left"
+                  placeholder="Identifiant"
+                  onChange={this.userChange}
+                  value={this.state.user}
+                  error={this.state.validation === "warning"}
+                />
+                <Form.Input
+                  fluid={true}
+                  icon="lock"
+                  iconPosition="left"
+                  placeholder="Mot de passe"
+                  type="password"
+                  onChange={this.passwordChange}
+                  value={this.state.password}
+                  error={this.state.validation === "warning"}
+                />
+              </Form>
+              {/*Important : No Form submission => Button (not Form.Button and outside the form*/}
+              <Divider hidden={true} />
+              <Button primary={true} fluid={true} onClick={this.accept}>
+                Connexion
+              </Button>
+              <Divider fitted={true} />
+              <Button secondary={true} fluid={true} onClick={this.reject}>
+                Déconnexion
+              </Button>
+            </Segment>
+            <Message>
+              Ouvrir un compte ?{" "}
+              <a href="http://lambdasoft.fr">&nbsp;Nous contacter</a>
+            </Message>
+          </div>
+        </React.Fragment>
       );
   }
 }

@@ -98,11 +98,12 @@ class MonRdv extends React.Component {
 
     return (
       <React.Fragment>
-        <Header>{titrePlanning}</Header>
+        <Header size="small">{titrePlanning}</Header>
         <Button
           onClick={() => this.setState({ edited: !this.state.edited })}
           icon={true}
           labelPosition="left"
+          fluid={true}
         >
           <Icon name={this.state.edited ? "angle down" : "angle right"} />
           {rdvDateTime(this.props.rdv.startAt)}
@@ -206,7 +207,7 @@ class MonRdv extends React.Component {
                 color="orange"
               />
             )}
-            <p style={{textAlign: "left"}}>
+            <p style={{ textAlign: "left" }}>
               {_.map(this.props.rdv.description.split("\n"), (line, i) => {
                 return (
                   <React.Fragment key={i}>
@@ -336,6 +337,8 @@ export default class MesRdv extends React.Component {
         >
           Déconnexion
         </Button>
+        <Divider fitted={true} hidden={true} />
+        <Divider fitted={true} hidden={true} />
       </React.Fragment>
     );
   }

@@ -4,7 +4,6 @@ import {
   Checkbox,
   Button,
   Form,
-  Grid,
   Header,
   Segment,
   Divider
@@ -90,6 +89,8 @@ export default class Patients extends React.Component {
       clientOk: false,
       patient: patient
     });
+
+    window.addEventListener("resize", () => this.setState({}));
   }
 
   authorize = (etablissement, gestionRDVOnSuccess) => {
@@ -210,150 +211,149 @@ export default class Patients extends React.Component {
 
   render() {
     return (
-      <Grid textAlign="center" id="patients">
-        <Grid.Column style={{ maxWidth: maxWidth }}>
-          {this.state.gestionRDV ? (
-            this.state.identified ? (
-              <MesRdv
-                patient={this.state.patient}
-                identified={true}
-                client={client}
-              />
-            ) : (
-              <PriseRdv
-                patient={this.state.patient}
-                identified={false}
-                client={client}
-              />
-            )
+      <div
+        id="patients"
+        style={{ maxWidth: maxWidth, textAlign: "center", margin: "auto" }}
+      >
+        {this.state.gestionRDV ? (
+          this.state.identified ? (
+            <MesRdv
+              patient={this.state.patient}
+              identified={true}
+              client={client}
+            />
           ) : (
-            <React.Fragment>
-              <Divider hidden={true} />
-              <Header size={hsize}>
-                Je m'identifie pour accéder au service
-              </Header>
-              <Form onSubmit={this.gestionRDV} size={fsize}>
-                <Segment stacked={true}>
-                  {!_.isEmpty(this.state.etablissement) ? (
-                    <Checkbox
-                      label="Je dispose d'un identifiant personnel"
-                      toggle={true}
-                      checked={this.state.identified}
-                      onChange={(e, d) => {
-                        this.setState({
-                          identified: d.checked
-                        });
-                      }}
-                    />
-                  ) : (
-                    ""
-                  )}
-                  <Divider hidden={true} />
-                  {this.state.identified ? (
-                    <React.Fragment>
-                      <Form.Input
-                        name="ipp"
-                        fluid={true}
-                        icon="user"
-                        iconPosition="left"
-                        placeholder="Identifiant"
-                        value={
-                          /*_.isUndefined(this.state.patient.ipp)
+            <PriseRdv
+              patient={this.state.patient}
+              identified={false}
+              client={client}
+            />
+          )
+        ) : (
+          <React.Fragment>
+            <Divider hidden={true} />
+            <Header size={hsize}>Je m'identifie pour accéder au service</Header>
+            <Form onSubmit={this.gestionRDV} size={fsize}>
+              <Segment stacked={true}>
+                {!_.isEmpty(this.state.etablissement) ? (
+                  <Checkbox
+                    label="Je dispose d'un identifiant personnel"
+                    toggle={true}
+                    checked={this.state.identified}
+                    onChange={(e, d) => {
+                      this.setState({
+                        identified: d.checked
+                      });
+                    }}
+                  />
+                ) : (
+                  ""
+                )}
+                <Divider hidden={true} />
+                {this.state.identified ? (
+                  <React.Fragment>
+                    <Form.Input
+                      name="ipp"
+                      fluid={true}
+                      icon="user"
+                      iconPosition="left"
+                      placeholder="Identifiant"
+                      value={
+                        /*_.isUndefined(this.state.patient.ipp)
                             ? ""
                             : this.state.patient.ipp + "@" + this.state.patient.etablissement*/
-                          this.state.identifiant
-                        }
-                        required={true}
-                        type="text"
-                        onChange={this.handleChange}
-                      />
-                      <Form.Input
-                        name="password"
-                        fluid={true}
-                        icon="lock"
-                        iconPosition="left"
-                        placeholder="Mot de passe"
-                        value={
-                          _.isUndefined(this.state.patient.password)
-                            ? ""
-                            : this.state.patient.password
-                        }
-                        type="password"
-                        required={true}
-                        onChange={this.handleChange}
-                      />
-                    </React.Fragment>
-                  ) : (
-                    <React.Fragment>
-                      <Form.Input
-                        name="nom"
-                        fluid={true}
-                        icon="user"
-                        iconPosition="left"
-                        placeholder="Nom"
-                        value={
-                          _.isUndefined(this.state.patient.nom)
-                            ? ""
-                            : this.state.patient.nom
-                        }
-                        type="text"
-                        onChange={this.handleChange}
-                      />
-                      <Form.Input
-                        name="prenom"
-                        fluid={true}
-                        icon="user"
-                        iconPosition="left"
-                        placeholder="Prénom"
-                        value={
-                          _.isUndefined(this.state.patient.prenom)
-                            ? ""
-                            : this.state.patient.prenom
-                        }
-                        type="text"
-                        onChange={this.handleChange}
-                      />
-                      <Form.Input
-                        name="email"
-                        fluid={true}
-                        icon="mail"
-                        iconPosition="left"
-                        placeholder="Email"
-                        value={
-                          _.isUndefined(this.state.patient.email)
-                            ? ""
-                            : this.state.patient.email
-                        }
-                        type="email"
-                        required={true}
-                        onChange={this.handleChange}
-                      />
-                      <Form.Input
-                        name="telMobile"
-                        fluid={true}
-                        icon="mobile"
-                        iconPosition="left"
-                        placeholder="Téléphone mobile"
-                        value={
-                          _.isUndefined(this.state.patient.telMobile)
-                            ? ""
-                            : this.state.patient.telMobile
-                        }
-                        type="text"
-                        onChange={this.handleChange}
-                      />
-                    </React.Fragment>
-                  )}
-                  <Divider hidden={true} />
-                  <Button type="submit" secondary={true} fluid={true}>
-                    {this.state.identified ? "Gérer mes RDV" : "Prendre un RDV"}
-                  </Button>
-                </Segment>
-              </Form>
-            </React.Fragment>
-          )}
-        </Grid.Column>
-      </Grid>
+                        this.state.identifiant
+                      }
+                      required={true}
+                      type="text"
+                      onChange={this.handleChange}
+                    />
+                    <Form.Input
+                      name="password"
+                      fluid={true}
+                      icon="lock"
+                      iconPosition="left"
+                      placeholder="Mot de passe"
+                      value={
+                        _.isUndefined(this.state.patient.password)
+                          ? ""
+                          : this.state.patient.password
+                      }
+                      type="password"
+                      required={true}
+                      onChange={this.handleChange}
+                    />
+                  </React.Fragment>
+                ) : (
+                  <React.Fragment>
+                    <Form.Input
+                      name="nom"
+                      fluid={true}
+                      icon="user"
+                      iconPosition="left"
+                      placeholder="Nom"
+                      value={
+                        _.isUndefined(this.state.patient.nom)
+                          ? ""
+                          : this.state.patient.nom
+                      }
+                      type="text"
+                      onChange={this.handleChange}
+                    />
+                    <Form.Input
+                      name="prenom"
+                      fluid={true}
+                      icon="user"
+                      iconPosition="left"
+                      placeholder="Prénom"
+                      value={
+                        _.isUndefined(this.state.patient.prenom)
+                          ? ""
+                          : this.state.patient.prenom
+                      }
+                      type="text"
+                      onChange={this.handleChange}
+                    />
+                    <Form.Input
+                      name="email"
+                      fluid={true}
+                      icon="mail"
+                      iconPosition="left"
+                      placeholder="Email"
+                      value={
+                        _.isUndefined(this.state.patient.email)
+                          ? ""
+                          : this.state.patient.email
+                      }
+                      type="email"
+                      required={true}
+                      onChange={this.handleChange}
+                    />
+                    <Form.Input
+                      name="telMobile"
+                      fluid={true}
+                      icon="mobile"
+                      iconPosition="left"
+                      placeholder="Téléphone mobile"
+                      value={
+                        _.isUndefined(this.state.patient.telMobile)
+                          ? ""
+                          : this.state.patient.telMobile
+                      }
+                      type="text"
+                      onChange={this.handleChange}
+                    />
+                  </React.Fragment>
+                )}
+                <Divider hidden={true} />
+                <Button type="submit" secondary={true} fluid={true}>
+                  {this.state.identified ? "Gérer mes RDV" : "Prendre un RDV"}
+                </Button>
+              </Segment>
+            </Form>
+          </React.Fragment>
+        )}
+      </div>
     );
   }
 }
