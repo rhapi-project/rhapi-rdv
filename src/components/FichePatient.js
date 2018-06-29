@@ -110,7 +110,7 @@ export default class FichePatient extends React.Component {
   ];
 
   componentWillMount() {
-    this.setState({ activeIndex: 0 });
+    this.setState({ activeIndex: 0, rdvPassCard: false });
   }
 
   componentWillReceiveProps(next) {
@@ -283,21 +283,14 @@ export default class FichePatient extends React.Component {
     this.props.onChange(modifiedPatient);
   };
 
-  makePasswd = () => {
-    let passwd = "";
-    const chars =
-      "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    for (let i = 0; i < 6; i++) {
-      let c = Math.floor(Math.random() * chars.length + 1);
-      passwd += chars.charAt(c);
-    }
-    return passwd;
-  };
-
   onImageChange = image => {
     let modifiedPatient = this.state.patient;
     modifiedPatient.profilJO.base64 = image;
     this.props.onChange(modifiedPatient);
+  };
+
+  rdvPassCardOpen = bool => {
+    this.setState({ rdvPassCard: bool });
   };
 
   render() {
@@ -312,7 +305,6 @@ export default class FichePatient extends React.Component {
       patient = this.state.patient;
       //console.log("Fiche : " + patient.id);
     }
-
     return (
       <React.Fragment>
         {nofiche ? (
@@ -664,18 +656,23 @@ export default class FichePatient extends React.Component {
 
                     <Form.Input label="Rendez-vous / Mot de passe">
                       <RdvPassCard
+                        open={this.state.rdvPassCard}
+                        rdvPassCardOpen={this.rdvPassCardOpen}
                         patient={this.state.patient}
                         denomination={
                           this.civilite(true) +
                           " " +
                           this.affichageDenomination()
                         }
+                        client={this.props.client}
+                        saved={this.props.saved}
+                        save={this.props.save}
+                        patientReload={this.props.onPatientChange}
+                      />
+                      <Button
                         icon="list layout"
                         content="Rendez-vous"
-                        client={this.props.client}
-                        saved={this.props.saved} // new
-                        save={this.props.save} // new
-                        onPatientChange={this.props.onPatientChange} // new
+                        onClick={() => this.rdvPassCardOpen(true)}
                       />
                     </Form.Input>
                   </Form.Group>

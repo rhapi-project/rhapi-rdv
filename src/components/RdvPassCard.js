@@ -25,10 +25,10 @@ export default class RdvPassCard extends React.Component {
       2 : validité du message
           (SMS conforme ? Comment savoir ?)
       3 : erreur réseau
+      4 : numéro invalide
   */
 
   state = {
-    open: false,
     newPassword: "",
     oldPassword: "",
     modalPassword: false,
@@ -39,13 +39,22 @@ export default class RdvPassCard extends React.Component {
     mesPlannings: [],
     savingModal: false,
     retourSMS: false,
-    errorSMS: false,
-    errorSMSType: 0,
-    envoiSMS: false
+    errorSMS: -1 // pas d'envoi effectué encore
   };
 
-  componentWillReceiveProps() {
+  componentWillMount() {
     this.reload();
+  }
+
+  componentWillReceiveProps(next) {
+    if (next.open && this.state.newPassword === "") {
+      this.setState({ pwdGeneration: true });
+    }
+    if (!_.isUndefined(this.props.saved)) {
+      if (next.open && !next.saved) {
+        this.setState({ savingModal: true });
+      }
+    }
   }
 
   reload = () => {
@@ -108,14 +117,12 @@ export default class RdvPassCard extends React.Component {
       let pwd = this.makePasswd();
       if (this.state.newPassword === "") {
         this.setState({
-          newPassword: pwd,
-          carte: false
+          newPassword: pwd
         });
       } else {
         this.setState({
           oldPassword: this.state.newPassword,
-          newPassword: pwd,
-          carte: false
+          newPassword: pwd
         });
       }
       this.props.client.Patients.read(
@@ -134,14 +141,13 @@ export default class RdvPassCard extends React.Component {
               // success
               this.setState({
                 printWithPassword: true,
-                open: true,
                 pwdGeneration: false
               });
               // Après chaque génération de mot de passe,
               // remettre à jour les données de la fiche du patient.
               // Si cela n'est pas fait, les sauvegardes sur la fiche
               // du patient ne seront pas possible (lockRevision)
-              this.props.onPatientChange(this.props.patient.id);
+              this.props.patientReload(this.props.patient.id);
             },
             data => {
               // error
@@ -175,14 +181,13 @@ export default class RdvPassCard extends React.Component {
               // success
               this.setState({
                 modalPassword: false,
-                printWithPassword: true,
-                open: true
+                printWithPassword: true
               });
               // Après chaque génération de mot de passe,
               // remettre à jour les données de la fiche du patient.
               // Si cela n'est pas fait, les sauvegardes sur la fiche
               // du patient ne seront pas possible (lockRevision)
-              this.props.onPatientChange(this.props.patient.id);
+              this.props.patientReload(this.props.patient.id);
             },
             data => {
               // error
@@ -289,12 +294,12 @@ export default class RdvPassCard extends React.Component {
   afterPrint = () => {
     // fermeture de toutes les modals
     this.setState({
-      open: false,
       newPassword: "",
       modalPassword: false,
       printWithPassword: false,
       carte: false
     });
+    this.props.rdvPassCardOpen(false);
   };
 
   sendSms = () => {
@@ -331,7 +336,7 @@ export default class RdvPassCard extends React.Component {
     if (i === -1) {
       // pas de planning autorisé à envoyer un SMS !
       // erreur (1)
-      this.setState({ retourSMS: true, errorSMS: true, errorSMSType: 1 });
+      this.setState({ retourSMS: true, errorSMS: 1 });
       return;
     }
     let message = this.state.mesPlannings[i].optionsJO.sms.confirmationTexte;
@@ -362,16 +367,20 @@ export default class RdvPassCard extends React.Component {
     this.props.client.Sms.create(
       { message: message, receivers: receivers },
       datas => {
-        console.log(datas);
+        //console.log(datas);
         // TODO mettre un checkbox rouge (ou autre visualisation retour négatif) si le SMS n'est pas conforme
         // => tester les champ ad hoc pour savoir si le SMS a bien été envoyé !
         if (!_.isEmpty(datas.validReceivers)) {
           // le SMS a été envoyé
           this.setState({
             retourSMS: true,
-            errorSMS: false,
-            errorSMSType: 0,
-            envoiSMS: true
+            errorSMS: 0
+          });
+        } else if (!_.isEmpty(datas.invalidReceivers)) {
+          // numéro invalide
+          this.setState({
+            retourSMS: true,
+            errorSMS: 4
           });
         }
       },
@@ -379,9 +388,7 @@ export default class RdvPassCard extends React.Component {
         console.log(errors);
         this.setState({
           retourSMS: true,
-          errorSMS: true,
-          errorSMSType: 3,
-          envoiSMS: false
+          errorSMS: 3
         });
       }
     );
@@ -400,7 +407,7 @@ export default class RdvPassCard extends React.Component {
 
     return (
       <React.Fragment>
-        <Modal size="small" open={this.state.open}>
+        <Modal size="small" open={this.props.open}>
           <Modal.Header>
             {"Prochains rendez-vous de " + this.props.denomination}
           </Modal.Header>
@@ -502,7 +509,7 @@ export default class RdvPassCard extends React.Component {
             />
             <Ref
               innerRef={node => {
-                if (!this.state.modalPassword) {
+                if (this.props.open) {
                   node.firstChild.parentElement.focus();
                 }
               }}
@@ -510,7 +517,7 @@ export default class RdvPassCard extends React.Component {
               <Button
                 primary={true}
                 content="Fermer"
-                onClick={() => this.setState({ open: false })}
+                onClick={() => this.props.rdvPassCardOpen(false)}
               />
             </Ref>
           </Modal.Actions>
@@ -549,7 +556,13 @@ export default class RdvPassCard extends React.Component {
             </p>
           </Modal.Content>
           <Modal.Actions>
-            <Ref innerRef={node => node.firstChild.parentElement.focus()}>
+            <Ref
+              innerRef={node => {
+                if (this.state.modalPassword) {
+                  node.firstChild.parentElement.focus();
+                }
+              }}
+            >
               <Button
                 content="Oui"
                 primary={true}
@@ -581,11 +594,19 @@ export default class RdvPassCard extends React.Component {
             </p>
           </Modal.Content>
           <Modal.Actions>
-            <Button
-              content="Oui"
-              primary={true}
-              onClick={() => this.savePasswd("SMS")}
-            />
+            <Ref
+              innerRef={node => {
+                if (this.state.pwdGeneration) {
+                  node.firstChild.parentElement.focus();
+                }
+              }}
+            >
+              <Button
+                content="Oui"
+                primary={true}
+                onClick={() => this.savePasswd("SMS")}
+              />
+            </Ref>
             <Button
               content="Non"
               onClick={() =>
@@ -636,38 +657,44 @@ export default class RdvPassCard extends React.Component {
                   <strong>Voulez-vous générer un nouveau mot de passe ?</strong>
                 </p>
               </div>
-            ) : this.state.errorSMS ? (
+            ) : this.state.errorSMS !== -1 && this.state.errorSMS !== 0 ? (
               <div>
                 <Message icon={true} negative={true}>
-                  {this.state.errorSMSType === 1 ? (
+                  {this.state.errorSMS === 1 ? (
                     <Icon name="warning" />
-                  ) : this.state.errorSMSType === 3 ? (
+                  ) : this.state.errorSMS === 3 ? (
                     <Icon name="signal" />
+                  ) : this.state.errorSMS === 4 ? (
+                    <Icon name="remove" />
                   ) : (
                     ""
-                  ) // reste erreur type 2
+                  )
+                  // reste erreur type 2
                   }
                   <Message.Content>
                     <Message.Header>Erreur d'envoi SMS</Message.Header>
-                    {this.state.errorSMSType === 1 ? (
+                    {this.state.errorSMS === 1 ? (
                       <p>
                         L'envoi du SMS a échoué. <br />
                         Vous n'avez pas de planning autorisé à envoyer un SMS !
                       </p>
-                    ) : this.state.errorSMSType === 3 ? (
+                    ) : this.state.errorSMS === 3 ? (
                       <p>
                         Le SMS n'a pas pu être envoyé. <br />
                         Vérifiez si votre poste est connecté à internet et
                         réessayez.
                       </p>
+                    ) : this.state.errorSMS === 4 ? (
+                      <p>Numéro invalide</p>
                     ) : (
                       ""
-                    ) // reste erreur type 2
+                    )
+                    // reste erreur type 2
                     }
                   </Message.Content>
                 </Message>
               </div>
-            ) : this.state.envoiSMS ? (
+            ) : this.state.errorSMS === 0 ? (
               <div>
                 <Message size="small" icon={true} positive={true}>
                   <Icon name="send" />
@@ -684,8 +711,17 @@ export default class RdvPassCard extends React.Component {
           {this.state.mesRdv.length === 0 ||
           this.props.patient.telMobile.length < 8 ? (
             <Modal.Actions>
-              <Ref innerRef={node => node.firstChild.parentElement.focus()}>
+              <Ref
+                innerRef={node => {
+                  if (
+                    this.state.mesRdv.length === 0 ||
+                    this.props.patient.telMobile.length < 8
+                  )
+                    node.firstChild.parentElement.focus();
+                }}
+              >
                 <Button
+                  primary={true}
                   content="OK"
                   onClick={() => this.setState({ retourSMS: false })}
                 />
@@ -694,7 +730,16 @@ export default class RdvPassCard extends React.Component {
           ) : _.isUndefined(this.state.newPassword) ||
           _.isEmpty(this.state.newPassword) ? (
             <Modal.Actions>
-              <Ref innerRef={node => node.firstChild.parentElement.focus()}>
+              <Ref
+                innerRef={node => {
+                  if (
+                    _.isUndefined(this.state.newPassword) ||
+                    _.isEmpty(this.state.newPassword)
+                  ) {
+                    node.firstChild.parentElement.focus();
+                  }
+                }}
+              >
                 <Button
                   content="Oui"
                   primary={true}
@@ -709,60 +754,43 @@ export default class RdvPassCard extends React.Component {
                 onClick={() => this.setState({ retourSMS: false })}
               />
             </Modal.Actions>
-          ) : this.state.errorSMS ? (
-            this.state.errorSMSType === 1 ? (
-              <Modal.Actions>
+          ) : this.state.errorSMS === 0 ||
+          this.state.errorSMS === 1 ||
+          this.state.errorSMS === 4 ? (
+            <Modal.Actions>
+              <Ref innerRef={node => node.firstChild.parentElement.focus()}>
                 <Button
+                  primary={true}
                   content="OK"
                   onClick={() =>
                     this.setState({
-                      errorSMS: false,
-                      errorSMSType: 0,
-                      envoiSMS: false,
+                      errorSMS: -1,
                       retourSMS: false
                     })
                   }
                 />
-              </Modal.Actions>
-            ) : this.state.errorSMSType === 3 ? (
-              <Modal.Actions>
+              </Ref>
+            </Modal.Actions>
+          ) : this.state.errorSMS === 3 ? (
+            <Modal.Actions>
+              <Ref innerRef={node => node.firstChild.parentElement.focus()}>
                 <Button
                   content="Réessayer"
                   primary={true}
                   onClick={() => {
                     this.setState({
-                      errorSMS: false,
-                      errorSMSType: 0,
-                      envoiSMS: false,
+                      errorSMS: -1,
                       retourSMS: false
                     });
                     this.sendSms();
                   }}
                 />
-                <Button
-                  content="Annuler"
-                  onClick={() =>
-                    this.setState({
-                      errorSMS: false,
-                      errorSMSType: 0,
-                      envoiSMS: false,
-                      retourSMS: false
-                    })
-                  }
-                />
-              </Modal.Actions>
-            ) : (
-              ""
-            )
-          ) : this.state.envoiSMS ? (
-            <Modal.Actions>
+              </Ref>
               <Button
-                content="OK"
+                content="Annuler"
                 onClick={() =>
                   this.setState({
-                    envoiSMS: false,
-                    errorSMS: false,
-                    errorSMSType: 0,
+                    errorSMS: -1,
                     retourSMS: false
                   })
                 }
@@ -797,32 +825,40 @@ export default class RdvPassCard extends React.Component {
             </div>
           </Modal.Content>
           <Modal.Actions>
-            <Button
-              content="Oui"
-              primary={true}
-              onClick={() => {
-                this.props.save();
-                if (
-                  _.isUndefined(this.state.newPassword) ||
-                  _.isEmpty(this.state.newPassword)
-                ) {
-                  this.setState({ savingModal: false, pwdGeneration: true });
-                } else {
-                  this.setState({ savingModal: false, open: true });
+            <Ref
+              innerRef={node => {
+                if (this.state.savingModal) {
+                  node.firstChild.parentElement.focus();
                 }
               }}
-            />
+            >
+              <Button
+                content="Oui"
+                primary={true}
+                onClick={() => {
+                  this.props.save();
+                  if (
+                    _.isUndefined(this.state.newPassword) ||
+                    _.isEmpty(this.state.newPassword)
+                  ) {
+                    this.setState({ savingModal: false, pwdGeneration: true });
+                  } else {
+                    this.setState({ savingModal: false /*, open: true*/ });
+                  }
+                }}
+              />
+            </Ref>
             <Button
               content="Non"
               onClick={() => {
-                this.props.onPatientChange(this.props.patient.id);
+                this.props.patientReload(this.props.patient.id);
                 if (
                   _.isUndefined(this.state.newPassword) ||
                   _.isEmpty(this.state.newPassword)
                 ) {
                   this.setState({ savingModal: false, pwdGeneration: true });
                 } else {
-                  this.setState({ savingModal: false, open: true });
+                  this.setState({ savingModal: false /*, open: true*/ });
                 }
               }}
             />
@@ -853,23 +889,6 @@ export default class RdvPassCard extends React.Component {
             />
           </Modal.Content>
         </Modal>
-
-        <Button
-          icon={this.props.icon}
-          content={this.props.content}
-          onClick={() => {
-            if (!this.props.saved) {
-              this.setState({ savingModal: true });
-            } else if (
-              _.isUndefined(this.state.newPassword) ||
-              _.isEmpty(this.state.newPassword)
-            ) {
-              this.setState({ pwdGeneration: true });
-            } else {
-              this.setState({ open: true });
-            }
-          }}
-        />
       </React.Fragment>
     );
   }
