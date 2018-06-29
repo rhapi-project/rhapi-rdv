@@ -29,6 +29,8 @@ import PatientSearch from "./PatientSearch";
 
 import ColorPicker from "./ColorPicker";
 
+import RdvPassCard from "./RdvPassCard";
+
 class FromTo extends React.Component {
   componentWillMount() {
     this.setState({ hfrom: this.props.hfrom, hto: this.props.hto });
@@ -83,6 +85,7 @@ export default class CalendarModalRdv extends React.Component {
   //plannings = [];
 
   componentWillMount() {
+    this.setState({ rdvPassCard: false });
     this.reload(this.props);
   }
 
@@ -93,17 +96,18 @@ export default class CalendarModalRdv extends React.Component {
     this.setState({ image: "", accordionIndex: -1 });
   }
 
-  imageLoad = idPatient => {
+  patientLoad = idPatient => {
     this.props.client.Patients.read(
       idPatient,
       {},
       patient => {
         // success
+        this.setState({ patient: patient });
         this.setState({ image: patient.profilJO.base64 });
       },
       data => {
         // error
-        console.log("Error lecture patient");
+        console.log("Erreur lecture patient");
         this.setState({ image: "" });
       }
     );
@@ -180,7 +184,7 @@ export default class CalendarModalRdv extends React.Component {
         { planning: this.props.planning },
         rdv => {
           //console.log(rdv);
-          this.imageLoad(rdv.idPatient);
+          this.patientLoad(rdv.idPatient);
           this.setState({ rdv: rdv });
         },
         () => {}
@@ -290,7 +294,7 @@ export default class CalendarModalRdv extends React.Component {
     rdv.idPatient = id;
     rdv.titre = title;
     this.setState({ rdv: rdv });
-    this.imageLoad(rdv.idPatient);
+    this.patientLoad(rdv.idPatient);
   };
 
   planningsSelect = () => {
@@ -414,6 +418,10 @@ export default class CalendarModalRdv extends React.Component {
     this.setState({ rdv: rdv });
   };
 
+  rdvPassCardOpen = bool => {
+    this.setState({ rdvPassCard: bool });
+  };
+
   render() {
     if (!this.props.open) {
       return "";
@@ -469,7 +477,8 @@ export default class CalendarModalRdv extends React.Component {
       }
     });
     // plannings et motifs - fin
-
+    console.log(this.state);
+    console.log(this.props);
     return (
       <Modal open={this.props.open}>
         <Segment clearing={true}>
@@ -694,8 +703,38 @@ export default class CalendarModalRdv extends React.Component {
               />
             </Form.Group>
           </Form>
+          {/*
+              Il n'y a pas besoin des props "saved" et "save (fonction)" dans le composant RdvPassCard.
+              Elles seront utiles dans le cas où nous sommes sur l'interface de 
+              la fiche du patient.
+          */}
+          {!this.state.isNewOne && !_.isEmpty(this.state.patient) ? (
+            <RdvPassCard
+              open={this.state.rdvPassCard}
+              client={this.props.client}
+              patient={this.state.patient}
+              denomination={
+                this.state.patient.nom + " " + this.state.patient.prenom
+              }
+              // TODO : pour la dénomination voir dans FichePatient.js
+              //        comment les valeurs sont obtenues
+              rdvPassCardOpen={this.rdvPassCardOpen}
+              patientReload={this.patientLoad}
+              //saved
+              //save
+            />
+          ) : (
+            ""
+          )}
         </Modal.Content>
         <Modal.Actions>
+          {!this.state.isNewOne ? (
+            <Button onClick={() => this.setState({ rdvPassCard: true })}>
+              Rendez-vous
+            </Button>
+          ) : (
+            ""
+          )}
           <Button negative={!this.state.isNewOne} onClick={this.handleRemove}>
             {this.state.isNewOne ? "Annuler" : "Supprimer"}
           </Button>
