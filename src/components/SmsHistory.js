@@ -31,8 +31,8 @@ import { telFormat, rdvDateTime } from "./Settings";
 
 export default class SmsHistory extends React.Component {
   tri = [
-    { text: "Tri par date", value: "date" },
-    { text: "Tri par téléphone", value: "tel" }
+    { text: "Trier par date", value: "date" },
+    { text: "Trier par n° de téléphone", value: "tel" }
   ];
 
   componentWillMount() {
@@ -40,7 +40,7 @@ export default class SmsHistory extends React.Component {
       loading: true,
       mois: moment().month(),
       currentYear: moment().year(),
-      years: this.years(3), // select année
+      years: this.years(5), // select année
       allMonths: this.allMonths(), // select mois (les mois sont indicés à partir de 0)
       messages: [],
       sortBy: "date",
@@ -64,40 +64,56 @@ export default class SmsHistory extends React.Component {
   }
 
   reload = (fromStr, toStr, sortBy) => {
-    //console.log(fromStr + " - " + toStr);
+    let sortMessages = msg => {
+      if (sortBy === "date") {
+        msg.sort((msg1, msg2) => {
+          if (msg1.creationDatetime > msg2.creationDatetime) {
+            return -1;
+          } else if (msg1.creationDatetime < msg2.creationDatetime) {
+            return 1;
+          } else {
+            return 0;
+          }
+        });
+      } else {
+        // tri par téléphone
+        msg.sort((msg1, msg2) => {
+          if (msg1.receiver < msg2.receiver) {
+            return -1;
+          } else if (msg1.receiver > msg2.receiver) {
+            return 1;
+          } else {
+            return 0;
+          }
+        });
+      }
+    };
+
+    if (this.state.fromStr === fromStr && this.state.toStr === toStr) {
+      // juste un chagement sur le tri
+      let msg = this.state.messages;
+      sortMessages(msg);
+      this.setState({
+        loading: false,
+        messages: msg,
+        openedMessage: -1
+      });
+      return;
+    }
+
     this.props.client.Sms.readAll(
       { from: fromStr, to: toStr },
       datas => {
-        //console.log(datas);
         let msg = datas.results;
-        // tri par date du plus récent au plus ancien
-        if (sortBy === "date") {
-          msg.sort((msg1, msg2) => {
-            if (msg1.creationDatetime > msg2.creationDatetime) {
-              return -1;
-            } else if (msg1.creationDatetime < msg2.creationDatetime) {
-              return 1;
-            } else {
-              return 0;
-            }
-          });
-        } else {
-          // tri par téléphone
-          msg.sort((msg1, msg2) => {
-            if (msg1.receiver < msg2.receiver) {
-              return -1;
-            } else if (msg1.receiver > msg2.receiver) {
-              return 1;
-            } else {
-              return 0;
-            }
-          });
-        }
+        sortMessages(msg);
 
         this.setState({
+          informations: datas.informations,
           loading: false,
           messages: msg,
-          openedMessage: -1
+          openedMessage: -1,
+          fromStr: fromStr,
+          toStr: toStr
         });
       },
       errors => {
@@ -191,21 +207,26 @@ export default class SmsHistory extends React.Component {
   };
 
   openMessage = (e, d) => {
-    this.setState({
-      openedMessage: d.index
-    });
+    let telephone = this.state.messages[d.index].receiver;
+
+    this.props.client.Patients.telephones(
+      { format: "Np", texte: telephone },
+      datas => {
+        let patients = _.map(datas, data => data.denomination);
+        this.setState({
+          patients: patients,
+          openedMessage: d.index
+        });
+      },
+      errors => {
+        console.log(errors);
+      }
+    );
   };
 
   render() {
-    //console.log(this.state.mois);
-    let nbSMS = 0;
-    if (_.isEmpty(this.state.messages)) {
-      nbSMS = 0;
-    } else {
-      for (let i = 0; i < this.state.messages.length; i++) {
-        nbSMS += this.state.messages[i].numberOfSms;
-      }
-    }
+    let infos = this.state.informations;
+    // {timeElapsed: 2507, totalCredits: 55, totalEnvois: 32, totalSms: 55}
 
     return (
       <React.Fragment>
@@ -214,11 +235,13 @@ export default class SmsHistory extends React.Component {
             Historique SMS &nbsp;&nbsp;
             {this.state.loading
               ? ""
-              : "( " +
-                this.state.messages.length +
+              : " (" +
+                infos.totalEnvois +
                 " messages - " +
-                nbSMS +
-                " SMS )"}
+                infos.totalSms +
+                " SMS - " +
+                infos.totalCredits +
+                " crédits)"}
           </Modal.Header>
           <Modal.Content>
             {this.state.loading ? (
@@ -226,6 +249,7 @@ export default class SmsHistory extends React.Component {
                 <Dimmer active={true} inverted={true}>
                   <Loader size="large">Chargement...</Loader>
                 </Dimmer>
+                <Divider hidden={true} />
               </Segment>
             ) : (
               <div>
@@ -266,10 +290,11 @@ export default class SmsHistory extends React.Component {
                   <Message icon={true}>
                     <Icon name="envelope" />
                     <Message.Content>
-                      <Message.Header>Aucun SMS trouvé !</Message.Header>
+                      <Message.Header>Aucun SMS</Message.Header>
                       <p>
-                        Vous n'avez envoyé aucune confirmation SMS en &nbsp;
-                        {this.state.allMonths[this.state.mois].text +
+                        Vous n'avez envoyé aucun SMS en
+                        {" " +
+                          this.state.allMonths[this.state.mois].text +
                           " " +
                           this.state.currentYear}
                       </p>
@@ -279,7 +304,7 @@ export default class SmsHistory extends React.Component {
                   <Grid>
                     <Grid.Row divided={true}>
                       <Grid.Column width={6}>
-                        <div style={{ overflowY: "scroll", height: "300px" }}>
+                        <div style={{ overflowY: "auto", height: "300px" }}>
                           <Menu fluid={true} secondary={true} vertical={true}>
                             {_.map(this.state.messages, (message, i) => {
                               return (
@@ -328,26 +353,27 @@ export default class SmsHistory extends React.Component {
                               <div style={{ float: "right" }}>
                                 <Icon
                                   style={{ cursor: "pointer" }}
-                                  name="window close"
-                                  color="grey"
+                                  name="close"
                                   size="large"
                                   onClick={() =>
                                     this.setState({ openedMessage: -1 })
                                   }
                                 />
                               </div>
-                              <span>
+                              <p>
                                 <strong>
                                   {telFormat(
                                     this.state.messages[
                                       this.state.openedMessage
                                     ].receiver
-                                  )}
+                                  ) +
+                                    (this.state.patients.length ? " - " : "") +
+                                    _.truncate(this.state.patients.join(", "), {
+                                      length: 25
+                                    })}
                                 </strong>
-                              </span>
-                              <br />
-                              <span>
-                                Envoyé{" "}
+                              </p>
+                              <p>
                                 {_.upperFirst(
                                   rdvDateTime(
                                     this.state.messages[
@@ -355,9 +381,8 @@ export default class SmsHistory extends React.Component {
                                     ].creationDatetime
                                   )
                                 )}
-                              </span>
-                              <br />
-                              <span>
+                              </p>
+                              <p>
                                 Statut &nbsp;&nbsp;
                                 {this.state.messages[this.state.openedMessage]
                                   .deliveryReceipt === 1 ? (
@@ -365,9 +390,8 @@ export default class SmsHistory extends React.Component {
                                 ) : (
                                   <Icon name="circle" color="red" />
                                 )}
-                              </span>
-                              <br />
-                              <span>
+                              </p>
+                              <p>
                                 <strong>
                                   {
                                     this.state.messages[
@@ -384,20 +408,25 @@ export default class SmsHistory extends React.Component {
                                   }
                                 </strong>
                                 &nbsp;SMS
-                              </span>
+                              </p>
                               <Divider />
-                              <span>Contenu du message : </span>
-                              <Divider hidden={true} />
                               <div
-                                style={{ overflowY: "scroll", height: "140px" }}
+                                style={{ overflowY: "auto", height: "140px" }}
                               >
-                                <p style={{ paddingRight: "15%" }}>
-                                  {
-                                    this.state.messages[
-                                      this.state.openedMessage
-                                    ].message
+                                {_.map(
+                                  // affiche les sauts de lignes
+                                  this.state.messages[
+                                    this.state.openedMessage
+                                  ].message.split("\n"),
+                                  (line, i) => {
+                                    return (
+                                      <React.Fragment key={i}>
+                                        {line}
+                                        <br />
+                                      </React.Fragment>
+                                    );
                                   }
-                                </p>
+                                )}
                               </div>
                             </div>
                           </div>

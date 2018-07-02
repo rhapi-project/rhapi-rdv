@@ -91,7 +91,6 @@ export default class Profil extends React.Component {
 
   //gestion des "onChange" dans les input
   handleChangeInput = (e, d) => {
-    console.log("handleChangeInput");
     if (
       _.includes(["currentName", "userPassword", "passwordConfirm"], d.name)
     ) {
@@ -103,7 +102,12 @@ export default class Profil extends React.Component {
     } else {
       //Modification dans l'objet account
       let obj = this.state.account;
-      obj[d.name] = e.target.value;
+      let key = d.name;
+      if (key === "telBureau" || key === "telMobile") {
+        obj[key] = telFormat(e.target.value);
+      } else {
+        obj[key] = e.target.value;
+      }
       this.setState({ account: obj, saved: false });
     }
   };
@@ -158,13 +162,13 @@ export default class Profil extends React.Component {
 
   save = () => {
     if (this.verification() && this.formatsValides()) {
-      //L'erreur venait de la fonction handleChangeInput()
-      this.setState({ passwordConfirm: "" }); // Forcer le champs passwordConfirm à être vide
+      this.setState({ passwordConfirm: "" });
       let obj = this.state;
-      console.log(this.state);
+      //console.log(this.state);
       _.unset(obj, "passwordConfirm");
       _.unset(obj, "saved");
       _.unset(obj, "changePassword");
+      _.unset(obj, "sms");
       if (!this.state.changePassword) {
         // si le mot de passe n'est pas modifié, on ne le met pas à jour dans la BDD
         _.unset(obj, "userPassword");
@@ -358,7 +362,7 @@ export default class Profil extends React.Component {
             <Form.Input
               required={true}
               label="Téléphone mobile"
-              value={telFormat(this.state.account.telMobile)}
+              value={this.state.account.telMobile}
               name="telMobile"
               error={
                 this.telephoneValide(this.state.account.telMobile) ||
@@ -371,7 +375,7 @@ export default class Profil extends React.Component {
             <Form.Input
               required={true}
               label="Téléphone bureau"
-              value={telFormat(this.state.account.telBureau)}
+              value={this.state.account.telBureau}
               name="telBureau"
               error={
                 this.telephoneValide(this.state.account.telBureau) ||

@@ -30,9 +30,16 @@ import Praticiens from "./components/Praticiens";
 window.qWebChannel = false;
 
 class Main extends React.Component {
-  state = { visible: false, help: false, login: false };
+  componentWillMount() {
+    let subApp = window.location.hash.split("/")[0];
+    this.setState({
+      visible: !(subApp === "#Patients" || subApp === "#Praticiens"),
+      help: false,
+      login: false
+    });
+  }
 
-  componentDidMount = () => {
+  componentDidMount() {
     // Qt Mixed App ?
     if (typeof QWebChannel !== "undefined") {
       /*eslint no-undef: "off"*/
@@ -41,7 +48,7 @@ class Main extends React.Component {
         this.setState({}); // rerender
       });
     }
-  };
+  }
 
   render() {
     let sidebar = "";

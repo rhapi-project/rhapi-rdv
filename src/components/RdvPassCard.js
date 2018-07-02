@@ -361,7 +361,7 @@ export default class RdvPassCard extends React.Component {
     // split("@") si une forme master@master => master
     message = _.replace(message, "{infos-annulation}", infos);
 
-    let receivers = [this.props.patient.telMobile]; // <= liste de numéros de téléphone (à priori 1 seul)
+    let receivers = [this.props.patient.telMobile]; // la normalisation du n° est assuré en backend
     // attention le nombre de SMS disponibles pour les tests est volontairement limité !
 
     this.props.client.Sms.create(

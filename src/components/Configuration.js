@@ -286,7 +286,7 @@ export default class Configuration extends React.Component {
 
       if (_.isUndefined(options.sms)) {
         options.sms = {
-          rappel12: false,
+          rappel1: false,
           rappel24: false,
           rappel48: false,
           rappelTexte:
@@ -294,6 +294,10 @@ export default class Configuration extends React.Component {
           confirmationTexte:
             "RDV le {date-heure}.\nDr (saisir les coordonnées)\n{infos-annulation}"
         };
+      }
+
+      if (_.isUndefined(options.sms.site)) {
+        options.sms.site = window.location.origin + window.location.pathname;
       }
 
       const Plages = (
@@ -964,12 +968,12 @@ export default class Configuration extends React.Component {
               <Checkbox
                 toggle={true}
                 checked={
-                  options.sms.rappel12 ||
+                  options.sms.rappel1 ||
                   options.sms.rappel24 ||
                   options.sms.rappel48
                 }
                 onChange={(e, d) => {
-                  options.sms.rappel12 = d.checked;
+                  options.sms.rappel1 = d.checked;
                   options.sms.rappel24 = d.checked;
                   options.sms.rappel48 = d.checked;
                   plannings[index].optionsJO = options;
@@ -1010,15 +1014,42 @@ export default class Configuration extends React.Component {
               />
             </Form.Input>
             <Form.Input
-              label="12 heures avant le RDV"
+              label="1 heure avant le RDV"
               style={{ maxWidth: maxWidth / 10 }}
             >
               <Checkbox
                 toggle={true}
-                checked={options.sms.rappel12}
+                checked={options.sms.rappel1}
                 onChange={(e, d) => {
-                  options.sms.rappel12 = d.checked;
+                  options.sms.rappel1 = d.checked;
                   plannings[index].optionsJO = options;
+                  this.setState({
+                    /*plannings: plannings*/ saved: false
+                  });
+                }}
+              />
+            </Form.Input>
+          </Form.Group>
+          <Form.Group widths="equal">
+            <Form.Input
+              label="URL du site (lien présent sur les rappels)"
+              value={options.sms.site}
+              onChange={(e, d) => {
+                options.sms.site = e.target.value;
+                this.setState({
+                  /*plannings: plannings*/ saved: false
+                });
+              }}
+            />
+            <Form.Input label="Reprendre l'URL de ce site">
+              <Button
+                style={{ marginTop: 7 }}
+                size="tiny"
+                icon="arrow left"
+                circular={true}
+                onClick={() => {
+                  options.sms.site =
+                    window.location.origin + window.location.pathname;
                   this.setState({
                     /*plannings: plannings*/ saved: false
                   });

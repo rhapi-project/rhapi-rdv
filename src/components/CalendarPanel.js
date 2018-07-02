@@ -321,7 +321,7 @@ export default class CalendarPanel extends React.Component {
       rdvPatient =
         index >= 0
           ? "Le " +
-            moment(patient.rdv.liste[index].startAt).format("D MMM à HH:mm")
+            moment(patient.rdv.liste[index].startAt).format("D MMMM à HH:mm")
           : "";
     }
 
@@ -363,6 +363,34 @@ export default class CalendarPanel extends React.Component {
               });
             }}
             name="remove user"
+            disabled={this.state.currentPatient.id === 0}
+          />
+          <Icon
+            style={{ cursor: "pointer", marginTop: 8, marginLeft: 8 }}
+            onClick={() => {
+              console.log(this.state.currentPatient);
+              alert(
+                "Ouvrir RdvPassCard avec le patient " +
+                  this.state.currentPatient.title +
+                  "  (voir CalendarPanel ligne 368 et suivantes)."
+              );
+              this.props.client.Patients.read(
+                this.state.currentPatient.id,
+                {},
+                patient => {
+                  // C'est cet objet patient qu'il faut fournir à RdvPassCard (et non this.state.currentPatient qui est incomplet)
+                  // Attention : cet objet patient ne doit être chargé que lorsque l'on souhaite ouvrir RdvPassCard
+                  // et non à chaque onPatientChange !
+                  console.log(patient);
+                },
+                data => {
+                  //Error
+                  console.log("Erreur");
+                  console.log(data);
+                }
+              );
+            }}
+            name="list layout"
             disabled={this.state.currentPatient.id === 0}
           />
         </Form.Input>
