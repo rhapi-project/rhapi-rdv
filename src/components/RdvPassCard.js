@@ -16,6 +16,8 @@ import {
 
 import RdvPassCardA4 from "./RdvPassCardA4";
 
+import RdvPassCardHelp from "./RdvPassCardHelp";
+
 export default class RdvPassCard extends React.Component {
   /*
       errorSMSType
@@ -39,7 +41,8 @@ export default class RdvPassCard extends React.Component {
     mesPlannings: [],
     savingModal: false,
     retourSMS: false,
-    errorSMS: -1 // pas d'envoi effectué encore
+    errorSMS: -1, // pas d'envoi effectué encore
+    help: false
   };
 
   componentWillMount() {
@@ -394,6 +397,10 @@ export default class RdvPassCard extends React.Component {
     );
   };
 
+  openHelp = bool => {
+    this.setState({ help: bool });
+  };
+
   render() {
     let infos = "";
     if (this.state.printWithPassword) {
@@ -484,7 +491,7 @@ export default class RdvPassCard extends React.Component {
             <Button
               icon="help"
               content="Aide"
-              onClick={() => alert("Aide avec détection du navigateur")}
+              onClick={() => this.openHelp(true)}
             />
             <Button
               content="Nouveau mot de passe"
@@ -864,6 +871,10 @@ export default class RdvPassCard extends React.Component {
             />
           </Modal.Actions>
         </Modal>
+
+        {/* Aide pour l'impression d'une carte */}
+
+        <RdvPassCardHelp open={this.state.help} openHelp={this.openHelp} />
 
         {/* Modal Carte */}
 
