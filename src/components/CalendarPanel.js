@@ -14,6 +14,8 @@ import PatientSearch from "./PatientSearch";
 
 import CalendarModalRdv from "./CalendarModalRdv";
 
+import RdvPassCard from "./RdvPassCard";
+
 import { DayPickerSingleDateController } from "react-dates";
 
 export default class CalendarPanel extends React.Component {
@@ -25,7 +27,9 @@ export default class CalendarPanel extends React.Component {
       currentPatient: { id: 0, title: "", rdv: { liste: [], index: -1 } },
       externalEventsDatas: [],
       modalRdvIsOpen: false,
-      eventToEdit: {}
+      eventToEdit: {},
+      patient: {},
+      rdvPassCard: false
     });
   }
 
@@ -312,6 +316,29 @@ export default class CalendarPanel extends React.Component {
     );
   };
 
+  rdvPassCardOpen = bool => {
+    this.setState({
+      rdvPassCard: bool
+    });
+  };
+
+  patientReload = idPatient => {
+    this.props.client.Patients.read(
+      this.state.currentPatient.id,
+      {},
+      patient => {
+        // success
+        this.setState({
+          patient: patient
+        });
+      },
+      data => {
+        // error
+        console.log(data);
+      }
+    );
+  };
+
   render() {
     // RDV du patient
     let rdvPatient = "RDV du patient";
@@ -324,7 +351,6 @@ export default class CalendarPanel extends React.Component {
             moment(patient.rdv.liste[index].startAt).format("D MMMM à HH:mm")
           : "";
     }
-
     return (
       <React.Fragment>
         <Divider />
@@ -368,31 +394,47 @@ export default class CalendarPanel extends React.Component {
           <Icon
             style={{ cursor: "pointer", marginTop: 8, marginLeft: 8 }}
             onClick={() => {
-              console.log(this.state.currentPatient);
-              alert(
-                "Ouvrir RdvPassCard avec le patient " +
-                  this.state.currentPatient.title +
-                  "  (voir CalendarPanel ligne 368 et suivantes)."
-              );
-              this.props.client.Patients.read(
-                this.state.currentPatient.id,
-                {},
-                patient => {
-                  // C'est cet objet patient qu'il faut fournir à RdvPassCard (et non this.state.currentPatient qui est incomplet)
-                  // Attention : cet objet patient ne doit être chargé que lorsque l'on souhaite ouvrir RdvPassCard
-                  // et non à chaque onPatientChange !
-                  console.log(patient);
-                },
-                data => {
-                  //Error
-                  console.log("Erreur");
-                  console.log(data);
-                }
-              );
+              if (this.state.currentPatient.id === 0) {
+                return;
+              } else {
+                this.props.client.Patients.read(
+                  this.state.currentPatient.id,
+                  {},
+                  patient => {
+                    //console.log(patient);
+                    this.setState({
+                      patient: patient,
+                      rdvPassCard: true
+                    });
+                  },
+                  data => {
+                    //Error
+                    console.log("Erreur");
+                    console.log(data);
+                  }
+                );
+              }
             }}
             name="list layout"
             disabled={this.state.currentPatient.id === 0}
           />
+          {!_.isEmpty(this.state.patient) ? (
+            <RdvPassCard
+              open={this.state.rdvPassCard}
+              client={this.props.client}
+              rdvPassCardOpen={this.rdvPassCardOpen}
+              patient={this.state.patient}
+              denomination={
+                this.state.patient.nom + " " + this.state.patient.prenom
+              }
+              // TODO : Revoir la dénomination
+              patientReload={this.patientReload}
+              // saved
+              // save
+            />
+          ) : (
+            ""
+          )}
         </Form.Input>
 
         <br />
