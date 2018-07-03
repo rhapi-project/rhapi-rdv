@@ -1,14 +1,36 @@
 import React from "react";
 
+import _ from "lodash";
+
 import { Button, Divider, Icon, List, Message, Modal } from "semantic-ui-react";
 
 export default class RdvPassCardHelp extends React.Component {
+
+  browser = () => {
+    if (navigator.userAgent.indexOf("Chrome") !== -1 && !(navigator.userAgent.indexOf("Edge/") !== -1)) {
+      return "Chrome";
+    } else if (navigator.userAgent.indexOf("Firefox") !== -1) {
+      return "Firefox";
+    } else if (navigator.userAgent.indexOf("Edge/") !== -1) {
+      return "Edge";
+    } else if (navigator.userAgent.indexOf("MSIE") !== -1) {
+      return "MSIE";
+    } else if (navigator.userAgent.indexOf("Safari") !== -1) {
+      return "Safari";
+    } else {
+      // TODO : définir les autres navigateurs si besoin
+      return ""; 
+    }
+  };
+
   render() {
+    let browser = this.browser();
+
     return (
       <Modal size="small" open={this.props.open}>
         <Modal.Header>Impression d'une carte de rendez-vous</Modal.Header>
         <Modal.Content>
-          {navigator.userAgent.indexOf("Chrome") !== -1 ? (
+          {browser === "Chrome" ? (
             // chrome
             <div>
               <Icon name="chrome" size="big" />
@@ -118,7 +140,7 @@ export default class RdvPassCardHelp extends React.Component {
                 </List.Item>
               </List>
             </div>
-          ) : navigator.userAgent.indexOf("Firefox") !== -1 ? (
+          ) : browser === "Firefox" ? (
             // Firefox
             <div>
               <Icon name="firefox" size="big" />
@@ -241,11 +263,125 @@ export default class RdvPassCardHelp extends React.Component {
                 </List.Item>
               </List>
             </div>
-          ) : navigator.userAgent.indexOf("Edge/") !== -1 ? (
-            <div>Edge</div>
-          ) : navigator.userAgent.indexOf("MSIE") !== -1 ? (
+          ) : browser === "Edge" ? (
+            <div>
+              <Icon name="edge" size="big" />
+              Impression de la carte de rendez-vous sur <strong>"Microsoft Edge"</strong>
+              <Divider hidden={true} />
+              <List ordered={true}>
+                <List.Item>
+                  <List.Content>
+                    <span>
+                      Cliquer sur le bouton &nbsp;&nbsp;<strong>
+                        "<Icon name="print" />Carte de RDV"
+                      </strong>
+                    </span>
+                  </List.Content>
+                </List.Item>
+                <List.Item>
+                  <List.Content>
+                    <span>Imprimante</span>
+                    <div style={{ marginTop: "5px" }}>
+                      Choisir : &nbsp;&nbsp;
+                      <span style={{ color: "blue" }}>
+                        DYMO LabelWriter 450 Turbo
+                      </span>
+                    </div>
+                    <div style={{ marginTop: "5px" }}>
+                      <Message warning={true} icon={true}>
+                        <Icon name="warning" />
+                        <Message.Content>
+                          <Message.Header>
+                            Imprimante à étiquette introuvable
+                          </Message.Header>
+                          <p>
+                            Si aucune imprimante à étiquette n'est repérée,
+                            veuillez consulter l'<a
+                              onClick={() =>
+                                alert(
+                                  "TODO: Renvoyer sur la doc principale de l'application"
+                                )
+                              }
+                            >
+                              aide
+                            </a>{" "}
+                            de l'application pour en savoir plus sur
+                            l'installation d'une imprimante à étiquette.
+                          </p>
+                        </Message.Content>
+                      </Message>
+                    </div>
+                  </List.Content>
+                </List.Item>
+                <List.Item>
+                  <List.Content>
+                    <span>Préférences d'impression</span>
+                    <div>
+                      <table>
+                        <tbody>
+                          <tr>
+                            <td>Orientation</td>
+                            <td> : </td>
+                            <td><strong>Paysage</strong></td>
+                          </tr>
+                          <tr>
+                            <td>Mise à l'échelle</td>
+                            <td> : </td>
+                            <td><strong>Ajuster</strong></td>
+                          </tr>
+                          <tr>
+                            <td>Marges</td>
+                            <td> : </td>
+                            <td><strong>Normales</strong></td>
+                          </tr>
+                          <tr>
+                            <td>En-têtes et pieds de page</td>
+                            <td> : </td>
+                            <td><strong>Désactivés</strong></td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </List.Content>
+                </List.Item>
+                <List.Item>
+                  <List.Content>
+                    <span>Autres paramètres</span>
+                    <div>
+                      <span>
+                        Papier et qualité &nbsp;
+                        <Icon name="arrow right" />
+                        &nbsp; Format du papier : <strong>30374 Appointment Card</strong>
+                      </span>                      
+                    </div>
+                  </List.Content>
+                </List.Item>
+                <List.Item>
+                  <List.Content>
+                    <span>
+                      Cliquer sur <strong>"OK"</strong> pour valider
+                    </span>
+                  </List.Content>
+                </List.Item>
+                <List.Item>
+                  <List.Content>
+                    <span>
+                      Cliquer sur <strong>"Imprimer"</strong> pour lancer l'impression
+                    </span>
+                  </List.Content>
+                </List.Item>
+                <List.Item>
+                  <List.Content>
+                    <span>
+                      Après l'impression, fermer la nouvelle fenêtre qui s'est ouverte spécialement pour l'impression
+                    </span>
+                  </List.Content>
+                </List.Item>
+              </List>
+            </div>
+          ) : browser === "MSIE" ? (
             <div>Internet Explorer</div>
-          ) : navigator.userAgent.indexOf("Safari") !== -1 ? (
+          ) : browser === "Safari" ? (
             <div>Safari</div>
           ) : (
             <div>Autre navigateur</div>
