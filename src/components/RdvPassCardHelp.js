@@ -5,9 +5,11 @@ import _ from "lodash";
 import { Button, Divider, Icon, List, Message, Modal } from "semantic-ui-react";
 
 export default class RdvPassCardHelp extends React.Component {
-
   browser = () => {
-    if (navigator.userAgent.indexOf("Chrome") !== -1 && !(navigator.userAgent.indexOf("Edge/") !== -1)) {
+    if (
+      navigator.userAgent.indexOf("Chrome") !== -1 &&
+      !(navigator.userAgent.indexOf("Edge/") !== -1)
+    ) {
       return "Chrome";
     } else if (navigator.userAgent.indexOf("Firefox") !== -1) {
       return "Firefox";
@@ -19,7 +21,7 @@ export default class RdvPassCardHelp extends React.Component {
       return "Safari";
     } else {
       // TODO : définir les autres navigateurs si besoin
-      return ""; 
+      return "";
     }
   };
 
@@ -266,7 +268,8 @@ export default class RdvPassCardHelp extends React.Component {
           ) : browser === "Edge" ? (
             <div>
               <Icon name="edge" size="big" />
-              Impression de la carte de rendez-vous sur <strong>"Microsoft Edge"</strong>
+              Impression de la carte de rendez-vous sur{" "}
+              <strong>"Microsoft Edge"</strong>
               <Divider hidden={true} />
               <List ordered={true}>
                 <List.Item>
@@ -322,22 +325,30 @@ export default class RdvPassCardHelp extends React.Component {
                           <tr>
                             <td>Orientation</td>
                             <td> : </td>
-                            <td><strong>Paysage</strong></td>
+                            <td>
+                              <strong>Paysage</strong>
+                            </td>
                           </tr>
                           <tr>
                             <td>Mise à l'échelle</td>
                             <td> : </td>
-                            <td><strong>Ajuster</strong></td>
+                            <td>
+                              <strong>Ajuster</strong>
+                            </td>
                           </tr>
                           <tr>
                             <td>Marges</td>
                             <td> : </td>
-                            <td><strong>Normales</strong></td>
+                            <td>
+                              <strong>Normales</strong>
+                            </td>
                           </tr>
                           <tr>
                             <td>En-têtes et pieds de page</td>
                             <td> : </td>
-                            <td><strong>Désactivés</strong></td>
+                            <td>
+                              <strong>Désactivés</strong>
+                            </td>
                           </tr>
                         </tbody>
                       </table>
@@ -351,8 +362,9 @@ export default class RdvPassCardHelp extends React.Component {
                       <span>
                         Papier et qualité &nbsp;
                         <Icon name="arrow right" />
-                        &nbsp; Format du papier : <strong>30374 Appointment Card</strong>
-                      </span>                      
+                        &nbsp; Format du papier :{" "}
+                        <strong>30374 Appointment Card</strong>
+                      </span>
                     </div>
                   </List.Content>
                 </List.Item>
@@ -366,14 +378,16 @@ export default class RdvPassCardHelp extends React.Component {
                 <List.Item>
                   <List.Content>
                     <span>
-                      Cliquer sur <strong>"Imprimer"</strong> pour lancer l'impression
+                      Cliquer sur <strong>"Imprimer"</strong> pour lancer
+                      l'impression
                     </span>
                   </List.Content>
                 </List.Item>
                 <List.Item>
                   <List.Content>
                     <span>
-                      Après l'impression, fermer la nouvelle fenêtre qui s'est ouverte spécialement pour l'impression
+                      Après l'impression, fermer la nouvelle fenêtre qui s'est
+                      ouverte spécialement pour l'impression
                     </span>
                   </List.Content>
                 </List.Item>
@@ -382,7 +396,182 @@ export default class RdvPassCardHelp extends React.Component {
           ) : browser === "MSIE" ? (
             <div>Internet Explorer</div>
           ) : browser === "Safari" ? (
-            <div>Safari</div>
+            <div>
+              {/* TODO : CSS pour Safari */}
+              <Icon name="safari" size="big" />
+              Impression de la carte de rendez-vous sur{" "}
+              <strong>"Safari"</strong>
+              <Divider hidden={true} />
+              <List ordered={true}>
+                <List.Item>
+                  <List.Content>
+                    <span>
+                      Cliquer sur le bouton &nbsp;&nbsp;
+                      <strong>
+                        "<Icon name="print" />Carte de RDV"
+                      </strong>
+                    </span>
+                  </List.Content>
+                </List.Item>
+                <List.Item>
+                  <List.Content>
+                    <span>Imprimante</span>
+                    <div style={{ marginTop: "5px" }}>
+                      Choisir : &nbsp;&nbsp;
+                      <span style={{ color: "blue" }}>
+                        DYMO LabelWriter 450 Turbo
+                      </span>
+                    </div>
+                    <div style={{ marginTop: "5px" }}>
+                      <Message warning={true} icon={true}>
+                        <Icon name="warning" />
+                        <Message.Content>
+                          <Message.Header>
+                            Imprimante à étiquette introuvable
+                          </Message.Header>
+                          <p>
+                            Si aucune imprimante à étiquette n'est repérée,
+                            veuillez consulter l'<a
+                              onClick={() =>
+                                alert(
+                                  "TODO: Renvoyer sur la doc principale de l'application"
+                                )
+                              }
+                            >
+                              aide
+                            </a>{" "}
+                            de l'application pour en savoir plus sur
+                            l'installation d'une imprimante à étiquette.
+                          </p>
+                        </Message.Content>
+                      </Message>
+                    </div>
+                  </List.Content>
+                </List.Item>
+                <List.Item>
+                  <List.Content>
+                    <span>Préréglages d'impression</span>
+                    <div>
+                      <table>
+                        <tbody>
+                          <tr>
+                            <td>Taille du papier</td>
+                            <td> : </td>
+                            <td>
+                              <strong>30374 Appointment Card</strong>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>Orientation</td>
+                            <td> : </td>
+                            <td>
+                              <strong>Paysage (voir icône)</strong>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>Echelle</td>
+                            <td> : </td>
+                            <td>
+                              <strong>100</strong>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <div style={{ marginTop: "5px" }}>
+                      <span>
+                        <u>Autres réglages</u>
+                      </span>
+                      <br />
+                      <br />
+                      <span>
+                        <strong>Safari</strong>
+                      </span>
+                      <br />
+                      <span>
+                        <Icon name="circle" size="tiny" /> Décocher{" "}
+                        <strong>"Imprimer arrière-plan"</strong>
+                      </span>
+                      <br />
+                      <span>
+                        <Icon name="circle" size="tiny" /> Décocher{" "}
+                        <strong>
+                          "Impression : en-têtes et pieds de page"
+                        </strong>
+                      </span>
+                      <br />
+                      <br />
+                      <span>
+                        <strong>Mise en page</strong> (les paramètres restent
+                        par défaut)
+                      </span>
+                      <br />
+                      <br />
+                      <span>
+                        <strong>Gestion du papier</strong>
+                      </span>
+                      <br />
+                      <span>
+                        <Icon name="circle" size="tiny" /> Cocher{" "}
+                        <strong>"Adapter à la taille du papier"</strong>
+                      </span>
+                      <br />
+                      <span>
+                        <Icon name="circle" size="tiny" /> Taille du papier de
+                        destination : <strong>30374 Appointment Card</strong>
+                      </span>
+                      <br />
+                      <br />
+                      <span>
+                        <strong>Page de garde</strong> et{" "}
+                        <strong>Fonctions d'imprimante</strong> (les paramètres
+                        restent par défaut)
+                      </span>
+                    </div>
+                  </List.Content>
+                </List.Item>
+                <List.Item>
+                  <List.Content>
+                    <span>
+                      Enregistrement des préréglages pour l'imprimante à
+                      étiquette
+                    </span>
+                    <br />
+                    <span>
+                      <Icon name="circle" size="tiny" />
+                      Préréglages &nbsp;&nbsp;
+                      <Icon name="arrow right" />
+                      &nbsp; Enregistrer les réglages actuels comme préréglages
+                    </span>
+                    <br />
+                    <span>
+                      <Icon name="circle" size="tiny" />Nouveau nom du
+                      préréglage
+                    </span>
+                    <br />
+                    <span>
+                      <Icon name="circle" size="tiny" />Sélectionner{" "}
+                      <strong>"Seulement cette imprimante"</strong>
+                    </span>
+                  </List.Content>
+                </List.Item>
+                <List.Item>
+                  <List.Content>
+                    <span>
+                      <strong>"OK"</strong> pour sauvegarder
+                    </span>
+                  </List.Content>
+                </List.Item>
+                <List.Item>
+                  <List.Content>
+                    <span>
+                      Cliquer sur <strong>"imprimer"</strong> pour lancer
+                      l'impression de la carte de rendez-vous
+                    </span>
+                  </List.Content>
+                </List.Item>
+              </List>
+            </div>
           ) : (
             <div>Autre navigateur</div>
           )}
