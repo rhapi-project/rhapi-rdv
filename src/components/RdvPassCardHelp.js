@@ -1,6 +1,6 @@
 import React from "react";
 
-import _ from "lodash";
+//import _ from "lodash";
 
 import { Button, Divider, Icon, List, Message, Modal } from "semantic-ui-react";
 

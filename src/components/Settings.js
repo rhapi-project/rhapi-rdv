@@ -370,6 +370,19 @@ const localdev = false;
 const appToken = "bXlhcHA6bXlhcHBteWFwcA";
 const authUrl = "https://auth-dev.rhapi.net";
 
+/*
+ * rdvEtats états des rendez-vous (idEtat du groupe RendezVous)
+ */
+const rdvEtats = [
+  { text: "Présence non renseignée", color: "grey" },
+  { text: "Présence à l'heure", color: "green" },
+  { text: "Retard", color: "yellow" },
+  { text: "Retard important", color: "orange" },
+  { text: "Annulation au dernier moment", color: "red" },
+  { text: "Absence", color: "red" },
+  { text: "Annulation", color: "red" }
+];
+
 export {
   localdev,
   appToken,
@@ -384,5 +397,6 @@ export {
   emailRegex,
   telRegex,
   telFormat,
-  denominationDefaultFormat
+  denominationDefaultFormat,
+  rdvEtats
 };

@@ -4,7 +4,7 @@ import _ from "lodash";
 
 import moment from "moment";
 
-import { rdvDateTime, site } from "./Settings";
+import { rdvDateTime, rdvEtats, site } from "./Settings";
 
 import {
   Button,
@@ -264,6 +264,7 @@ export default class RdvPassCardA4 extends React.Component {
                 praticien={this.props.praticien}
                 dateRef={this.state.dateRef}
                 commentaires={this.state.commentaires}
+                etatRdv={this.state.etatRdv}
                 newPassword={this.props.newPassword}
                 printWithPassword={this.props.printWithPassword}
                 plannings={this.state.plannings}
@@ -566,7 +567,12 @@ class Preview extends React.Component {
                           <Icon name="calendar" />
                           <List.Content>
                             <List.Header>
-                              {_.upperFirst(rdvDateTime(item.startAt))}
+                              {this.props.etatRdv
+                                ? _.upperFirst(rdvDateTime(item.startAt)) +
+                                  " ( " +
+                                  rdvEtats[item.idEtat].text +
+                                  " )"
+                                : _.upperFirst(rdvDateTime(item.startAt))}
                             </List.Header>
                             <List.List>
                               <List.Item>

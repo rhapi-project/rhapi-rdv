@@ -23,7 +23,7 @@ import TimeField from "react-simple-timefield";
 
 import moment from "moment";
 
-import { maxWidth /*, hsize, fsize*/ } from "./Settings";
+import { maxWidth /*, hsize, fsize*/, rdvEtats } from "./Settings";
 
 import PatientSearch from "./PatientSearch";
 
@@ -422,6 +422,12 @@ export default class CalendarModalRdv extends React.Component {
     this.setState({ rdvPassCard: bool });
   };
 
+  rdvEtatsChange = idEtat => {
+    let rdv = this.state.rdv;
+    rdv.idEtat = idEtat;
+    this.setState({ rdv: rdv });
+  };
+
   render() {
     if (!this.props.open) {
       return "";
@@ -477,8 +483,6 @@ export default class CalendarModalRdv extends React.Component {
       }
     });
     // plannings et motifs - fin
-    console.log(this.state);
-    console.log(this.props);
     return (
       <Modal open={this.props.open}>
         <Segment clearing={true}>
@@ -584,6 +588,32 @@ export default class CalendarModalRdv extends React.Component {
                     />
                   </Form.Input>
                 </Form.Group>
+
+                {!this.state.isNewOne ? (
+                  <Form.Group>
+                    <Form.Input>
+                      <Icon
+                        name="circle"
+                        color={rdvEtats[this.state.rdv.idEtat].color}
+                      />
+                      <Dropdown text="Etat du RDV">
+                        <Dropdown.Menu scrolling={false}>
+                          {_.map(rdvEtats, (etat, i) => (
+                            <Dropdown.Item
+                              key={i}
+                              onClick={() => this.rdvEtatsChange(i)}
+                            >
+                              <Icon name="circle" color={etat.color} />
+                              {etat.text}
+                            </Dropdown.Item>
+                          ))}
+                        </Dropdown.Menu>
+                      </Dropdown>
+                    </Form.Input>
+                  </Form.Group>
+                ) : (
+                  ""
+                )}
 
                 <Accordion>
                   <Accordion.Title
