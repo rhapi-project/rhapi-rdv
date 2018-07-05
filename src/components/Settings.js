@@ -374,13 +374,14 @@ const authUrl = "https://auth-dev.rhapi.net";
  * rdvEtats états des rendez-vous (idEtat du groupe RendezVous)
  */
 const rdvEtats = [
-  { text: "Présence non renseignée", color: "grey" },
+  { text: "RDV non confirmé", color: "black" }, // RDV pris en ligne non encore confirmé (masqué)
+  { text: "Statut non renseigné", color: "grey" },
   { text: "Présence à l'heure", color: "green" },
   { text: "Retard", color: "yellow" },
   { text: "Retard important", color: "orange" },
-  { text: "Annulation au dernier moment", color: "red" },
+  { text: "RDV annulé hors délai", color: "red" }, // Hors délai de prévenance
   { text: "Absence", color: "red" },
-  { text: "Annulation", color: "red" }
+  { text: "RDV annulé", color: "black" } // Annulation dans les délais (masqué)
 ];
 
 export {

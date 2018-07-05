@@ -120,7 +120,11 @@ export default class CalendarModalRdv extends React.Component {
 
     let rdv = {};
     if (isNewOne) {
-      rdv = { planningJO: { id: this.props.planning }, planningsJA: [] };
+      rdv = {
+        planningJO: { id: this.props.planning },
+        planningsJA: [],
+        idEtat: 1
+      };
       rdv.planningsJA.push({
         id: this.props.planning,
         liste1: 0,
@@ -441,6 +445,7 @@ export default class CalendarModalRdv extends React.Component {
       return "";
     }
 
+    /*
     let motifIndex = Math.abs(rdv.planningJO.motif) - 1;
     // TODO gérer les rendez-vous pris en ligne (motif < 0) => juste afficher ?
 
@@ -451,6 +456,7 @@ export default class CalendarModalRdv extends React.Component {
     if (motifIndex >= 0 && motifIndex < motifs.length) {
       couleur = motifs[motifIndex].couleur;
     }
+    */
 
     if (!this.props.isExternal && _.isUndefined(rdv.startAt)) {
       return "";
@@ -486,7 +492,6 @@ export default class CalendarModalRdv extends React.Component {
     return (
       <Modal open={this.props.open}>
         <Segment clearing={true}>
-          <Label circular={true} style={{ background: couleur }} />
           <Header size="medium" floated="left">
             {this.state.isNewOne ? (
               <PatientSearch
@@ -498,10 +503,29 @@ export default class CalendarModalRdv extends React.Component {
               this.state.rdv.titre
             )}
           </Header>
-          <Header size="medium" floated="right">
+          <Header size="medium" floated="right" style={{ textAlign: "right" }}>
             {this.props.isExternal
               ? "Rendez-vous en attente"
-              : moment(this.state.rdv.startAt).format("LL")}
+              : moment(this.state.rdv.startAt).format("LLLL")}
+            <div>
+              <Icon
+                name="circle"
+                color={rdvEtats[this.state.rdv.idEtat].color}
+              />
+              <Dropdown text={rdvEtats[this.state.rdv.idEtat].text}>
+                <Dropdown.Menu scrolling={false}>
+                  {_.map(rdvEtats, (etat, i) => (
+                    <Dropdown.Item
+                      key={i}
+                      onClick={() => this.rdvEtatsChange(i)}
+                    >
+                      <Icon name="circle" color={etat.color} />
+                      {etat.text}
+                    </Dropdown.Item>
+                  ))}
+                </Dropdown.Menu>
+              </Dropdown>
+            </div>
           </Header>
         </Segment>
         <Modal.Content>
@@ -588,32 +612,6 @@ export default class CalendarModalRdv extends React.Component {
                     />
                   </Form.Input>
                 </Form.Group>
-
-                {!this.state.isNewOne ? (
-                  <Form.Group>
-                    <Form.Input>
-                      <Icon
-                        name="circle"
-                        color={rdvEtats[this.state.rdv.idEtat].color}
-                      />
-                      <Dropdown text="Etat du RDV">
-                        <Dropdown.Menu scrolling={false}>
-                          {_.map(rdvEtats, (etat, i) => (
-                            <Dropdown.Item
-                              key={i}
-                              onClick={() => this.rdvEtatsChange(i)}
-                            >
-                              <Icon name="circle" color={etat.color} />
-                              {etat.text}
-                            </Dropdown.Item>
-                          ))}
-                        </Dropdown.Menu>
-                      </Dropdown>
-                    </Form.Input>
-                  </Form.Group>
-                ) : (
-                  ""
-                )}
 
                 <Accordion>
                   <Accordion.Title
