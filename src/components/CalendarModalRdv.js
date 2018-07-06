@@ -85,7 +85,7 @@ export default class CalendarModalRdv extends React.Component {
   //plannings = [];
 
   componentWillMount() {
-    this.setState({ rdvPassCard: false });
+    this.setState({ rdvPassCard: false, deleteRdv: false });
     this.reload(this.props);
   }
 
@@ -490,170 +490,196 @@ export default class CalendarModalRdv extends React.Component {
     });
     // plannings et motifs - fin
     return (
-      <Modal open={this.props.open}>
-        <Segment clearing={true}>
-          <Header size="medium" floated="left">
-            {this.state.isNewOne ? (
-              <PatientSearch
-                client={this.props.client}
-                patientChange={this.patientChange}
-                format={this.props.denominationFormat}
-              />
-            ) : (
-              this.state.rdv.titre
-            )}
-          </Header>
-          <Header size="medium" floated="right" style={{ textAlign: "right" }}>
-            {this.props.isExternal
-              ? "Rendez-vous en attente"
-              : moment(this.state.rdv.startAt).format("LLLL")}
-            <div>
-              <Icon
-                name="circle"
-                color={rdvEtats[this.state.rdv.idEtat].color}
-              />
-              <Dropdown text={rdvEtats[this.state.rdv.idEtat].text}>
-                <Dropdown.Menu scrolling={false}>
-                  {_.map(rdvEtats, (etat, i) => (
-                    <Dropdown.Item
-                      key={i}
-                      onClick={() => this.rdvEtatsChange(i)}
-                    >
-                      <Icon name="circle" color={etat.color} />
-                      {etat.text}
-                    </Dropdown.Item>
-                  ))}
-                </Dropdown.Menu>
-              </Dropdown>
-            </div>
-          </Header>
-        </Segment>
-        <Modal.Content>
-          <Grid>
-            <Grid.Column width={3}>
-              {_.isEmpty(this.state.image) ? (
-                <Icon name="user" size="massive" />
+      <React.Fragment>
+        <Modal open={this.props.open}>
+          <Segment clearing={true}>
+            <Header size="medium" floated="left">
+              {this.state.isNewOne ? (
+                <Ref innerRef={node => node.firstChild.parentElement.focus()}>
+                  <PatientSearch
+                    client={this.props.client}
+                    patientChange={this.patientChange}
+                    format={this.props.denominationFormat}
+                  />
+                </Ref>
               ) : (
-                <Image
-                  size="massive"
-                  src={this.state.image}
-                  alt="Photo de profil"
-                />
+                this.state.rdv.titre
               )}
-            </Grid.Column>
-            <Grid.Column width={13}>
-              <Form>
-                {this.props.isExternal ? (
-                  ""
+            </Header>
+            <Header
+              size="medium"
+              floated="right"
+              style={{ textAlign: "right" }}
+            >
+              {this.props.isExternal
+                ? "Rendez-vous en attente"
+                : moment(this.state.rdv.startAt).format("LLLL")}
+              <div>
+                <Icon
+                  name="circle"
+                  color={rdvEtats[this.state.rdv.idEtat].color}
+                />
+                <Dropdown text={rdvEtats[this.state.rdv.idEtat].text}>
+                  <Dropdown.Menu scrolling={false}>
+                    {_.map(rdvEtats, (etat, i) => {
+                      if (i === 0 || i === rdvEtats.length - 1) {
+                        return "";
+                      } else {
+                        return (
+                          <Dropdown.Item
+                            key={i}
+                            onClick={() => this.rdvEtatsChange(i)}
+                          >
+                            <Icon name="circle" color={etat.color} />
+                            {etat.text}
+                          </Dropdown.Item>
+                        );
+                      }
+                    })}
+                  </Dropdown.Menu>
+                </Dropdown>
+              </div>
+            </Header>
+          </Segment>
+          <Modal.Content>
+            <Grid>
+              <Grid.Column width={3}>
+                {_.isEmpty(this.state.image) ? (
+                  <Icon name="user" size="massive" />
                 ) : (
-                  <Form.Group>
-                    <Form.Input label="Horaire">
-                      <FromTo
-                        hfrom={rdv.startAt.split("T")[1]}
-                        hto={rdv.endAt.split("T")[1]}
-                        handleChange={(hfrom, hto) => {
-                          rdv.startAt = rdv.startAt.split("T")[0] + "T" + hfrom;
-                          rdv.endAt = rdv.endAt.split("T")[0] + "T" + hto;
-                          this.setState({ rdv: rdv });
-                        }}
+                  <Image
+                    size="massive"
+                    src={this.state.image}
+                    alt="Photo de profil"
+                  />
+                )}
+              </Grid.Column>
+              <Grid.Column width={13}>
+                <Form>
+                  {this.props.isExternal ? (
+                    ""
+                  ) : (
+                    <Form.Group>
+                      <Form.Input label="Horaire">
+                        <FromTo
+                          hfrom={rdv.startAt.split("T")[1]}
+                          hto={rdv.endAt.split("T")[1]}
+                          handleChange={(hfrom, hto) => {
+                            rdv.startAt =
+                              rdv.startAt.split("T")[0] + "T" + hfrom;
+                            rdv.endAt = rdv.endAt.split("T")[0] + "T" + hto;
+                            this.setState({ rdv: rdv });
+                          }}
+                        />
+                      </Form.Input>
+                      <Form.Input label="Couleur">
+                        <ColorPicker
+                          color={this.state.rdv.couleur}
+                          onChange={color => {
+                            let rdv = this.state.rdv;
+                            rdv.couleur = color;
+                            this.setState({ rdv: rdv });
+                          }}
+                        />
+                        {/*<Button
+                          icon="remove"
+                          onClick={() => {
+                            let rdv = this.state.rdv;
+                            rdv.couleur = "";
+                            this.setState({ rdv: rdv });
+                          }}
+                        />*/}
+                        <Icon
+                          name="remove"
+                          size="big"
+                          style={{ cursor: "pointer" }}
+                          onClick={() => {
+                            let rdv = this.state.rdv;
+                            rdv.couleur = "";
+                            this.setState({ rdv: rdv });
+                          }}
+                        />
+                      </Form.Input>
+                      <Form.Input label="Origine" floated="right">
+                        <span>
+                          <Icon name="user" size="big" />
+                          &nbsp;
+                          <strong>UserName</strong>
+                          {/*<strong>{this.state.rdv.origine}</strong>*/}
+                          {/* TODO : décommenter la ligne du dessus pour afficher l'utilisateur qui
+                              a créé le RDV... 
+                              Pour l'instant ce champs est vide
+                          */}
+                        </span>
+                      </Form.Input>
+                    </Form.Group>
+                  )}
+                  {/* plannings et motifs */}
+                  <Form.Group widths="equal">
+                    <Form.Input label="Planning">
+                      <Checkbox
+                        toggle={true}
+                        label={planning.text}
+                        value={planning.value}
+                        checked={checked}
+                        onChange={(e, d) => this.planningCheckboxChange(d)}
                       />
                     </Form.Input>
-                    <Form.Input label="Couleur">
-                      <ColorPicker
-                        color={this.state.rdv.couleur}
-                        onChange={color => {
-                          let rdv = this.state.rdv;
-                          rdv.couleur = color;
-                          this.setState({ rdv: rdv });
-                        }}
+                    <Form.Input label="Motif">
+                      <Dropdown
+                        disabled={!checked}
+                        fluid={true}
+                        value={motif}
+                        planning={planning.value}
+                        firstplanning="true"
+                        selection={true}
+                        options={motifsOptions}
+                        onChange={(e, d) => this.planningMotifChange(d)}
                       />
-                      <Button
-                        icon="remove"
-                        onClick={() => {
-                          let rdv = this.state.rdv;
-                          rdv.couleur = "";
-                          this.setState({ rdv: rdv });
-                        }}
-                      />
-                    </Form.Input>
-                    <Form.Input label="Origine" floated="right">
-                      <span>
-                        <strong>#masteruser</strong>
-                        {/* il faudra entrer la bonne valeur... l'identifiant de la personne qui a ajouté le rdv
-                            ainsi que :
-                            la date et l'heure de création du RDV
-                            la date et l'heure de la dernière modification du RDV
-                        */}
-                      </span>
                     </Form.Input>
                   </Form.Group>
-                )}
-                {/* plannings et motifs */}
-                <Form.Group widths="equal">
-                  <Form.Input label="Planning">
-                    <Checkbox
-                      toggle={true}
-                      label={planning.text}
-                      value={planning.value}
-                      checked={checked}
-                      onChange={(e, d) => this.planningCheckboxChange(d)}
-                    />
-                  </Form.Input>
-                  <Form.Input label="Motif">
-                    <Dropdown
-                      disabled={!checked}
-                      fluid={true}
-                      value={motif}
-                      planning={planning.value}
-                      firstplanning="true"
-                      selection={true}
-                      options={motifsOptions}
-                      onChange={(e, d) => this.planningMotifChange(d)}
-                    />
-                  </Form.Input>
-                </Form.Group>
 
-                <Accordion>
-                  <Accordion.Title
-                    content="Autres plannings"
-                    active={accordionIndex === 0}
-                    index={0}
-                    onClick={() => {
-                      this.setState({
-                        accordionIndex: accordionIndex === 0 ? -1 : 0
-                      });
-                    }}
-                  />
-                  <Accordion.Content active={accordionIndex === 0}>
-                    <List>
-                      {_.map(plannings, (planning2, i) => {
-                        let motifsOptions = [];
-
-                        _.forEach(planning2.motifs, (motif2, i) => {
-                          if (
-                            !motif2.hidden &&
-                            motif2.autorisationMin >=
-                              planning.autorisationMinAgenda
-                          ) {
-                            motifsOptions.push({
-                              value: i + 1,
-                              text: motif2.motif
-                            });
-                          }
+                  <Accordion>
+                    <Accordion.Title
+                      content="Autres plannings"
+                      active={accordionIndex === 0}
+                      index={0}
+                      onClick={() => {
+                        this.setState({
+                          accordionIndex: accordionIndex === 0 ? -1 : 0
                         });
+                      }}
+                    />
+                    <Accordion.Content active={accordionIndex === 0}>
+                      <List>
+                        {_.map(plannings, (planning2, i) => {
+                          let motifsOptions = [];
 
-                        let checked2 = false;
-                        let motif2 = 0;
-                        let pl2 = _.find(rdv.planningsJA, p => {
-                          return p.id === planning2.value;
-                        });
+                          _.forEach(planning2.motifs, (motif2, i) => {
+                            if (
+                              !motif2.hidden &&
+                              motif2.autorisationMin >=
+                                planning.autorisationMinAgenda
+                            ) {
+                              motifsOptions.push({
+                                value: i + 1,
+                                text: motif2.motif
+                              });
+                            }
+                          });
 
-                        if (!_.isUndefined(pl2)) {
-                          checked2 = true;
-                          motif2 = pl2.motif;
-                        } else {
-                          // plannings associés ?
-                          /*
+                          let checked2 = false;
+                          let motif2 = 0;
+                          let pl2 = _.find(rdv.planningsJA, p => {
+                            return p.id === planning2.value;
+                          });
+
+                          if (!_.isUndefined(pl2)) {
+                            checked2 = true;
+                            motif2 = pl2.motif;
+                          } else {
+                            // plannings associés ?
+                            /*
                           let associe = _.find(planningsAssocies, p => {
                             return (
                               p.planning2 === planning2.value &&
@@ -665,114 +691,162 @@ export default class CalendarModalRdv extends React.Component {
                             motif2 = associe.motif2;
                           }
                           */
-                        }
+                          }
 
-                        return (
-                          <List.Item key={planning2.value}>
-                            <Form.Group widths="equal">
-                              <Form.Input>
-                                <Checkbox
-                                  toggle={true}
-                                  label={planning2.text}
-                                  value={planning2.value}
-                                  checked={checked2}
-                                  onChange={(e, d) =>
-                                    this.planningCheckboxChange(d)
-                                  }
-                                />
-                              </Form.Input>
-                              <Form.Input>
-                                <Dropdown
-                                  disabled={!checked2}
-                                  fluid={true}
-                                  value={motif2}
-                                  planning={planning2.value}
-                                  selection={true}
-                                  options={motifsOptions}
-                                  onChange={(e, d) =>
-                                    this.planningMotifChange(d)
-                                  }
-                                />
-                              </Form.Input>
-                            </Form.Group>
-                          </List.Item>
-                        );
-                      })}
-                    </List>
-                  </Accordion.Content>
-                </Accordion>
-                {/* plannings et motifs - fin */}
-              </Form>
-            </Grid.Column>
-          </Grid>
-          <Form>
-            <Form.Group widths="equal">
-              <Form.TextArea
-                style={{ resize: "none" }}
-                label="Description"
-                placeholder="Description du rendez-vous"
-                value={this.state.rdv.description}
-                onChange={(e, d) => {
-                  let rdv = this.state.rdv;
-                  rdv.description = e.target.value;
-                  this.setState({ rdv: rdv });
-                }}
-              />
-              <Form.TextArea
-                style={{ resize: "none" }}
-                label="Commentaire"
-                placeholder="Ajouter un commentaire"
-                value={this.state.rdv.commentaire}
-                onChange={(e, d) => {
-                  let rdv = this.state.rdv;
-                  rdv.commentaire = e.target.value;
-                  this.setState({ rdv: rdv });
-                }}
-              />
-            </Form.Group>
-          </Form>
-          {/*
+                          return (
+                            <List.Item key={planning2.value}>
+                              <Form.Group widths="equal">
+                                <Form.Input>
+                                  <Checkbox
+                                    toggle={true}
+                                    label={planning2.text}
+                                    value={planning2.value}
+                                    checked={checked2}
+                                    onChange={(e, d) =>
+                                      this.planningCheckboxChange(d)
+                                    }
+                                  />
+                                </Form.Input>
+                                <Form.Input>
+                                  <Dropdown
+                                    disabled={!checked2}
+                                    fluid={true}
+                                    value={motif2}
+                                    planning={planning2.value}
+                                    selection={true}
+                                    options={motifsOptions}
+                                    onChange={(e, d) =>
+                                      this.planningMotifChange(d)
+                                    }
+                                  />
+                                </Form.Input>
+                              </Form.Group>
+                            </List.Item>
+                          );
+                        })}
+                      </List>
+                    </Accordion.Content>
+                  </Accordion>
+                  {/* plannings et motifs - fin */}
+                </Form>
+              </Grid.Column>
+            </Grid>
+            <Form>
+              <Form.Group widths="equal">
+                <Form.TextArea
+                  style={{ resize: "none" }}
+                  label="Description"
+                  placeholder="Description du rendez-vous"
+                  value={this.state.rdv.description}
+                  onChange={(e, d) => {
+                    let rdv = this.state.rdv;
+                    rdv.description = e.target.value;
+                    this.setState({ rdv: rdv });
+                  }}
+                />
+                <Form.TextArea
+                  style={{ resize: "none" }}
+                  label="Commentaire"
+                  placeholder="Ajouter un commentaire"
+                  value={this.state.rdv.commentaire}
+                  onChange={(e, d) => {
+                    let rdv = this.state.rdv;
+                    rdv.commentaire = e.target.value;
+                    this.setState({ rdv: rdv });
+                  }}
+                />
+              </Form.Group>
+            </Form>
+            {/*
               Il n'y a pas besoin des props "saved" et "save (fonction)" dans le composant RdvPassCard.
               Elles seront utiles dans le cas où nous sommes sur l'interface de 
               la fiche du patient.
           */}
-          {!this.state.isNewOne && !_.isEmpty(this.state.patient) ? (
-            <RdvPassCard
-              open={this.state.rdvPassCard}
-              client={this.props.client}
-              patient={this.state.patient}
-              denomination={
-                this.state.patient.nom + " " + this.state.patient.prenom
-              }
-              // TODO : pour la dénomination voir dans FichePatient.js
-              //        comment les valeurs sont obtenues
-              rdvPassCardOpen={this.rdvPassCardOpen}
-              patientReload={this.patientLoad}
-              //saved
-              //save
-            />
-          ) : (
-            ""
-          )}
-        </Modal.Content>
-        <Modal.Actions>
-          {!this.state.isNewOne ? (
-            <Button onClick={() => this.setState({ rdvPassCard: true })}>
-              Rendez-vous
-            </Button>
-          ) : (
-            ""
-          )}
-          <Button negative={!this.state.isNewOne} onClick={this.handleRemove}>
+            {!this.state.isNewOne && !_.isEmpty(this.state.patient) ? (
+              <RdvPassCard
+                open={this.state.rdvPassCard}
+                client={this.props.client}
+                patient={this.state.patient}
+                denomination={
+                  this.state.patient.nom + " " + this.state.patient.prenom
+                }
+                // TODO : pour la dénomination voir dans FichePatient.js
+                //        comment les valeurs sont obtenues
+                rdvPassCardOpen={this.rdvPassCardOpen}
+                patientReload={this.patientLoad}
+                //saved
+                //save
+              />
+            ) : (
+              ""
+            )}
+          </Modal.Content>
+          <Modal.Actions>
+            {!this.state.isNewOne ? (
+              <Button onClick={() => this.setState({ rdvPassCard: true })}>
+                Rendez-vous
+              </Button>
+            ) : (
+              ""
+            )}
+            {/*<Button negative={!this.state.isNewOne} onClick={this.handleRemove}>
             {this.state.isNewOne ? "Annuler" : "Supprimer"}
-          </Button>
-          <Ref innerRef={node => node.firstChild.parentElement.focus()}>
-            <Button primary={true} onClick={this.handleOk}>
-              OK
-            </Button>
-          </Ref>
-        </Modal.Actions>
-      </Modal>
+          </Button>*/}
+            {this.state.isNewOne ? (
+              <Button content="Annuler" onClick={this.handleRemove} />
+            ) : (
+              <Button
+                content="Supprimer"
+                onClick={() => this.setState({ deleteRdv: true })}
+              />
+            )}
+            <Ref
+              innerRef={node => {
+                if (!this.state.isNewOne) {
+                  node.firstChild.parentElement.focus();
+                }
+              }}
+            >
+              <Button primary={true} onClick={this.handleOk}>
+                OK
+              </Button>
+            </Ref>
+          </Modal.Actions>
+        </Modal>
+
+        {/* Modal suppression d'un rendez-vous */}
+
+        <Modal size="small" open={this.state.deleteRdv}>
+          <Modal.Header>Suppression du rendez-vous</Modal.Header>
+          <Modal.Content>
+            Voulez-vous supprimer le rendez-vous ou le marquer comme{" "}
+            <strong>annulé</strong> ?
+          </Modal.Content>
+          <Modal.Actions>
+            <Button
+              content="Retour"
+              onClick={() => this.setState({ deleteRdv: false })}
+            />
+            <Button
+              content="Marquer annulé"
+              onClick={() => {
+                let rdv = this.state.rdv;
+                rdv.idEtat = 7;
+                this.setState({ rdv: rdv, deleteRdv: false });
+                this.handleOk();
+              }}
+            />
+            <Button
+              negative={true}
+              content="Supprimer"
+              onClick={() => {
+                this.setState({ deleteRdv: false });
+                this.handleRemove();
+              }}
+            />
+          </Modal.Actions>
+        </Modal>
+      </React.Fragment>
     );
   }
 }
