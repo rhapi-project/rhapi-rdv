@@ -125,6 +125,7 @@ export default class RdvPassCardA4 extends React.Component {
                             date={this.state.dateRef}
                             numberOfMonths={1}
                             readOnly={false}
+                            //onOutsideClick={() => {}}
                             /*onClose={() =>
                               this.setState({ dateRefFocused: false })
                             }*/
@@ -280,9 +281,22 @@ export default class RdvPassCardA4 extends React.Component {
   }
 }
 
+/*
+ * Regroupement des états pour les statistiques
+ * 0 n'est pas pris en compte
+ * 1, 2 et 3 : présence
+ * 4 : Retar important
+ * 5, 6 et 7 : Absence ou annulation
+ */
+
 class Preview extends React.Component {
   state = {
-    mesRdv: []
+    mesRdv: [],
+    infos: {
+      presence: 0,
+      retardImportant: 0,
+      absEtAnnul: 0
+    }
   };
 
   componentWillMount() {
@@ -310,7 +324,26 @@ class Preview extends React.Component {
         result => {
           // success
           //console.log(result.results);
+
+          let infos = this.state.infos;
+          infos.presence = 0;
+          infos.retardImportant = 0;
+          infos.absEtAnnul = 0;
+
           this.setState({ mesRdv: result.results });
+
+          let mesRdv = result.results;
+          for (let i = 0; i < mesRdv.length; i++) {
+            // L'idEtat 0 n'est pas pris en compte
+            if (_.includes([1, 2, 3], mesRdv[i].idEtat)) {
+              infos.presence += 1;
+            } else if (mesRdv[i].idEtat === 4) {
+              infos.retardImportant += 1;
+            } else if (_.includes([5, 6, 7], mesRdv[i].idEtat)) {
+              infos.absEtAnnul += 1;
+            }
+          }
+          this.setState({ infos: infos });
         },
         () => {
           // error
@@ -569,9 +602,8 @@ class Preview extends React.Component {
                             <List.Header>
                               {this.props.etatRdv
                                 ? _.upperFirst(rdvDateTime(item.startAt)) +
-                                  " ( " +
-                                  rdvEtats[item.idEtat].text +
-                                  " )"
+                                  " - " +
+                                  rdvEtats[item.idEtat].text
                                 : _.upperFirst(rdvDateTime(item.startAt))}
                             </List.Header>
                             <List.List>
@@ -705,6 +737,63 @@ class Preview extends React.Component {
                     }
                   })}
                 </List>
+                {this.props.etatRdv ? (
+                  <div>
+                    <Divider hidden={true} />
+                    <span>
+                      <Icon name="chart pie" />
+                      <strong>Statistiques</strong>
+                    </span>
+                    <table style={{ marginTop: "10px" }}>
+                      <tbody>
+                        <tr>
+                          <td>
+                            <Icon name="chart line" />
+                          </td>
+                          <td>Présence</td>
+                          <td>
+                            : &nbsp;
+                            {Math.round(
+                              (this.state.infos.presence * 100) /
+                                this.state.mesRdv.length
+                            )}
+                            &nbsp; %
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <Icon name="chart line" />
+                          </td>
+                          <td>Retards importants</td>
+                          <td>
+                            : &nbsp;
+                            {Math.round(
+                              (this.state.infos.retardImportant * 100) /
+                                this.state.mesRdv.length
+                            )}
+                            &nbsp; %
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <Icon name="chart line" />
+                          </td>
+                          <td>Absence ou annulation</td>
+                          <td>
+                            : &nbsp;
+                            {Math.round(
+                              (this.state.infos.absEtAnnul * 100) /
+                                this.state.mesRdv.length
+                            )}
+                            &nbsp; %
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  ""
+                )}
               </div>
             </div>
           )}
