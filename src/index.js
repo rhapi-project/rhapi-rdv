@@ -27,6 +27,19 @@ import App from "./components/App";
 import Patients from "./components/Patients";
 import Praticiens from "./components/Praticiens";
 
+/*
+ * Le date picker ne fonctionne pas sur internet explorer
+ * https://github.com/airbnb/react-dates/issues/1076
+ *
+ * La solution proposée c'est d'installer ce package "airbnb-browser-shims"
+ * https://www.npmjs.com/package/airbnb-browser-shims
+ *
+ * => ça ne marche toujours pas ! 
+
+ * TODO : à revoir
+ */
+import "airbnb-browser-shims";
+
 window.qWebChannel = false;
 
 class Main extends React.Component {
