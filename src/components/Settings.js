@@ -379,7 +379,7 @@ const rdvEtats = [
   { text: "Présence à l'heure", color: "green" },
   { text: "Retard", color: "yellow" },
   { text: "Retard important", color: "orange" },
-  { text: "RDV annulé hors délai", color: "red" }, // Hors délai de prévenance
+  { text: "RDV annulé dernier moment", color: "red" }, // Hors délai de prévenance
   { text: "Absence", color: "red" },
   { text: "RDV annulé", color: "black" } // Annulation dans les délais (masqué)
 ];
