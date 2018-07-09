@@ -289,6 +289,9 @@ const telRegex = [
 
 // Formatage du numéro de téléphone pour l'affichage seulement
 const telFormat = telephone => {
+  if (telephone === "") {
+    return "";
+  }
   let result = "";
   for (let i = 0; i < telRegex.length; i++) {
     if (i === 0 && telRegex[i].test(telephone)) {

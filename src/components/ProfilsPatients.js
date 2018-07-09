@@ -40,6 +40,18 @@ export default class ProfilsPatients extends React.Component {
 
   componentDidMount() {
     this.reload();
+
+    this.props.client.MonCompte.read(
+      monProfil => {
+        this.setState({
+          praticien: monProfil.currentName
+        });
+      },
+      data => {
+        console.log("Erreur lecture des informations sur le praticien");
+        console.log(data);
+      }
+    );
   }
 
   reload = () => {
@@ -53,18 +65,6 @@ export default class ProfilsPatients extends React.Component {
       },
       data => {
         console.log("Erreur lecture des patients");
-        console.log(data);
-      }
-    );
-
-    this.props.client.MonCompte.read(
-      monProfil => {
-        this.setState({
-          praticien: monProfil.currentName
-        });
-      },
-      data => {
-        console.log("Erreur lecture des informations sur le praticien");
         console.log(data);
       }
     );
@@ -199,20 +199,10 @@ export default class ProfilsPatients extends React.Component {
         // success
         //console.log(patient);
         this.setState({
-          patient: patient
+          patient: patient,
+          clearSearch: true
         });
-        //objet age qui sera passé en props au composant FichePatient
-        /*this.props.client.Patients.age(
-          patient.id,
-          {},
-          result => {
-            this.setState({ age: result });
-          },
-          data => {
-            console.log("Erreur");
-          }
-        );*/
-        this.reload(); // Je récupère le nombre de patients mis à jour
+        this.reload(); // récupère le nombre de patients mis à jour
       },
       () => {
         // error

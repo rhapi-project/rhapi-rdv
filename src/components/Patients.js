@@ -319,7 +319,7 @@ export default class Patients extends React.Component {
                       fluid={true}
                       icon="mail"
                       iconPosition="left"
-                      placeholder="Email"
+                      placeholder="E-Mail"
                       value={
                         _.isUndefined(this.state.patient.email)
                           ? ""

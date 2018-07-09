@@ -447,6 +447,7 @@ export default class Calendar extends React.Component {
 
     // ajustement CSS fullcalendar
     $(".fc-button").css("background", "white");
+    $(".fc-button").css("padding-top", "5px"); // < & >
   } // componentDidUpdate ends here
 
   render() {

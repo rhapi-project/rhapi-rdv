@@ -174,16 +174,27 @@ export default class RdvPassCardA4 extends React.Component {
                             }
                           />
                         </Form.Input>
-                        <Form.Input label="Afficher l'état des rendez-vous">
+                        <Form.Input label="Afficher les statuts et les statistiques">
                           <Checkbox
                             toggle={true}
                             checked={this.state.etatRdv}
-                            onChange={(e, d) =>
+                            onChange={(e, d) => {
+                              let dateRef = this.state.dateRef;
+                              console.log(dateRef.format("L"));
+                              dateRef = d.checked
+                                ? dateRef.diff(moment(), "days") === 0
+                                  ? moment("2000-01-01")
+                                  : dateRef
+                                : dateRef.diff(moment("2000-01-01"), "days") ===
+                                  0
+                                  ? moment()
+                                  : dateRef;
                               this.setState({
                                 defaut: false,
-                                etatRdv: !this.state.etatRdv
-                              })
-                            }
+                                etatRdv: !this.state.etatRdv,
+                                dateRef: dateRef
+                              });
+                            }}
                           />
                         </Form.Input>
                       </Form.Group>
@@ -281,14 +292,6 @@ export default class RdvPassCardA4 extends React.Component {
   }
 }
 
-/*
- * Regroupement des états pour les statistiques
- * 0 n'est pas pris en compte
- * 1, 2 et 3 : présence
- * 4 : Retar important
- * 5, 6 et 7 : Absence ou annulation
- */
-
 class Preview extends React.Component {
   state = {
     mesRdv: [],
@@ -323,27 +326,7 @@ class Preview extends React.Component {
         },
         result => {
           // success
-          //console.log(result.results);
-
-          let infos = this.state.infos;
-          infos.presence = 0;
-          infos.retardImportant = 0;
-          infos.absEtAnnul = 0;
-
           this.setState({ mesRdv: result.results });
-
-          let mesRdv = result.results;
-          for (let i = 0; i < mesRdv.length; i++) {
-            // L'idEtat 0 n'est pas pris en compte
-            if (_.includes([1, 2, 3], mesRdv[i].idEtat)) {
-              infos.presence += 1;
-            } else if (mesRdv[i].idEtat === 4) {
-              infos.retardImportant += 1;
-            } else if (_.includes([5, 6, 7], mesRdv[i].idEtat)) {
-              infos.absEtAnnul += 1;
-            }
-          }
-          this.setState({ infos: infos });
         },
         () => {
           // error
@@ -496,6 +479,32 @@ class Preview extends React.Component {
       infos += "@" + this.props.praticien.organisation.split("@")[0];
     }
 
+    /*
+      Regroupements des états pour les statistiques
+      0 n'est pas pris en compte
+      1, 2 : Présence à l'heure ou non renseigné
+      3, 4 : Retard
+      5, 6 : Absence ou annulation
+    */
+
+    let etat = { presences: 0, retards: 0, absences: 0 };
+    if (this.props.etatRdv && this.state.mesRdv.length) {
+      let n = this.state.mesRdv.length;
+      _.each(this.state.mesRdv, rdv => {
+        let e = rdv.idEtat;
+        if (e > 4) {
+          etat.absences++;
+        } else if (e > 2) {
+          etat.retards++;
+        } else {
+          etat.presences++;
+        }
+      });
+      etat.absencesPc = Math.round((100 * etat.absences) / n);
+      etat.retardsPc = Math.round((100 * etat.retards) / n);
+      etat.presencesPc = 100 - etat.absencesPc - etat.retardsPc;
+    }
+
     return (
       <div
         className="preview-details"
@@ -590,6 +599,56 @@ class Preview extends React.Component {
                   ""
                 )}
               </div>
+
+              {this.props.etatRdv ? (
+                <div>
+                  <span>
+                    <Icon name="chart pie" />
+                    <strong>Statistiques ponctualité</strong>
+                  </span>
+                  <table style={{ marginTop: "10px" }}>
+                    <tbody>
+                      <tr>
+                        <td style={{ minWidth: 20 }} />
+                        <td>Nombre de rendez-vous</td>
+                        <td style={{ textAlign: "right" }}>
+                          {this.state.mesRdv.length}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td />
+                        <td>Présences à l'heure</td>
+                        <td style={{ textAlign: "right" }}>{etat.presences}</td>
+                        <td style={{ textAlign: "right" }}>
+                          {etat.presencesPc}
+                          &nbsp;%
+                        </td>
+                      </tr>
+                      <tr>
+                        <td />
+                        <td>Retards</td>
+                        <td style={{ textAlign: "right" }}>{etat.retards}</td>
+                        <td style={{ textAlign: "right" }}>
+                          {etat.retardsPc}
+                          &nbsp; %
+                        </td>
+                      </tr>
+                      <tr>
+                        <td />
+                        <td>Absences ou annulations</td>
+                        <td style={{ textAlign: "right" }}>{etat.absences}</td>
+                        <td style={{ textAlign: "right" }}>
+                          {etat.absencesPc}
+                          &nbsp; %
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <Divider hidden={true} />
+                </div>
+              ) : (
+                ""
+              )}
 
               <div /*style={{ marginLeft: "10px" }}*/>
                 <List>
@@ -737,63 +796,6 @@ class Preview extends React.Component {
                     }
                   })}
                 </List>
-                {this.props.etatRdv ? (
-                  <div>
-                    <Divider hidden={true} />
-                    <span>
-                      <Icon name="chart pie" />
-                      <strong>Statistiques</strong>
-                    </span>
-                    <table style={{ marginTop: "10px" }}>
-                      <tbody>
-                        <tr>
-                          <td>
-                            <Icon name="chart line" />
-                          </td>
-                          <td>Présence</td>
-                          <td>
-                            : &nbsp;
-                            {Math.round(
-                              (this.state.infos.presence * 100) /
-                                this.state.mesRdv.length
-                            )}
-                            &nbsp; %
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>
-                            <Icon name="chart line" />
-                          </td>
-                          <td>Retards importants</td>
-                          <td>
-                            : &nbsp;
-                            {Math.round(
-                              (this.state.infos.retardImportant * 100) /
-                                this.state.mesRdv.length
-                            )}
-                            &nbsp; %
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>
-                            <Icon name="chart line" />
-                          </td>
-                          <td>Absence ou annulation</td>
-                          <td>
-                            : &nbsp;
-                            {Math.round(
-                              (this.state.infos.absEtAnnul * 100) /
-                                this.state.mesRdv.length
-                            )}
-                            &nbsp; %
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  ""
-                )}
               </div>
             </div>
           )}

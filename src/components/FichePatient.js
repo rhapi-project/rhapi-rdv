@@ -114,10 +114,8 @@ export default class FichePatient extends React.Component {
   }
 
   componentWillReceiveProps(next) {
-    let patient = { ...next.patient };
     this.setState({
-      activeIndex: this.state.activeIndex, // correction bug de la fermeture de l'accordéon
-      patient: patient,
+      patient: { ...next.patient },
       saved: true,
       naissanceDate: moment(next.patient.naissance),
       naissanceFocused: false,
@@ -303,13 +301,13 @@ export default class FichePatient extends React.Component {
     let patient = {};
     if (!nofiche) {
       patient = this.state.patient;
-      //console.log("Fiche : " + patient.id);
     }
+
     return (
       <React.Fragment>
         {nofiche ? (
           <Message
-            header="Aucun patient n'est actuellement sélectionné"
+            header="Aucun patient n'est actuellement sélectionné."
             content="Vous pouvez créer une nouvelle fiche ou effectuer une recherche sur celles existantes."
           />
         ) : (
@@ -342,7 +340,7 @@ export default class FichePatient extends React.Component {
                             <img src={patient.profilJO.base64} alt="Mon profil" />
                           */}
                         <div style={{ textAlign: "center" }}>
-                          {_.isEmpty(this.state.patient.profilJO.base64) ? (
+                          {_.isEmpty(patient.profilJO.base64) ? (
                             <div>
                               <Icon name="user" size="massive" /> <br />
                               <ImageReader
@@ -358,12 +356,12 @@ export default class FichePatient extends React.Component {
                             // photo du patient
                             <div>
                               <Image
-                                src={this.state.patient.profilJO.base64}
+                                src={patient.profilJO.base64}
                                 centered={true}
                               />{" "}
                               <Divider hidden={true} />
                               <ImageReader
-                                image={this.state.patient.profilJO.base64}
+                                image={patient.profilJO.base64}
                                 content="Modifier"
                                 icon="photo"
                                 onImageChange={image =>
@@ -437,7 +435,7 @@ export default class FichePatient extends React.Component {
                         withPortal={true}
                         isOutsideRange={() => false}
                         date={
-                          _.isNull(this.state.patient.naissance)
+                          _.isNull(patient.naissance)
                             ? null
                             : this.state.naissanceDate
                         }
@@ -502,7 +500,7 @@ export default class FichePatient extends React.Component {
                     <Form.Input
                       label="N° de sécurité sociale"
                       name="nir"
-                      value={this.state.patient.nir}
+                      value={patient.nir}
                       onChange={(e, d) => this.handleChangeInput(e, d)}
                     />
                   </Form.Group>
@@ -522,21 +520,21 @@ export default class FichePatient extends React.Component {
                     <Form.Input
                       label="Adresse (ligne 1)"
                       name="adresse1"
-                      value={this.state.patient.adresse1}
+                      value={patient.adresse1}
                       placeholder="Adresse du patient"
                       onChange={(e, d) => this.handleChangeInput(e, d)}
                     />
                     <Form.Input
                       label="Adresse (ligne 2)"
                       name="adresse2"
-                      value={this.state.patient.adresse2}
+                      value={patient.adresse2}
                       placeholder="Adresse du patient"
                       onChange={(e, d) => this.handleChangeInput(e, d)}
                     />
                     <Form.Input
                       label="Adresse (ligne 3)"
                       name="adresse3"
-                      value={this.state.patient.adresse3}
+                      value={patient.adresse3}
                       placeholder="Adresse du patient"
                       onChange={(e, d) => this.handleChangeInput(e, d)}
                     />
@@ -547,24 +545,24 @@ export default class FichePatient extends React.Component {
                       label="Code postal"
                       name="codePostal"
                       error={
-                        !codePostalRegex.test(this.state.patient.codePostal) &&
-                        this.state.patient.codePostal !== ""
+                        !codePostalRegex.test(patient.codePostal) &&
+                        patient.codePostal !== ""
                       }
-                      value={this.state.patient.codePostal}
+                      value={patient.codePostal}
                       placeholder="Code postal"
                       onChange={(e, d) => this.handleChangeInput(e, d)}
                     />
                     <Form.Input
                       label="Ville"
                       name="ville"
-                      value={this.state.patient.ville}
+                      value={patient.ville}
                       placeholder="Ville"
                       onChange={(e, d) => this.handleChangeInput(e, d)}
                     />
                     <Form.Input
                       label="Pays"
                       name="pays"
-                      value={this.state.patient.pays}
+                      value={patient.pays}
                       placeholder="Pays"
                       onChange={(e, d) => this.handleChangeInput(e, d)}
                     />
@@ -577,10 +575,10 @@ export default class FichePatient extends React.Component {
                       label="Téléphone mobile"
                       name="telMobile"
                       error={
-                        !this.telephoneValide(this.state.patient.telMobile) &&
-                        this.state.patient.telMobile !== ""
+                        !this.telephoneValide(patient.telMobile) &&
+                        patient.telMobile !== ""
                       }
-                      value={telFormat(this.state.patient.telMobile)}
+                      value={telFormat(patient.telMobile)}
                       placeholder="Téléphone mobile"
                       onChange={(e, d) => this.handleChangeInput(e, d)}
                     />
@@ -588,10 +586,10 @@ export default class FichePatient extends React.Component {
                       label="Téléphone bureau"
                       name="telBureau"
                       error={
-                        !this.telephoneValide(this.state.patient.telBureau) &&
-                        this.state.patient.telBureau !== ""
+                        !this.telephoneValide(patient.telBureau) &&
+                        patient.telBureau !== ""
                       }
-                      value={telFormat(this.state.patient.telBureau)}
+                      value={telFormat(patient.telBureau)}
                       placeholder="Téléphone bureau"
                       onChange={(e, d) => this.handleChangeInput(e, d)}
                     />
@@ -599,10 +597,10 @@ export default class FichePatient extends React.Component {
                       label="Téléphone domicile"
                       name="telDomicile"
                       error={
-                        !this.telephoneValide(this.state.patient.telDomicile) &&
-                        this.state.patient.telDomicile !== ""
+                        !this.telephoneValide(patient.telDomicile) &&
+                        patient.telDomicile !== ""
                       }
-                      value={telFormat(this.state.patient.telDomicile)}
+                      value={telFormat(patient.telDomicile)}
                       placeholder="Téléphone domicile"
                       onChange={(e, d) => this.handleChangeInput(e, d)}
                     />
@@ -610,10 +608,9 @@ export default class FichePatient extends React.Component {
                       label="E-Mail"
                       name="email"
                       error={
-                        !emailRegex.test(this.state.patient.email) &&
-                        this.state.patient.email !== ""
+                        !emailRegex.test(patient.email) && patient.email !== ""
                       }
-                      value={this.state.patient.email}
+                      value={patient.email}
                       placeholder="exemple@exemple.fr"
                       onChange={(e, d) => this.handleChangeInput(e, d)}
                     />
@@ -629,13 +626,12 @@ export default class FichePatient extends React.Component {
                 Gestion des rendez-vous
               </Accordion.Title>
               <Accordion.Content active={this.state.activeIndex === 2}>
-                {/*Coder la gestion des rdv ici*/}
                 <Form>
                   <Form.Group widths="equal">
                     <Form.Input label="Autorisation SMS">
                       <Checkbox
                         toggle={true}
-                        checked={this.state.patient.gestionRdvJO.autoriseSMS}
+                        checked={patient.gestionRdvJO.autoriseSMS}
                         onChange={(e, d) => this.changeAutoriseSMS(e, d)}
                       />
                     </Form.Input>
@@ -646,10 +642,7 @@ export default class FichePatient extends React.Component {
                         selection={true}
                         multiple={false}
                         options={this.autorisations}
-                        value={
-                          this.state.patient.gestionRdvJO.reservation
-                            .autorisation
-                        }
+                        value={patient.gestionRdvJO.reservation.autorisation}
                         onChange={(e, d) => this.changeAutorisation(e, d)}
                       />
                     </Form.Input>

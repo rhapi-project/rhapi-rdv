@@ -93,7 +93,7 @@ export default class CalendarModalRdv extends React.Component {
     if (next.open) {
       this.reload(next);
     }
-    this.setState({ image: "", accordionIndex: -1 });
+    this.setState({ image: "", accordionIndex: -1, accordionIndex2: -1 });
   }
 
   patientLoad = idPatient => {
@@ -438,6 +438,7 @@ export default class CalendarModalRdv extends React.Component {
     }
 
     let accordionIndex = this.state.accordionIndex;
+    let accordionIndex2 = this.state.accordionIndex2;
 
     let rdv = this.state.rdv;
 
@@ -559,7 +560,7 @@ export default class CalendarModalRdv extends React.Component {
                   {this.props.isExternal ? (
                     ""
                   ) : (
-                    <Form.Group>
+                    <Form.Group widths="equal">
                       <Form.Input label="Horaire">
                         <FromTo
                           hfrom={rdv.startAt.split("T")[1]}
@@ -581,17 +582,9 @@ export default class CalendarModalRdv extends React.Component {
                             this.setState({ rdv: rdv });
                           }}
                         />
-                        {/*<Button
-                          icon="remove"
-                          onClick={() => {
-                            let rdv = this.state.rdv;
-                            rdv.couleur = "";
-                            this.setState({ rdv: rdv });
-                          }}
-                        />*/}
                         <Icon
-                          name="remove"
-                          size="big"
+                          name="close"
+                          size="large"
                           style={{ cursor: "pointer" }}
                           onClick={() => {
                             let rdv = this.state.rdv;
@@ -599,18 +592,6 @@ export default class CalendarModalRdv extends React.Component {
                             this.setState({ rdv: rdv });
                           }}
                         />
-                      </Form.Input>
-                      <Form.Input label="Origine" floated="right">
-                        <span>
-                          <Icon name="user" size="big" />
-                          &nbsp;
-                          <strong>UserName</strong>
-                          {/*<strong>{this.state.rdv.origine}</strong>*/}
-                          {/* TODO : décommenter la ligne du dessus pour afficher l'utilisateur qui
-                              a créé le RDV... 
-                              Pour l'instant ce champs est vide
-                          */}
-                        </span>
                       </Form.Input>
                     </Form.Group>
                   )}
@@ -737,9 +718,8 @@ export default class CalendarModalRdv extends React.Component {
                   style={{ resize: "none" }}
                   label="Description"
                   placeholder="Description du rendez-vous"
-                  value={this.state.rdv.description}
+                  value={rdv.description}
                   onChange={(e, d) => {
-                    let rdv = this.state.rdv;
                     rdv.description = e.target.value;
                     this.setState({ rdv: rdv });
                   }}
@@ -748,15 +728,45 @@ export default class CalendarModalRdv extends React.Component {
                   style={{ resize: "none" }}
                   label="Commentaire"
                   placeholder="Ajouter un commentaire"
-                  value={this.state.rdv.commentaire}
+                  value={rdv.commentaire}
                   onChange={(e, d) => {
-                    let rdv = this.state.rdv;
                     rdv.commentaire = e.target.value;
                     this.setState({ rdv: rdv });
                   }}
                 />
               </Form.Group>
             </Form>
+            <Accordion>
+              <Accordion.Title
+                content="Plus de détails"
+                active={accordionIndex2 === 0}
+                index={0}
+                onClick={() => {
+                  this.setState({
+                    accordionIndex2: accordionIndex2 === 0 ? -1 : 0
+                  });
+                }}
+              />
+              <Accordion.Content active={accordionIndex2 === 0}>
+                <Form>
+                  <Form.Group widths="equal">
+                    <Form.Input label="Créateur" floated="right">
+                      <span>
+                        <Icon name="doctor" size="large" />
+                        &nbsp;
+                        {rdv.origine}
+                      </span>
+                    </Form.Input>
+                    <Form.Input label="Création" floated="right">
+                      {moment(rdv.createdAt).format("LLLL")}
+                    </Form.Input>
+                    <Form.Input label="Dernière modification" floated="right">
+                      {moment(rdv.modifiedAt).format("LLLL")}
+                    </Form.Input>
+                  </Form.Group>
+                </Form>
+              </Accordion.Content>
+            </Accordion>
             {/*
               Il n'y a pas besoin des props "saved" et "save (fonction)" dans le composant RdvPassCard.
               Elles seront utiles dans le cas où nous sommes sur l'interface de 
@@ -784,7 +794,7 @@ export default class CalendarModalRdv extends React.Component {
           <Modal.Actions>
             {!this.state.isNewOne ? (
               <Button onClick={() => this.setState({ rdvPassCard: true })}>
-                Rendez-vous
+                Tous les rendez-vous
               </Button>
             ) : (
               ""

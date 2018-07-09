@@ -134,7 +134,8 @@ export default class Calendars extends React.Component {
           style={{
             width: panelWidth,
             float: "left",
-            marginLeft: 10
+            marginLeft: 10,
+            marginTop: 5
           }}
         >
           <div style={{ textAlign: "right" }}>
@@ -188,7 +189,8 @@ export default class Calendars extends React.Component {
           style={{
             width: calendarWidth,
             float: "right",
-            marginRight: 10
+            marginRight: 10,
+            marginTop: 5
           }}
         >
           {this.state.index < 0 ? "" : calendar}
