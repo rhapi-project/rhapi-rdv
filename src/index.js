@@ -44,11 +44,16 @@ window.qWebChannel = false;
 
 class Main extends React.Component {
   componentWillMount() {
-    let subApp = window.location.hash.split("/")[0];
+    let hash = window.location.hash;
+    let subApp = hash.split("/")[0];
     this.setState({
-      visible: !(subApp === "#Patients" || subApp === "#Praticiens"),
-      help: false,
-      login: false
+      visible: !(
+        subApp === "#Patients" ||
+        (subApp === "#Praticiens" &&
+          hash !== "#Praticiens" &&
+          hash !== "#Praticiens/")
+      ),
+      help: false
     });
   }
 
@@ -65,7 +70,6 @@ class Main extends React.Component {
 
   render() {
     let sidebar = "";
-    let help = "";
 
     let originPath = window.location.pathname;
     let subApp = window.location.hash.split("/")[0];
@@ -165,8 +169,8 @@ class Main extends React.Component {
                     this.setState({ visible: false });
                   }}
                 />
-                {// TODO : No help on login
-                false /* test if no login */ ? (
+                {/* pas d'aide sur le login" */}
+                {window.location.hash === "#Praticiens" ? (
                   ""
                 ) : (
                   <Menu.Item
@@ -294,7 +298,6 @@ class Main extends React.Component {
             }}
           />
         )}
-        {help}
         {sidebar}
         <Modal
           size="fullscreen"
