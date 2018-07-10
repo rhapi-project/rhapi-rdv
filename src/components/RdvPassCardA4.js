@@ -413,8 +413,10 @@ class Preview extends React.Component {
     // Microsoft Internet Explorer ou Edge
     if (
       navigator.userAgent.indexOf("Edge/") !== -1 ||
-      navigator.userAgent.indexOf("MSIE") !== -1
+      navigator.userAgent.indexOf("Trident") !== -1
     ) {
+      // l'attribut "Trident" de navigator.userAgent existe
+      // uniquement sur les navigateurs IE (pas Edge)
       this.browserDelay = _.isUndefined(this.browserDelay) ? 1500 : 500;
 
       _.delay(() => {

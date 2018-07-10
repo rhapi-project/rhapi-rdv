@@ -15,7 +15,9 @@ export default class RdvPassCardHelp extends React.Component {
       return "Firefox";
     } else if (navigator.userAgent.indexOf("Edge/") !== -1) {
       return "Edge";
-    } else if (navigator.userAgent.indexOf("MSIE") !== -1) {
+    } else if (navigator.userAgent.indexOf("Trident") !== -1) {
+      // l'attribut "Trident" de navigator.userAgent existe
+      // uniquement sur les navigateurs IE (pas Edge)
       return "MSIE";
     } else if (navigator.userAgent.indexOf("Safari") !== -1) {
       return "Safari";
@@ -27,7 +29,6 @@ export default class RdvPassCardHelp extends React.Component {
 
   render() {
     let browser = this.browser();
-
     return (
       <Modal size="small" open={this.props.open}>
         <Modal.Header>Impression d'une carte de rendez-vous</Modal.Header>

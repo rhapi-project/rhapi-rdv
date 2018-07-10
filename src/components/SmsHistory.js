@@ -442,7 +442,7 @@ export default class SmsHistory extends React.Component {
             <Ref
               innerRef={node => {
                 if (this.props.sms) {
-                  node.firstChild.parentElement.focus();
+                  node.focus();
                 }
               }}
             >
