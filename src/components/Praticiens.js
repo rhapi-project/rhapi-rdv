@@ -7,9 +7,7 @@ import {
   Header,
   Message,
   Segment,
-  Divider,
-  Card,
-  Icon
+  Divider
 } from "semantic-ui-react";
 
 import _ from "lodash";
@@ -172,54 +170,9 @@ export default class Praticiens extends React.Component {
         return <Profil client={client} user={this.state.user} />;
       } else if (option === "Patients") {
         return <ProfilsPatients client={client} user={this.state.user} />;
+      } else {
+        return <div style={{ minHeight: 400 }} />;
       }
-
-      return (
-        <Card.Group style={{ marginTop: 10 }}>
-          <Card>
-            <Card.Content>
-              <Card.Header textAlign="right">
-                <Icon name="calendar" size="large" />
-              </Card.Header>
-              <Card.Header>Agendas</Card.Header>
-              <Card.Description>
-                Accès d'un praticien autorisé à ses agendas
-              </Card.Description>
-            </Card.Content>
-            <Card.Content extra={true} textAlign="right">
-              <Button
-                onClick={() => {
-                  window.location =
-                    window.location.pathname + "#Praticiens/Agendas";
-                  this.setState({});
-                }}
-              >
-                OK
-              </Button>
-            </Card.Content>
-          </Card>
-          <Card>
-            <Card.Content>
-              <Card.Header textAlign="right">
-                <Icon name="settings" size="large" />
-              </Card.Header>
-              <Card.Header>Configuration</Card.Header>
-              <Card.Description>Configuration des plannings</Card.Description>
-            </Card.Content>
-            <Card.Content extra={true} textAlign="right">
-              <Button
-                onClick={() => {
-                  window.location =
-                    window.location.pathname + "#Praticiens/Configuration";
-                  this.setState({});
-                }}
-              >
-                OK
-              </Button>
-            </Card.Content>
-          </Card>
-        </Card.Group>
-      );
     } else
       return window.qWebChannel ? (
         ""
