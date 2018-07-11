@@ -5,7 +5,9 @@ import _ from "lodash";
 import {
   Button,
   Header,
+  Divider,
   Modal,
+  Message,
   Icon,
   Image,
   Segment,
@@ -23,7 +25,7 @@ import TimeField from "react-simple-timefield";
 
 import moment from "moment";
 
-import { maxWidth /*, hsize, fsize*/, rdvEtats } from "./Settings";
+import { maxWidth /*, hsize, fsize*/, rdvDateTime, rdvEtats } from "./Settings";
 
 import PatientSearch from "./PatientSearch";
 
@@ -305,6 +307,9 @@ export default class CalendarModalRdv extends React.Component {
     this.props.client.Plannings.mesPlannings(
       {},
       result => {
+        //console.log(result.results);
+        // Attention, on a planning.optionsJO.sms.rappel12 au lieu de rappel1
+
         // success
         let plannings = [];
         _.forEach(result.results, planning => {
@@ -319,6 +324,11 @@ export default class CalendarModalRdv extends React.Component {
           )
             ? []
             : planning.optionsJO.reservation.autorisationMinAgenda;
+
+          // Attention, il y sms.rappel12 au lieu de rappel1
+          pl.sms = _.isUndefined(planning.optionsJO.sms)
+            ? {}
+            : planning.optionsJO.sms;
           if (planning.id === this.props.planning) {
             plannings.unshift(pl); // place en premier le planning courant
           } else {
@@ -490,6 +500,35 @@ export default class CalendarModalRdv extends React.Component {
       }
     });
     // plannings et motifs - fin
+
+    let rappelSMS = _.findIndex(this.state.plannings, planning => {
+      if (
+        planning.sms &&
+        planning.sms.confirmationTexte &&
+        planning.sms.confirmationTexte !== "" &&
+        (planning.sms.rappel12 ||
+          planning.sms.rappel24 ||
+          planning.sms.rappel48)
+      ) {
+        let sms = {};
+        sms.rappel12 = planning.sms.rappel12;
+        sms.rappel24 = planning.sms.rappel24;
+        sms.rappel48 = planning.sms.rappel48;
+        sms.rappel12Done = "";
+        sms.rappel24Done = "";
+        sms.rappel48Done = "";
+
+        let rdv = this.state.rdv;
+        rdv.rappelsJO.sms = sms;
+        //this.setState({ rdv: rdv });
+        return true;
+      } else {
+        return false;
+      }
+    });
+
+    console.log(this.state);
+
     return (
       <React.Fragment>
         <Modal open={this.props.open}>
@@ -764,6 +803,134 @@ export default class CalendarModalRdv extends React.Component {
                     </Form.Input>
                   </Form.Group>
                 </Form>
+                {rappelSMS !== -1 ? (
+                  <div>
+                    <Divider hidden={true} />
+                    <div style={{ marginBottom: "7px" }}>
+                      <strong>Rappel du rendez-vous par SMS</strong>
+                    </div>
+                    {!_.isEmpty(this.state.patient) &&
+                    !this.state.patient.gestionRdvJO.autoriseSMS ? (
+                      <div>
+                        <Message warning={true}>
+                          <Message.Content>
+                            <p>
+                              L'envoi SMS n'est pas autorisé pour ce patient !
+                            </p>
+                          </Message.Content>
+                        </Message>
+                      </div>
+                    ) : (
+                      ""
+                    )}
+
+                    <Form>
+                      <Form.Group widths="equal">
+                        <Form.Input label="Rappel 48h">
+                          <Checkbox
+                            toggle={true}
+                            checked={this.state.rdv.rappelsJO.sms.rappel48}
+                          />
+                        </Form.Input>
+
+                        <Form.Input label="Statut">
+                          {this.state.rdv.rappelsJO.sms.rappel48 ? (
+                            this.state.rdv.rappelsJO.sms.rappel48Done !== "" ? (
+                              <Icon name="checkmark" color="green" />
+                            ) : (
+                              "N'a pas encore été envoyé"
+                            )
+                          ) : (
+                            <Icon name="minus" color="red" />
+                          )}
+                        </Form.Input>
+
+                        <Form.Input label="Date et heure d'envoi">
+                          {this.state.rdv.rappelsJO.sms.rappel48 ? (
+                            this.state.rdv.rappelsJO.sms.rappel48Done !== "" ? (
+                              rdvDateTime(
+                                this.state.rdv.rappelsJO.sms.rappel48Done
+                              )
+                            ) : (
+                              "N'a pas encore été envoyé"
+                            )
+                          ) : (
+                            <Icon name="minus" color="red" />
+                          )}
+                        </Form.Input>
+                      </Form.Group>
+                      <Form.Group widths="equal">
+                        <Form.Input label="Rappel 24h">
+                          <Checkbox
+                            toggle={true}
+                            checked={this.state.rdv.rappelsJO.sms.rappel24}
+                          />
+                        </Form.Input>
+                        <Form.Input label="Statut">
+                          {this.state.rdv.rappelsJO.sms.rappel24 ? (
+                            this.state.rdv.rappelsJO.sms.rappel24Done !== "" ? (
+                              <Icon name="checkmark" color="green" />
+                            ) : (
+                              "N'a pas encore été envoyé"
+                            )
+                          ) : (
+                            <Icon name="minus" color="red" />
+                          )}
+                        </Form.Input>
+
+                        <Form.Input label="Date et heure d'envoi">
+                          {this.state.rdv.rappelsJO.sms.rappel24 ? (
+                            this.state.rdv.rappelsJO.sms.rappel24Done !== "" ? (
+                              rdvDateTime(
+                                this.state.rdv.rappelsJO.sms.rappel24Done
+                              )
+                            ) : (
+                              "N'a pas encore été envoyé"
+                            )
+                          ) : (
+                            <Icon name="minus" color="red" />
+                          )}
+                        </Form.Input>
+                      </Form.Group>
+
+                      <Form.Group widths="equal">
+                        <Form.Input label="Rappel 12h">
+                          <Checkbox
+                            toggle={true}
+                            checked={this.state.rdv.rappelsJO.sms.rappel12}
+                          />
+                        </Form.Input>
+                        <Form.Input label="Statut">
+                          {this.state.rdv.rappelsJO.sms.rappel12 ? (
+                            this.state.rdv.rappelsJO.sms.rappel12Done !== "" ? (
+                              <Icon name="checkmark" color="green" />
+                            ) : (
+                              "N'a pas encore été envoyé"
+                            )
+                          ) : (
+                            <Icon name="minus" color="red" />
+                          )}
+                        </Form.Input>
+
+                        <Form.Input label="Date et heure d'envoi">
+                          {this.state.rdv.rappelsJO.sms.rappel12 ? (
+                            this.state.rdv.rappelsJO.sms.rappel12Done !== "" ? (
+                              rdvDateTime(
+                                this.state.rdv.rappelsJO.sms.rappel12Done
+                              )
+                            ) : (
+                              "N'a pas encore été envoyé"
+                            )
+                          ) : (
+                            <Icon name="minus" color="red" />
+                          )}
+                        </Form.Input>
+                      </Form.Group>
+                    </Form>
+                  </div>
+                ) : (
+                  ""
+                )}
               </Accordion.Content>
             </Accordion>
             {/*
