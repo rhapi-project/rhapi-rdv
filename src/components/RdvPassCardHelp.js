@@ -2,7 +2,15 @@ import React from "react";
 
 //import _ from "lodash";
 
-import { Button, Divider, Icon, List, Message, Modal } from "semantic-ui-react";
+import {
+  Button,
+  Divider,
+  Icon,
+  List,
+  Message,
+  Modal,
+  Ref
+} from "semantic-ui-react";
 
 export default class RdvPassCardHelp extends React.Component {
   browser = () => {
@@ -395,7 +403,140 @@ export default class RdvPassCardHelp extends React.Component {
               </List>
             </div>
           ) : browser === "MSIE" ? (
-            <div>Internet Explorer</div>
+            <div>
+              <Icon name="internet explorer" size="big" />
+              Impression de la carte de rendez-vous sur{" "}
+              <strong>Internet Explorer</strong>
+              <Divider hidden={true} />
+              <List ordered={true}>
+                <List.Item>
+                  <List.Content>
+                    <span>
+                      Configuration de la mise en page sur le navigateur (la
+                      1ère fois seulement)
+                    </span>
+                    <div style={{ marginTop: "5px" }}>
+                      L'option <strong>"Mise en page"</strong> est accessible à
+                      partir du menu
+                      <span>
+                        <strong>
+                          "Paramètres <Icon name="setting" />"
+                        </strong>
+                      </span>&nbsp;puis&nbsp;<span>
+                        <strong>"Imprimer"</strong>
+                      </span>
+                      <br />
+                      <div style={{ marginTop: "10px", marginBottom: "5px" }}>
+                        <span>
+                          <strong>"Mise en page"</strong>&nbsp;<Icon name="arrow right" />&nbsp;<strong
+                          >
+                            "En-têtes et pieds de page"
+                          </strong>
+                        </span>
+                        <br />
+                        <br />
+                        <span>
+                          <strong>Options de papier</strong> et{" "}
+                          <strong>Marges (millimètres)</strong> par défaut.
+                        </span>
+                        <br />
+                        Selectionner <strong>"--vide--"</strong> sur tous les
+                        champs d'en-têtes et pieds de page
+                        <br />
+                        <span>
+                          <strong>OK</strong> pour sauvegarder les modifications
+                        </span>
+                      </div>
+                    </div>
+                  </List.Content>
+                </List.Item>
+                <List.Item>
+                  <List.Content>
+                    <span>
+                      Cliquer sur le bouton &nbsp;&nbsp;<strong>
+                        "<Icon name="print" />Carte de RDV"
+                      </strong>
+                    </span>
+                  </List.Content>
+                </List.Item>
+                <List.Item>
+                  <List.Content>
+                    <span>Sélectionnez une imprimante</span>
+                    <div>
+                      <span style={{ color: "blue" }}>
+                        DYMO LabelWriter 450 Turbo
+                      </span>
+                      <div style={{ marginTop: "5px" }}>
+                        <Message warning={true} icon={true}>
+                          <Icon name="warning" />
+                          <Message.Content>
+                            <Message.Header>
+                              Imprimante à étiquette introuvable
+                            </Message.Header>
+                            <p>
+                              Si aucune imprimante à étiquette n'est repérée,
+                              veuillez consulter l'<a
+                                onClick={() =>
+                                  alert(
+                                    "TODO: Renvoyer sur la doc principale de l'application"
+                                  )
+                                }
+                              >
+                                aide
+                              </a>{" "}
+                              de l'application pour en savoir plus sur
+                              l'installation d'une imprimante à étiquette.
+                            </p>
+                          </Message.Content>
+                        </Message>
+                      </div>
+                    </div>
+                  </List.Content>
+                </List.Item>
+                <List.Item>
+                  <List.Content>
+                    <span>Préférences</span>
+                    <div style={{ marginTop: "5px" }}>
+                      <span>
+                        Disposition &nbsp;
+                        <Icon name="arrow right" />
+                        &nbsp; Orientation : <strong>Paysage</strong>
+                      </span>
+                      <br />
+                      <span>Avancées : </span>
+                      <br />
+                      <span>
+                        Format du papier :{" "}
+                        <strong>30374 Appointment Card</strong>
+                      </span>
+                    </div>
+                  </List.Content>
+                </List.Item>
+                <List.Item>
+                  <List.Content>
+                    <span>
+                      Cliquer sur <strong>"OK"</strong> pour enregistrer
+                    </span>
+                  </List.Content>
+                </List.Item>
+                <List.Item>
+                  <List.Content>
+                    <span>
+                      Cliquer sur <strong>"OK"</strong> pour lancer l'impression
+                      de la carte de rendez-vous
+                    </span>
+                  </List.Content>
+                </List.Item>
+                <List.Item>
+                  <List.Content>
+                    <span>
+                      Après l'impression, fermer la nouvelle fenêtre qui s'est
+                      ouverte spécialement pour l'impression
+                    </span>
+                  </List.Content>
+                </List.Item>
+              </List>
+            </div>
           ) : browser === "Safari" ? (
             <div>
               {/* TODO : CSS pour Safari */}
@@ -578,11 +719,13 @@ export default class RdvPassCardHelp extends React.Component {
           )}
         </Modal.Content>
         <Modal.Actions>
-          <Button
-            primary={true}
-            content="Fermer"
-            onClick={() => this.props.openHelp(false)}
-          />
+          <Ref innerRef={node => node.focus()}>
+            <Button
+              primary={true}
+              content="Fermer"
+              onClick={() => this.props.openHelp(false)}
+            />
+          </Ref>
         </Modal.Actions>
       </Modal>
     );
