@@ -259,7 +259,7 @@ const defaultPlanning = {
     }
   },
   sms: {
-    rappel12: false,
+    rappel1: false,
     rappel24: false,
     rappel48: false,
     rappelTexte:

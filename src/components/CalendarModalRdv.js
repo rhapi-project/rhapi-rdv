@@ -635,18 +635,11 @@ export default class CalendarModalRdv extends React.Component {
                       <List>
                         {_.map(plannings, (planning2, i) => {
                           let motifsOptions = [];
-
                           _.forEach(planning2.motifs, (motif2, i) => {
-                            //console.log(motif2.hidden);
-                            //console.log(motif2.autorisationMin >= planning.autorisationMinAgenda);
-
-                            // La condition "motif2.autorisationMin >= planning.autorisationMinAgenda"
-                            // est toujours fausse si on est sur le planning du secrétariat
-
                             if (
-                              !motif2.hidden //&&
-                              //motif2.autorisationMin >=
-                              //planning.autorisationMinAgenda
+                              !motif2.hidden &&
+                              motif2.autorisationMin >=
+                                planning2.autorisationMinAgenda
                             ) {
                               motifsOptions.push({
                                 value: i + 1,
@@ -654,8 +647,6 @@ export default class CalendarModalRdv extends React.Component {
                               });
                             }
                           });
-
-                          //console.log(motifsOptions);
 
                           let checked2 = false;
                           let motif2 = 0;
