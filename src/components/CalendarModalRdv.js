@@ -503,6 +503,7 @@ export default class CalendarModalRdv extends React.Component {
 
     let rappelSMS = _.findIndex(this.state.plannings, planning => {
       if (
+        !this.state.isNewOne &&
         planning.sms &&
         planning.sms.confirmationTexte &&
         planning.sms.confirmationTexte !== "" &&
@@ -803,7 +804,7 @@ export default class CalendarModalRdv extends React.Component {
                     </Form.Input>
                   </Form.Group>
                 </Form>
-                {rappelSMS !== -1 ? (
+                {(!this.state.isNewOne && rappelSMS !== -1) ? (
                   <div>
                     <Divider hidden={true} />
                     <div style={{ marginBottom: "7px" }}>
