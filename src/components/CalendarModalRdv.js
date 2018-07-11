@@ -527,9 +527,7 @@ export default class CalendarModalRdv extends React.Component {
         return false;
       }
     });
-
-    console.log(this.state);
-
+    
     return (
       <React.Fragment>
         <Modal open={this.props.open}>
