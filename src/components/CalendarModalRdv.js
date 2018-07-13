@@ -7,7 +7,7 @@ import {
   Header,
   Divider,
   Modal,
-  Message,
+  //Message,
   Icon,
   Image,
   Segment,
@@ -104,6 +104,132 @@ export default class CalendarModalRdv extends React.Component {
       {},
       patient => {
         // success
+        if (patient.gestionRdvJO.autoriseSMS) {
+          // prendre les rappels qui sont définis dans les plannings
+          // s'il n'y a pas encore eu de modifications
+          _.findIndex(this.state.plannings, planning => {
+            if (
+              planning.sms &&
+              planning.sms.confirmationTexte &&
+              planning.sms.confirmationTexte !== "" &&
+              (planning.sms.rappel1 ||
+                planning.sms.rappel24 ||
+                planning.sms.rappel48)
+            ) {
+              let sms = {};
+              sms.rappel1 = this.state.isNewOne
+                ? planning.sms.rappel1
+                : this.state.rdv.rappelsJO.sms.rappel1;
+              sms.rappel24 = this.state.isNewOne
+                ? planning.sms.rappel24
+                : this.state.rdv.rappelsJO.sms.rappel24;
+              sms.rappel48 = this.state.isNewOne
+                ? planning.sms.rappel48
+                : this.state.rdv.rappelsJO.sms.rappel48;
+              sms.rappel1Done = this.state.isNewOne
+                ? ""
+                : this.state.rdv.rappelsJO.sms.rappel1Done;
+              sms.rappel24Done = this.state.isNewOne
+                ? ""
+                : this.state.rdv.rappelsJO.sms.rappel24Done;
+              sms.rappel48Done = this.state.isNewOne
+                ? ""
+                : this.state.rdv.rappelsJO.sms.rappel48Done;
+
+              let rdv = this.state.rdv;
+              if (_.isUndefined(rdv.rappelsJO)) {
+                let rappelsJO = {};
+                rappelsJO.sms = sms;
+                rappelsJO.modified = this.state.isNewOne
+                  ? false
+                  : this.state.rdv.rappelsJO.sms.modified;
+                rdv.rappelsJO = rappelsJO;
+              } else {
+                rdv.rappelsJO.sms = sms;
+                rdv.rappelsJO.modified = this.state.isNewOne
+                  ? false
+                  : this.state.rdv.rappelsJO.sms.modified; // à revoir
+              }
+              this.setState({ rdv: rdv });
+              return true;
+            } else {
+              let sms = {};
+              sms.rappel1 = this.state.isNewOne
+                ? false
+                : this.state.rdv.rappelsJO.sms.rappel1;
+              sms.rappel24 = this.state.isNewOne
+                ? false
+                : this.state.rdv.rappelsJO.sms.rappel24;
+              sms.rappel48 = this.state.isNewOne
+                ? false
+                : this.state.rdv.rappelsJO.sms.rappel48;
+              sms.rappel1Done = this.state.isNewOne
+                ? ""
+                : this.state.rdv.rappelsJO.sms.rappel1Done;
+              sms.rappel24Done = this.state.isNewOne
+                ? ""
+                : this.state.rdv.rappelsJO.sms.rappel24Done;
+              sms.rappel48Done = this.state.isNewOne
+                ? ""
+                : this.state.rdv.rappelsJO.sms.rappel48Done;
+
+              let rdv = this.state.rdv;
+              if (_.isUndefined(rdv.rappelsJO)) {
+                let rappelsJO = {};
+                rappelsJO.sms = sms;
+                rappelsJO.modified = this.state.isNewOne
+                  ? false
+                  : this.state.rdv.rappelsJO.sms.modified;
+                rdv.rappelsJO = rappelsJO;
+              } else {
+                rdv.rappelsJO.sms = sms;
+                rdv.rappelsJO.modified = this.state.isNewOne
+                  ? false
+                  : this.state.rdv.rappelsJO.sms.modified; // à revoir
+              }
+              this.setState({ rdv: rdv });
+              return false;
+            }
+          });
+        } else {
+          // l'envoi SMS n'est pas autorisé chez ce patient,
+          // s'il c'est un nouveau rendez-vous, mettre tous les rappels à false
+          let sms = {};
+          sms.rappel1 = this.state.isNewOne
+            ? false
+            : this.state.rdv.rappelsJO.sms.rappel1;
+          sms.rappel24 = this.state.isNewOne
+            ? false
+            : this.state.rdv.rappelsJO.sms.rappel24;
+          sms.rappel48 = this.state.isNewOne
+            ? false
+            : this.state.rdv.rappelsJO.sms.rappel48;
+          sms.rappel1Done = this.state.isNewOne
+            ? ""
+            : this.state.rdv.rappelsJO.sms.rappel1Done;
+          sms.rappel24Done = this.state.isNewOne
+            ? ""
+            : this.state.rdv.rappelsJO.sms.rappel24Done;
+          sms.rappel48Done = this.state.isNewOne
+            ? ""
+            : this.state.rdv.rappelsJO.sms.rappel48Done;
+
+          let rdv = this.state.rdv;
+          if (_.isUndefined(rdv.rappelsJO)) {
+            let rappelsJO = {};
+            rappelsJO.sms = sms;
+            rappelsJO.modified = this.state.isNewOne
+              ? false
+              : this.state.rdv.rappelsJO.sms.modified;
+            rdv.rappelsJO = rappelsJO;
+          } else {
+            rdv.rappelsJO.sms = sms;
+            rdv.rappelsJO.modified = this.state.isNewOne
+              ? false
+              : this.state.rdv.rappelsJO.sms.modified; // à revoir
+          }
+          this.setState({ rdv: rdv });
+        }
         this.setState({ patient: patient });
         this.setState({ image: patient.profilJO.base64 });
       },
@@ -325,7 +451,6 @@ export default class CalendarModalRdv extends React.Component {
             ? []
             : planning.optionsJO.reservation.autorisationMinAgenda;
 
-          // Attention, il y sms.rappel12 au lieu de rappel1
           pl.sms = _.isUndefined(planning.optionsJO.sms)
             ? {}
             : planning.optionsJO.sms;
@@ -442,6 +567,13 @@ export default class CalendarModalRdv extends React.Component {
     this.setState({ rdv: rdv });
   };
 
+  rappelSMSChange = (e, d) => {
+    let rdv = this.state.rdv;
+    rdv.rappelsJO.modified = true;
+    rdv.rappelsJO.sms[d.name] = !this.state.rdv.rappelsJO.sms[d.name];
+    this.setState({ rdv: rdv });
+  };
+
   render() {
     if (!this.props.open) {
       return "";
@@ -501,33 +633,7 @@ export default class CalendarModalRdv extends React.Component {
     });
     // plannings et motifs - fin
 
-    let rappelSMS = _.findIndex(this.state.plannings, planning => {
-      if (
-        !this.state.isNewOne &&
-        planning.sms &&
-        planning.sms.confirmationTexte &&
-        planning.sms.confirmationTexte !== "" &&
-        (planning.sms.rappel12 ||
-          planning.sms.rappel24 ||
-          planning.sms.rappel48)
-      ) {
-        let sms = {};
-        sms.rappel12 = planning.sms.rappel12;
-        sms.rappel24 = planning.sms.rappel24;
-        sms.rappel48 = planning.sms.rappel48;
-        sms.rappel12Done = "";
-        sms.rappel24Done = "";
-        sms.rappel48Done = "";
-
-        let rdv = this.state.rdv;
-        rdv.rappelsJO.sms = sms;
-        //this.setState({ rdv: rdv });
-        return true;
-      } else {
-        return false;
-      }
-    });
-    
+    //console.log(this.state.rdv);
     return (
       <React.Fragment>
         <Modal open={this.props.open}>
@@ -802,130 +908,155 @@ export default class CalendarModalRdv extends React.Component {
                     </Form.Input>
                   </Form.Group>
                 </Form>
-                {(!this.state.isNewOne && rappelSMS !== -1) ? (
+
+                {//this.state.isNewOne &&
+                !_.isUndefined(this.state.rdv.idPatient) &&
+                !_.isUndefined(this.state.rdv.rappelsJO) ? (
                   <div>
                     <Divider hidden={true} />
                     <div style={{ marginBottom: "7px" }}>
                       <strong>Rappel du rendez-vous par SMS</strong>
                     </div>
-                    {!_.isEmpty(this.state.patient) &&
-                    !this.state.patient.gestionRdvJO.autoriseSMS ? (
-                      <div>
-                        <Message warning={true}>
-                          <Message.Content>
-                            <p>
-                              L'envoi SMS n'est pas autorisé pour ce patient !
-                            </p>
-                          </Message.Content>
-                        </Message>
-                      </div>
-                    ) : (
-                      ""
-                    )}
-
                     <Form>
                       <Form.Group widths="equal">
-                        <Form.Input label="Rappel 48h">
+                        <Form.Input label="Rappel à 48h">
                           <Checkbox
+                            name="rappel48"
                             toggle={true}
                             checked={this.state.rdv.rappelsJO.sms.rappel48}
+                            onChange={(e, d) => this.rappelSMSChange(e, d)}
                           />
                         </Form.Input>
 
-                        <Form.Input label="Statut">
+                        <Form.Input
+                          label="Statut"
+                          disabled={!this.state.rdv.rappelsJO.sms.rappel48}
+                        >
                           {this.state.rdv.rappelsJO.sms.rappel48 ? (
                             this.state.rdv.rappelsJO.sms.rappel48Done !== "" ? (
                               <Icon name="checkmark" color="green" />
                             ) : (
-                              "N'a pas encore été envoyé"
+                              <Icon name="minus" color="red" />
                             )
                           ) : (
-                            <Icon name="minus" color="red" />
+                            ""
                           )}
                         </Form.Input>
 
-                        <Form.Input label="Date et heure d'envoi">
+                        <Form.Input
+                          label="Date d'envoi"
+                          disabled={!this.state.rdv.rappelsJO.sms.rappel48}
+                        >
                           {this.state.rdv.rappelsJO.sms.rappel48 ? (
                             this.state.rdv.rappelsJO.sms.rappel48Done !== "" ? (
                               rdvDateTime(
                                 this.state.rdv.rappelsJO.sms.rappel48Done
                               )
                             ) : (
-                              "N'a pas encore été envoyé"
+                              <Icon name="minus" color="red" />
                             )
                           ) : (
-                            <Icon name="minus" color="red" />
+                            ""
                           )}
                         </Form.Input>
                       </Form.Group>
                       <Form.Group widths="equal">
-                        <Form.Input label="Rappel 24h">
+                        <Form.Input label="Rappel à 24h">
                           <Checkbox
+                            name="rappel24"
                             toggle={true}
                             checked={this.state.rdv.rappelsJO.sms.rappel24}
+                            onChange={(e, d) => this.rappelSMSChange(e, d)}
                           />
                         </Form.Input>
-                        <Form.Input label="Statut">
+                        <Form.Input
+                          label="Statut"
+                          disabled={!this.state.rdv.rappelsJO.sms.rappel24}
+                        >
                           {this.state.rdv.rappelsJO.sms.rappel24 ? (
                             this.state.rdv.rappelsJO.sms.rappel24Done !== "" ? (
                               <Icon name="checkmark" color="green" />
                             ) : (
-                              "N'a pas encore été envoyé"
+                              <Icon name="minus" color="red" />
                             )
                           ) : (
-                            <Icon name="minus" color="red" />
+                            ""
                           )}
                         </Form.Input>
 
-                        <Form.Input label="Date et heure d'envoi">
+                        <Form.Input
+                          label="Date d'envoi"
+                          disabled={!this.state.rdv.rappelsJO.sms.rappel24}
+                        >
                           {this.state.rdv.rappelsJO.sms.rappel24 ? (
                             this.state.rdv.rappelsJO.sms.rappel24Done !== "" ? (
                               rdvDateTime(
                                 this.state.rdv.rappelsJO.sms.rappel24Done
                               )
                             ) : (
-                              "N'a pas encore été envoyé"
+                              <Icon name="minus" color="red" />
                             )
                           ) : (
-                            <Icon name="minus" color="red" />
+                            ""
                           )}
                         </Form.Input>
                       </Form.Group>
 
                       <Form.Group widths="equal">
-                        <Form.Input label="Rappel 12h">
+                        <Form.Input label="Rappel à 1h">
                           <Checkbox
+                            name="rappel1"
                             toggle={true}
-                            checked={this.state.rdv.rappelsJO.sms.rappel12}
+                            checked={this.state.rdv.rappelsJO.sms.rappel1}
+                            onChange={(e, d) => this.rappelSMSChange(e, d)}
                           />
                         </Form.Input>
-                        <Form.Input label="Statut">
-                          {this.state.rdv.rappelsJO.sms.rappel12 ? (
-                            this.state.rdv.rappelsJO.sms.rappel12Done !== "" ? (
+                        <Form.Input
+                          label="Statut"
+                          disabled={!this.state.rdv.rappelsJO.sms.rappel1}
+                        >
+                          {this.state.rdv.rappelsJO.sms.rappel1 ? (
+                            this.state.rdv.rappelsJO.sms.rappel1Done !== "" ? (
                               <Icon name="checkmark" color="green" />
                             ) : (
-                              "N'a pas encore été envoyé"
+                              <Icon name="minus" color="red" />
                             )
                           ) : (
-                            <Icon name="minus" color="red" />
+                            ""
                           )}
                         </Form.Input>
 
-                        <Form.Input label="Date et heure d'envoi">
-                          {this.state.rdv.rappelsJO.sms.rappel12 ? (
-                            this.state.rdv.rappelsJO.sms.rappel12Done !== "" ? (
+                        <Form.Input
+                          label="Date d'envoi"
+                          disabled={!this.state.rdv.rappelsJO.sms.rappel1}
+                        >
+                          {this.state.rdv.rappelsJO.sms.rappel1 ? (
+                            this.state.rdv.rappelsJO.sms.rappel1Done !== "" ? (
                               rdvDateTime(
-                                this.state.rdv.rappelsJO.sms.rappel12Done
+                                this.state.rdv.rappelsJO.sms.rappel1Done
                               )
                             ) : (
-                              "N'a pas encore été envoyé"
+                              <Icon name="minus" color="red" />
                             )
                           ) : (
-                            <Icon name="minus" color="red" />
+                            ""
                           )}
                         </Form.Input>
                       </Form.Group>
                     </Form>
+                    {/*this.state.rdv.rappelsJO.modified && !_.isUndefined(this.state.patient) && !this.state.patient.gestionRdvJO.autoriseSMS
+                      ? <Message>
+                          <Message.Content>
+                            <Message.Header>
+                              L'envoi de SMS n'est pas autorisé pour ce patient
+                            </Message.Header>
+                            <p>
+                              Les rappels SMS activés seront faites uniquement pour ce rendez-vous !
+                            </p>
+                          </Message.Content>
+                        </Message>
+                      : ""
+                    */}
                   </div>
                 ) : (
                   ""
