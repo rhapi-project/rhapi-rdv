@@ -403,9 +403,10 @@ export default class CalendarPanel extends React.Component {
                   patient => {
                     //console.log(patient);
                     this.setState({
-                      patient: patient,
-                      rdvPassCard: true
+                      patient: patient
+                      //rdvPassCard: true
                     });
+                    this.rdvPassCardOpen(true);
                   },
                   data => {
                     //Error
