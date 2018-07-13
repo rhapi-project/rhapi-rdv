@@ -35,7 +35,10 @@ export default class RdvPassCardA4 extends React.Component {
     print: false
   };
 
-  componentWillMount() {
+  /*componentWillMount() {
+    this.loadPlanningsId(this.props.mesPlannings);
+  }*/
+  componentWillReceiveProps() {
     this.loadPlanningsId(this.props.mesPlannings);
   }
 
@@ -180,7 +183,7 @@ export default class RdvPassCardA4 extends React.Component {
                             checked={this.state.etatRdv}
                             onChange={(e, d) => {
                               let dateRef = this.state.dateRef;
-                              console.log(dateRef.format("L"));
+                              //console.log(dateRef.format("L"));
                               dateRef = d.checked
                                 ? dateRef.diff(moment(), "days") === 0
                                   ? moment("2000-01-01")
