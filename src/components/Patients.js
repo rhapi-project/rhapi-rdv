@@ -213,6 +213,7 @@ export default class Patients extends React.Component {
     return (
       <div id="patients"> 
       <div
+        id="patients-prochains-rdv"
         style={{ maxWidth: maxWidth, textAlign: "center", margin: "auto" }}
       >
         {this.state.gestionRDV ? (
