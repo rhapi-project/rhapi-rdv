@@ -211,8 +211,8 @@ export default class Patients extends React.Component {
 
   render() {
     return (
+      <div id="patients"> 
       <div
-        id="patients"
         style={{ maxWidth: maxWidth, textAlign: "center", margin: "auto" }}
       >
         {this.state.gestionRDV ? (
@@ -353,6 +353,7 @@ export default class Patients extends React.Component {
             </Form>
           </React.Fragment>
         )}
+      </div>
       </div>
     );
   }
