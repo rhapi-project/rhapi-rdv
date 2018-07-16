@@ -177,11 +177,10 @@ export default class Praticiens extends React.Component {
       return window.qWebChannel ? (
         ""
       ) : (
-        <React.Fragment>
+        <div id="praticiens">
           <Divider hidden={true} />
           <div
             className="login-form"
-            id="praticiens"
             style={{ maxWidth: maxWidth, textAlign: "center", margin: "auto" }}
           >
             <Header size={hsize}>
@@ -226,7 +225,7 @@ export default class Praticiens extends React.Component {
               <a href="http://lambdasoft.fr">&nbsp;Nous contacter</a>
             </Message>
           </div>
-        </React.Fragment>
+        </div>
       );
   }
 }
