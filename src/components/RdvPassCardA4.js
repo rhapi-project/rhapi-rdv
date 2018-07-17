@@ -26,7 +26,7 @@ export default class RdvPassCardA4 extends React.Component {
     defaut: true,
     //dateRefCheckbox: false,
     dateRef: moment(),
-    //dateRefFocused: false,
+    dateRefFocused: false,
     commentaires: false,
     etatRdv: false,
     allPlannings: true,
@@ -35,9 +35,6 @@ export default class RdvPassCardA4 extends React.Component {
     print: false
   };
 
-  /*componentWillMount() {
-    this.loadPlanningsId(this.props.mesPlannings);
-  }*/
   componentWillReceiveProps() {
     this.loadPlanningsId(this.props.mesPlannings);
   }
@@ -62,7 +59,7 @@ export default class RdvPassCardA4 extends React.Component {
       defaut: true,
       //dateRefCheckbox: false,
       dateRef: moment(),
-      //dateRefFocused: false,
+      dateRefFocused: false,
       commentaires: false,
       etatRdv: false,
       allPlannings: true
@@ -123,23 +120,30 @@ export default class RdvPassCardA4 extends React.Component {
                           <SingleDatePicker
                             placeholder="JJ/MM/AAAA"
                             hideKeyboardShortcutsPanel={true}
-                            withPortal={true}
+                            //withPortal={true} // Ne fonctionne pas si on est dans une modal
                             isOutsideRange={() => false}
                             date={this.state.dateRef}
-                            numberOfMonths={1}
+                            numberOfMonths={2}
                             readOnly={false}
-                            //onOutsideClick={() => {}}
-                            /*onClose={() =>
+                            onClose={() =>
                               this.setState({ dateRefFocused: false })
-                            }*/
+                            }
                             onDateChange={date => {
                               this.setState({ dateRef: null });
                               if (!_.isNull(date)) {
                                 this.setState({ dateRef: date });
                               }
                             }}
-                            //focused={this.state.dateRefFocused}
+                            focused={this.state.dateRefFocused}
                             onFocusChange={() => {}}
+                          />
+                          <Button
+                            icon="calendar"
+                            onClick={() =>
+                              this.setState({
+                                dateRefFocused: !this.state.dateRefFocused
+                              })
+                            }
                           />
                         </Form.Input>
                       </Form.Group>
