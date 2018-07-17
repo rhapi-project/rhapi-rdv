@@ -7,7 +7,7 @@ import {
   Header,
   Divider,
   Modal,
-  //Message,
+  Message,
   Icon,
   Image,
   Segment,
@@ -32,6 +32,8 @@ import PatientSearch from "./PatientSearch";
 import ColorPicker from "./ColorPicker";
 
 import RdvPassCard from "./RdvPassCard";
+
+import { SingleDatePicker } from "react-dates";
 
 class FromTo extends React.Component {
   componentWillMount() {
@@ -87,7 +89,11 @@ export default class CalendarModalRdv extends React.Component {
   //plannings = [];
 
   componentWillMount() {
-    this.setState({ rdvPassCard: false, deleteRdv: false });
+    this.setState({
+      rdvPassCard: false,
+      deleteRdv: false,
+      dateRdvFocused: false
+    });
     this.reload(this.props);
   }
 
@@ -106,7 +112,8 @@ export default class CalendarModalRdv extends React.Component {
         // success
         if (patient.gestionRdvJO.autoriseSMS) {
           // prendre les rappels qui sont définis dans les plannings
-          // s'il n'y a pas encore eu de modifications
+          // s'il n'y a pas encore eu de modifications sur le rdv
+          // par rapport aux rappels SMS
           _.findIndex(this.state.plannings, planning => {
             if (
               planning.sms &&
@@ -137,18 +144,18 @@ export default class CalendarModalRdv extends React.Component {
                 : this.state.rdv.rappelsJO.sms.rappel48Done;
 
               let rdv = this.state.rdv;
-              if (_.isUndefined(rdv.rappelsJO)) {
+              if (_.isEmpty(rdv.rappelsJO)) {
                 let rappelsJO = {};
                 rappelsJO.sms = sms;
                 rappelsJO.modified = this.state.isNewOne
                   ? false
-                  : this.state.rdv.rappelsJO.sms.modified;
+                  : this.state.rdv.rappelsJO.modified;
                 rdv.rappelsJO = rappelsJO;
               } else {
                 rdv.rappelsJO.sms = sms;
                 rdv.rappelsJO.modified = this.state.isNewOne
                   ? false
-                  : this.state.rdv.rappelsJO.sms.modified; // à revoir
+                  : this.state.rdv.rappelsJO.modified; // à revoir
               }
               this.setState({ rdv: rdv });
               return true;
@@ -174,18 +181,18 @@ export default class CalendarModalRdv extends React.Component {
                 : this.state.rdv.rappelsJO.sms.rappel48Done;
 
               let rdv = this.state.rdv;
-              if (_.isUndefined(rdv.rappelsJO)) {
+              if (_.isEmpty(rdv.rappelsJO)) {
                 let rappelsJO = {};
                 rappelsJO.sms = sms;
                 rappelsJO.modified = this.state.isNewOne
                   ? false
-                  : this.state.rdv.rappelsJO.sms.modified;
+                  : this.state.rdv.rappelsJO.modified;
                 rdv.rappelsJO = rappelsJO;
               } else {
                 rdv.rappelsJO.sms = sms;
                 rdv.rappelsJO.modified = this.state.isNewOne
                   ? false
-                  : this.state.rdv.rappelsJO.sms.modified; // à revoir
+                  : this.state.rdv.rappelsJO.modified; // à revoir
               }
               this.setState({ rdv: rdv });
               return false;
@@ -215,18 +222,18 @@ export default class CalendarModalRdv extends React.Component {
             : this.state.rdv.rappelsJO.sms.rappel48Done;
 
           let rdv = this.state.rdv;
-          if (_.isUndefined(rdv.rappelsJO)) {
+          if (_.isEmpty(rdv.rappelsJO)) {
             let rappelsJO = {};
             rappelsJO.sms = sms;
             rappelsJO.modified = this.state.isNewOne
               ? false
-              : this.state.rdv.rappelsJO.sms.modified;
+              : this.state.rdv.rappelsJO.modified;
             rdv.rappelsJO = rappelsJO;
           } else {
             rdv.rappelsJO.sms = sms;
             rdv.rappelsJO.modified = this.state.isNewOne
               ? false
-              : this.state.rdv.rappelsJO.sms.modified; // à revoir
+              : this.state.rdv.rappelsJO.modified; // à revoir
           }
           this.setState({ rdv: rdv });
         }
@@ -574,6 +581,16 @@ export default class CalendarModalRdv extends React.Component {
     this.setState({ rdv: rdv });
   };
 
+  // bloquer des jours sur le datePicker
+  // TODO : Bloquer les jours fériés
+  isDayBlocked = day => {
+    // day est un objet "moment"
+    let d = _.split(day._d, " ")[0];
+
+    // on bloque les jeudis et les dimanches
+    return d === "Thu" || d === "Sun";
+  };
+
   render() {
     if (!this.props.open) {
       return "";
@@ -633,7 +650,14 @@ export default class CalendarModalRdv extends React.Component {
     });
     // plannings et motifs - fin
 
+    // Rappels SMS
+    let showRappels =
+      !_.isUndefined(this.state.rdv.idPatient) &&
+      !_.isUndefined(this.state.rdv.rappelsJO) &&
+      (!_.isEmpty(this.state.patient) && this.state.patient.telMobile !== "");
+
     //console.log(this.state.rdv);
+    //console.log(moment(this.state.rdv.startAt));
     return (
       <React.Fragment>
         <Modal open={this.props.open}>
@@ -656,9 +680,51 @@ export default class CalendarModalRdv extends React.Component {
               floated="right"
               style={{ textAlign: "right" }}
             >
-              {this.props.isExternal
-                ? "Rendez-vous en attente"
-                : moment(this.state.rdv.startAt).format("LLLL")}
+              {this.props.isExternal ? (
+                "Rendez-vous en attente"
+              ) : (
+                //: moment(this.state.rdv.startAt).format("LLLL")
+                <div
+                  onClick={() =>
+                    this.setState({
+                      dateRdvFocused: !this.state.dateRdvFocused
+                    })
+                  }
+                >
+                  <SingleDatePicker
+                    disabled={true}
+                    small={true}
+                    noBorder={true}
+                    hideKeyboardShortcutsPanel={true}
+                    isOutsideRange={() => false}
+                    isDayBlocked={day => this.isDayBlocked(day)}
+                    date={moment(this.state.rdv.startAt)}
+                    numberOfMonths={2}
+                    onClose={() => this.setState({ dateRdvFocused: false })}
+                    onDateChange={dateRdv => {
+                      let rdv = this.state.rdv;
+                      if (dateRdv) {
+                        let startAt =
+                          _.split(dateRdv.toISOString(), "T")[0] +
+                          "T" +
+                          _.split(rdv.startAt, "T")[1];
+                        let endAt =
+                          _.split(dateRdv.toISOString(), "T")[0] +
+                          "T" +
+                          _.split(rdv.endAt, "T")[1];
+                        rdv.startAt = startAt;
+                        rdv.endAt = endAt;
+                        this.setState({ rdv: rdv });
+                      } else {
+                        console.log("dateRdv est null");
+                        return;
+                      }
+                    }}
+                    focused={this.state.dateRdvFocused}
+                    onFocusChange={() => {}}
+                  />
+                </div>
+              )}
               <div>
                 <Icon
                   name="circle"
@@ -909,9 +975,7 @@ export default class CalendarModalRdv extends React.Component {
                   </Form.Group>
                 </Form>
 
-                {//this.state.isNewOne &&
-                !_.isUndefined(this.state.rdv.idPatient) &&
-                !_.isUndefined(this.state.rdv.rappelsJO) ? (
+                {showRappels ? (
                   <div>
                     <Divider hidden={true} />
                     <div style={{ marginBottom: "7px" }}>
@@ -1044,19 +1108,23 @@ export default class CalendarModalRdv extends React.Component {
                         </Form.Input>
                       </Form.Group>
                     </Form>
-                    {/*this.state.rdv.rappelsJO.modified && !_.isUndefined(this.state.patient) && !this.state.patient.gestionRdvJO.autoriseSMS
-                      ? <Message>
-                          <Message.Content>
-                            <Message.Header>
-                              L'envoi de SMS n'est pas autorisé pour ce patient
-                            </Message.Header>
-                            <p>
-                              Les rappels SMS activés seront faites uniquement pour ce rendez-vous !
-                            </p>
-                          </Message.Content>
-                        </Message>
-                      : ""
-                    */}
+                    {this.state.rdv.rappelsJO.modified &&
+                    !_.isUndefined(this.state.patient) &&
+                    !this.state.patient.gestionRdvJO.autoriseSMS ? (
+                      <Message info={true}>
+                        <Message.Content>
+                          <Message.Header>
+                            L'envoi de SMS n'est pas autorisé pour ce patient
+                          </Message.Header>
+                          <p>
+                            Les rappels SMS activés seront faites uniquement
+                            pour ce rendez-vous !
+                          </p>
+                        </Message.Content>
+                      </Message>
+                    ) : (
+                      ""
+                    )}
                   </div>
                 ) : (
                   ""
