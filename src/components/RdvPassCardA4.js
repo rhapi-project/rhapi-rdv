@@ -116,7 +116,7 @@ export default class RdvPassCardA4 extends React.Component {
                             }}
                           />
                         </Form.Input>
-                        <Form.Input label="À partir du">
+                        <Form.Input label="À partir du" style={{ zIndex: 3 }}>
                           <SingleDatePicker
                             placeholder="JJ/MM/AAAA"
                             hideKeyboardShortcutsPanel={true}
@@ -131,7 +131,10 @@ export default class RdvPassCardA4 extends React.Component {
                             onDateChange={date => {
                               this.setState({ dateRef: null });
                               if (!_.isNull(date)) {
-                                this.setState({ dateRef: date });
+                                this.setState({
+                                  dateRef: date,
+                                  dateRefFocused: false
+                                });
                               }
                             }}
                             focused={this.state.dateRefFocused}
