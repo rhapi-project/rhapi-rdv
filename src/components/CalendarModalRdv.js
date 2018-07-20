@@ -123,6 +123,9 @@ export default class CalendarModalRdv extends React.Component {
                 planning.sms.rappel24 ||
                 planning.sms.rappel48)
             ) {
+              /*if (_.isUndefined(this.state)) {
+                return false;
+              }*/
               let sms = {};
               sms.rappel1 = this.state.isNewOne
                 ? planning.sms.rappel1
@@ -160,6 +163,9 @@ export default class CalendarModalRdv extends React.Component {
               this.setState({ rdv: rdv });
               return true;
             } else {
+              /*if (_.isUndefined(this.state)) {
+                return false;
+              }*/
               let sms = {};
               sms.rappel1 = this.state.isNewOne
                 ? false
@@ -201,6 +207,9 @@ export default class CalendarModalRdv extends React.Component {
         } else {
           // l'envoi SMS n'est pas autorisé chez ce patient,
           // s'il c'est un nouveau rendez-vous, mettre tous les rappels à false
+          /*if (_.isUndefined(this.state)) {
+            return false;
+          }*/
           let sms = {};
           sms.rappel1 = this.state.isNewOne
             ? false
@@ -584,11 +593,56 @@ export default class CalendarModalRdv extends React.Component {
   // bloquer des jours sur le datePicker
   // TODO : Bloquer les jours fériés
   isDayBlocked = day => {
+    let jr = _.split(day.toISOString(), "T")[0];
+
     // day est un objet "moment"
     let d = _.split(day._d, " ")[0];
 
     // on bloque les jeudis et les dimanches
-    return d === "Thu" || d === "Sun";
+    if (d === "Thu" || d === "Sun") {
+      return true;
+    } else if (!_.isEmpty(this.props.options.reservation.conges)) {
+      let conges = this.props.options.reservation.conges;
+      for (let i = 0; i < conges.length; i++) {
+        if (jr >= conges[i].start && jr <= conges[i].end) {
+          return true;
+        }
+      }
+    } else if (
+      this.props.options.reservation.congesVisibles &&
+      this.props.options.reservation.congesFeries
+    ) {
+      // on bloque les jours fériés
+      let params = {
+        from: this.state.rdv.startAt,
+        to: this.state.rdv.endAt,
+        recurrents: "true",
+        feries: "true",
+        planning: this.state.rdv.planningJO.id
+      };
+      this.props.client.RendezVous.actualiser(
+        params,
+        (datas, response) => {
+          //console.log(datas);
+
+          // "datas.informations.feries" est tjrs vide
+          // Aucun jour férié n'est marqué
+          for (let i = 0; i < datas.informations.feries.length; i++) {
+            let jour = datas.informations.feries[i].date;
+            if (jour === jr) {
+              return true;
+            }
+          }
+          //return false;
+        },
+        (error, response) => {
+          //return false;
+        }
+      );
+      //return false;
+    } else {
+      return false;
+    }
   };
 
   render() {
@@ -656,8 +710,9 @@ export default class CalendarModalRdv extends React.Component {
       !_.isUndefined(this.state.rdv.rappelsJO) &&
       (!_.isEmpty(this.state.patient) && this.state.patient.telMobile !== "");
 
-    //console.log(this.state.rdv);
-    //console.log(moment(this.state.rdv.startAt));
+    //console.log(this.state);
+    //console.log(this.props);
+    //console.log(this.state.rdv)
     return (
       <React.Fragment>
         <Modal open={this.props.open}>
