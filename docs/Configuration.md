@@ -1,6 +1,8 @@
 # rhapi-rdv
 Une application de gestion de RDV pour RHAPI
 
+# CONFIGURATION
+
 La configuration des agendas se fait depuis le menu Configuration du site : 
 
 ![alt text](images/1523621501-capture-d-ecran-2018-04-13-a-14-11-00.png)
@@ -222,6 +224,51 @@ Dans ces deux zones de texte, tout ce qui est écrit entre les symboles {} sont 
 Par exemple, le champ {date-heure} retourne la date et l'heure du rendez-vous du patient, dans le SMS.
 Il ne faut donc pas modifier ces types de champs.
 Tout le reste par contre est modifiable.
+
+
+# PATIENTS
+
+Dans le menu Patients, il est possible de gérer les coordonnées des patients existants et d’en créer de nouveaux.
+
+Pour créer un nouveau patient, il suffit de cliquer sur le bouton « Nouveau patient ».
+
+![alt text](images/menu-patients.png)
+
+La fenêtre suivante s’ouvre alors :
+
+![alt text](images/coordonees-patients.png)
+
+Il faudra remplir tous les champs désirés des différents sous-menus et cliquer sur « Sauvegarder » lorsque c’est terminé.
+
+
+Pour ouvrir la fiche d’un patient déjà existant, il suffit de saisir son nom dans la barre de recherche et cliquer ensuite sur le patient souhaité, dans la liste de suggestion :
+
+![alt text](images/recherche-patients.png)
+
+## Gestion des rendez-vous
+
+Il est possible d’affecter un niveau d’autorisation pour chaque patient, concernant la prise de rendez-vous en ligne.
+Pour cela, il faut ouvrir la fiche d’un patient et se rendre ensuite dans le sous-menu « Gestion des rendez-vous » :
+
+![alt text](images/gestionrdv-patients.png)
+
+Depuis cette fenêtre, il sera ainsi possible d’affecter un niveau d’autorisation compris entre 0 et 3 et de définir un mot de passe.
+
+Via le bouton « Rendez-vous », il sera également possible d’imprimer la liste des rendez-vous du patient et de lui imprimer son mot de passe d’accès à l’agenda en ligne :
+
+![alt text](images/bouton-rdv-patients.png)
+
+
+# PROFIL
+
+Le menu « Profil » permet au praticien de saisir toutes ses coordonnées administratives et de changer son mot de passe s’il le souhaite :
+
+![alt text](images/menu-profil.png)
+
+Il faudra bien entendu cliquer sur « Sauvegarder » une fois les données saisies ou modifiées.
+
+
+
 
 
 
