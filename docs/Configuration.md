@@ -197,7 +197,7 @@ Il faut utiliser le bouton "+" pour créer un nouveau motif et ensuite, saisir s
 Ce menu permet au praticien de définir s'il souhaite ou non envoyer des rappels de SMS aux patients.
 Pour activer l'option de rappels par SMS, il suffit de cocher la case "Emettre des rappels par SMS"
 
-![alt text](images/rappels-rdv-sms.png)
+![alt text](images/rappels-rdv-sms-2.png)
 
 
 Une fois l'option activée, il faudra bien veiller à cocher les délais de rappels qui sont tous activés par défaut.
@@ -216,7 +216,7 @@ Il est ensuite possible de personnaliser les deux types de SMS envoyés aux pati
 
 2) Le SMS de rappel, celui envoyé 48h, 24h ou 12h (selon le(s) choix effectué(s)) au patient pour lui rappeler son rendez-vous :
 
-![alt text](images/texte-rappel-sms-2.png)
+![alt text](images/texte-rappel-sms.png)
 
 Dans ces deux zones de texte, tout ce qui est écrit entre les symboles {} sont des champs automatiques.
 Par exemple, le champ {date-heure} retourne la date et l'heure du rendez-vous du patient, dans le SMS.
