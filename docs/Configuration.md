@@ -214,7 +214,7 @@ Il est ensuite possible de personnaliser les deux types de SMS envoyés aux pati
 ![alt text](images/texte-confirmation-sms.png)
 
 
-2) Le SMS de rappel, celui envoyé 48h, 24h ou 12h (selon le(s) choix effectué(s)) au patient pour lui rappeler son rendez-vous :
+2) Le SMS de rappel, celui envoyé 48h, 24h ou 1h (selon le(s) choix effectué(s)) au patient pour lui rappeler son rendez-vous :
 
 ![alt text](images/texte-rappel-sms.png)
 
