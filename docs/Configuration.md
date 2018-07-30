@@ -216,7 +216,7 @@ Il est ensuite possible de personnaliser les deux types de SMS envoyés aux pati
 
 2) Le SMS de rappel, celui envoyé 48h, 24h ou 12h (selon le(s) choix effectué(s)) au patient pour lui rappeler son rendez-vous :
 
-![alt text](images/texte-rappel-sms 2.png)
+![alt text](images/texte-rappel-sms-2.png)
 
 Dans ces deux zones de texte, tout ce qui est écrit entre les symboles {} sont des champs automatiques.
 Par exemple, le champ {date-heure} retourne la date et l'heure du rendez-vous du patient, dans le SMS.
