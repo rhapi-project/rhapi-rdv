@@ -19,7 +19,7 @@ On pourra également ajouter une description au Planning ainsi qu'une couleur pa
 
 Toute modification effectuée dans le menu de configuration devra être enregistrée via le bouton "Sauvegarder" en bas de page.
 
-# Utilisateurs et droits d'accès
+## Utilisateurs et droits d'accès
 
 Cette rubrique permet de définir les propriétaires et l'administrateur du planning sélectionné.
 
@@ -64,7 +64,7 @@ Cela dans le but d'éviter de perdre les droits administrateur en cas d'erreur d
 
 
 
-# Plages horaires d'ouverture
+## Plages horaires d'ouverture
 
 Ce menu permet la configuration complète des plages d'ouverture du cabinet.
 
@@ -88,7 +88,7 @@ Pour supprimer une plage horaire, il faut simplement cliquer sur le bouton "-" e
 Une fois toutes les plages configurées, il ne reste plus qu'à tout valider via le bouton "Sauvegarder" en bas de page.
 
 
-# Evènements récurrents
+## Evènements récurrents
 
 Il est possible de créer des évenènements récurrents qui apparaitront ensuite dans le planning et qui permettront d'indiquer ce qu'on a prévu de faire à tel jour et tel créneau horaire.
 Pour créer un évènement récurrent, il suffit de cliquer sur le bouton "+ Ajouter un évènement" :
@@ -124,7 +124,7 @@ L'évènement récurrent s'affichera ainsi dans la zone "Toute la journée" de l
 ![alt text](images/evenement-journee-agenda.png)
 
 
-# Prise de rendez-vous
+## Prise de rendez-vous
 
 La gestion des congés, des niveaux d'autorisation pour la prise des rendez-vous ainsi que la gestion des motifs de rendez-vous se fait via ce menu.
 Ici, on peut définir le délai maximum, en jours, pour la prise d'un rendez-vous ainsi que le délai de prévenance, en heures, pour leur annulation.
@@ -133,7 +133,7 @@ On peut également définir le format des noms affichés dans l'agenda, comme NO
 ![alt text](images/prise-rdv.png)
 
 
-## Congés
+### Congés
 
 Tout d'abord, il est possible d'activer, ou non, l'affichage des jours fériés légaux dans l'agenda.
 Si on souhaite les afficher, il suffit de cocher la case "Les jours fériés légaux sont pris en compte automatiquement" :
@@ -152,7 +152,7 @@ Là encore, on clique sur le bouton "+" pour ajouter une plage de dates, on sais
 ![alt text](images/conges-config.png)
 
 
-## Niveaux d'autorisation
+### Niveaux d'autorisation
 
 Les niveaux d'autorisation, qui vont de 0 à 3, permettent de définir ce qu'un patient ou un correspondant peut faire au niveau du planning.
 Par exemple, si le patient A peut prendre des rendez-vous quand il le souhaite, ou bien uniquement pour certains motifs, ou encore certains créneaux horaires uniquement.
@@ -183,7 +183,7 @@ Par exemple, si on veut indiquer que les personnes, dont le niveau d'autorisatio
 
 
 
-## Motifs des rendez-vous
+### Motifs des rendez-vous
 
 Il est possible de préparer des motifs de rendez-vous afin de ne pas avoir à les saisir manuellement pour chaque rendez-vous futur.
 
@@ -194,7 +194,7 @@ Il faut utiliser le bouton "+" pour créer un nouveau motif et ensuite, saisir s
 
 
 
-# Rappels par SMS
+## Rappels par SMS
 
 Ce menu permet au praticien de définir s'il souhaite ou non envoyer des rappels de SMS aux patients.
 Pour activer l'option de rappels par SMS, il suffit de cocher la case "Emettre des rappels par SMS"
@@ -239,6 +239,7 @@ La fenêtre suivante s’ouvre alors :
 ![alt text](images/coordonees-patients.png)
 
 Il faudra remplir tous les champs désirés des différents sous-menus et cliquer sur « Sauvegarder » lorsque c’est terminé.
+Toutes les coordonnées du patients se trouveront dans les sous-menus "Informations générales" et "Adresse et contact".
 
 
 Pour ouvrir la fiche d’un patient déjà existant, il suffit de saisir son nom dans la barre de recherche et cliquer ensuite sur le patient souhaité, dans la liste de suggestion :
@@ -258,6 +259,14 @@ Via le bouton « Rendez-vous », il sera également possible d’imprimer la lis
 
 ![alt text](images/bouton-rdv-patients.png)
 
+## Informations médicales
+
+A venir
+
+## Informations administratives
+
+A venir
+
 
 # PROFIL
 
@@ -265,7 +274,8 @@ Le menu « Profil » permet au praticien de saisir toutes ses coordonnées admin
 
 ![alt text](images/menu-profil.png)
 
-Il faudra bien entendu cliquer sur « Sauvegarder » une fois les données saisies ou modifiées.
+Pour modifier le mot de passe, il suffit de cocher la case "Changer le mot de passe", choisir un nouveau mot de passe puis, le confirmer.
+Cliquer ensuite sur "Sauvegarder", en bas de page, pour valider le changement.
 
 
 
