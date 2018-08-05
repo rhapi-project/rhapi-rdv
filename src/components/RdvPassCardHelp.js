@@ -50,8 +50,10 @@ export default class RdvPassCardHelp extends React.Component {
               <Divider hidden={true} />
               <List ordered={true}>
                 <List.Item>
-                  Cliquer sur le bouton &nbsp;&nbsp;<strong>
-                    "<Icon name="print" />Carte de RDV"
+                  Cliquer sur le bouton &nbsp;&nbsp;
+                  <strong>
+                    "<Icon name="print" />
+                    Carte de RDV"
                   </strong>
                 </List.Item>
                 <List.Item>
@@ -75,7 +77,8 @@ export default class RdvPassCardHelp extends React.Component {
                           </Message.Header>
                           <p>
                             Si aucune imprimante à étiquette n'est repérée,
-                            veuillez consulter l'<a
+                            veuillez consulter l'
+                            <a
                               onClick={() =>
                                 alert(
                                   "TODO: Renvoyer sur la doc principale de l'application"
@@ -171,7 +174,9 @@ export default class RdvPassCardHelp extends React.Component {
                         <strong>
                           "Paramètres <Icon name="sidebar" />"
                         </strong>
-                      </span>&nbsp;puis&nbsp;<span>
+                      </span>
+                      &nbsp;puis&nbsp;
+                      <span>
                         <strong>
                           "<Icon name="print" /> Imprimer"
                         </strong>
@@ -179,10 +184,11 @@ export default class RdvPassCardHelp extends React.Component {
                       <br />
                       <div style={{ marginTop: "10px", marginBottom: "5px" }}>
                         <span>
-                          <strong>"Mise en page"</strong>&nbsp;<Icon name="arrow right" />&nbsp;<strong
-                          >
-                            "Marges, en-têtes et pieds de page"
-                          </strong>
+                          <strong>"Mise en page"</strong>
+                          &nbsp;
+                          <Icon name="arrow right" />
+                          &nbsp;
+                          <strong>"Marges, en-têtes et pieds de page"</strong>
                         </span>
                         <br />
                         <br />
@@ -197,8 +203,10 @@ export default class RdvPassCardHelp extends React.Component {
                 <List.Item>
                   <List.Content>
                     <span>
-                      Cliquer sur le bouton &nbsp;&nbsp;<strong>
-                        "<Icon name="print" />Carte de RDV"
+                      Cliquer sur le bouton &nbsp;&nbsp;
+                      <strong>
+                        "<Icon name="print" />
+                        Carte de RDV"
                       </strong>
                     </span>
                   </List.Content>
@@ -220,7 +228,8 @@ export default class RdvPassCardHelp extends React.Component {
                             </Message.Header>
                             <p>
                               Si aucune imprimante à étiquette n'est repérée,
-                              veuillez consulter l'<a
+                              veuillez consulter l'
+                              <a
                                 onClick={() =>
                                   alert(
                                     "TODO: Renvoyer sur la doc principale de l'application"
@@ -284,8 +293,10 @@ export default class RdvPassCardHelp extends React.Component {
                 <List.Item>
                   <List.Content>
                     <span>
-                      Cliquer sur le bouton &nbsp;&nbsp;<strong>
-                        "<Icon name="print" />Carte de RDV"
+                      Cliquer sur le bouton &nbsp;&nbsp;
+                      <strong>
+                        "<Icon name="print" />
+                        Carte de RDV"
                       </strong>
                     </span>
                   </List.Content>
@@ -308,7 +319,8 @@ export default class RdvPassCardHelp extends React.Component {
                           </Message.Header>
                           <p>
                             Si aucune imprimante à étiquette n'est repérée,
-                            veuillez consulter l'<a
+                            veuillez consulter l'
+                            <a
                               onClick={() =>
                                 alert(
                                   "TODO: Renvoyer sur la doc principale de l'application"
@@ -422,16 +434,19 @@ export default class RdvPassCardHelp extends React.Component {
                         <strong>
                           "Paramètres <Icon name="setting" />"
                         </strong>
-                      </span>&nbsp;puis&nbsp;<span>
+                      </span>
+                      &nbsp;puis&nbsp;
+                      <span>
                         <strong>"Imprimer"</strong>
                       </span>
                       <br />
                       <div style={{ marginTop: "10px", marginBottom: "5px" }}>
                         <span>
-                          <strong>"Mise en page"</strong>&nbsp;<Icon name="arrow right" />&nbsp;<strong
-                          >
-                            "En-têtes et pieds de page"
-                          </strong>
+                          <strong>"Mise en page"</strong>
+                          &nbsp;
+                          <Icon name="arrow right" />
+                          &nbsp;
+                          <strong>"En-têtes et pieds de page"</strong>
                         </span>
                         <br />
                         <br />
@@ -453,8 +468,10 @@ export default class RdvPassCardHelp extends React.Component {
                 <List.Item>
                   <List.Content>
                     <span>
-                      Cliquer sur le bouton &nbsp;&nbsp;<strong>
-                        "<Icon name="print" />Carte de RDV"
+                      Cliquer sur le bouton &nbsp;&nbsp;
+                      <strong>
+                        "<Icon name="print" />
+                        Carte de RDV"
                       </strong>
                     </span>
                   </List.Content>
@@ -475,7 +492,8 @@ export default class RdvPassCardHelp extends React.Component {
                             </Message.Header>
                             <p>
                               Si aucune imprimante à étiquette n'est repérée,
-                              veuillez consulter l'<a
+                              veuillez consulter l'
+                              <a
                                 onClick={() =>
                                   alert(
                                     "TODO: Renvoyer sur la doc principale de l'application"
@@ -550,7 +568,8 @@ export default class RdvPassCardHelp extends React.Component {
                     <span>
                       Cliquer sur le bouton &nbsp;&nbsp;
                       <strong>
-                        "<Icon name="print" />Carte de RDV"
+                        "<Icon name="print" />
+                        Carte de RDV"
                       </strong>
                     </span>
                   </List.Content>
@@ -573,7 +592,8 @@ export default class RdvPassCardHelp extends React.Component {
                           </Message.Header>
                           <p>
                             Si aucune imprimante à étiquette n'est repérée,
-                            veuillez consulter l'<a
+                            veuillez consulter l'
+                            <a
                               onClick={() =>
                                 alert(
                                   "TODO: Renvoyer sur la doc principale de l'application"
@@ -687,13 +707,13 @@ export default class RdvPassCardHelp extends React.Component {
                     </span>
                     <br />
                     <span>
-                      <Icon name="circle" size="tiny" />Nouveau nom du
-                      préréglage
+                      <Icon name="circle" size="tiny" />
+                      Nouveau nom du préréglage
                     </span>
                     <br />
                     <span>
-                      <Icon name="circle" size="tiny" />Sélectionner{" "}
-                      <strong>"Seulement cette imprimante"</strong>
+                      <Icon name="circle" size="tiny" />
+                      Sélectionner <strong>"Seulement cette imprimante"</strong>
                     </span>
                   </List.Content>
                 </List.Item>

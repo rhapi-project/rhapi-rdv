@@ -19,7 +19,8 @@ import {
   hsize,
   localdev,
   authUrl,
-  appToken
+  appToken,
+  telRegex
 } from "./Settings";
 import PriseRdv from "./PriseRdv";
 
@@ -56,28 +57,33 @@ export default class Patients extends React.Component {
     if (hashParts.length > 1) {
       // #Patients/xxxx
       etablissement = hashParts[1];
-    } else {
-      identified = true;
     }
 
     let identifiant;
     let parts = etablissement.split("@");
     let patient = {};
+    let rdv = {};
     if (parts.length > 1) {
-      // #Patients/123@master
+      // #Patients/123:password@master => un patient d'id 123, de password password pour l'organisation master
+      // #Patients/_123:password@master => un RDV (unique) d'id 123, de password password pour l'organisation master
+      identified = !_.isEmpty(parts[0]);
       identifiant = etablissement;
       etablissement = parts[1];
-      patient.ipp = parts[0];
-      parts = patient.ipp.split(":");
+      let part0 = parts[0];
+      parts = part0.split(":");
       if (parts.length > 1) {
-        patient.ipp = parts[0];
-        patient.password = parts[1];
-        identifiant = patient.ipp + "@" + etablissement;
+        if (_.startsWith(parts[0], "_")) {
+          rdv.id = parts[0].slice(1);
+          rdv.password = parts[1];
+          identifiant = "@" + etablissement;
+        } else {
+          patient.ipp = parts[0];
+          patient.password = parts[1];
+          identifiant = patient.ipp + "@" + etablissement;
+        }
       }
-
-      identified = true;
     } else {
-      // #Patients/master
+      // #Patients/@master
       identifiant = _.isEmpty(etablissement) ? "" : "@" + etablissement;
     }
 
@@ -87,9 +93,19 @@ export default class Patients extends React.Component {
       identified,
       gestionRDV: false,
       clientOk: false,
-      patient: patient
+      patient: patient,
+      rdv: rdv
     });
 
+    if (etablissement === "") {
+      //console.log(this.state.patient);
+      this.setState({ identified: true });
+    } else {
+      // local dev no auth => décommenter la ligne suivante
+      //this.setState({ validation: "success", errorMessage: "" });
+      // local dev no auth => commenter la ligne suivante
+      this.authorize(etablissement);
+    }
     window.addEventListener("resize", () => this.setState({}));
   }
 
@@ -117,6 +133,16 @@ export default class Patients extends React.Component {
             this.gestionRDV();
           };
           loop();
+        } else if (this.state.rdv.id && this.state.rdv.password) {
+          let n = 10;
+          let loop = () => {
+            if (!this.state.clientOk && n-- > 0) {
+              _.delay(loop, 100);
+              return;
+            }
+            this.gestionRDVUnique();
+          };
+          loop();
         }
       },
       (datas, response) => {
@@ -128,20 +154,6 @@ export default class Patients extends React.Component {
       }
     );
   };
-
-  componentDidMount() {
-    // local dev no auth (décommenter les 2 lignes suivantes)
-    //this.setState({ validation: "success", errorMessage: "" });
-    //return;
-
-    if (this.state.etablissement === "") {
-      //console.log(this.state.patient);
-      this.setState({ identified: true });
-      return;
-    }
-
-    this.authorize(this.state.etablissement);
-  }
 
   componentDidUpdate() {
     // https://developer.mozilla.org/en-US/docs/Web/API/History_API
@@ -178,21 +190,6 @@ export default class Patients extends React.Component {
   };
 
   gestionRDV = () => {
-    /* ?
-    let patient = this.state.patient;
-    if (this.state.identified) {
-      patient = _.omit(patient, [
-        "nom",
-        "prenom",
-        "email",
-        "telMobile",
-        "password"
-      ]);
-    } else {
-      patient = _.omit(patient, ["ipp", "ipp2", "password"]);
-    }
-    */
-
     if (localdev || this.state.clientOk) {
       this.setState({ gestionRDV: true });
     } else {
@@ -209,6 +206,12 @@ export default class Patients extends React.Component {
     }
   };
 
+  gestionRDVUnique = () => {
+    if (localdev || this.state.clientOk) {
+      this.setState({ gestionRDV: true });
+    }
+  };
+
   render() {
     return (
       <div id="patients">
@@ -219,6 +222,7 @@ export default class Patients extends React.Component {
           {this.state.gestionRDV ? (
             this.state.identified ? (
               <MesRdv
+                rdv={this.state.rdv}
                 patient={this.state.patient}
                 identified={true}
                 client={client}
@@ -236,7 +240,26 @@ export default class Patients extends React.Component {
               <Header size={hsize}>
                 Je m'identifie pour accéder au service
               </Header>
-              <Form onSubmit={this.gestionRDV} size={fsize}>
+              <Form
+                onSubmit={() => {
+                  if (this.state.identified) {
+                    this.gestionRDV();
+                  } else if (
+                    !_.isEmpty(this.state.patient.telMobile) &&
+                    (this.state.patient.telMobile.match(telRegex[0]) ||
+                      this.state.patient.telMobile.match(telRegex[1]) ||
+                      this.state.patient.telMobile.match(telRegex[2]))
+                  ) {
+                    this.gestionRDV();
+                  } else {
+                    let patient = this.state.patient;
+                    patient.telMobile = "";
+                    this.setState({ patient: patient });
+                  }
+                }}
+                method="post" /*inutilisé => transmission par props*/
+                size={fsize}
+              >
                 <Segment stacked={true}>
                   {!_.isEmpty(this.state.etablissement) ? (
                     <Checkbox
@@ -260,7 +283,11 @@ export default class Patients extends React.Component {
                         fluid={true}
                         icon="user"
                         iconPosition="left"
-                        placeholder="Identifiant"
+                        placeholder={
+                          _.isEmpty(this.state.etablissement)
+                            ? "Identifiant complet requis (avec @)"
+                            : "Identifiant"
+                        }
                         value={
                           /*_.isUndefined(this.state.patient.ipp)
                             ? ""
@@ -301,6 +328,7 @@ export default class Patients extends React.Component {
                             : this.state.patient.nom
                         }
                         type="text"
+                        required={true}
                         onChange={this.handleChange}
                       />
                       <Form.Input
@@ -315,6 +343,7 @@ export default class Patients extends React.Component {
                             : this.state.patient.prenom
                         }
                         type="text"
+                        required={true}
                         onChange={this.handleChange}
                       />
                       <Form.Input
@@ -343,8 +372,15 @@ export default class Patients extends React.Component {
                             ? ""
                             : this.state.patient.telMobile
                         }
-                        type="text"
+                        type="tel"
+                        required={true}
                         onChange={this.handleChange}
+                        error={
+                          !_.isEmpty(this.state.patient.telMobile) &&
+                          !this.state.patient.telMobile.match(telRegex[0]) &&
+                          !this.state.patient.telMobile.match(telRegex[1]) &&
+                          !this.state.patient.telMobile.match(telRegex[2])
+                        }
                       />
                     </React.Fragment>
                   )}

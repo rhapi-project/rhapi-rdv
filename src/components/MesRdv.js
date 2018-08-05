@@ -28,9 +28,18 @@ class MonRdv extends React.Component {
     });
   };
 
-  supprimerReservation = () => {
-    const params = this.props.patient;
+  annulerRdv = () => {
+    let params = _.assign({}, this.props.patient);
     const id = this.props.rdv.id;
+
+    // Un rendez-vous unique sans patient identifié ?
+    if (!params.id) {
+      params = {
+        password: this.props.rdv.patientJO.secret,
+        _id: id
+      };
+    }
+
     this.props.client.Reservation.annuler(
       id,
       params,
@@ -47,9 +56,20 @@ class MonRdv extends React.Component {
   };
 
   updateRdv = () => {
-    const params = this.props.patient;
-    params.startAt = this.state.nouvelHoraire;
+    let params = _.assign({}, this.props.patient);
     const id = this.props.rdv.id;
+
+    // Un rendez-vous unique sans patient identifié ?
+    if (!params.id) {
+      params = {
+        password: this.props.rdv.patientJO.secret,
+        _id: id
+      };
+    }
+
+    //
+    params.startAt = this.state.nouvelHoraire;
+
     this.props.client.Reservation.update(
       id,
       params,
@@ -115,7 +135,7 @@ class MonRdv extends React.Component {
                 Ne sont modifiables/annulables en ligne que les RDV pris en ligne,
                 tout en respectant le délai de prévenance
             */}
-            {planning.motif < 0 && !revolu ? (
+            {!this.props.idPatient && !revolu ? ( // RDV pris en ligne (patient non identifié)
               <Button.Group>
                 <Button
                   positive={true}
@@ -144,7 +164,7 @@ class MonRdv extends React.Component {
                     <HorairesDisponibles
                       patient={this.props.patient}
                       planningId={planning.id}
-                      motifId={-planning.motif}
+                      motifId={planning.motif}
                       validation={horaire =>
                         this.setState({
                           openModif: false,
@@ -190,7 +210,7 @@ class MonRdv extends React.Component {
                   </Modal.Content>
                   <Modal.Actions>
                     <Button onClick={this.close}>Non</Button>
-                    <Button negative={true} onClick={this.supprimerReservation}>
+                    <Button negative={true} onClick={this.annulerRdv}>
                       Oui
                     </Button>
                   </Modal.Actions>
@@ -231,9 +251,7 @@ class MonRdv extends React.Component {
 export default class MesRdv extends React.Component {
   componentWillMount() {
     this.setState({ nouveauRdv: false, mesRdv: [], edited: false }); // default state
-  }
 
-  componentDidMount() {
     this.props.client.Reservation.mesPlannings(
       {
         ipp: this.props.patient.ipp,
@@ -259,27 +277,51 @@ export default class MesRdv extends React.Component {
         window.history.back();
       }
     );
+
     this.updateMesRdv();
   }
 
   updateMesRdv = () => {
-    this.props.client.Reservation.mesRendezVous(
-      {
-        ipp: this.props.patient.ipp,
-        password: this.props.patient.password
-      },
-      result => {
-        //console.log(result.informations);
-        this.setState({ mesRdv: result.results });
-      },
-      datas => {
-        // ? erreur d'auth
-        // TODO : Afficher le message en utilisant un Component semantic à la place de 'alert'
-        console.log(datas);
-        //alert(datas.internalMessage + " : " + datas.userMessage);
-        window.history.back();
-      }
-    );
+    // Un RDV unique
+    if (!_.isUndefined(this.props.rdv) && this.props.rdv.id) {
+      this.props.client.Reservation.mesRendezVous(
+        {
+          _id: this.props.rdv.id,
+          password: this.props.rdv.password
+        },
+        result => {
+          //console.log(result);
+          this.setState({ mesRdv: result.results });
+        },
+        datas => {
+          // ? erreur d'auth
+          // TODO : Afficher le message en utilisant un Component semantic à la place de 'alert'
+          console.log(datas);
+          //alert(datas.internalMessage + " : " + datas.userMessage);
+          window.history.back();
+        }
+      );
+    }
+    // Tous les RDV d'un patient
+    else {
+      this.props.client.Reservation.mesRendezVous(
+        {
+          ipp: this.props.patient.ipp,
+          password: this.props.patient.password
+        },
+        result => {
+          //console.log(result.informations);
+          this.setState({ mesRdv: result.results });
+        },
+        datas => {
+          // ? erreur d'auth
+          // TODO : Afficher le message en utilisant un Component semantic à la place de 'alert'
+          console.log(datas);
+          //alert(datas.internalMessage + " : " + datas.userMessage);
+          window.history.back();
+        }
+      );
+    }
   };
 
   render() {
@@ -304,7 +346,9 @@ export default class MesRdv extends React.Component {
         <Divider hidden={true} />
         <Header size={hsize}>
           {this.state.mesRdv.length === 0
-            ? "Aucun rendez-vous"
+            ? this.props.patient && this.props.patient.id
+              ? "Vous n'avez aucun RDV prévu"
+              : "Le RDV a été annulé"
             : this.state.mesRdv.length === 1
               ? "Mon prochain rendez-vous"
               : "Mes prochains rendez-vous"}
@@ -322,16 +366,31 @@ export default class MesRdv extends React.Component {
             />
           );
         })}
-        <Button
-          secondary={true}
-          fluid={true}
-          onClick={() => this.setState({ nouveauRdv: true })}
-        >
-          Prendre un nouveau RDV
-        </Button>
+        {this.props.patient && this.props.patient.id ? (
+          <Button
+            secondary={true}
+            fluid={true}
+            onClick={() => this.setState({ nouveauRdv: true })}
+          >
+            Prendre un nouveau RDV
+          </Button>
+        ) : (
+          ""
+        )}
         <Divider fitted={true} hidden={true} />
         <Button
-          onClick={() => window.location.reload()}
+          onClick={() => {
+            if (this.props.patient && this.props.patient.id) {
+              window.location.reload();
+            } else {
+              let parts = window.location.hash.split("@");
+              if (parts.length > 1) {
+                window.location =
+                  window.location.origin + "/#Patients/@" + parts[1];
+                window.location.reload();
+              }
+            }
+          }}
           fluid={true}
           secondary={true}
         >

@@ -34,9 +34,7 @@ export default class Configuration extends React.Component {
       reservationActiveIndex: -1,
       saved: true
     });
-  }
 
-  componentDidMount() {
     this.reload(0);
   }
 
@@ -44,6 +42,18 @@ export default class Configuration extends React.Component {
     if (_.isUndefined(index)) {
       index = this.state.index;
     }
+
+    this.props.client.MonCompte.read(
+      monProfil => {
+        this.setState({
+          organisation: monProfil.organisation
+        });
+      },
+      data => {
+        console.log("erreur");
+        console.log(data);
+      }
+    );
 
     this.props.client.Plannings.mesPlannings(
       { admin: true },
@@ -94,6 +104,7 @@ export default class Configuration extends React.Component {
     this.saveProcessing = true;
     let last = this.state.plannings.length - 1;
     _.forEach(this.state.plannings, (planning, i) => {
+      planning.optionsJO.organisation = this.state.organisation;
       this.props.client.Plannings.update(
         planning.id,
         planning,
@@ -268,6 +279,7 @@ export default class Configuration extends React.Component {
 
     if (index >= 0) {
       let planning = plannings[index];
+      //console.log(planning.organisation);
       let options = planning.optionsJO;
       let horaires = options.plages.horaires;
       let horairesReservation = options.reservation.horaires;
@@ -648,6 +660,10 @@ export default class Configuration extends React.Component {
                         o => o.value !== -1
                       )
                     : [];
+                optionsMotifs.unshift({
+                  value: -1,
+                  text: "Aucun motif défini"
+                });
                 return (
                   <Table.Row key={i}>
                     <Table.Cell>
@@ -794,13 +810,17 @@ export default class Configuration extends React.Component {
                   inverted={true}
                 >
                   Chaque période est définie par des dates de début et de fin
-                  (de manière inclusive).<br />
+                  (de manière inclusive).
+                  <br />
                   L'intitulé de la période sera repris sur l'agenda, si l'option
-                  d'affichage ci-dessus est cochée.<br />
+                  d'affichage ci-dessus est cochée.
+                  <br />
                   Les périodes ainsi définies seront exclues lors d'une prise de
-                  rendez-vous en ligne.<br />
+                  rendez-vous en ligne.
+                  <br />
                   Les jours fériés légaux, peuvent être pris en compte
-                  automatiquement (cocher ci-dessus l'option correspondante).<br />
+                  automatiquement (cocher ci-dessus l'option correspondante).
+                  <br />
                   Les périodes passées les plus anciennes pourront être
                   supprimées.
                 </Popup>
@@ -955,6 +975,12 @@ export default class Configuration extends React.Component {
               }}
             />
           </Form.Group>
+          <Form.Group widths={2}>
+            <Form.Input
+              label="Organisation @"
+              value={this.state.organisation}
+            />
+          </Form.Group>
         </React.Fragment>
       );
 
@@ -1060,7 +1086,7 @@ export default class Configuration extends React.Component {
           <Form.Group widths="equal">
             <Form.TextArea
               style={{ resize: "none" }}
-              label="Texte pour la confirmation initiale"
+              label="Texte pour la confirmation initiale (e-mail et SMS)"
               value={options.sms.confirmationTexte}
               onChange={(e, d) => {
                 options.sms.confirmationTexte = e.target.value;
@@ -1072,7 +1098,7 @@ export default class Configuration extends React.Component {
             />
             <Form.TextArea
               style={{ resize: "none" }}
-              label="Texte pour les rappels"
+              label="Texte pour les rappels (SMS)"
               value={options.sms.rappelTexte}
               onChange={(e, d) => {
                 options.sms.rappelTexte = e.target.value;
@@ -1112,7 +1138,7 @@ export default class Configuration extends React.Component {
           content: { content: Reservations, key: "4" }
         },
         {
-          title: "Rappels par SMS",
+          title: "Rappels",
           content: { content: SMS, key: "5" }
         }
       ];

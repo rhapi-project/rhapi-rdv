@@ -597,8 +597,7 @@ export default class RdvPassCard extends React.Component {
           <Modal.Content>
             <p>
               Il faut générer un nouveau mot de passe avant de pouvoir envoyer
-              un SMS de confirmation !
-              <br />
+              un SMS de confirmation !<br />
               Voulez-vous générer un nouveau mot de passe ?
             </p>
           </Modal.Content>
@@ -708,7 +707,7 @@ export default class RdvPassCard extends React.Component {
                 <Message size="small" icon={true} positive={true}>
                   <Icon name="send" />
                   <Message.Content>
-                    <Message.Header>Le SMS a été bien envoyé !</Message.Header>
+                    <Message.Header>Le SMS a été envoyé</Message.Header>
                   </Message.Content>
                 </Message>
               </div>

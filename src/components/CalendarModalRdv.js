@@ -25,7 +25,7 @@ import TimeField from "react-simple-timefield";
 
 import moment from "moment";
 
-import { maxWidth /*, hsize, fsize*/, rdvDateTime, rdvEtats } from "./Settings";
+import { maxWidth, /*hsize, fsize, rdvDateTime,*/ rdvEtats } from "./Settings";
 
 import PatientSearch from "./PatientSearch";
 
@@ -104,17 +104,53 @@ export default class CalendarModalRdv extends React.Component {
     this.setState({ image: "", accordionIndex: -1, accordionIndex2: -1 });
   }
 
-  patientLoad = idPatient => {
+  patientLoad = (idPatient, rdv0) => {
+    let rdv = _.isUndefined(rdv0) ? this.state.rdv : rdv0;
+
+    if (!idPatient) {
+      // patient non encore défini (RDV pris en ligne)
+      // rappelsJO déjà en rdv
+      if (_.isUndefined(rdv.rappelsJO.sms)) {
+        rdv.rappelsJO.sms = {};
+      }
+      rdv.rappelsJO.modified = true;
+
+      this.setState({
+        rdv: rdv,
+        patient: {
+          gestionRdvJO: {
+            autoriseSMS: true
+          },
+          ...rdv.patientJO
+        }
+      });
+      return;
+    }
+
     this.props.client.Patients.read(
       idPatient,
       {},
       patient => {
         // success
+        let iniState =
+          this.state.isNewOne ||
+          (this.state.isExternal &&
+            (!rdv.rappelsJO || !rdv.rappelsJO.modified));
+
         if (patient.gestionRdvJO.autoriseSMS) {
           // prendre les rappels qui sont définis dans les plannings
           // s'il n'y a pas encore eu de modifications sur le rdv
           // par rapport aux rappels SMS
+
           _.findIndex(this.state.plannings, planning => {
+            if (
+              _.findIndex(rdv.planningsJA, pl => {
+                return pl.id === planning.value;
+              }) === -1
+            ) {
+              return false;
+            }
+
             if (
               planning.sms &&
               planning.sms.confirmationTexte &&
@@ -126,39 +162,31 @@ export default class CalendarModalRdv extends React.Component {
               /*if (_.isUndefined(this.state)) {
                 return false;
               }*/
-              let sms = {};
-              sms.rappel1 = this.state.isNewOne
-                ? planning.sms.rappel1
-                : this.state.rdv.rappelsJO.sms.rappel1;
-              sms.rappel24 = this.state.isNewOne
-                ? planning.sms.rappel24
-                : this.state.rdv.rappelsJO.sms.rappel24;
-              sms.rappel48 = this.state.isNewOne
-                ? planning.sms.rappel48
-                : this.state.rdv.rappelsJO.sms.rappel48;
-              sms.rappel1Done = this.state.isNewOne
-                ? ""
-                : this.state.rdv.rappelsJO.sms.rappel1Done;
-              sms.rappel24Done = this.state.isNewOne
-                ? ""
-                : this.state.rdv.rappelsJO.sms.rappel24Done;
-              sms.rappel48Done = this.state.isNewOne
-                ? ""
-                : this.state.rdv.rappelsJO.sms.rappel48Done;
 
-              let rdv = this.state.rdv;
+              let sms = {};
+              sms.rappel1 = iniState
+                ? planning.sms.rappel1
+                : rdv.rappelsJO.sms.rappel1;
+              sms.rappel24 = iniState
+                ? planning.sms.rappel24
+                : rdv.rappelsJO.sms.rappel24;
+              sms.rappel48 = iniState
+                ? planning.sms.rappel48
+                : rdv.rappelsJO.sms.rappel48;
+              sms.rappel1Done = iniState ? "" : rdv.rappelsJO.sms.rappel1Done;
+              sms.rappel24Done = iniState ? "" : rdv.rappelsJO.sms.rappel24Done;
+              sms.rappel48Done = iniState ? "" : rdv.rappelsJO.sms.rappel48Done;
+
               if (_.isEmpty(rdv.rappelsJO)) {
                 let rappelsJO = {};
                 rappelsJO.sms = sms;
-                rappelsJO.modified = this.state.isNewOne
-                  ? false
-                  : this.state.rdv.rappelsJO.modified;
+                rappelsJO.modified = iniState ? false : rdv.rappelsJO.modified;
                 rdv.rappelsJO = rappelsJO;
               } else {
                 rdv.rappelsJO.sms = sms;
-                rdv.rappelsJO.modified = this.state.isNewOne
+                rdv.rappelsJO.modified = iniState
                   ? false
-                  : this.state.rdv.rappelsJO.modified; // à revoir
+                  : rdv.rappelsJO.modified; // à revoir
               }
               this.setState({ rdv: rdv });
               return true;
@@ -167,38 +195,24 @@ export default class CalendarModalRdv extends React.Component {
                 return false;
               }*/
               let sms = {};
-              sms.rappel1 = this.state.isNewOne
-                ? false
-                : this.state.rdv.rappelsJO.sms.rappel1;
-              sms.rappel24 = this.state.isNewOne
-                ? false
-                : this.state.rdv.rappelsJO.sms.rappel24;
-              sms.rappel48 = this.state.isNewOne
-                ? false
-                : this.state.rdv.rappelsJO.sms.rappel48;
-              sms.rappel1Done = this.state.isNewOne
-                ? ""
-                : this.state.rdv.rappelsJO.sms.rappel1Done;
-              sms.rappel24Done = this.state.isNewOne
-                ? ""
-                : this.state.rdv.rappelsJO.sms.rappel24Done;
-              sms.rappel48Done = this.state.isNewOne
-                ? ""
-                : this.state.rdv.rappelsJO.sms.rappel48Done;
 
-              let rdv = this.state.rdv;
+              sms.rappel1 = iniState ? false : rdv.rappelsJO.sms.rappel1;
+              sms.rappel24 = iniState ? false : rdv.rappelsJO.sms.rappel24;
+              sms.rappel48 = iniState ? false : rdv.rappelsJO.sms.rappel48;
+              sms.rappel1Done = iniState ? "" : rdv.rappelsJO.sms.rappel1Done;
+              sms.rappel24Done = iniState ? "" : rdv.rappelsJO.sms.rappel24Done;
+              sms.rappel48Done = iniState ? "" : rdv.rappelsJO.sms.rappel48Done;
+
               if (_.isEmpty(rdv.rappelsJO)) {
                 let rappelsJO = {};
                 rappelsJO.sms = sms;
-                rappelsJO.modified = this.state.isNewOne
-                  ? false
-                  : this.state.rdv.rappelsJO.modified;
+                rappelsJO.modified = iniState ? false : rdv.rappelsJO.modified;
                 rdv.rappelsJO = rappelsJO;
               } else {
                 rdv.rappelsJO.sms = sms;
-                rdv.rappelsJO.modified = this.state.isNewOne
+                rdv.rappelsJO.modified = iniState
                   ? false
-                  : this.state.rdv.rappelsJO.modified; // à revoir
+                  : rdv.rappelsJO.modified; // à revoir
               }
               this.setState({ rdv: rdv });
               return false;
@@ -211,38 +225,21 @@ export default class CalendarModalRdv extends React.Component {
             return false;
           }*/
           let sms = {};
-          sms.rappel1 = this.state.isNewOne
-            ? false
-            : this.state.rdv.rappelsJO.sms.rappel1;
-          sms.rappel24 = this.state.isNewOne
-            ? false
-            : this.state.rdv.rappelsJO.sms.rappel24;
-          sms.rappel48 = this.state.isNewOne
-            ? false
-            : this.state.rdv.rappelsJO.sms.rappel48;
-          sms.rappel1Done = this.state.isNewOne
-            ? ""
-            : this.state.rdv.rappelsJO.sms.rappel1Done;
-          sms.rappel24Done = this.state.isNewOne
-            ? ""
-            : this.state.rdv.rappelsJO.sms.rappel24Done;
-          sms.rappel48Done = this.state.isNewOne
-            ? ""
-            : this.state.rdv.rappelsJO.sms.rappel48Done;
+          sms.rappel1 = iniState ? false : rdv.rappelsJO.sms.rappel1;
+          sms.rappel24 = iniState ? false : rdv.rappelsJO.sms.rappel24;
+          sms.rappel48 = iniState ? false : rdv.rappelsJO.sms.rappel48;
+          sms.rappel1Done = iniState ? "" : rdv.rappelsJO.sms.rappel1Done;
+          sms.rappel24Done = iniState ? "" : rdv.rappelsJO.sms.rappel24Done;
+          sms.rappel48Done = iniState ? "" : rdv.rappelsJO.sms.rappel48Done;
 
-          let rdv = this.state.rdv;
           if (_.isEmpty(rdv.rappelsJO)) {
             let rappelsJO = {};
             rappelsJO.sms = sms;
-            rappelsJO.modified = this.state.isNewOne
-              ? false
-              : this.state.rdv.rappelsJO.modified;
+            rappelsJO.modified = iniState ? false : rdv.rappelsJO.modified;
             rdv.rappelsJO = rappelsJO;
           } else {
             rdv.rappelsJO.sms = sms;
-            rdv.rappelsJO.modified = this.state.isNewOne
-              ? false
-              : this.state.rdv.rappelsJO.modified; // à revoir
+            rdv.rappelsJO.modified = iniState ? false : rdv.rappelsJO.modified; // à revoir
           }
           this.setState({ rdv: rdv });
         }
@@ -251,7 +248,7 @@ export default class CalendarModalRdv extends React.Component {
       },
       data => {
         // error
-        console.log("Erreur lecture patient");
+        console.log(this.state.rdv.patientJO);
         this.setState({ image: "" });
       }
     );
@@ -292,7 +289,7 @@ export default class CalendarModalRdv extends React.Component {
           });
           if (i === -1) {
             // associé non défini
-            //console.log(associe);
+            // console.log(associe);
             //
             // supprime tous les associés
             _.remove(rdv.planningsJA, pl => {
@@ -331,15 +328,28 @@ export default class CalendarModalRdv extends React.Component {
         event.id,
         { planning: this.props.planning },
         rdv => {
-          //console.log(rdv);
-          this.patientLoad(rdv.idPatient);
+          console.log(rdv);
+          this.patientLoad(rdv.idPatient, rdv);
           this.setState({ rdv: rdv });
         },
         () => {}
       );
     }
+
     this.planningsSelect();
     this.setState({ isNewOne: isNewOne, rdv: rdv });
+    if (next.isExternal) {
+      this.props.client.RendezVous.read(
+        event.id,
+        { planning: this.props.planning },
+        rdv => {
+          //console.log(rdv);
+          this.patientLoad(rdv.idPatient, rdv);
+          this.setState({ rdv: rdv, isExternal: true });
+        },
+        () => {}
+      );
+    }
   };
 
   close = () => {
@@ -512,6 +522,10 @@ export default class CalendarModalRdv extends React.Component {
     }
 
     this.setState({ rdv: rdv });
+    if ((this.state.isNewOne || this.state.isExternal) && this.state.patient) {
+      // place les cb SMS par défaut
+      this.patientLoad(this.state.patient.id);
+    }
   };
 
   planningMotifChange = d => {
@@ -566,6 +580,13 @@ export default class CalendarModalRdv extends React.Component {
             liste2: 0,
             motif: associe.motif2 + 1
           });
+          if (
+            (this.state.isNewOne || this.state.isExternal) &&
+            this.state.patient
+          ) {
+            // place les cb SMS par défaut
+            this.patientLoad(this.state.patient.id);
+          }
         }
       }
     }
@@ -585,64 +606,58 @@ export default class CalendarModalRdv extends React.Component {
 
   rappelSMSChange = (e, d) => {
     let rdv = this.state.rdv;
+    // non modifiable si déjà envoyé !
+    if (!_.isEmpty(rdv.rappelsJO.sms[d.name + "Done"])) {
+      return;
+    }
     rdv.rappelsJO.modified = true;
-    rdv.rappelsJO.sms[d.name] = !this.state.rdv.rappelsJO.sms[d.name];
+    rdv.rappelsJO.sms[d.name] = !rdv.rappelsJO.sms[d.name];
     this.setState({ rdv: rdv });
   };
 
-  // bloquer des jours sur le datePicker
-  // TODO : Bloquer les jours fériés
+  // jours bloqués sur le datePicker
   isDayBlocked = day => {
-    let jr = _.split(day.toISOString(), "T")[0];
+    // day is a moment
 
-    // day est un objet "moment"
-    let d = _.split(day._d, " ")[0];
-
-    // on bloque les jeudis et les dimanches
-    if (d === "Thu" || d === "Sun") {
+    // les jours de fermeture
+    if (_.isEmpty(this.props.options.plages.horaires[day.isoWeekday()])) {
       return true;
-    } else if (!_.isEmpty(this.props.options.reservation.conges)) {
-      let conges = this.props.options.reservation.conges;
-      for (let i = 0; i < conges.length; i++) {
-        if (jr >= conges[i].start && jr <= conges[i].end) {
-          return true;
-        }
-      }
-    } else if (
-      this.props.options.reservation.congesVisibles &&
-      this.props.options.reservation.congesFeries
-    ) {
-      // on bloque les jours fériés
-      let params = {
-        from: this.state.rdv.startAt,
-        to: this.state.rdv.endAt,
-        recurrents: "true",
-        feries: "true",
-        planning: this.state.rdv.planningJO.id
-      };
-      this.props.client.RendezVous.actualiser(
-        params,
-        (datas, response) => {
-          //console.log(datas);
-
-          // "datas.informations.feries" est tjrs vide
-          // Aucun jour férié n'est marqué
-          for (let i = 0; i < datas.informations.feries.length; i++) {
-            let jour = datas.informations.feries[i].date;
-            if (jour === jr) {
-              return true;
-            }
-          }
-          //return false;
-        },
-        (error, response) => {
-          //return false;
-        }
-      );
-      //return false;
-    } else {
-      return false;
     }
+
+    // les congés
+    if (
+      _.findIndex(this.props.options.reservation.conges, conge => {
+        return day.isBetween(conge.start, conge.end);
+      }) >= 0
+    ) {
+      return true;
+    }
+    /*
+      Les jours fériés légaux ne sont pas pris en compte pour l'instant.
+      Si cela doit être fait :
+      la requête actualiser (voir ci-dessous) devra être lancée
+      une seule fois depuis componentWillMount afin
+      d'initialiser par un setState un arrray joursFeries
+      à tester ensuite ici avec un _.findIndex
+    */
+    /*
+    let params = {
+      from: "2017-01-01",
+      to: "2020-01-01",
+      feries: "true"
+    };
+    this.props.client.RendezVous.actualiser(
+      params,
+      (datas, response) => {
+        console.log(datas.informations.feries);
+      },
+      (error, response) => {
+      
+      }
+    );
+    */
+
+    return false;
   };
 
   render() {
@@ -692,14 +707,15 @@ export default class CalendarModalRdv extends React.Component {
       motif = pl.motif;
     }
 
-    let motifsOptions = [];
+    let motifsOptions = [{ value: 0, text: "Aucun motif défini" }];
 
-    _.forEach(planning.motifs, (motif, i) => {
+    _.forEach(planning.motifs, (m, i) => {
       if (
-        !motif.hidden &&
-        motif.autorisationMin >= planning.autorisationMinAgenda
+        !m.hidden &&
+        (_.isEmpty(rdv.origine) || // pour un RDV pris en ligne on reprend tous les motifs
+          m.autorisationMin >= planning.autorisationMinAgenda)
       ) {
-        motifsOptions.push({ value: i + 1, text: motif.motif });
+        motifsOptions.push({ value: i + 1, text: m.motif });
       }
     });
     // plannings et motifs - fin
@@ -727,7 +743,8 @@ export default class CalendarModalRdv extends React.Component {
                   />
                 </Ref>
               ) : (
-                this.state.rdv.titre
+                this.state.rdv.titre +
+                (this.state.rdv.idPatient ? "" : " (nouveau patient)")
               )}
             </Header>
             <Header
@@ -899,16 +916,19 @@ export default class CalendarModalRdv extends React.Component {
                     <Accordion.Content active={accordionIndex === 0}>
                       <List>
                         {_.map(plannings, (planning2, i) => {
-                          let motifsOptions = [];
-                          _.forEach(planning2.motifs, (motif2, i) => {
+                          let motifsOptions = [
+                            { value: 0, text: "Aucun motif défini" }
+                          ];
+                          _.forEach(planning2.motifs, (m, i) => {
                             if (
-                              !motif2.hidden &&
-                              motif2.autorisationMin >=
-                                planning2.autorisationMinAgenda
+                              !m.hidden &&
+                              (_.isEmpty(rdv.origine) || // pour un RDV pris en ligne on reprend tous les motifs
+                                m.autorisationMin >=
+                                  planning.autorisationMinAgenda)
                             ) {
                               motifsOptions.push({
                                 value: i + 1,
-                                text: motif2.motif
+                                text: m.motif
                               });
                             }
                           });
@@ -1018,7 +1038,9 @@ export default class CalendarModalRdv extends React.Component {
                       <span>
                         <Icon name="doctor" size="large" />
                         &nbsp;
-                        {rdv.origine}
+                        {_.isEmpty(rdv.origine)
+                          ? "RDV pris en ligne"
+                          : rdv.origine}
                       </span>
                     </Form.Input>
                     <Form.Input label="Création" floated="right">
@@ -1052,10 +1074,12 @@ export default class CalendarModalRdv extends React.Component {
                           disabled={!this.state.rdv.rappelsJO.sms.rappel48}
                         >
                           {this.state.rdv.rappelsJO.sms.rappel48 ? (
-                            this.state.rdv.rappelsJO.sms.rappel48Done !== "" ? (
+                            !_.isEmpty(
+                              this.state.rdv.rappelsJO.sms.rappel48Done
+                            ) ? (
                               <Icon name="checkmark" color="green" />
                             ) : (
-                              <Icon name="minus" color="red" />
+                              <Icon name="minus" color="grey" />
                             )
                           ) : (
                             ""
@@ -1067,12 +1091,14 @@ export default class CalendarModalRdv extends React.Component {
                           disabled={!this.state.rdv.rappelsJO.sms.rappel48}
                         >
                           {this.state.rdv.rappelsJO.sms.rappel48 ? (
-                            this.state.rdv.rappelsJO.sms.rappel48Done !== "" ? (
-                              rdvDateTime(
+                            !_.isEmpty(
+                              this.state.rdv.rappelsJO.sms.rappel48Done
+                            ) ? (
+                              moment(
                                 this.state.rdv.rappelsJO.sms.rappel48Done
-                              )
+                              ).format("LLLL")
                             ) : (
-                              <Icon name="minus" color="red" />
+                              <Icon name="minus" color="grey" />
                             )
                           ) : (
                             ""
@@ -1093,10 +1119,12 @@ export default class CalendarModalRdv extends React.Component {
                           disabled={!this.state.rdv.rappelsJO.sms.rappel24}
                         >
                           {this.state.rdv.rappelsJO.sms.rappel24 ? (
-                            this.state.rdv.rappelsJO.sms.rappel24Done !== "" ? (
+                            !_.isEmpty(
+                              this.state.rdv.rappelsJO.sms.rappel24Done
+                            ) ? (
                               <Icon name="checkmark" color="green" />
                             ) : (
-                              <Icon name="minus" color="red" />
+                              <Icon name="minus" color="grey" />
                             )
                           ) : (
                             ""
@@ -1108,12 +1136,14 @@ export default class CalendarModalRdv extends React.Component {
                           disabled={!this.state.rdv.rappelsJO.sms.rappel24}
                         >
                           {this.state.rdv.rappelsJO.sms.rappel24 ? (
-                            this.state.rdv.rappelsJO.sms.rappel24Done !== "" ? (
-                              rdvDateTime(
+                            !_.isEmpty(
+                              this.state.rdv.rappelsJO.sms.rappel24Done
+                            ) ? (
+                              moment(
                                 this.state.rdv.rappelsJO.sms.rappel24Done
-                              )
+                              ).format("LLLL")
                             ) : (
-                              <Icon name="minus" color="red" />
+                              <Icon name="minus" color="grey" />
                             )
                           ) : (
                             ""
@@ -1135,10 +1165,12 @@ export default class CalendarModalRdv extends React.Component {
                           disabled={!this.state.rdv.rappelsJO.sms.rappel1}
                         >
                           {this.state.rdv.rappelsJO.sms.rappel1 ? (
-                            this.state.rdv.rappelsJO.sms.rappel1Done !== "" ? (
+                            !_.isEmpty(
+                              this.state.rdv.rappelsJO.sms.rappel1Done
+                            ) ? (
                               <Icon name="checkmark" color="green" />
                             ) : (
-                              <Icon name="minus" color="red" />
+                              <Icon name="minus" color="grey" />
                             )
                           ) : (
                             ""
@@ -1150,12 +1182,14 @@ export default class CalendarModalRdv extends React.Component {
                           disabled={!this.state.rdv.rappelsJO.sms.rappel1}
                         >
                           {this.state.rdv.rappelsJO.sms.rappel1 ? (
-                            this.state.rdv.rappelsJO.sms.rappel1Done !== "" ? (
-                              rdvDateTime(
+                            !_.isEmpty(
+                              this.state.rdv.rappelsJO.sms.rappel1Done
+                            ) ? (
+                              moment(
                                 this.state.rdv.rappelsJO.sms.rappel1Done
-                              )
+                              ).format("LLLL")
                             ) : (
-                              <Icon name="minus" color="red" />
+                              <Icon name="minus" color="grey" />
                             )
                           ) : (
                             ""
@@ -1169,12 +1203,10 @@ export default class CalendarModalRdv extends React.Component {
                       <Message info={true}>
                         <Message.Content>
                           <Message.Header>
-                            L'envoi de SMS n'est pas autorisé pour ce patient
+                            L'envoi de SMS n'est pas autorisé par ce patient
                           </Message.Header>
-                          <p>
-                            Les rappels SMS activés seront faites uniquement
-                            pour ce rendez-vous !
-                          </p>
+                          Les rappels SMS activés seront néanmoins effectués
+                          ponctuellement, uniquement pour ce RDV.
                         </Message.Content>
                       </Message>
                     ) : (
@@ -1191,7 +1223,9 @@ export default class CalendarModalRdv extends React.Component {
               Elles seront utiles dans le cas où nous sommes sur l'interface de 
               la fiche du patient.
           */}
-            {!this.state.isNewOne && !_.isEmpty(this.state.patient) ? (
+            {!this.state.isNewOne &&
+            !_.isEmpty(this.state.patient) &&
+            this.state.patient.id ? (
               <RdvPassCard
                 open={this.state.rdvPassCard}
                 client={this.props.client}
@@ -1211,7 +1245,9 @@ export default class CalendarModalRdv extends React.Component {
             )}
           </Modal.Content>
           <Modal.Actions>
-            {!this.state.isNewOne ? (
+            {!this.state.isNewOne &&
+            !_.isEmpty(this.state.patient) &&
+            this.state.patient.id ? (
               <Button onClick={() => this.setState({ rdvPassCard: true })}>
                 Tous les rendez-vous
               </Button>

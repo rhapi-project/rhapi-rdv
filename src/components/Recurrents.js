@@ -144,8 +144,7 @@ export default class Recurrents extends React.Component {
                           />
                           <span>
                             <br />
-                            <br />
-                            à partir de la semaine...
+                            <br />à partir de la semaine...
                           </span>
                           <Form.Select
                             label="&nbsp;"

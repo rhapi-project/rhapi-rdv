@@ -289,7 +289,8 @@ export default class CalendarPanel extends React.Component {
     var params = {
       planningJO: { id: planning },
       idPatient: this.state.currentPatient.id,
-      titre: this.state.currentPatient.title
+      titre: this.state.currentPatient.title,
+      rappelsJO: { sms: {} }
     };
 
     client.RendezVous.create(

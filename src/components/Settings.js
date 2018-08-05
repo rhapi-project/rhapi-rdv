@@ -263,9 +263,9 @@ const defaultPlanning = {
     rappel24: false,
     rappel48: false,
     rappelTexte:
-      "Nous vous rappelons votre RDV {date-heure}.\nDr (saisir les coordonnées)\n{infos-annulation}",
+      "Bonjour,\nRDV {date-heure}.\nDr (saisir les coordonnées)\n{infos-annulation}",
     confirmationTexte:
-      "RDV le {date-heure}.\nDr (saisir les coordonnées)\n{infos-annulation}"
+      "RDV {date-heure}.\nDr (saisir les coordonnées)\n{infos-annulation}"
   }
 };
 
@@ -368,11 +368,6 @@ const telFormat = telephone => {
  */
 const denominationDefaultFormat = "NP";
 
-// local dev => no auth -> identification patient par id + password
-const localdev = false;
-const appToken = "bXlhcHA6bXlhcHBteWFwcA";
-const authUrl = "https://auth-dev.rhapi.net";
-
 /*
  * rdvEtats états des rendez-vous (idEtat du groupe RendezVous)
  */
@@ -386,6 +381,11 @@ const rdvEtats = [
   { text: "Absence", color: "red" },
   { text: "RDV annulé", color: "black" } // Annulation dans les délais (masqué)
 ];
+
+// local dev => no auth -> identification patient par id + password
+const localdev = false;
+const appToken = "bXlhcHA6bXlhcHBteWFwcA";
+const authUrl = "https://auth-dev.rhapi.net";
 
 export {
   localdev,

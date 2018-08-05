@@ -213,7 +213,7 @@ export default class Profil extends React.Component {
         {this.state.saved ? (
           <Message
             header={"Bienvenue " + this.state.userName}
-            content="Voici les données de votre profil utilisateur."
+            content="Données de votre profil utilisateur"
           />
         ) : (
           <Message

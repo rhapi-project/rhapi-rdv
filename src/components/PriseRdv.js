@@ -6,7 +6,8 @@ import {
   Step,
   Divider,
   Dropdown,
-  Header
+  Header,
+  Input
 } from "semantic-ui-react";
 
 import _ from "lodash";
@@ -37,6 +38,8 @@ export default class PriseRdv extends React.Component {
     this.setState({
       // default state
       patient: patient,
+      rdvId: 0, // new created rdv id
+      code: "", // secret validation code
       plannings: [],
       motifs: [],
       currentPlanningId: 0,
@@ -49,11 +52,9 @@ export default class PriseRdv extends React.Component {
       completed: false,
       voirMesRdv: false
     });
-  }
 
-  componentDidMount() {
     this.props.client.Reservation.mesPlannings(
-      this.state.patient,
+      patient,
       result => {
         this.setState({ plannings: result.results });
       },
@@ -90,15 +91,37 @@ export default class PriseRdv extends React.Component {
     this.setState({ currentMotifId: motifId, currentMotifIndex: index });
   };
 
+  onCodeChange = (e, d) => {
+    this.setState({ code: d.value, codeError: false });
+  };
+
+  onCodeClick = () => {
+    let link = this.state.rdvId + "_" + this.state.code + "_json";
+    this.props.client.Reservation.confirmation(
+      link,
+      result => {
+        this.setState({ codeValide: true, codeError: false });
+      },
+      datas => {
+        this.setState({ codeError: true }); // à voir : erreur code de confirmation
+        // erreur
+        // TODO : Afficher le message en utilisant un Component semantic à la place de 'alert'
+        console.log(datas);
+        //alert(datas.internalMessage + " : " + datas.userMessage);
+      }
+    );
+  };
+
   createRdv = horaire => {
     let params = this.state.patient;
     params.planning = this.state.currentPlanningId;
     params.motif = this.state.currentMotifId;
     params.startAt = horaire;
+
     this.props.client.Reservation.create(
       params,
       result => {
-        this.setState({ completed: true, horaire: horaire });
+        this.setState({ completed: true, horaire: horaire, rdvId: result.id });
       },
       datas => {
         // erreur
@@ -180,11 +203,16 @@ export default class PriseRdv extends React.Component {
           this.state.currentPlanningId === 0 ? (
             ""
           ) : (
-            <Step completed={this.state.completed && this.props.identified}>
+            <Step
+              completed={
+                this.state.completed &&
+                (this.props.identified || this.state.codeValide)
+              }
+            >
               <Icon
                 name={
                   this.state.completed && !this.props.identified
-                    ? "mail outline"
+                    ? "mobile"
                     : "add to calendar"
                 }
               />
@@ -196,13 +224,40 @@ export default class PriseRdv extends React.Component {
                 </Step.Title>
                 <Step.Description>
                   {this.state.completed
-                    ? this.props.identified
-                      ? "Mon nouveau rendez-vous est bien enregistré"
-                      : "Un mail de confirmation vient de m'être adressé pour valider définivement ce rendez-vous. " +
-                        "Il me reste à ouvrir ce mail et à cliquer sur le lien proposé dans (un délai maximum de 5 mn)."
+                    ? this.props.identified || this.state.codeValide
+                      ? "Mon nouveau RDV a bien été enregistré"
+                      : "Un code vient de m'être envoyé par SMS. " +
+                        "Je saisis ce code " +
+                        "pour valider définivement le RDV."
                     : "Je choisis un horaire parmi ceux qui me sont proposés"}
                 </Step.Description>
-                <Divider hidden={true} />
+                <Divider fitted={true} hidden={true} />
+                {this.state.completed ? (
+                  this.props.identified || this.state.codeValide ? (
+                    ""
+                  ) : (
+                    <span>
+                      <Input
+                        icon="key"
+                        iconPosition="left"
+                        placeholder="code"
+                        value={this.state.code}
+                        onChange={this.onCodeChange}
+                        error={this.state.codeError}
+                      />
+                      &nbsp;
+                      <Button
+                        size="mini"
+                        primary={true}
+                        onClick={this.onCodeClick}
+                      >
+                        Valider
+                      </Button>
+                    </span>
+                  )
+                ) : (
+                  ""
+                )}
               </Step.Content>
             </Step>
           )}

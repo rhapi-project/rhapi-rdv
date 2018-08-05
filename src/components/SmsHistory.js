@@ -106,6 +106,7 @@ export default class SmsHistory extends React.Component {
       datas => {
         let msg = datas.results;
         sortMessages(msg);
+        //console.log(msg);
 
         this.setState({
           informations: datas.informations,
@@ -317,7 +318,8 @@ export default class SmsHistory extends React.Component {
                                   <Menu.Header as="h3">
                                     {telFormat(message.receiver)}
                                     &nbsp;&nbsp;&nbsp;&nbsp;
-                                    {message.deliveryReceipt === 1 ? (
+                                    {message.deliveryReceipt !== 2 &&
+                                    message.deliveryReceipt !== 16 ? ( // 2 et 16 : failed
                                       <Icon name="checkmark" color="green" />
                                     ) : (
                                       <Icon name="close" color="red" />
@@ -385,7 +387,9 @@ export default class SmsHistory extends React.Component {
                               <p>
                                 Statut &nbsp;&nbsp;
                                 {this.state.messages[this.state.openedMessage]
-                                  .deliveryReceipt === 1 ? (
+                                  .deliveryReceipt !== 2 &&
+                                this.state.messages[this.state.openedMessage]
+                                  .deliveryReceipt !== 16 ? ( // 2 et 16 : failed
                                   <Icon name="circle" color="green" />
                                 ) : (
                                   <Icon name="circle" color="red" />
