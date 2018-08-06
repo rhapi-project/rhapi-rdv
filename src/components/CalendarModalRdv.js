@@ -25,7 +25,11 @@ import TimeField from "react-simple-timefield";
 
 import moment from "moment";
 
-import { maxWidth, /*hsize, fsize, rdvDateTime,*/ rdvEtats } from "./Settings";
+import {
+  maxWidth,
+  /*hsize, fsize, rdvDateTime,*/ rdvEtats,
+  telFormat
+} from "./Settings";
 
 import PatientSearch from "./PatientSearch";
 
@@ -328,7 +332,7 @@ export default class CalendarModalRdv extends React.Component {
         event.id,
         { planning: this.props.planning },
         rdv => {
-          console.log(rdv);
+          //console.log(rdv);
           this.patientLoad(rdv.idPatient, rdv);
           this.setState({ rdv: rdv });
         },
@@ -724,11 +728,33 @@ export default class CalendarModalRdv extends React.Component {
     let showRappels =
       !_.isUndefined(this.state.rdv.idPatient) &&
       !_.isUndefined(this.state.rdv.rappelsJO) &&
-      (!_.isEmpty(this.state.patient) && this.state.patient.telMobile !== "");
+      (!_.isEmpty(this.state.patient) &&
+        !_.isEmpty(this.state.patient.telMobile));
 
-    //console.log(this.state);
-    //console.log(this.props);
-    //console.log(this.state.rdv)
+    // téléphones
+    let tels = [];
+    let firstIsMobile = false;
+    if (!this.state.isNewOne) {
+      if (!_.isEmpty(this.state.patient)) {
+        if (!_.isEmpty(this.state.patient.telMobile)) {
+          tels.push(telFormat(this.state.patient.telMobile));
+          firstIsMobile = true;
+        }
+        if (!_.isEmpty(this.state.patient.telDomicile)) {
+          tels.push(telFormat(this.state.patient.telDomicile));
+        }
+        if (!_.isEmpty(this.state.patient.telBureau)) {
+          tels.push(telFormat(this.state.patient.telBureau));
+        }
+      } else if (
+        !_.isUndefined(this.state.rdv.patientJO) &&
+        !_.isEmpty(this.state.rdv.patientJO.telMobile)
+      ) {
+        tels.push(telFormat(this.state.rdv.patientJO.telMobile));
+        firstIsMobile = true;
+      }
+    }
+
     return (
       <React.Fragment>
         <Modal open={this.props.open}>
@@ -745,6 +771,25 @@ export default class CalendarModalRdv extends React.Component {
               ) : (
                 this.state.rdv.titre +
                 (this.state.rdv.idPatient ? "" : " (nouveau patient)")
+              )}
+              <Divider hidden={true} fitted={true} />
+              <Divider hidden={true} fitted={true} />
+              {tels.length ? (
+                <span>
+                  {_.map(tels, (tel, i) => {
+                    return (
+                      <React.Fragment key={i}>
+                        {" "}
+                        <Icon
+                          name={i === 0 && firstIsMobile ? "mobile" : "phone"}
+                        />
+                        {tel}
+                      </React.Fragment>
+                    );
+                  })}
+                </span>
+              ) : (
+                ""
               )}
             </Header>
             <Header
