@@ -73,7 +73,7 @@ export default class HorairesDisponibles extends React.Component {
   };
 
   validation = (e, d) => {
-    // TODO modal de confirmation
+    // TODO modal de confirmation ?
     this.props.validation(d.value);
   };
 
@@ -92,15 +92,15 @@ export default class HorairesDisponibles extends React.Component {
       <React.Fragment>
         <Button.Group fluid={true}>
           <Button
-            labelPosition="left"
             icon="left chevron"
             onClick={this.prev}
+            style={{ maxWidth: "40px" }}
           />
           <Button content={messageDuJour} />
           <Button
-            labelPosition="right"
             icon="right chevron"
             onClick={this.next}
+            style={{ maxWidth: "40px" }}
           />
         </Button.Group>
         <List

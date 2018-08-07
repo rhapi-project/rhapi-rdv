@@ -291,7 +291,12 @@ export default class PriseRdv extends React.Component {
           ""
         )}
         <Button
-          onClick={() => window.location.reload()}
+          onClick={() => {
+            let parts = window.location.hash.split("@");
+            window.location =
+              "#Patients/" + (parts.length > 1 ? "@" + parts[1] : "");
+            window.location.reload();
+          }}
           fluid={true}
           secondary={true}
         >

@@ -33,7 +33,7 @@ class MonRdv extends React.Component {
     const id = this.props.rdv.id;
 
     // Un rendez-vous unique sans patient identifié ?
-    if (!params.id) {
+    if (!params.ipp) {
       params = {
         password: this.props.rdv.patientJO.secret,
         _id: id
@@ -60,7 +60,7 @@ class MonRdv extends React.Component {
     const id = this.props.rdv.id;
 
     // Un rendez-vous unique sans patient identifié ?
-    if (!params.id) {
+    if (!params.ipp) {
       params = {
         password: this.props.rdv.patientJO.secret,
         _id: id
@@ -346,9 +346,13 @@ export default class MesRdv extends React.Component {
         <Divider hidden={true} />
         <Header size={hsize}>
           {this.state.mesRdv.length === 0
-            ? this.props.patient && this.props.patient.id
-              ? "Vous n'avez aucun RDV prévu"
-              : "Le RDV a été annulé"
+            ? this.props.patient && this.props.patient.ipp
+              ? this.state.plannings
+                ? "Vous n'avez aucun RDV prévu"
+                : "Erreur d'identification"
+              : !this.props.rdv.id
+                ? "Erreur d'identification RDV"
+                : "Le RDV a été annulé"
             : this.state.mesRdv.length === 1
               ? "Mon prochain rendez-vous"
               : "Mes prochains rendez-vous"}
@@ -366,7 +370,9 @@ export default class MesRdv extends React.Component {
             />
           );
         })}
-        {this.props.patient && this.props.patient.id ? (
+        {this.props.patient &&
+        this.props.patient.ipp &&
+        this.state.plannings ? (
           <Button
             secondary={true}
             fluid={true}
@@ -380,16 +386,10 @@ export default class MesRdv extends React.Component {
         <Divider fitted={true} hidden={true} />
         <Button
           onClick={() => {
-            if (this.props.patient && this.props.patient.id) {
-              window.location.reload();
-            } else {
-              let parts = window.location.hash.split("@");
-              if (parts.length > 1) {
-                window.location =
-                  window.location.origin + "/#Patients/@" + parts[1];
-                window.location.reload();
-              }
-            }
+            let parts = window.location.hash.split("@");
+            window.location =
+              "#Patients/" + (parts.length > 1 ? "@" + parts[1] : "");
+            window.location.reload();
           }}
           fluid={true}
           secondary={true}

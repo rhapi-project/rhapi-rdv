@@ -297,6 +297,18 @@ export default class Patients extends React.Component {
                         required={true}
                         type="text"
                         onChange={this.handleChange}
+                        onBlur={
+                          // autocomplete sur Safari ne déclenche pas onChange
+                          e => {
+                            this.handleChange(
+                              {},
+                              {
+                                name: e.currentTarget.name,
+                                value: e.currentTarget.value
+                              }
+                            );
+                          }
+                        }
                       />
                       <Form.Input
                         name="password"
@@ -309,9 +321,21 @@ export default class Patients extends React.Component {
                             ? ""
                             : this.state.patient.password
                         }
-                        type="password"
+                        type="text"
                         required={true}
                         onChange={this.handleChange}
+                        onBlur={
+                          // autocomplete sur Safari ne déclenche pas onChange
+                          e => {
+                            this.handleChange(
+                              {},
+                              {
+                                name: e.currentTarget.name,
+                                value: e.currentTarget.value
+                              }
+                            );
+                          }
+                        }
                       />
                     </React.Fragment>
                   ) : (
@@ -345,6 +369,18 @@ export default class Patients extends React.Component {
                         type="text"
                         required={true}
                         onChange={this.handleChange}
+                        onBlur={
+                          // autocomplete sur Safari ne déclenche pas onChange
+                          e => {
+                            this.handleChange(
+                              {},
+                              {
+                                name: e.currentTarget.name,
+                                value: e.currentTarget.value
+                              }
+                            );
+                          }
+                        }
                       />
                       <Form.Input
                         name="email"
@@ -375,6 +411,18 @@ export default class Patients extends React.Component {
                         type="tel"
                         required={true}
                         onChange={this.handleChange}
+                        onBlur={
+                          // autocomplete sur Safari ne déclenche pas onChange
+                          e => {
+                            this.handleChange(
+                              {},
+                              {
+                                name: e.currentTarget.name,
+                                value: e.currentTarget.value
+                              }
+                            );
+                          }
+                        }
                         error={
                           !_.isEmpty(this.state.patient.telMobile) &&
                           !this.state.patient.telMobile.match(telRegex[0]) &&
