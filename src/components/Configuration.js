@@ -15,7 +15,8 @@ import {
   Message,
   Table,
   Confirm,
-  Portal
+  Portal,
+  Modal
 } from "semantic-ui-react";
 
 import { maxWidth, fsize, hsize, defaultPlanning } from "./Settings";
@@ -32,7 +33,9 @@ export default class Configuration extends React.Component {
       plannings: [],
       index: -1,
       reservationActiveIndex: -1,
-      saved: true
+      saved: true, // current config saved
+      save: false, // modal save configs
+      load: false // modal load configs
     });
 
     this.reload(0);
@@ -271,6 +274,72 @@ export default class Configuration extends React.Component {
 
   onHorairesReservationChange = () => {
     this.setState({ saved: false });
+  };
+
+  saveAll = () => {
+    let a = document.createElement("a");
+    let file = new Blob(
+      [
+        JSON.stringify(this.state.plannings, null, 2) // pretty/2 spaces
+      ],
+      { type: "application/json" }
+    );
+    a.href = URL.createObjectURL(file);
+    a.download = "config-plannings.json";
+    a.click();
+  };
+
+  loadAll = onLoad => {
+    let input = document.createElement("input");
+    input.type = "file";
+    input.accept = "application/json";
+    input.click();
+    input.onchange = () => {
+      let file = input.files[0];
+      var reader = new FileReader();
+      let plannings = null;
+      reader.onload = () => {
+        try {
+          plannings = JSON.parse(reader.result);
+          if (
+            !(
+              _.isArray(plannings) &&
+              plannings.length &&
+              _.isNumber(plannings[0].id)
+            )
+          ) {
+            // basic check fails
+            plannings = null;
+          }
+        } catch (e) {}
+        if (!plannings) {
+          this.setState({ errorJson: true });
+        }
+        onLoad(plannings);
+      };
+      reader.readAsText(file);
+    };
+  };
+
+  loadAllAsBackup = () => {
+    this.loadAll(plannings => {
+      if (!plannings) {
+        return;
+      }
+      this.setState({ plannings: plannings, saved: false });
+    });
+  };
+
+  loadAllAsConfig = () => {
+    this.loadAll(plannings => {
+      if (!plannings) {
+        return;
+      }
+      console.log(plannings);
+      // TODO utiliser create dans une loop sur les nouveaux plannings
+      // si il n'y en a pas assez
+      // reindexer les id avec les id réels
+    });
   };
 
   render() {
@@ -1241,30 +1310,64 @@ export default class Configuration extends React.Component {
 
         {plannings.length ? (
           <React.Fragment>
-            <Dropdown
-              value={index}
-              onChange={(e, d) => this.setState({ index: d.value })}
-              placeholder="Choisir le planning à configurer"
-              fluid={false}
-              selection={true}
-              options={_.map(plannings, (planning, i) => {
-                return {
-                  text: planning.titre,
-                  value: i
-                };
-              })}
-            />
-            <b>
-              {this.state.index >= 0
-                ? " #" + this.state.plannings[this.state.index].id
-                : ""}
-            </b>
+            <span>
+              <Dropdown
+                value={index}
+                onChange={(e, d) => this.setState({ index: d.value })}
+                placeholder="Choisir le planning à configurer"
+                fluid={false}
+                selection={true}
+                options={_.map(plannings, (planning, i) => {
+                  return {
+                    text: planning.titre,
+                    value: i
+                  };
+                })}
+              />
+              &nbsp;
+              <Dropdown
+                icon="recycle"
+                floating={true}
+                button={true}
+                basic={true}
+                className="icon"
+              >
+                <Dropdown.Menu>
+                  <Dropdown.Header
+                    icon="recycle"
+                    content="Réutilisation des configurations"
+                  />
+                  <Dropdown.Item onClick={() => this.setState({ save: true })}>
+                    {"Sauvegarder cette configuration de " +
+                      plannings.length +
+                      " planning" +
+                      (plannings.length > 1 ? "s" : "")}
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={() => this.setState({ load: true })}>
+                    {"Charger une configuration (remplacera ce" +
+                      (plannings.length > 1 ? "s" : "") +
+                      " " +
+                      plannings.length +
+                      " planning" +
+                      (plannings.length > 1 ? "s" : "") +
+                      ")"}
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+              &nbsp;&nbsp;
+              <b>
+                {this.state.index >= 0
+                  ? " #" + this.state.plannings[this.state.index].id
+                  : ""}
+              </b>
+            </span>
             {form}
           </React.Fragment>
         ) : (
           <React.Fragment>
             <Button onClick={this.ajouter}>Créer un nouveau planning</Button>
             <Button onClick={this.transferer}>Transférer un planning</Button>
+            <Button>Importer une configuration</Button>
           </React.Fragment>
         )}
 
@@ -1303,7 +1406,116 @@ export default class Configuration extends React.Component {
             content={this.state.messageOkAction}
           />
         </Portal>
-
+        <Modal
+          open={this.state.errorJson}
+          onClose={() => {
+            this.setState({ errorJson: false });
+          }}
+          closeOnDimmerClick={false}
+          header="Erreur en lecture du fichier"
+          content="Le format de ce fichier de configuration n'est pas conforme à celui attendu !"
+          actions={[{ key: "done", content: "OK", primary: true }]}
+        />
+        <Modal
+          open={this.state.save}
+          onClose={() => {
+            this.setState({ save: false });
+          }}
+          header={
+            "Sauvegarder cette configuration de " +
+            plannings.length +
+            " planning" +
+            (plannings.length > 1 ? "s" : "")
+          }
+          content={
+            "La configuration des plannings sera sauvegardée dans un fichier au format JSON, " +
+            'nommé "config-plannings.json" et placé dans le dossier des téléchargements.\n'
+          }
+          actions={[
+            {
+              key: "save",
+              content: "Sauvegarder",
+              onClick: this.saveAll
+            },
+            { key: "done", content: "Annuler", primary: true }
+          ]}
+        />
+        <Modal
+          open={this.state.load}
+          onClose={() => {
+            this.setState({ load: false });
+          }}
+          header={
+            "Restaurer une configuration (remplacera ce" +
+            (plannings.length > 1 ? "s" : "") +
+            " " +
+            plannings.length +
+            " planning" +
+            (plannings.length > 1 ? "s" : "") +
+            ")"
+          }
+          content={
+            <Modal.Content>
+              <p>
+                <b>Pour restaurer un configuration</b> à partir d'une
+                sauvegarde, cliquer sur le bouton{" "}
+                <b>
+                  <i>Restaurer</i>
+                </b>{" "}
+                puis sélectionner le fichier de backup (par défaut{" "}
+                <b>
+                  <i>config-plannings.json</i>
+                </b>
+                ). Si le fichier est compatible, cette restauration préservera
+                les différents états des rendez-vous déjà pris.
+              </p>
+              <p>
+                <b>Pour configurer de nouveaux plannings</b>, cliquer sur le
+                bouton{" "}
+                <b>
+                  <i>Nouvelle configuration</i>
+                </b>{" "}
+                puis sélectionner le fichier de configuration (par défaut{" "}
+                <b>
+                  <i>config-plannings.json</i>
+                </b>
+                ).{" "}
+                <span style={{ background: "yellow" }}>
+                  Cette restauration ne préservera pas les différents états des
+                  rendez-vous déjà pris.
+                </span>
+              </p>
+              <p>
+                La restauration (ou nouvelle configuration) ne sera active que
+                lorsque qu'elle sera définitivement validée (bouton{" "}
+                <b>
+                  <i>Sauvegarder</i>
+                </b>{" "}
+                en bas à droite). Tant que la configuration n'est pas
+                sauvegardée, il est possible de revenir à la configuration
+                précédente en cliquant sur le bouton{" "}
+                <b>
+                  <i>Annuler/Actualiser</i>
+                </b>
+                .
+              </p>
+            </Modal.Content>
+          }
+          actions={[
+            {
+              key: "load-backup",
+              content: "Restaurer",
+              onClick: this.loadAllAsBackup
+            },
+            {
+              key: "load-config",
+              content: "Nouvelle configuration",
+              onClick: this.loadAllAsConfig,
+              color: "orange"
+            },
+            { key: "done", content: "Annuler", primary: true }
+          ]}
+        />
         <Divider hidden={true} />
       </div>
     );

@@ -593,12 +593,22 @@ export default class RdvPassCard extends React.Component {
         {/* Génération d'un nouveau mot de passe nécessaire pour une confirmation SMS */}
 
         <Modal size="small" open={this.state.pwdGeneration}>
-          <Modal.Header>Nouveau mot de passe</Modal.Header>
+          <Modal.Header>
+            Souhaitez-vous générer un nouveau mot de passe pour le patient ?
+          </Modal.Header>
           <Modal.Content>
             <p>
-              Il faut générer un nouveau mot de passe avant de pouvoir envoyer
-              un SMS de confirmation !<br />
-              Voulez-vous générer un nouveau mot de passe ?
+              Pour afficher et fournir au patient un lien d'accès direct à ses
+              rendez-vous, il convient de générer un nouveau mot de passe.
+              <br />
+              Ce lien pourra être ensuite transmis par SMS ou simplement inscrit
+              sur une carte de rendez-vous imprimée.
+            </p>
+            <p>
+              <i>
+                Régénérer le mot de passe fréquement sécurise efficacement
+                l'accès du patient à ses rendez-vous.
+              </i>
             </p>
           </Modal.Content>
           <Modal.Actions>

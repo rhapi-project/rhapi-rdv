@@ -12,7 +12,7 @@ import HorairesDisponibles from "./HorairesDisponibles";
 
 class MonRdv extends React.Component {
   state = {
-    edited: false,
+    edited: true,
     openSupp: false,
     openModif: false,
     openConfirmModif: false,
