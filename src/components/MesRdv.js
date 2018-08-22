@@ -96,6 +96,7 @@ class MonRdv extends React.Component {
     // le premier planning valide venu
     let index = _.findIndex(
       this.props.rdv.planningsJA,
+      // this.props.plannings ne comporte que les plannings autorisés pour ce patient
       planning => !_.isUndefined(this.props.plannings[planning.id])
     );
 
@@ -104,6 +105,22 @@ class MonRdv extends React.Component {
       return "";
     }
     let planning = this.props.rdv.planningsJA[index];
+
+    let unchangeable = false;
+    if (planning.motif > 0) {
+      // un motif est défini
+      //console.log("id motif du RDV " + planning.motif); // le motif dans ce planning
+      //console.log(this.props.plannings[planning.id].motifs); // les motifs autorisés pour le patient
+      //console.log("Autorisation patient " + this.props.autorisationPatient);
+
+      let indexMotif = _.findIndex(
+        this.props.plannings[planning.id].motifs,
+        // this.props.plannings comporte les motifs autorisés pour ce patient
+        motif => motif.id === planning.motif
+      );
+
+      unchangeable = indexMotif === -1;
+    }
 
     let titrePlanning = this.props.plannings[planning.id].titre;
 
@@ -115,6 +132,9 @@ class MonRdv extends React.Component {
 
     let revolu =
       moment(this.props.rdv.startAt).subtract(prevenance, "hours") < moment();
+
+    let maxModifs =
+      this.props.rdv.lockRevision >= 5 && this.props.rdv.origine === "";
 
     return (
       <React.Fragment>
@@ -131,11 +151,7 @@ class MonRdv extends React.Component {
         {this.state.edited ? (
           <React.Fragment>
             <Divider fitted={true} hidden={true} />
-            {/*
-                Ne sont modifiables/annulables en ligne que les RDV pris en ligne,
-                tout en respectant le délai de prévenance
-            */}
-            {!this.props.idPatient && !revolu ? ( // RDV pris en ligne (patient non identifié)
+            {!revolu && !unchangeable ? ( // RDV pris en ligne (patient non identifié)
               <Button.Group>
                 <Button
                   positive={true}
@@ -183,17 +199,36 @@ class MonRdv extends React.Component {
                   dimmer={false}
                   closeOnDocumentClick={true}
                 >
-                  <Modal.Header icon="archive" content="Confirmation" />
+                  <Modal.Header
+                    icon="archive"
+                    content={
+                      maxModifs ? "Trop de modifications !" : "Confirmation"
+                    }
+                  />
                   <Modal.Content>
-                    Je confirme vouloir déplacer ce RDV du{" "}
-                    {rdvDateTime(this.props.rdv.startAt)} au{" "}
-                    {rdvDateTime(this.state.nouvelHoraire)} ?
+                    {maxModifs
+                      ? "J'ai trop souvent modifié ce rendez-vous. " +
+                        "Il n'est maintenant plus modifiable en ligne. " +
+                        "Je peux néanmoins toujours l'annuler."
+                      : "Je confirme vouloir déplacer ce RDV du " +
+                        rdvDateTime(this.props.rdv.startAt) +
+                        " au " +
+                        rdvDateTime(this.state.nouvelHoraire) +
+                        " ? Un mail de confirmation me sera adressé."}
                   </Modal.Content>
                   <Modal.Actions>
-                    <Button onClick={this.close}>Non</Button>
-                    <Button negative={true} onClick={this.updateRdv}>
-                      Oui
-                    </Button>
+                    {maxModifs ? (
+                      <Button primary={true} onClick={this.close}>
+                        OK
+                      </Button>
+                    ) : (
+                      <React.Fragment>
+                        <Button onClick={this.close}>Non</Button>
+                        <Button primary={true} onClick={this.updateRdv}>
+                          Oui
+                        </Button>
+                      </React.Fragment>
+                    )}
                   </Modal.Actions>
                 </Modal>
                 <Modal
@@ -210,7 +245,7 @@ class MonRdv extends React.Component {
                   </Modal.Content>
                   <Modal.Actions>
                     <Button onClick={this.close}>Non</Button>
-                    <Button negative={true} onClick={this.annulerRdv}>
+                    <Button primary={true} onClick={this.annulerRdv}>
                       Oui
                     </Button>
                   </Modal.Actions>
@@ -221,7 +256,9 @@ class MonRdv extends React.Component {
                 content={
                   revolu
                     ? "Ce RDV n'est plus modifiable en ligne"
-                    : "Ce RDV n'est pas modifiable en ligne"
+                    : unchangeable
+                      ? "Ce RDV n'est pas modifiable en ligne"
+                      : "Ce RDV n'est pas modifiable en ligne..." // autre raison... (?)
                 }
                 size="large"
                 color="orange"
@@ -250,7 +287,12 @@ class MonRdv extends React.Component {
 
 export default class MesRdv extends React.Component {
   componentWillMount() {
-    this.setState({ nouveauRdv: false, mesRdv: [], edited: false }); // default state
+    this.setState({
+      nouveauRdv: false,
+      mesRdv: [],
+      edited: false,
+      totalOnline: 0
+    }); // default state
 
     this.props.client.Reservation.mesPlannings(
       {
@@ -260,11 +302,12 @@ export default class MesRdv extends React.Component {
       result => {
         let planningsMap = {};
         _.forEach(result.results, planning => {
-          //console.log(planning);
+          console.log(planning);
           planningsMap[planning.id] = {
             titre: planning.titre,
             description: planning.description,
-            prevenance: planning.prevenance
+            prevenance: planning.prevenance,
+            motifs: planning.motifs
           };
         });
         this.setState({ plannings: planningsMap });
@@ -282,7 +325,7 @@ export default class MesRdv extends React.Component {
   }
 
   updateMesRdv = () => {
-    // Un RDV unique
+    // Le RDV unique d'un patient non authentifié
     if (!_.isUndefined(this.props.rdv) && this.props.rdv.id) {
       this.props.client.Reservation.mesRendezVous(
         {
@@ -290,8 +333,7 @@ export default class MesRdv extends React.Component {
           password: this.props.rdv.password
         },
         result => {
-          //console.log(result);
-          this.setState({ mesRdv: result.results });
+          this.setState({ mesRdv: result.results, autorisationPatient: 0 });
         },
         datas => {
           // ? erreur d'auth
@@ -311,7 +353,11 @@ export default class MesRdv extends React.Component {
         },
         result => {
           //console.log(result.informations);
-          this.setState({ mesRdv: result.results });
+          this.setState({
+            mesRdv: result.results,
+            totalOnline: result.informations.totalOnline,
+            autorisationPatient: result.informations.autorisation
+          });
         },
         datas => {
           // ? erreur d'auth
@@ -365,6 +411,7 @@ export default class MesRdv extends React.Component {
               plannings={this.state.plannings}
               client={this.props.client}
               patient={this.props.patient}
+              autorisationPatient={this.state.autorisationPatient}
               updateMesRdv={this.updateMesRdv}
               key={i}
             />
@@ -372,6 +419,7 @@ export default class MesRdv extends React.Component {
         })}
         {this.props.patient &&
         this.props.patient.ipp &&
+        this.state.totalOnline < 3 &&
         this.state.plannings ? (
           <Button
             secondary={true}

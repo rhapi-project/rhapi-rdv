@@ -411,7 +411,10 @@ export default class RdvPassCard extends React.Component {
       infos = siteUrl;
       infos += this.props.patient.id;
       infos += ":" + this.state.newPassword;
-      infos += "@" + this.state.praticien.organisation.split("@")[0];
+      infos += "@";
+      if (this.state.praticien.organisation) {
+        infos += this.state.praticien.organisation.split("@")[0];
+      }
     }
 
     return (

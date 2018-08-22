@@ -106,7 +106,8 @@ export default class Configuration extends React.Component {
     }
     this.saveProcessing = true;
     let last = this.state.plannings.length - 1;
-    _.forEach(this.state.plannings, (planning, i) => {
+    _.each(this.state.plannings, (planning, i) => {
+      //
       planning.optionsJO.organisation = this.state.organisation;
       this.props.client.Plannings.update(
         planning.id,
@@ -278,9 +279,14 @@ export default class Configuration extends React.Component {
 
   saveAll = () => {
     let a = document.createElement("a");
+    let plannings = [...this.state.plannings];
+    _.each(plannings, pl => {
+      delete pl.lockRevision;
+    });
+    console.log(this.state.plannings);
     let file = new Blob(
       [
-        JSON.stringify(this.state.plannings, null, 2) // pretty/2 spaces
+        JSON.stringify(plannings, null, 2) // pretty/2 spaces
       ],
       { type: "application/json" }
     );
@@ -331,14 +337,105 @@ export default class Configuration extends React.Component {
   };
 
   loadAllAsConfig = () => {
+    let reindexPlannings = plannings => {
+      this.props.client.Plannings.mesPlannings(
+        { admin: true },
+        result => {
+          let reindexMap = {};
+          let originalAcl = [];
+
+          _.each(result.results, (pl, i) => {
+            reindexMap["" + plannings[i].id] = pl.id;
+            originalAcl.push(pl.optionsJO.acl);
+          });
+
+          _.each(plannings, (planning, p) => {
+            planning.id = reindexMap["" + planning.id];
+
+            // une acl correcte est définie lors du create planning
+            // elle est replacée comme acl par défaut
+            planning.optionsJO.acl = originalAcl[p];
+
+            // organisation sera corrigée par save()
+            planning.optionsJO.organisation = "";
+
+            // ràz sms (textes de rappels etc...)
+            planning.optionsJO.sms = defaultPlanning.optionsJO.sms;
+
+            let reservation = planning.optionsJO.reservation;
+
+            _.each(reservation.planningsAssocies, associe => {
+              // reindexation des plannings associés
+              associe.planning2 = reindexMap["" + associe.planning2];
+            });
+
+            _.each(reservation.motifs, (motif, i) => {
+              // simplification des motifs masqués
+              if (motif.hidden) {
+                reservation.motifs[i] = { hidden: true };
+              }
+            });
+          });
+          this.setState({ plannings: plannings, saved: false, index: 0 });
+        },
+        datas => {
+          console.log("erreur mesPlannings");
+          console.log(datas);
+        }
+      );
+    };
+
+    let addPlannings = (plannings, n) => {
+      if (n > 0) {
+        this.props.client.Plannings.create(
+          defaultPlanning,
+          pl => {
+            //plannings.push(pl);
+            addPlannings(plannings, --n);
+          },
+          datas => {
+            console.log("erreur sur addPlannings() :");
+            console.log(datas);
+          }
+        );
+      } else {
+        reindexPlannings(plannings);
+      }
+    };
+
+    let removePlannings = (plannings, n) => {
+      if (n > 0) {
+        this.props.client.Plannings.destroy(
+          this.state.plannings[n - 1].id,
+          () => {
+            removePlannings(plannings, --n);
+          },
+          datas => {
+            console.log("erreur sur removePlannings() :");
+            console.log(datas);
+          }
+        );
+      } else {
+        reindexPlannings(plannings);
+      }
+    };
+
     this.loadAll(plannings => {
       if (!plannings) {
         return;
       }
-      console.log(plannings);
-      // TODO utiliser create dans une loop sur les nouveaux plannings
-      // si il n'y en a pas assez
-      // reindexer les id avec les id réels
+      let delta = plannings.length - this.state.plannings.length;
+
+      console.log(delta);
+
+      if (delta > 0) {
+        addPlannings(plannings, delta);
+      } else if (delta < 0) {
+        removePlannings(plannings, -delta);
+      } else {
+        // ---
+        reindexPlannings(plannings);
+      }
     });
   };
 
@@ -346,7 +443,7 @@ export default class Configuration extends React.Component {
     let { index, plannings, saved } = this.state;
     let form = "";
 
-    if (index >= 0) {
+    if (index >= 0 && index < plannings.length) {
       let planning = plannings[index];
       //console.log(planning.organisation);
       let options = planning.optionsJO;
@@ -560,6 +657,81 @@ export default class Configuration extends React.Component {
                     <Accordion.Content
                       active={this.state.reservationActiveIndex === i}
                     >
+                      <Dropdown
+                        style={{ floating: "right" }}
+                        text={"Action pour le niveau d'autorisation " + i}
+                        options={[
+                          {
+                            key: 1,
+                            text:
+                              "Supprimer toutes les plages horaires réservées",
+                            value: -2
+                          },
+                          {
+                            key: 2,
+                            text:
+                              "Reprendre toutes les plages horaires d'ouverture",
+                            value: -1
+                          },
+                          {
+                            key: 3,
+                            text: "Reprendre les plages horaires du dimanche",
+                            value: 0
+                          },
+                          {
+                            key: 4,
+                            text: "Reprendre les plages horaires du lundi",
+                            value: 1
+                          },
+                          {
+                            key: 5,
+                            text: "Reprendre les plages horaires du mardi",
+                            value: 2
+                          },
+                          {
+                            key: 6,
+                            text: "Reprendre les plages horaires du mercredi",
+                            value: 3
+                          },
+                          {
+                            key: 7,
+                            text: "Reprendre les plages horaires du jeudi",
+                            value: 4
+                          },
+                          {
+                            key: 8,
+                            text: "Reprendre les plages horaires du vendredi",
+                            value: 5
+                          },
+                          {
+                            key: 9,
+                            text: "Reprendre les plages horaires du samedi",
+                            value: 6
+                          }
+                        ]}
+                        item={true}
+                        onChange={(e, d) => {
+                          if (d.value === -2) {
+                            // aucune plage
+                            horairesReservation[i] = [
+                              [],
+                              [],
+                              [],
+                              [],
+                              [],
+                              [],
+                              []
+                            ];
+                          } else if (d.value === -1) {
+                            // tous les horaires d'ouvertures
+                            horairesReservation[i] = horaires;
+                          } else {
+                            // les horaires du jour d.value
+                            horairesReservation[i][d.value] = horaires[d.value];
+                          }
+                          this.onHorairesReservationChange();
+                        }}
+                      />
                       <HorairesSemaine
                         horaires={horaireReservation}
                         onHorairesChange={this.onHorairesReservationChange}
@@ -589,7 +761,7 @@ export default class Configuration extends React.Component {
             </Table.Header>
             <Table.Body>
               {_.map(options.reservation.motifs, (motif, i) => {
-                if (!_.isEmpty(motif) && !motif.hidden)
+                if (!motif.hidden)
                   return (
                     <Table.Row key={i}>
                       <Table.Cell>
@@ -1367,7 +1539,9 @@ export default class Configuration extends React.Component {
           <React.Fragment>
             <Button onClick={this.ajouter}>Créer un nouveau planning</Button>
             <Button onClick={this.transferer}>Transférer un planning</Button>
-            <Button>Importer une configuration</Button>
+            <Button onClick={() => this.setState({ load: true })}>
+              Importer une configuration
+            </Button>
           </React.Fragment>
         )}
 
@@ -1432,12 +1606,12 @@ export default class Configuration extends React.Component {
             'nommé "config-plannings.json" et placé dans le dossier des téléchargements.\n'
           }
           actions={[
+            { key: "done", content: "Annuler", primary: true },
             {
               key: "save",
               content: "Sauvegarder",
               onClick: this.saveAll
-            },
-            { key: "done", content: "Annuler", primary: true }
+            }
           ]}
         />
         <Modal
@@ -1460,14 +1634,15 @@ export default class Configuration extends React.Component {
                 <b>Pour restaurer un configuration</b> à partir d'une
                 sauvegarde, cliquer sur le bouton{" "}
                 <b>
-                  <i>Restaurer</i>
+                  <i>Restauration</i>
                 </b>{" "}
                 puis sélectionner le fichier de backup (par défaut{" "}
                 <b>
                   <i>config-plannings.json</i>
                 </b>
-                ). Si le fichier est compatible, cette restauration préservera
-                les différents états des rendez-vous déjà pris.
+                ). Si ce fichier est conforme à la configuration courante, cette
+                restauration préservera les différents états des rendez-vous
+                déjà pris.
               </p>
               <p>
                 <b>Pour configurer de nouveaux plannings</b>, cliquer sur le
@@ -1482,7 +1657,9 @@ export default class Configuration extends React.Component {
                 ).{" "}
                 <span style={{ background: "yellow" }}>
                   Cette restauration ne préservera pas les différents états des
-                  rendez-vous déjà pris.
+                  rendez-vous déjà pris. Les textes personnalisables (comme les
+                  rappels SMS...) seront remis à leur état initial et devront
+                  être saisis à nouveau.
                 </span>
               </p>
               <p>
@@ -1502,18 +1679,17 @@ export default class Configuration extends React.Component {
             </Modal.Content>
           }
           actions={[
+            { key: "done", content: "Annuler", primary: true },
             {
               key: "load-backup",
-              content: "Restaurer",
+              content: "Restauration",
               onClick: this.loadAllAsBackup
             },
             {
               key: "load-config",
               content: "Nouvelle configuration",
-              onClick: this.loadAllAsConfig,
-              color: "orange"
-            },
-            { key: "done", content: "Annuler", primary: true }
+              onClick: this.loadAllAsConfig
+            }
           ]}
         />
         <Divider hidden={true} />
