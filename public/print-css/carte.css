@@ -12,6 +12,7 @@
   }
   .titre-principal {
     margin-top: 1px;
+    margin-bottom: 3px;
     text-align: center;
     font-size: 10px
   }
@@ -21,6 +22,7 @@
   }
 
   .new-password {
+    margin-top: 6px;
     font-size: 9px;
   }
 
@@ -59,6 +61,7 @@
     }
     .titre-principal {
       margin-top: 1px;
+      margin-bottom: 5px;
       text-align: center;
       font-size: 14px
     }
@@ -68,6 +71,7 @@
     }
 
     .new-password {
+      margin-top: 10px;
       font-size: 13px;
     }
 
@@ -99,15 +103,49 @@
     => https://jeffclayton.wordpress.com/2015/04/28/css-hacks-for-safari-6-1-7-and-8-not-chrome/
  */
 
- /*
+ 
  @media not all and (min-resolution:.001dpcm) {
   @media print {
     .carte {
       position: relative;
     }
+
+    .coordonnees-praticien {
+      font-size: 8px;
+      margin-left: 5mm;
+    }
+
+    .praticien-currentName {
+      font-size: 9px;
+    }
+
+    .titre-principal {
+      margin-top: 1px;
+      text-align: center;
+      font-size: 8px;
+    }
+
+    .item-rdv {
+      font-size: 7px;
+      margin-left: 5mm;
+    }
+
+    .new-password {
+      font-size: 8px;
+      margin-top: 8px;
+      margin-left: 5mm;
+    }
+
+    .separator {
+      display: none;
+    }
+
+    .bottom-message {
+      display: none;
+    }
   }
  }
-*/
+
 
 @page {
   size: 89mm 51mm; /* paysage */

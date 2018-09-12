@@ -1021,21 +1021,23 @@ class Carte extends React.Component {
         {this.state.mesRdv.length === 0 ? (
           ""
         ) : (
-          <List>
-            {_.map(this.state.mesRdv, (item, i) => {
-              return (
-                <List.Item
-                  icon="calendar"
-                  className="item-rdv"
-                  key={i}
-                  content={_.upperFirst(rdvDateTime(item.startAt))}
-                />
-              );
-            })}
-          </List>
+          <div>
+            <List>
+              {_.map(this.state.mesRdv, (item, i) => {
+                return (
+                  <List.Item
+                    icon="calendar"
+                    className="item-rdv"
+                    key={i}
+                    content={_.upperFirst(rdvDateTime(item.startAt))}
+                  />
+                );
+              })}
+            </List>
+          </div>
         )}
         {this.props.printWithPassword ? (
-          <div className="new-password" style={{ marginBottom: "20px" }}>
+          <div className="new-password">
             {this.props.printWithPassword ? (
               <p>
                 {site.title} : <b>{siteUrl}</b>
