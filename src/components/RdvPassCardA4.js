@@ -35,6 +35,10 @@ export default class RdvPassCardA4 extends React.Component {
     print: false
   };
 
+  componentWillMount() {
+    this.loadPlanningsId(this.props.mesPlannings);
+  }
+
   componentWillReceiveProps() {
     this.loadPlanningsId(this.props.mesPlannings);
   }
