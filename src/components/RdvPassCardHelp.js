@@ -37,6 +37,8 @@ export default class RdvPassCardHelp extends React.Component {
 
   render() {
     let browser = this.browser();
+    let msgNoPrinter =
+      "Si aucune imprimante à étiquette n'est repérée, veuillez consulter l'aide de l'application pour en savoir plus sur l'installation d'une imprimante à étiquette.";
     return (
       <Modal size="small" open={this.props.open}>
         <Modal.Header>Impression d'une carte de rendez-vous</Modal.Header>
@@ -69,27 +71,13 @@ export default class RdvPassCardHelp extends React.Component {
                       l'imprimante cible.
                     </div>
                     <div style={{ marginTop: "5px" }}>
-                      <Message warning={true} icon={true}>
-                        <Icon name="warning" />
+                      <Message info={true} icon={true}>
+                        <Icon name="info" />
                         <Message.Content>
                           <Message.Header>
                             Imprimante à étiquette introuvable
                           </Message.Header>
-                          <p>
-                            Si aucune imprimante à étiquette n'est repérée,
-                            veuillez consulter l'
-                            <a
-                              onClick={() =>
-                                alert(
-                                  "TODO: Renvoyer sur la doc principale de l'application"
-                                )
-                              }
-                            >
-                              aide
-                            </a>{" "}
-                            de l'application pour en savoir plus sur
-                            l'installation d'une imprimante à étiquette.
-                          </p>
+                          <p>{msgNoPrinter}</p>
                         </Message.Content>
                       </Message>
                     </div>
@@ -220,27 +208,13 @@ export default class RdvPassCardHelp extends React.Component {
                         DYMO LabelWriter 450 Turbo
                       </span>
                       <div style={{ marginTop: "5px" }}>
-                        <Message warning={true} icon={true}>
-                          <Icon name="warning" />
+                        <Message info={true} icon={true}>
+                          <Icon name="info" />
                           <Message.Content>
                             <Message.Header>
                               Imprimante à étiquette introuvable
                             </Message.Header>
-                            <p>
-                              Si aucune imprimante à étiquette n'est repérée,
-                              veuillez consulter l'
-                              <a
-                                onClick={() =>
-                                  alert(
-                                    "TODO: Renvoyer sur la doc principale de l'application"
-                                  )
-                                }
-                              >
-                                aide
-                              </a>{" "}
-                              de l'application pour en savoir plus sur
-                              l'installation d'une imprimante à étiquette.
-                            </p>
+                            <p>{msgNoPrinter}</p>
                           </Message.Content>
                         </Message>
                       </div>
@@ -311,27 +285,13 @@ export default class RdvPassCardHelp extends React.Component {
                       </span>
                     </div>
                     <div style={{ marginTop: "5px" }}>
-                      <Message warning={true} icon={true}>
-                        <Icon name="warning" />
+                      <Message info={true} icon={true}>
+                        <Icon name="info" />
                         <Message.Content>
                           <Message.Header>
                             Imprimante à étiquette introuvable
                           </Message.Header>
-                          <p>
-                            Si aucune imprimante à étiquette n'est repérée,
-                            veuillez consulter l'
-                            <a
-                              onClick={() =>
-                                alert(
-                                  "TODO: Renvoyer sur la doc principale de l'application"
-                                )
-                              }
-                            >
-                              aide
-                            </a>{" "}
-                            de l'application pour en savoir plus sur
-                            l'installation d'une imprimante à étiquette.
-                          </p>
+                          <p>{msgNoPrinter}</p>
                         </Message.Content>
                       </Message>
                     </div>
@@ -484,27 +444,13 @@ export default class RdvPassCardHelp extends React.Component {
                         DYMO LabelWriter 450 Turbo
                       </span>
                       <div style={{ marginTop: "5px" }}>
-                        <Message warning={true} icon={true}>
-                          <Icon name="warning" />
+                        <Message info={true} icon={true}>
+                          <Icon name="info" />
                           <Message.Content>
                             <Message.Header>
                               Imprimante à étiquette introuvable
                             </Message.Header>
-                            <p>
-                              Si aucune imprimante à étiquette n'est repérée,
-                              veuillez consulter l'
-                              <a
-                                onClick={() =>
-                                  alert(
-                                    "TODO: Renvoyer sur la doc principale de l'application"
-                                  )
-                                }
-                              >
-                                aide
-                              </a>{" "}
-                              de l'application pour en savoir plus sur
-                              l'installation d'une imprimante à étiquette.
-                            </p>
+                            <p>{msgNoPrinter}</p>
                           </Message.Content>
                         </Message>
                       </div>
@@ -590,21 +536,7 @@ export default class RdvPassCardHelp extends React.Component {
                           <Message.Header>
                             Imprimante à étiquette introuvable
                           </Message.Header>
-                          <p>
-                            Si aucune imprimante à étiquette n'est repérée,
-                            veuillez consulter l'
-                            <a
-                              onClick={() =>
-                                alert(
-                                  "TODO: Renvoyer sur la doc principale de l'application"
-                                )
-                              }
-                            >
-                              aide
-                            </a>{" "}
-                            de l'application pour en savoir plus sur
-                            l'installation d'une imprimante à étiquette.
-                          </p>
+                          <p>{msgNoPrinter}</p>
                         </Message.Content>
                       </Message>
                     </div>
