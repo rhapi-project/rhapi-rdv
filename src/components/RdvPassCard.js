@@ -35,7 +35,7 @@ export default class RdvPassCard extends React.Component {
     oldPassword: "",
     modalPassword: false,
     printWithPassword: false,
-    pwdGeneration: false, // proposition de génération de mot de passe (modal)
+    //pwdGeneration: false, // proposition de génération de mot de passe (modal)
     carte: false,
     mesRdv: [],
     mesPlannings: [],
@@ -50,9 +50,6 @@ export default class RdvPassCard extends React.Component {
   }
 
   componentWillReceiveProps(next) {
-    if (next.open && this.state.newPassword === "") {
-      this.setState({ pwdGeneration: true });
-    }
     if (!_.isUndefined(this.props.saved)) {
       if (next.open && !next.saved) {
         this.setState({ savingModal: true });
@@ -114,98 +111,46 @@ export default class RdvPassCard extends React.Component {
     return passwd;
   };
 
-  savePasswd = forWhat => {
-    if (forWhat === "SMS") {
-      // génération + sauvegarde dans la base de données
-      let pwd = this.makePasswd();
-      if (this.state.newPassword === "") {
-        this.setState({
-          newPassword: pwd
-        });
-      } else {
-        this.setState({
-          oldPassword: this.state.newPassword,
-          newPassword: pwd
-        });
+  savePasswd = () => {
+    // le nouveau mot de passe a été généré et se trouve dans this.state.newPassword
+    // Sauvegarde dans la base de données.
+    this.props.client.Patients.read(
+      this.props.patient.id,
+      {},
+      result => {
+        // success
+        //console.log(result);
+        let obj = result;
+        obj.gestionRdvJO.reservation.password = this.state.newPassword;
+
+        this.props.client.Patients.update(
+          this.props.patient.id,
+          obj,
+          () => {
+            // success
+            this.setState({
+              modalPassword: false,
+              printWithPassword: true
+            });
+            // Après chaque génération de mot de passe,
+            // remettre à jour les données de la fiche du patient.
+            // Si cela n'est pas fait, les sauvegardes sur la fiche
+            // du patient ne seront pas possible (lockRevision)
+            this.props.patientReload(this.props.patient.id);
+          },
+          data => {
+            // error
+            console.log("Erreur update patient");
+            console.log(data);
+          }
+        );
+      },
+      data => {
+        // error
+        console.log("Erreur lecture patient");
+        console.log(data);
       }
-      this.props.client.Patients.read(
-        this.props.patient.id,
-        {},
-        result => {
-          // success
-          //console.log(result);
-          let obj = result;
-          obj.gestionRdvJO.reservation.password = this.state.newPassword;
-
-          this.props.client.Patients.update(
-            this.props.patient.id,
-            obj,
-            () => {
-              // success
-              this.setState({
-                printWithPassword: true,
-                pwdGeneration: false
-              });
-              // Après chaque génération de mot de passe,
-              // remettre à jour les données de la fiche du patient.
-              // Si cela n'est pas fait, les sauvegardes sur la fiche
-              // du patient ne seront pas possible (lockRevision)
-              this.props.patientReload(this.props.patient.id);
-            },
-            data => {
-              // error
-              console.log("Erreur update patient");
-              console.log(data);
-            }
-          );
-        },
-        data => {
-          // error
-          console.log("Erreur lecture patient");
-          console.log(data);
-        }
-      );
-    } else {
-      // le nouveau mot de passe a été généré par le bouton "Nouveau mot de passe"
-      // Ici on ne fait qu'une sauvegarde dans la base de données.
-      this.props.client.Patients.read(
-        this.props.patient.id,
-        {},
-        result => {
-          // success
-          //console.log(result);
-          let obj = result;
-          obj.gestionRdvJO.reservation.password = this.state.newPassword;
-
-          this.props.client.Patients.update(
-            this.props.patient.id,
-            obj,
-            () => {
-              // success
-              this.setState({
-                modalPassword: false,
-                printWithPassword: true
-              });
-              // Après chaque génération de mot de passe,
-              // remettre à jour les données de la fiche du patient.
-              // Si cela n'est pas fait, les sauvegardes sur la fiche
-              // du patient ne seront pas possible (lockRevision)
-              this.props.patientReload(this.props.patient.id);
-            },
-            data => {
-              // error
-              console.log("Erreur update patient");
-              console.log(data);
-            }
-          );
-        },
-        data => {
-          // error
-          console.log("Erreur lecture patient");
-          console.log(data);
-        }
-      );
-    }
+    );
   };
 
   print = () => {
@@ -299,15 +244,16 @@ export default class RdvPassCard extends React.Component {
   afterPrint = () => {
     // fermeture de toutes les modals
     this.setState({
-      newPassword: "",
+      //newPassword: "",
       modalPassword: false,
-      printWithPassword: false,
+      //printWithPassword: false,
       carte: false
     });
     this.props.rdvPassCardOpen(false);
   };
 
   sendSms = () => {
+    let pwd = "";
     if (this.state.mesRdv.length === 0) {
       this.setState({ retourSMS: true });
       return;
@@ -321,8 +267,11 @@ export default class RdvPassCard extends React.Component {
       _.isUndefined(this.state.newPassword) ||
       _.isEmpty(this.state.newPassword)
     ) {
-      this.setState({ retourSMS: true });
-      return;
+      pwd = this.makePasswd();
+      this.setState({ newPassword: pwd });
+      this.savePasswd();
+    } else {
+      pwd = this.state.newPassword;
     }
 
     // il faut prendre le premier planning autorisé à envoyer des SMS et possédant
@@ -360,8 +309,8 @@ export default class RdvPassCard extends React.Component {
       window.location.pathname +
       "#Patients/";
     infos += this.props.patient.id;
-    infos += ":" + this.state.newPassword;
-
+    //infos += ":" + this.state.newPassword;
+    infos += ":" + pwd;
     infos += "@" + this.state.praticien.organisation.split("@")[0];
     // split("@") si une forme master@master => master
     message = _.replace(message, "{infos-annulation}", infos);
@@ -473,7 +422,17 @@ export default class RdvPassCard extends React.Component {
             <Button
               icon="print"
               content="Carte de RDV"
-              onClick={() => this.setState({ carte: true })}
+              onClick={() => {
+                if (
+                  _.isEmpty(this.state.newPassword) ||
+                  _.isUndefined(this.state.newPassword)
+                ) {
+                  let pwd = this.makePasswd();
+                  this.setState({ newPassword: pwd, printWithPassword: true });
+                  this.savePasswd();
+                }
+                this.setState({ carte: true });
+              }}
             />
 
             <RdvPassCardA4
@@ -494,8 +453,8 @@ export default class RdvPassCard extends React.Component {
             />*/}
             <Divider hidden={false} fitted={false} />
             <Button
-              icon="help"
-              content="Aide"
+              icon="print"
+              content="Aide Carte"
               onClick={() => this.openHelp(true)}
             />
             <Button
@@ -578,7 +537,7 @@ export default class RdvPassCard extends React.Component {
               <Button
                 content="Oui"
                 primary={true}
-                onClick={() => this.savePasswd("")}
+                onClick={() => this.savePasswd()}
               />
             </Ref>
             <Button
@@ -593,63 +552,15 @@ export default class RdvPassCard extends React.Component {
           </Modal.Actions>
         </Modal>
 
-        {/* Génération d'un nouveau mot de passe nécessaire pour une confirmation SMS */}
-
-        <Modal size="small" open={this.state.pwdGeneration}>
-          <Modal.Header>
-            Souhaitez-vous générer un nouveau mot de passe pour le patient ?
-          </Modal.Header>
-          <Modal.Content>
-            <p>
-              Pour afficher et fournir au patient un lien d'accès direct à ses
-              rendez-vous, il convient de générer un nouveau mot de passe.
-              <br />
-              Ce lien pourra être ensuite transmis par SMS ou simplement inscrit
-              sur une carte de rendez-vous imprimée.
-            </p>
-            <p>
-              <i>
-                Régénérer le mot de passe fréquement sécurise efficacement
-                l'accès du patient à ses rendez-vous.
-              </i>
-            </p>
-          </Modal.Content>
-          <Modal.Actions>
-            <Ref
-              innerRef={node => {
-                if (this.state.pwdGeneration) {
-                  node.focus();
-                }
-              }}
-            >
-              <Button
-                content="Oui"
-                primary={true}
-                onClick={() => this.savePasswd("SMS")}
-              />
-            </Ref>
-            <Button
-              content="Non"
-              onClick={() =>
-                this.setState({
-                  open: true,
-                  pwdGeneration: false,
-                  printWithPassword: false
-                })
-              }
-            />
-          </Modal.Actions>
-        </Modal>
-
         {/* Retours SMS */}
 
         <Modal size="small" open={this.state.retourSMS}>
-          <Modal.Header>Infos SMS</Modal.Header>
+          <Modal.Header>Confirmation SMS</Modal.Header>
           <Modal.Content>
             {this.state.mesRdv.length === 0 ||
             this.props.patient.telMobile.length < 8 ? (
-              <Message icon={true} negative={true}>
-                <Icon name="warning" />
+              <Message icon={true} info={true}>
+                <Icon name="info" />
                 <Message.Content>
                   <Message.Header>
                     Impossible d'envoyer un SMS de confirmation
@@ -661,23 +572,6 @@ export default class RdvPassCard extends React.Component {
                   )}
                 </Message.Content>
               </Message>
-            ) : _.isUndefined(this.state.newPassword) ||
-            _.isEmpty(this.state.newPassword) ? (
-              <div>
-                <Message icon={true} negative={true}>
-                  <Icon name="remove" />
-                  <Message.Content>
-                    <Message.Header>SMS non envoyé</Message.Header>
-                    <p>
-                      Il faut générer un nouveau mot de passe avant de pouvoir
-                      envoyer un SMS de confirmation !
-                    </p>
-                  </Message.Content>
-                </Message>
-                <p>
-                  <strong>Voulez-vous générer un nouveau mot de passe ?</strong>
-                </p>
-              </div>
             ) : this.state.errorSMS !== -1 && this.state.errorSMS !== 0 ? (
               <div>
                 <Message icon={true} negative={true}>
@@ -747,33 +641,6 @@ export default class RdvPassCard extends React.Component {
                   onClick={() => this.setState({ retourSMS: false })}
                 />
               </Ref>
-            </Modal.Actions>
-          ) : _.isUndefined(this.state.newPassword) ||
-          _.isEmpty(this.state.newPassword) ? (
-            <Modal.Actions>
-              <Ref
-                innerRef={node => {
-                  if (
-                    _.isUndefined(this.state.newPassword) ||
-                    _.isEmpty(this.state.newPassword)
-                  ) {
-                    node.firstChild.parentElement.focus();
-                  }
-                }}
-              >
-                <Button
-                  content="Oui"
-                  primary={true}
-                  onClick={() => {
-                    this.savePasswd("SMS");
-                    this.setState({ retourSMS: false });
-                  }}
-                />
-              </Ref>
-              <Button
-                content="Non"
-                onClick={() => this.setState({ retourSMS: false })}
-              />
             </Modal.Actions>
           ) : this.state.errorSMS === 0 ||
           this.state.errorSMS === 1 ||
