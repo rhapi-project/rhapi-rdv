@@ -27,7 +27,14 @@ export default class ColorPicker extends React.Component {
     return (
       <Popup
         trigger={
-          <Label style={{ background: color, minWidth: 56, minHeight: 28 }} />
+          <Label
+            style={{
+              background: color,
+              minWidth: 56,
+              minHeight: 28,
+              cursor: "pointer"
+            }}
+          />
         }
         content={<SketchPicker color={color} onChange={this.handleChange} />}
         on="click"

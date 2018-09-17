@@ -25,11 +25,7 @@ import TimeField from "react-simple-timefield";
 
 import moment from "moment";
 
-import {
-  maxWidth,
-  /*hsize, fsize, rdvDateTime,*/ rdvEtats,
-  telFormat
-} from "./Settings";
+import { maxWidth, rdvEtats, telFormat } from "./Settings";
 
 import PatientSearch from "./PatientSearch";
 
@@ -114,6 +110,9 @@ export default class CalendarModalRdv extends React.Component {
     if (!idPatient) {
       // patient non encore défini (RDV pris en ligne)
       // rappelsJO déjà en rdv
+      if (_.isUndefined(rdv.rappelsJO)) {
+        rdv.rappelsJO = {};
+      }
       if (_.isUndefined(rdv.rappelsJO.sms)) {
         rdv.rappelsJO.sms = {};
       }
@@ -342,7 +341,7 @@ export default class CalendarModalRdv extends React.Component {
 
     this.planningsSelect();
     this.setState({ isNewOne: isNewOne, rdv: rdv });
-    if (next.isExternal) {
+    if (next.isExternal && event.id) {
       this.props.client.RendezVous.read(
         event.id,
         { planning: this.props.planning },
@@ -698,6 +697,7 @@ export default class CalendarModalRdv extends React.Component {
     // plannings et motifs
     let plannings = this.state.plannings;
     let planning = _.head(plannings);
+
     plannings = _.drop(plannings);
 
     let checked = false;
@@ -722,7 +722,9 @@ export default class CalendarModalRdv extends React.Component {
         motifsOptions.push({ value: i + 1, text: m.motif });
       }
     });
-    // plannings et motifs - fin
+
+    let m1 = planning.motifs[motif - 1];
+    let motifColor = m1 ? m1.couleur : "";
 
     // Rappels SMS
     let showRappels =
@@ -798,74 +800,76 @@ export default class CalendarModalRdv extends React.Component {
               style={{ textAlign: "right" }}
             >
               {this.props.isExternal ? (
-                "Rendez-vous en attente"
+                <div>
+                  Rendez-vous en attente
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  <Icon name="circle" style={{ color: "blue" }} />
+                  &nbsp;&nbsp;
+                </div>
               ) : (
-                //: moment(this.state.rdv.startAt).format("LLLL")
-                <div
-                  onClick={() =>
-                    this.setState({
-                      dateRdvFocused: !this.state.dateRdvFocused
-                    })
-                  }
-                >
-                  <SingleDatePicker
-                    disabled={true}
-                    small={true}
-                    noBorder={true}
-                    hideKeyboardShortcutsPanel={true}
-                    isOutsideRange={() => false}
-                    isDayBlocked={day => this.isDayBlocked(day)}
-                    date={moment(this.state.rdv.startAt)}
-                    numberOfMonths={2}
-                    onClose={() => this.setState({ dateRdvFocused: false })}
-                    onDateChange={dateRdv => {
-                      let rdv = this.state.rdv;
-                      if (dateRdv) {
-                        let startAt =
-                          _.split(dateRdv.toISOString(), "T")[0] +
-                          "T" +
-                          _.split(rdv.startAt, "T")[1];
-                        let endAt =
-                          _.split(dateRdv.toISOString(), "T")[0] +
-                          "T" +
-                          _.split(rdv.endAt, "T")[1];
-                        rdv.startAt = startAt;
-                        rdv.endAt = endAt;
-                        this.setState({ rdv: rdv });
-                      } else {
-                        console.log("dateRdv est null");
-                        return;
-                      }
-                    }}
-                    focused={this.state.dateRdvFocused}
-                    onFocusChange={() => {}}
+                <div>
+                  <Dropdown
+                    text={rdvEtats[this.state.rdv.idEtat].text}
+                    style={{ minWidth: 200, textAlign: "right" }}
+                  >
+                    <Dropdown.Menu scrolling={false}>
+                      {_.map(rdvEtats, (etat, i) => {
+                        if (i === 0 || i === rdvEtats.length - 1) {
+                          return "";
+                        } else {
+                          return (
+                            <Dropdown.Item
+                              key={i}
+                              onClick={() => this.rdvEtatsChange(i)}
+                            >
+                              <Icon
+                                name="circle"
+                                style={{ color: etat.color }}
+                              />
+                              {etat.text}
+                            </Dropdown.Item>
+                          );
+                        }
+                      })}
+                    </Dropdown.Menu>
+                  </Dropdown>
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  <Icon
+                    name="circle"
+                    style={{ color: rdvEtats[this.state.rdv.idEtat].color }}
                   />
+                  &nbsp;&nbsp;&nbsp;&nbsp;
                 </div>
               )}
+
               <div>
+                Couleur associée au motif&nbsp;&nbsp;&nbsp;
                 <Icon
-                  name="circle"
-                  color={rdvEtats[this.state.rdv.idEtat].color}
+                  name={
+                    _.isEmpty(this.state.rdv.couleur)
+                      ? "checkmark"
+                      : "paint brush"
+                  }
+                  style={{ cursor: "pointer" }}
+                  onClick={() => {
+                    let rdv = this.state.rdv;
+                    rdv.couleur = "";
+                    this.setState({ rdv: rdv });
+                  }}
                 />
-                <Dropdown text={rdvEtats[this.state.rdv.idEtat].text}>
-                  <Dropdown.Menu scrolling={false}>
-                    {_.map(rdvEtats, (etat, i) => {
-                      if (i === 0 || i === rdvEtats.length - 1) {
-                        return "";
-                      } else {
-                        return (
-                          <Dropdown.Item
-                            key={i}
-                            onClick={() => this.rdvEtatsChange(i)}
-                          >
-                            <Icon name="circle" color={etat.color} />
-                            {etat.text}
-                          </Dropdown.Item>
-                        );
-                      }
-                    })}
-                  </Dropdown.Menu>
-                </Dropdown>
+                <ColorPicker
+                  color={
+                    _.isEmpty(this.state.rdv.couleur)
+                      ? motifColor
+                      : this.state.rdv.couleur
+                  }
+                  onChange={color => {
+                    let rdv = this.state.rdv;
+                    rdv.couleur = color;
+                    this.setState({ rdv: rdv });
+                  }}
+                />
               </div>
             </Header>
           </Segment>
@@ -900,25 +904,49 @@ export default class CalendarModalRdv extends React.Component {
                           }}
                         />
                       </Form.Input>
-                      <Form.Input label="Couleur">
-                        <ColorPicker
-                          color={this.state.rdv.couleur}
-                          onChange={color => {
-                            let rdv = this.state.rdv;
-                            rdv.couleur = color;
-                            this.setState({ rdv: rdv });
-                          }}
-                        />
-                        <Icon
-                          name="close"
-                          size="large"
+                      <Form.Input label="Jour">
+                        <div
                           style={{ cursor: "pointer" }}
-                          onClick={() => {
-                            let rdv = this.state.rdv;
-                            rdv.couleur = "";
-                            this.setState({ rdv: rdv });
-                          }}
-                        />
+                          onClick={() =>
+                            this.setState({
+                              dateRdvFocused: !this.state.dateRdvFocused
+                            })
+                          }
+                        >
+                          <SingleDatePicker
+                            disabled={true}
+                            noBorder={true}
+                            hideKeyboardShortcutsPanel={true}
+                            isOutsideRange={() => false}
+                            isDayBlocked={day => this.isDayBlocked(day)}
+                            date={moment(this.state.rdv.startAt)}
+                            numberOfMonths={2}
+                            onClose={() =>
+                              this.setState({ dateRdvFocused: false })
+                            }
+                            onDateChange={dateRdv => {
+                              let rdv = this.state.rdv;
+                              if (dateRdv) {
+                                let startAt =
+                                  _.split(dateRdv.toISOString(), "T")[0] +
+                                  "T" +
+                                  _.split(rdv.startAt, "T")[1];
+                                let endAt =
+                                  _.split(dateRdv.toISOString(), "T")[0] +
+                                  "T" +
+                                  _.split(rdv.endAt, "T")[1];
+                                rdv.startAt = startAt;
+                                rdv.endAt = endAt;
+                                this.setState({ rdv: rdv });
+                              } else {
+                                console.log("dateRdv est null");
+                                return;
+                              }
+                            }}
+                            focused={this.state.dateRdvFocused}
+                            onFocusChange={() => {}}
+                          />
+                        </div>
                       </Form.Input>
                     </Form.Group>
                   )}
@@ -1275,11 +1303,7 @@ export default class CalendarModalRdv extends React.Component {
                 open={this.state.rdvPassCard}
                 client={this.props.client}
                 patient={this.state.patient}
-                denomination={
-                  this.state.patient.nom + " " + this.state.patient.prenom
-                }
-                // TODO : pour la dénomination voir dans FichePatient.js
-                //        comment les valeurs sont obtenues
+                denomination={this.state.rdv.titre}
                 rdvPassCardOpen={this.rdvPassCardOpen}
                 patientReload={this.patientLoad}
                 //saved

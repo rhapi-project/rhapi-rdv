@@ -372,14 +372,14 @@ const denominationDefaultFormat = "NP";
  * rdvEtats états des rendez-vous (idEtat du groupe RendezVous)
  */
 const rdvEtats = [
-  { text: "RDV non confirmé", color: "black" }, // RDV pris en ligne non encore confirmé (masqué)
-  { text: "Statut non renseigné", color: "grey" },
-  { text: "Présence à l'heure", color: "green" },
-  { text: "Retard", color: "yellow" },
-  { text: "Retard important", color: "orange" },
-  { text: "RDV annulé dernier moment", color: "red" }, // Hors délai de prévenance
-  { text: "Absence", color: "red" },
-  { text: "RDV annulé", color: "black" } // Annulation dans les délais (masqué)
+  { text: "RDV non confirmé", color: "black" }, // (0) RDV pris en ligne non encore confirmé (masqué)
+  { text: "Statut non renseigné", color: "lightgrey" }, // (1)
+  { text: "Présence à l'heure", color: "lime" }, // (2)
+  { text: "Retard", color: "yellow" }, // (3)
+  { text: "Retard important", color: "orange" }, // (4)
+  { text: "RDV annulé dernier moment", color: "red" }, // (5)// Hors délai de prévenance
+  { text: "Absence", color: "red" }, // (6)
+  { text: "RDV annulé", color: "black" } // (7) // Annulation dans les délais (masqué)
 ];
 
 // local dev => no auth -> identification patient par id + password

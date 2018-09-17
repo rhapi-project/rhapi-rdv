@@ -13,6 +13,8 @@ import React from "react";
 
 import CalendarModalRdv from "./CalendarModalRdv";
 
+import { rdvEtats } from "./Settings";
+
 var currentDate = moment();
 var currentView = "agendaWeek";
 
@@ -128,7 +130,7 @@ export default class Calendar extends React.Component {
     $("#calendar").fullCalendar({
       locale: "fr",
       slotLabelFormat: "H:mm",
-      nowIndicator: true,
+      nowIndicator: true, // ne fonctionne pas
       defaultDate: currentDate,
       defaultView: currentView, // month,basicWeek,basicDay,agendaWeek,agendaDay,listYear,listMonth,listWeek,listDay
       editable: true,
@@ -136,6 +138,7 @@ export default class Calendar extends React.Component {
       selectable: true,
       hiddenDays: hiddenDays,
       businessHours: businessHours,
+      allDaySlot: true, // doit être mantenue pour avoir dayRender
       slotDuration: slotDuration,
       slotLabelInterval: "01:00", //calendarSlotHeight < 17 ? "00:00" : "01:00",
       defaultDuration: duration,
@@ -173,18 +176,26 @@ export default class Calendar extends React.Component {
       },
 
       dayRender: function(date, cell) {
+        //
+        // dayRender n'est plus appelé si allDaySlot est à false
+        //
         $("td.fc-widget-content").css("height", calendarSlotHeight);
       },
 
       viewRender: function(view) {
         currentView = view.name;
+        if (currentView !== "month") {
+          //$("div.fc-day-grid").css("height", "100px"); // allday row hidden
+          $("div.fc-day-grid").css("color", "white");
+          // la zone ne devrait être ni clickable ni draggable
+        }
         currentDate = view.calendar.getDate();
       },
 
       eventRender: function(event, element) {
         let elt = element[0];
         if (elt.className === "fc-bgevent") {
-          // met en black si fond clair sur les events "background"
+          // met en black si fond clair (sur les events "background" uniquement)
           // note : fc ne prend en compte ni le texte ni textColor sur les "fc-bgevent"
           let color = event.color;
           if (color.substr(0, 1) === "#") {
@@ -194,6 +205,7 @@ export default class Calendar extends React.Component {
                 parseInt(color.substr(5, 2), 16)) /
               3;
             if (lightness > 140) {
+              // events en "background" uniquement
               $(elt).css("color", "#000000");
             } else {
               $(elt).css("color", "#FFFFFF");
@@ -283,12 +295,27 @@ export default class Calendar extends React.Component {
                   : defaultColor
                 : result.couleur;
 
+              let etat = rdvEtats[result.idEtat];
+              let couleurBordure = _.isObject(etat)
+                ? etat.color
+                : rdvEtats[0].color;
+
+              let lightness =
+                (parseInt(couleur.substr(1, 2), 16) +
+                  parseInt(couleur.substr(3, 2), 16) +
+                  parseInt(couleur.substr(5, 2), 16)) /
+                3;
+
+              let textColor = lightness > 110 ? "#000000" : "#ffffff";
+
               var event = {
                 id: result.id,
-                title: result.titre,
+                title: result.titre + "\n" + result.description,
                 start: result.startAt,
                 end: result.endAt,
-                color: couleur
+                color: couleur,
+                borderColor: couleurBordure,
+                textColor: textColor
                 //...
               };
               events.push(event);
@@ -311,7 +338,11 @@ export default class Calendar extends React.Component {
       },
 
       dayClick: function(date) {
-        // that is this React Component
+        if (_.isUndefined(date.toISOString().split("T")[1])) {
+          // allDay click
+          return;
+        }
+        // 'that' is this React Component
         that.setState({
           modalRdvIsOpen: true,
           eventToEdit: {},
@@ -321,6 +352,11 @@ export default class Calendar extends React.Component {
       },
 
       eventDrop: function(event) {
+        if (!event.end) {
+          // allDay drop (event.end is null)
+          $("#calendar").fullCalendar("refetchEvents");
+          return;
+        }
         var params = {
           startAt: event.start.toISOString(),
           endAt: event.end.toISOString()
@@ -421,6 +457,10 @@ export default class Calendar extends React.Component {
 
       // sélection d'une zone
       select: function(start, end) {
+        if (_.isUndefined(start.toISOString().split("T")[1])) {
+          // allDay click
+          return;
+        }
         that.setState({
           modalRdvIsOpen: true,
           eventToEdit: {},

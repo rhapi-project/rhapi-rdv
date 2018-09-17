@@ -178,15 +178,18 @@ export default class CalendarPanel extends React.Component {
           q1: "startAt,GreaterThan,1980-01-01",
           limit: "1000",
           sort: "startAt",
-          fields: "startAt,planningsJA"
+          fields: "startAt,idEtat,planningsJA"
         },
         datas => {
           let today = new Date().toISOString().split("T")[0];
           let liste = [];
           let index = forceReload ? this.state.currentPatient.rdv.index : -1;
           _.forEach(datas.results, (rdv, i) => {
-            // uniquement les rdv du planning courant qui ne sont pas sur une liste d'attente
+            // uniquement les rdv du planning courant qui sont
+            // non confirmés, annulés ou sur une liste d'attente
             if (
+              rdv.idEtat < 1 ||
+              rdv.idEtat > 6 ||
               !_.some(rdv.planningsJA, {
                 id: this.props.planning,
                 liste1: 0,
@@ -214,6 +217,11 @@ export default class CalendarPanel extends React.Component {
 
           if (forceReload && index === -1 && liste.length) {
             index = 0;
+          }
+
+          if (!forceReload && !index && liste.length) {
+            // aucun futur rednez-vous => se placer sur le dernier en date
+            index = liste.length - 1;
           }
 
           this.setState({
@@ -426,9 +434,7 @@ export default class CalendarPanel extends React.Component {
               client={this.props.client}
               rdvPassCardOpen={this.rdvPassCardOpen}
               patient={this.state.patient}
-              denomination={
-                this.state.patient.nom + " " + this.state.patient.prenom
-              }
+              denomination={this.state.currentPatient.title}
               // TODO : Revoir la dénomination
               patientReload={this.patientReload}
               // saved

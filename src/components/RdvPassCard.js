@@ -75,7 +75,6 @@ export default class RdvPassCard extends React.Component {
       {},
       result => {
         // success
-        //console.log(result);
         this.setState({ mesPlannings: result.results });
       },
       () => {
@@ -374,7 +373,7 @@ export default class RdvPassCard extends React.Component {
           </Modal.Header>
           <Modal.Content scrolling={true}>
             {this.state.mesRdv.length === 0 ? (
-              <span>Aucun rendez-vous trouvé !</span>
+              <span>Aucun rendez-vous n'est programmé</span>
             ) : (
               <List bulleted={true}>
                 {_.map(this.state.mesRdv, (item, i) => {
