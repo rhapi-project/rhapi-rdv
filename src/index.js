@@ -60,10 +60,9 @@ class Main extends React.Component {
   componentDidMount() {
     // Qt Mixed App ?
     if (typeof QWebChannel !== "undefined") {
-      /*eslint no-undef: "off"*/
-      new QWebChannel(qt.webChannelTransport, channel => {
+      window.QWebChannel(window.qt.webChannelTransport, channel => {
         window.qWebChannel = channel.objects.qWebChannel;
-        this.setState({}); // rerender
+        this.setState({}); // rerender (auto login)
       });
     }
   }
