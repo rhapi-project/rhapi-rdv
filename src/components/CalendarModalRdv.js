@@ -763,13 +763,51 @@ export default class CalendarModalRdv extends React.Component {
           <Segment clearing={true}>
             <Header size="medium" floated="left">
               {this.state.isNewOne ? (
-                <Ref innerRef={node => node.firstChild.parentElement.focus()}>
-                  <PatientSearch
-                    client={this.props.client}
-                    patientChange={this.patientChange}
-                    format={this.props.denominationFormat}
-                  />
-                </Ref>
+                <Form.Input>
+                  <Ref
+                    innerRef={node => {
+                      node.firstChild.parentElement.focus();
+                      this.searchInputNode = node.firstChild.firstChild;
+                    }}
+                  >
+                    <PatientSearch
+                      client={this.props.client}
+                      patientChange={this.patientChange}
+                      format={this.props.denominationFormat}
+                    />
+                  </Ref>
+                  {window.qWebChannel ? (
+                    <Icon
+                      name="user"
+                      style={{ cursor: "pointer", marginTop: 14 }}
+                      onClick={() => {
+                        window.qWebChannel.currentPatientId(id => {
+                          this.props.client.Patients.completion(
+                            { ipp2: id, format: this.props.denominationFormat },
+                            results => {
+                              if (results.length) {
+                                this.searchInputNode.value =
+                                  results[0].completion;
+                                this.patientChange(results[0].id);
+                                let rdv = this.state.rdv;
+                                rdv.titre = results[0].completion;
+                                rdv.idPatient = results[0].id;
+                                this.setState((rdv: rdv));
+                              }
+                            },
+                            data => {
+                              // error
+                              console.log("Erreur completion sur ipp2");
+                              console.log(data);
+                            }
+                          );
+                        });
+                      }}
+                    />
+                  ) : (
+                    ""
+                  )}
+                </Form.Input>
               ) : (
                 this.state.rdv.titre +
                 (this.state.rdv.idPatient ? "" : " (nouveau patient)")
