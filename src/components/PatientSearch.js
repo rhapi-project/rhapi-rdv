@@ -17,6 +17,10 @@ export default class PatientSearch extends React.Component {
       ReactDOM.findDOMNode(this)
         .getElementsByTagName("input")[0]
         .focus();
+    } else {
+      if (this.props.value) {
+        this.setState({ value: this.props.value ? this.props.value : "" });
+      }
     }
   }
 
@@ -73,7 +77,9 @@ export default class PatientSearch extends React.Component {
             title: title,
             description: _.isEmpty(patient.naissance)
               ? ""
-              : new Date(patient.naissance).toLocaleDateString("fr-FR")
+              : new Date(patient.naissance.split("T")[0]).toLocaleDateString(
+                  "fr-FR"
+                )
             /*image: faker.internet.avatar()*/
           };
           results.push(result);
@@ -102,6 +108,10 @@ export default class PatientSearch extends React.Component {
         placeholder="Recherche d'un patient..."
         showNoResults={false}
         value={value}
+        style={{
+          minWidth: this.props.minWidth ? this.props.minWidth : 0,
+          maxWidth: this.props.maxWidth ? this.props.maxWidth : 9999
+        }}
       />
     );
   }

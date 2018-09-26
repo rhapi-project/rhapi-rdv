@@ -451,6 +451,9 @@ export default class CalendarModalRdv extends React.Component {
   };
 
   patientChange = (id, title) => {
+    if (id <= 0) {
+      return;
+    }
     let rdv = this.state.rdv;
     rdv.idPatient = id;
     rdv.titre = title;
@@ -761,57 +764,128 @@ export default class CalendarModalRdv extends React.Component {
       <React.Fragment>
         <Modal open={this.props.open}>
           <Segment clearing={true}>
-            <Header size="medium" floated="left">
-              {this.state.isNewOne ? (
-                <Form.Input>
-                  <Ref
-                    innerRef={node => {
-                      node.firstChild.parentElement.focus();
-                      this.searchInputNode = node.firstChild.firstChild;
-                    }}
-                  >
-                    <PatientSearch
-                      client={this.props.client}
-                      patientChange={this.patientChange}
-                      format={this.props.denominationFormat}
-                    />
-                  </Ref>
-                  {window.qWebChannel ? (
-                    <Icon
-                      name="user"
-                      style={{ cursor: "pointer", marginTop: 14 }}
-                      onClick={() => {
-                        window.qWebChannel.currentPatientId(id => {
-                          this.props.client.Patients.completion(
-                            { ipp2: id, format: this.props.denominationFormat },
-                            results => {
-                              if (results.length) {
-                                this.searchInputNode.value =
-                                  results[0].completion;
-                                this.patientChange(results[0].id);
-                                let rdv = this.state.rdv;
-                                rdv.titre = results[0].completion;
-                                rdv.idPatient = results[0].id;
-                                this.setState((rdv: rdv));
-                              }
-                            },
-                            data => {
-                              // error
-                              console.log("Erreur completion sur ipp2");
-                              console.log(data);
-                            }
-                          );
-                        });
+            <Header size="small" floated="left">
+              <Form.Input>
+                {this.state.isNewOne ? (
+                  <React.Fragment>
+                    <Ref
+                      innerRef={node => {
+                        node.firstChild.parentElement.focus();
                       }}
-                    />
-                  ) : (
-                    ""
-                  )}
-                </Form.Input>
-              ) : (
-                this.state.rdv.titre +
-                (this.state.rdv.idPatient ? "" : " (nouveau patient)")
-              )}
+                    >
+                      <PatientSearch
+                        client={this.props.client}
+                        patientChange={this.patientChange}
+                        format={this.props.denominationFormat}
+                        value={this.state.rdv ? this.state.rdv.titre : ""}
+                        minWidth={215}
+                      />
+                    </Ref>
+                    {window.qWebChannel ? (
+                      <React.Fragment>
+                        <Icon
+                          name="user"
+                          style={{
+                            cursor: "pointer",
+                            marginTop: 10
+                          }}
+                          onClick={() => {
+                            window.qWebChannel.currentPatientId(id => {
+                              this.props.client.Patients.completion(
+                                {
+                                  ipp2: id,
+                                  format: this.props.denominationFormat
+                                },
+                                results => {
+                                  if (results.length) {
+                                    this.patientChange(
+                                      results[0].id,
+                                      results[0].completion
+                                    );
+                                  }
+                                },
+                                data => {
+                                  // error
+                                  console.log("Erreur completion sur ipp2");
+                                  console.log(data);
+                                }
+                              );
+                            });
+                          }}
+                        />
+                        <Icon
+                          name="user add"
+                          style={{
+                            cursor: "pointer",
+                            marginTop: 10,
+                            marginLeft: 3
+                          }}
+                          onClick={() => {
+                            window.qWebChannel.patientCreate2(result => {
+                              this.props.client.Patients.completion(
+                                {
+                                  ipp2: result.id,
+                                  format: this.props.denominationFormat
+                                },
+                                results => {
+                                  if (results.length) {
+                                    this.patientChange(
+                                      results[0].id,
+                                      results[0].completion
+                                    );
+                                  }
+                                },
+                                data => {
+                                  // error
+                                  console.log("Erreur completion sur ipp2");
+                                  console.log(data);
+                                }
+                              );
+                            });
+                          }}
+                        />
+                      </React.Fragment>
+                    ) : (
+                      ""
+                    )}
+                  </React.Fragment>
+                ) : (
+                  <h3>
+                    {this.state.rdv.titre +
+                      (this.state.rdv.idPatient ? "" : " (nouveau patient)")}
+                  </h3>
+                )}
+                {this.state.rdv.idPatient && window.qWebChannel ? (
+                  <Icon
+                    name="folder open"
+                    style={{
+                      cursor: "pointer",
+                      marginTop: this.state.isNewOne ? 11 : 1,
+                      marginLeft: this.state.isNewOne ? 3 : 10
+                    }}
+                    onClick={() => {
+                      this.props.client.Patients.read(
+                        this.state.rdv.idPatient,
+                        {},
+                        result => {
+                          window.qWebChannel.patientSelect(
+                            result.ipp2,
+                            () => {}
+                          );
+                          // this.handleOk();
+                        },
+                        data => {
+                          // error
+                          console.log("Erreur read patient");
+                          console.log(data);
+                        }
+                      );
+                    }}
+                  />
+                ) : (
+                  ""
+                )}
+              </Form.Input>
               <Divider hidden={true} fitted={true} />
               <Divider hidden={true} fitted={true} />
               {tels.length ? (
@@ -819,11 +893,11 @@ export default class CalendarModalRdv extends React.Component {
                   {_.map(tels, (tel, i) => {
                     return (
                       <React.Fragment key={i}>
-                        {" "}
                         <Icon
                           name={i === 0 && firstIsMobile ? "mobile" : "phone"}
                         />
                         {tel}
+                        &nbsp;&nbsp;
                       </React.Fragment>
                     );
                   })}

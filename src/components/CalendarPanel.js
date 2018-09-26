@@ -384,24 +384,126 @@ export default class CalendarPanel extends React.Component {
                 : this.props.options.reservation.denominationFormat
             }
             clear={this.state.clearSearch}
+            value={patient ? patient.titre : ""}
           />
+          {window.qWebChannel ? (
+            <React.Fragment>
+              <Icon
+                name="user"
+                style={{
+                  cursor: "pointer",
+                  marginTop: 8,
+                  marginLeft: 4
+                }}
+                onClick={() => {
+                  window.qWebChannel.currentPatientId(id => {
+                    this.props.client.Patients.completion(
+                      {
+                        ipp2: id,
+                        format: this.props.options.reservation
+                          .denominationFormat
+                      },
+                      results => {
+                        if (results.length) {
+                          let current = this.state.currentPatient;
+                          current.id = results[0].id;
+                          current.titre = results[0].completion;
+                          this.setState({ currentPatient: current });
+                          this.onPatientChange(current.id, current.titre);
+                        }
+                      },
+                      data => {
+                        // error
+                        console.log("Erreur completion sur ipp2");
+                        console.log(data);
+                      }
+                    );
+                  });
+                }}
+              />
+              <Icon
+                name="user add"
+                style={{
+                  cursor: "pointer",
+                  marginTop: 8
+                }}
+                onClick={() => {
+                  window.qWebChannel.patientCreate2(result => {
+                    this.props.client.Patients.completion(
+                      {
+                        ipp2: result.id,
+                        format: this.props.options.reservation
+                          .denominationFormat
+                      },
+                      results => {
+                        if (results.length) {
+                          let current = this.state.currentPatient;
+                          current.id = results[0].id;
+                          current.titre = results[0].completion;
+                          this.setState({ currentPatient: current });
+                          this.onPatientChange(current.id, current.titre);
+                        }
+                      },
+                      data => {
+                        // error
+                        console.log("Erreur completion sur ipp2");
+                        console.log(data);
+                      }
+                    );
+                  });
+                }}
+              />
+              <Icon
+                name="folder open"
+                disabled={this.state.currentPatient.id === 0}
+                style={{
+                  cursor: "pointer",
+                  marginTop: 8
+                }}
+                onClick={() => {
+                  this.props.client.Patients.read(
+                    this.state.currentPatient.id,
+                    {},
+                    result => {
+                      window.qWebChannel.patientSelect(result.ipp2, () => {});
+                      // this.handleOk();
+                    },
+                    data => {
+                      // error
+                      console.log("Erreur read patient");
+                      console.log(data);
+                    }
+                  );
+                }}
+              />
+            </React.Fragment>
+          ) : (
+            <Icon
+              style={{
+                cursor: "pointer",
+                marginTop: 8,
+                marginLeft: 10
+              }}
+              onClick={() => {
+                this.setState({
+                  clearSearch: true,
+                  currentPatient: {
+                    id: 0,
+                    title: "",
+                    rdv: { liste: [], index: -1 }
+                  }
+                });
+              }}
+              name="remove user"
+              disabled={this.state.currentPatient.id === 0}
+            />
+          )}
           <Icon
-            style={{ cursor: "pointer", marginTop: 8, marginLeft: 8 }}
-            onClick={() => {
-              this.setState({
-                clearSearch: true,
-                currentPatient: {
-                  id: 0,
-                  title: "",
-                  rdv: { liste: [], index: -1 }
-                }
-              });
+            style={{
+              cursor: "pointer",
+              marginTop: 8,
+              marginLeft: window.qWebChannel ? 0 : 8
             }}
-            name="remove user"
-            disabled={this.state.currentPatient.id === 0}
-          />
-          <Icon
-            style={{ cursor: "pointer", marginTop: 8, marginLeft: 8 }}
             onClick={() => {
               if (this.state.currentPatient.id === 0) {
                 return;
