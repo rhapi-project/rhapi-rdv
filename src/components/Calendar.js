@@ -488,12 +488,13 @@ export default class Calendar extends React.Component {
     // ajustement CSS fullcalendar
     $(".fc-button").css("background", "white");
     // prev & next buttons padding-top
-    // all but Safari ("Safari" is returned as userAgent on Chrome)
+    // all but Safari ("Safari" is returned as userAgent on Chrome) && QWebEngine
     if (
-      navigator.userAgent.indexOf("Safari") === -1 ||
-      navigator.userAgent.indexOf("Chrome") !== -1
+      (navigator.userAgent.indexOf("Safari") === -1 ||
+        navigator.userAgent.indexOf("Chrome") !== -1) &&
+      !window.qWebChannel
     ) {
-      $(".fc-prev-button").css("padding-top", "5px"); // < & >
+      $(".fc-prev-button").css("padding-top", "5px");
       $(".fc-next-button").css("padding-top", "5px");
     }
   } // componentDidUpdate ends here

@@ -1458,8 +1458,11 @@ export default class Configuration extends React.Component {
     }
 
     return (
-      <div id="configuration">
-        <Header size={hsize}>Configuration</Header>
+      <div
+        id="configuration"
+        className={window.qWebChannel ? "qwebchannel" : ""}
+      >
+        {window.qWebChannel ? "" : <Header size={hsize}>Configuration</Header>}
         {saved ? (
           <Message
             header={

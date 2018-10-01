@@ -104,6 +104,34 @@ export default class CalendarModalRdv extends React.Component {
     this.setState({ image: "", accordionIndex: -1, accordionIndex2: -1 });
   }
 
+  patientTodos = (idPatient, rdv) => {
+    if (!window.qWebChannel || !this.state.isNewOne) {
+      return;
+    }
+    let querySQL =
+      "SELECT description, localisation FROM actes WHERE lettre = '#TODO' AND idpatient = :id ORDER BY id;";
+    querySQL = querySQL.replace(":id", idPatient);
+    window.qWebChannel.sqlExecResults(2, querySQL, results => {
+      let description = "";
+      let localisation, todo;
+      _.each(results, (result, i) => {
+        if (i % 2 === 0) {
+          todo = result;
+        } else {
+          localisation = _.isEmpty(result) ? "" : result + " - ";
+          description += _.isEmpty(description)
+            ? localisation + todo
+            : "\n" + localisation + todo;
+        }
+      });
+
+      if (!_.isEmpty(description)) {
+        rdv.description = description;
+        this.setState({ rdv: rdv });
+      }
+    });
+  };
+
   patientLoad = (idPatient, rdv0) => {
     let rdv = _.isUndefined(rdv0) ? this.state.rdv : rdv0;
 
@@ -134,6 +162,7 @@ export default class CalendarModalRdv extends React.Component {
       idPatient,
       {},
       patient => {
+        this.patientTodos(patient.ipp2, rdv);
         // success
         let iniState =
           this.state.isNewOne ||
@@ -390,6 +419,14 @@ export default class CalendarModalRdv extends React.Component {
     };
 
     let rdv = this.state.rdv;
+
+    // ipp2 est renseigné si defini pour le patient
+    if (
+      !_.isUndefined(this.state.patient) &&
+      !_.isUndefined(this.state.patient.ipp2)
+    ) {
+      rdv.ipp2 = this.state.patient.ipp2;
+    }
 
     if (this.state.isNewOne) {
       this.props.client.RendezVous.create(
