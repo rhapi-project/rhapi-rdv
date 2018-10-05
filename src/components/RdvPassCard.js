@@ -922,7 +922,7 @@ class Carte extends React.Component {
           <Divider className="separator" />
           <span>
             <strong>
-              EN CAS D'IMPOSSIBILITÉ, VEUILLEZ PRÉVENIR 48H AVANT LA DATE DU
+              EN CAS D'IMPOSSIBILITÉ, MERCI DE PRÉVENIR 48H AVANT LA DATE DU
               RENDEZ-VOUS
             </strong>
           </span>
