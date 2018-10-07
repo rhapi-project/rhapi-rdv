@@ -208,12 +208,12 @@ export default class Profil extends React.Component {
   render() {
     //console.log(this.state);
     return (
-      <div id="profil">
-        <Header size={hsize}>Profil</Header>
+      <div id="profil" className={window.qWebChannel ? "qwebchannel" : ""}>
+        {window.qWebChannel ? "" : <Header size={hsize}>Profil</Header>}
         {this.state.saved ? (
           <Message
             header={"Bienvenue " + this.state.userName}
-            content="Données de votre profil utilisateur"
+            content="Voici les données de votre profil utilisateur"
           />
         ) : (
           <Message
