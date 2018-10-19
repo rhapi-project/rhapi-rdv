@@ -1,6 +1,8 @@
 const site = {
   title: "Accueil",
-  url: ""
+  url: "",
+  hideCreatePatientButton: false,
+  hideDeletePatientButton: false
 };
 
 export default site;
