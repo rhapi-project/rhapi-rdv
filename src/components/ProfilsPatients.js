@@ -25,6 +25,8 @@ import PatientSearch from "./PatientSearch";
 
 import FichePatient from "./FichePatient";
 
+import site from "./SiteSettings";
+
 export default class ProfilsPatients extends React.Component {
   componentWillMount() {
     this.setState({
@@ -294,7 +296,7 @@ export default class ProfilsPatients extends React.Component {
         />
         <Divider hidden={true} />
 
-        {this.state.patient.id ? (
+        {this.state.patient.id && !site.hideDeletePatientButton ? (
           <Button
             negative={true}
             onClick={() => {
@@ -306,7 +308,11 @@ export default class ProfilsPatients extends React.Component {
         ) : (
           ""
         )}
-        <Button onClick={this.create}>Nouveau patient</Button>
+        {site.hideCreatePatientButton ? (
+          ""
+        ) : (
+          <Button onClick={this.create}>Nouveau patient</Button>
+        )}
         {this.state.patient.id ? (
           <React.Fragment>
             <Button onClick={() => this.onPatientChange(this.state.patient.id)}>
