@@ -26,6 +26,8 @@ import Calendars from "./Calendars";
 import Profil from "./Profil";
 import ProfilsPatients from "./ProfilsPatients";
 
+import site from "./SiteSettings";
+
 var client = localdev
   ? new Client("http://localhost", (datas, response) => {
       if (datas.networkError === 401) {
@@ -221,8 +223,8 @@ export default class Praticiens extends React.Component {
               </Button>
             </Segment>
             <Message>
-              Ouvrir un compte ?{" "}
-              <a href="http://lambdasoft.fr">&nbsp;Nous contacter</a>
+              Ouvrir un compte ou réinitialiser vos identifiants ?<br/>
+              <a href={site.support}>Nous contacter.</a>
             </Message>
           </div>
         </div>
