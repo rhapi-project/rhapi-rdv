@@ -104,7 +104,11 @@ export default class RdvPassCard extends React.Component {
     for (let i = 0; i < 10; i++) {
       // http://lastbit.com/pswcalc.asp
       // 10 chars => Brute Force Attack will take up to 53968 years (500000 passwords per second)
-      let c = Math.floor(Math.random() * chars.length);
+      // Math.random() n'est pas une source d'aléas de niveau cryptographique : les séquences peuvent,
+      // sous certaines conditions, être reproduites
+      // https://stackoverflow.com/questions/5651789/is-math-random-cryptographically-secure
+      // => on ajoute une source d'entropie avec l'horloge interne
+      let c = Math.floor(Math.random() * (new Date).getTime()) % chars.length;
       passwd += chars.charAt(c);
     }
     return passwd;
@@ -922,8 +926,8 @@ class Carte extends React.Component {
           <Divider className="separator" />
           <span>
             <strong>
-              EN CAS D'IMPOSSIBILITÉ, MERCI DE PRÉVENIR 48H AVANT LA DATE DU
-              RENDEZ-VOUS
+              EN CAS D'IMPOSSIBILITÉ, PRIÈRE DE PRÉVENIR 48H AVANT LA DATE DU
+              RENDEZ-VOUS !
             </strong>
           </span>
         </div>
