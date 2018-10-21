@@ -108,7 +108,7 @@ export default class RdvPassCard extends React.Component {
       // sous certaines conditions, être reproduites
       // https://stackoverflow.com/questions/5651789/is-math-random-cryptographically-secure
       // => on ajoute une source d'entropie avec l'horloge interne
-      let c = Math.floor(Math.random() * (new Date).getTime()) % chars.length;
+      let c = Math.floor(Math.random() * (new Date()).getTime()) % chars.length;
       passwd += chars.charAt(c);
     }
     return passwd;
