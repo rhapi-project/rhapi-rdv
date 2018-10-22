@@ -1,4 +1,4 @@
-#PROFIL
+# PROFIL
 
 Le menu **Profil** permet au praticien de saisir toutes ses coordonnées administratives et de changer son mot de passe s'il le souhaite.
 
