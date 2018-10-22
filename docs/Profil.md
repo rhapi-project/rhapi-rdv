@@ -9,4 +9,4 @@ Cliquer ensuite sur "Sauvegarder", en bas de page, pour valider le changement.
 
 Le praticien peut aussi y consulter son **historique des sms**.
 
-![alt text](images/menu-profil-sms-history-btn)
+![alt text](images/menu-profil-sms-history-btn.png)
