@@ -161,7 +161,7 @@ export default class Profil extends React.Component {
   };
 
   save = () => {
-    if (this.verification() && this.formatsValides()) {
+    if (this.verification() /*&& this.formatsValides()*/) { // redondance
       this.setState({ passwordConfirm: "" });
       let obj = this.state;
       //console.log(this.state);

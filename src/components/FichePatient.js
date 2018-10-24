@@ -358,6 +358,7 @@ export default class FichePatient extends React.Component {
                               <Image
                                 src={patient.profilJO.base64}
                                 centered={true}
+                                //style={{ height: "128px", width: "128px" }}
                               />{" "}
                               <Divider hidden={true} />
                               <ImageReader

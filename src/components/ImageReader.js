@@ -22,7 +22,9 @@ export default class ImageReader extends React.Component {
 
   componentWillReceiveProps(next) {
     this.setState({
-      image: next.image
+      image: next.image,
+      //height: 0,
+      //width: 0
     });
   }
 
@@ -38,7 +40,7 @@ export default class ImageReader extends React.Component {
       )
     ) {
       this.setState({
-        errorPhoto: true
+        errorPhoto: true // format incorrect
       });
       return;
     }
@@ -59,10 +61,16 @@ export default class ImageReader extends React.Component {
 
         if (newImage.height > 128) {
           newImage.height = 128;
+          //this.setState({ height: newImage.height });
+        } else {
+          //this.setState({ height: newImage.height });
         }
 
         if (newImage.width > 128) {
           newImage.width = 128;
+          //this.setState({ width: newImage.width });
+        } else {
+          //this.setState({ width: newImage.widths });
         }
 
         /*let canvas = document.createElement("canvas");
@@ -105,7 +113,7 @@ export default class ImageReader extends React.Component {
               <div>
                 {" "}
                 {/* vraie photo */}
-                <Image src={this.state.image} centered={true} />
+                <Image src={this.state.image} centered={true} /*style={{ height: this.state.height + "px", width: this.state.width + "px"}}*//>
               </div>
             )}
             <Form>
@@ -155,7 +163,8 @@ export default class ImageReader extends React.Component {
         <Modal size="mini" open={this.state.photoPreview}>
           <Modal.Header>Photo de profil</Modal.Header>
           <Modal.Content>
-            <div id="photoPreview" style={{ textAlign: "center" }} />
+            {/*<div id="photoPreview" style={{ textAlign: "center" }} />*/}
+            <Image id="photoPreview" src={this.state.image} />
           </Modal.Content>
           <Modal.Actions>
             <Button
