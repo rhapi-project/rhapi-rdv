@@ -126,7 +126,7 @@ export default class Calendars extends React.Component {
       document.body.clientWidth;
 
     let panelWidth = 280;
-    let calendarWidth = width - 310;
+    let calendarWidth = width - 320;
 
     return (
       <React.Fragment>
