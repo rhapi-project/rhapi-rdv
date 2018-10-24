@@ -4,7 +4,7 @@ Dans ce menu, le praticien peut créer, lire, mettre à jour et supprimer une fi
 
 Création d'une nouvelle fiche : 
 
-![alt text](images/menu-patients.png)
+![Menu patients](images/menu-patients.png)
 
 * Sur une fiche, les informations générales se trouvent dans la rubrique **Informations générales**. On y retrouve aussi l'identifiant du patient dans la base de données (préfixé par un "**_#_**").
 
@@ -14,7 +14,7 @@ Création d'une nouvelle fiche :
 
 Dans cette rubrique, le praticien pourra affecter au patient un niveau d'autorisation pour la prise de rendez-vous en ligne, autoriser/bloquer les rappels de rendez-vous par SMS et acceder aux autres services.
 
-![alt text](images/gestion-rdv-patients.png)
+![Gestion des rendez-vous d'un patient](images/gestion-rdv-patients.png)
 
 Le praticien accédera aux autres services via le bouton "**Rendez-vous**".
 
@@ -27,4 +27,4 @@ Une aide pour l'impression d'une carte de rendez-vous est fournie pour les navig
 
 Options d'impréssion de l'historique des rendez-vous : 
 
-![alt text](images/historique-rdv.png)
+![Historique des rendez-vous d'un patient](images/historique-rdv.png)
