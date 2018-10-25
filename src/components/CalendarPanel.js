@@ -8,7 +8,7 @@ import moment from "moment";
 
 import React from "react";
 
-import { Divider, Button, Form, Icon } from "semantic-ui-react";
+import { Divider, Button, Form, Icon, Modal } from "semantic-ui-react";
 
 import PatientSearch from "./PatientSearch";
 
@@ -26,6 +26,7 @@ export default class CalendarPanel extends React.Component {
       currentDate: moment(),
       currentPatient: { id: 0, title: "", rdv: { liste: [], index: -1 } },
       externalEventsDatas: [],
+      modalClearExternal: false,
       modalRdvIsOpen: false,
       eventToEdit: {},
       patient: {},
@@ -266,7 +267,27 @@ export default class CalendarPanel extends React.Component {
     //  this.props.client.RendezVous.destroy(external.id, () => {});
     //  if (i === this.state.externalEventsDatas.length - 1) {
     // clean the list (remove all... if any)
-    this.props.client.RendezVous.listeAction(
+
+    let destroy = idRdv => {
+      this.props.client.RendezVous.destroy(
+        idRdv,
+        () => {
+          // success
+          //console.log("id du rdv supprimé : " + idRdv);
+        },
+        () => {
+          // success
+          //console.log("Le rdv d'id " + idRdv + " n'a pas été supprimé");
+        }
+      );
+    };
+
+    _.forEach(this.state.externalEventsDatas, (external) => {
+      // external est du type : { title: "LANGLOIS Frank", id: 305 }
+      destroy(external.id);
+    });
+
+    /*this.props.client.RendezVous.listeAction(
       0,
       {
         action: "remove",
@@ -275,8 +296,10 @@ export default class CalendarPanel extends React.Component {
       },
       () => {},
       () => {}
-    );
+    ); */
+
     this.setState({ externalEventsDatas: [] });
+
     //  }
     //});
   };
@@ -347,6 +370,15 @@ export default class CalendarPanel extends React.Component {
       }
     );
   };
+
+  modalClearExternalOpen = () => {
+    if (!_.isEmpty(this.state.externalEventsDatas)) {
+      this.setState({ modalClearExternal: true });
+    } else {
+      // ne fait rien
+      return;
+    }
+  }
 
   render() {
     // RDV du patient
@@ -602,7 +634,8 @@ export default class CalendarPanel extends React.Component {
         <Divider />
         <div style={{ textAlign: "right" }}>
           <Button.Group basic={true} size="mini">
-            <Button icon="eraser" onClick={this.clearExternal} />
+            {/*<Button icon="eraser" onClick={this.clearExternal} />*/}
+            <Button icon="eraser" onClick={this.modalClearExternalOpen} />
             <Button icon="add" onClick={this.addExternal} />
           </Button.Group>
         </div>
@@ -656,6 +689,36 @@ export default class CalendarPanel extends React.Component {
           planning={this.props.planning}
           options={this.props.options}
         />
+
+        {/* Modal suppression des rendez-vous en attente */}
+        <Modal size="small" open={this.state.modalClearExternal}>
+          <Modal.Header>Vider la liste d'attente</Modal.Header>
+          <Modal.Content>
+            {_.size(this.state.externalEventsDatas) === 1
+              ? "Voulez-vous supprimer le rendez-vous en attente ?"
+              : "Voulez-vous supprimer les " + _.size(this.state.externalEventsDatas) + " rendez-vous en attente ?"
+            }
+            <br />
+            {_.size(this.state.externalEventsDatas) === 1
+              ? <span>Cette action supprimera ce rendez-vous de <strong>tous les plannings</strong> !</span>
+              : <span>Cette action supprimera ces rendez-vous de <strong>tous les plannings</strong> !</span>
+            }
+          </Modal.Content>
+          <Modal.Actions>
+            <Button 
+              content="Non"
+              onClick={() => this.setState({ modalClearExternal: false })}
+            />
+            <Button 
+              content="Oui"
+              negative={true}
+              onClick={() => {
+                this.clearExternal();
+                this.setState({ modalClearExternal: false });
+              }}
+            />
+          </Modal.Actions>
+        </Modal>
       </React.Fragment>
     );
   }
