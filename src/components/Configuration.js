@@ -442,9 +442,10 @@ export default class Configuration extends React.Component {
   render() {
     let { index, plannings, saved } = this.state;
     let form = "";
+    let planning = {};
 
     if (index >= 0 && index < plannings.length) {
-      let planning = plannings[index];
+      planning = plannings[index];
       //console.log(planning.organisation);
       let options = planning.optionsJO;
       let horaires = options.plages.horaires;
@@ -1529,6 +1530,33 @@ export default class Configuration extends React.Component {
                   </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
+              &nbsp;
+              <Dropdown
+                icon="exchange"
+                floating={true}
+                button={true}
+                basic={true}
+                className="icon"
+              >
+                <Dropdown.Menu>
+                  <Dropdown.Header
+                    icon="exchange"
+                    content="Export / Import au format iCalendar (*.ics)"
+                  />
+                  <Dropdown.Item
+                    onClick={() => this.setState({ export: true })}
+                  >
+                    {"Exporter les rendez-vous inscrits sur le planning " +
+                      planning.titre}
+                  </Dropdown.Item>
+                  <Dropdown.Item
+                    onClick={() => this.setState({ import: true })}
+                  >
+                    {"Importer des rendez-vous et les inscrire sur le planning " +
+                      planning.titre}
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
               &nbsp;&nbsp;
               <b>
                 {this.state.index >= 0
@@ -1696,6 +1724,77 @@ export default class Configuration extends React.Component {
           ]}
         />
         <Divider hidden={true} />
+
+        {/* Import au format iCalendar (*.ics) => à placer dans une modal */}
+        <iframe // iframe masquée comme cible du formulaire
+          name="import-form-frame"
+          title="import-form-frame"
+          onLoad={() => {
+            alert("Fichier transmis");
+            // fin du chargement
+            // afficher un rendu (par exemple le nombre de rendez-vous pour ce planning)
+          }}
+          style={{ display: "none" }}
+        />
+        <Form
+          id="import-form"
+          target="import-form-frame"
+          method="post"
+          encType="multipart/form-data"
+        >
+          <Form.Input name="ical" type="file" />
+          <Form.Input id="import-form-token" name="token" type="hidden" />
+          <Button
+            onClick={() => {
+              alert(
+                "Souhaitez-vous supprimer les rendez-vous existants avant de charger les nouveaux ?"
+              );
+              // TODO : si oui supression de tous les rendez-vous existants sur ce planning
+              let form = document.getElementById("import-form");
+              form.setAttribute(
+                "action",
+                this.props.client.baseUrl +
+                  "/Plannings/" +
+                  planning.id +
+                  "/importIcal"
+              );
+              document.getElementById(
+                "import-form-token"
+              ).value = this.props.client.token;
+              form.submit();
+            }}
+          >
+            Importer
+          </Button>
+        </Form>
+        {/* Import iCalendar Fin */}
+
+        {/* Export au format iCalendar (*.ics) */}
+        <Divider />
+        <Button
+          onClick={() => {
+            alert(
+              "Vous confirmez vouloir exporter les rendez-vous du planning ?"
+            );
+            alert(
+              "TODO : Si oui ouvrir une modal avec un lien de téléchargement obtenu avec Plannings.exportIcal."
+            );
+            if (true) {
+              let params = { titre: planning.titre };
+              this.props.client.Plannings.exportIcal(
+                planning.id,
+                params,
+                result => {
+                  alert(result.url);
+                },
+                err => {}
+              );
+            }
+          }}
+        >
+          Exporter
+        </Button>
+        {/* Export iCalendar Fin */}
       </div>
     );
   }
