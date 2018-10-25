@@ -2,7 +2,7 @@
 
 Le praticien accède aux fiches de ses patients.
 
-![Menu patients](images/menu-patients)
+![Menu patients](images/menu-patients.png)
 
 Permet de créer, lire, mettre à jour ou supprimer une fiche d'un patient.
 
