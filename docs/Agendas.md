@@ -1,6 +1,8 @@
 # AGENDA
 
-Le menu **Agenda** permettra au praticien de visualiser ses rendez-vous sur un mois, une semaine ou un jour. Les rendez-vous peuvent avoir été créés à partir de l'agenda ou bien en ligne.
+![Menu agenda](images/menu-agenda.png)
+
+Permet au praticien de visualiser ses rendez-vous sur un mois, une semaine ou un jour. Les rendez-vous peuvent avoir été créés à partir de l'agenda ou bien en ligne.
 
 ![Visuel des rendez-vous sur l'agenda](images/agenda-calendar.png)
 

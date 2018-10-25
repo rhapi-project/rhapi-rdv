@@ -1,10 +1,14 @@
 # PATIENTS
 
-Dans ce menu, le praticien peut créer, lire, mettre à jour et supprimer une fiche d'un patient.
+Le praticien accède aux fiches de ses patients.
+
+![Menu patients](images/menu-patients)
+
+Permet de créer, lire, mettre à jour ou supprimer une fiche d'un patient.
 
 Création d'une nouvelle fiche : 
 
-![Menu patients](images/menu-patients.png)
+![Menu patients](images/nouveau-patient.png)
 
 * Sur une fiche, les informations générales se trouvent dans la rubrique **Informations générales**. On y retrouve aussi l'identifiant du patient dans la base de données (préfixé par un "**_#_**").
 
