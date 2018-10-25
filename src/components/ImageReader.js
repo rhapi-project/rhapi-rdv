@@ -22,7 +22,7 @@ export default class ImageReader extends React.Component {
 
   componentWillReceiveProps(next) {
     this.setState({
-      image: next.image,
+      image: next.image
       //height: 0,
       //width: 0
     });
@@ -113,7 +113,12 @@ export default class ImageReader extends React.Component {
               <div>
                 {" "}
                 {/* vraie photo */}
-                <Image src={this.state.image} centered={true} /*style={{ height: this.state.height + "px", width: this.state.width + "px"}}*//>
+                <Image
+                  src={this.state.image}
+                  centered={
+                    true
+                  } /*style={{ height: this.state.height + "px", width: this.state.width + "px"}}*/
+                />
               </div>
             )}
             <Form>

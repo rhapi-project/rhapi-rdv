@@ -223,7 +223,7 @@ export default class Praticiens extends React.Component {
               </Button>
             </Segment>
             <Message>
-              Ouvrir un compte ou réinitialiser vos identifiants ?<br/>
+              Ouvrir un compte ou réinitialiser vos identifiants ?<br />
               <a href={site.support}>Nous contacter.</a>
             </Message>
           </div>
