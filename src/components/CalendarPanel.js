@@ -282,7 +282,7 @@ export default class CalendarPanel extends React.Component {
       );
     };
 
-    _.forEach(this.state.externalEventsDatas, (external) => {
+    _.forEach(this.state.externalEventsDatas, external => {
       // external est du type : { title: "LANGLOIS Frank", id: 305 }
       destroy(external.id);
     });
@@ -378,7 +378,7 @@ export default class CalendarPanel extends React.Component {
       // ne fait rien
       return;
     }
-  }
+  };
 
   render() {
     // RDV du patient
@@ -696,20 +696,28 @@ export default class CalendarPanel extends React.Component {
           <Modal.Content>
             {_.size(this.state.externalEventsDatas) === 1
               ? "Voulez-vous supprimer le rendez-vous en attente ?"
-              : "Voulez-vous supprimer les " + _.size(this.state.externalEventsDatas) + " rendez-vous en attente ?"
-            }
+              : "Voulez-vous supprimer les " +
+                _.size(this.state.externalEventsDatas) +
+                " rendez-vous en attente ?"}
             <br />
-            {_.size(this.state.externalEventsDatas) === 1
-              ? <span>Cette action supprimera ce rendez-vous de <strong>tous les plannings</strong> !</span>
-              : <span>Cette action supprimera ces rendez-vous de <strong>tous les plannings</strong> !</span>
-            }
+            {_.size(this.state.externalEventsDatas) === 1 ? (
+              <span>
+                Cette action supprimera ce rendez-vous de{" "}
+                <strong>tous les plannings</strong> !
+              </span>
+            ) : (
+              <span>
+                Cette action supprimera ces rendez-vous de{" "}
+                <strong>tous les plannings</strong> !
+              </span>
+            )}
           </Modal.Content>
           <Modal.Actions>
-            <Button 
+            <Button
               content="Non"
               onClick={() => this.setState({ modalClearExternal: false })}
             />
-            <Button 
+            <Button
               content="Oui"
               negative={true}
               onClick={() => {

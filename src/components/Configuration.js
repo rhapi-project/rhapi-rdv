@@ -24,8 +24,9 @@ import { maxWidth, fsize, hsize, defaultPlanning } from "./Settings";
 import HorairesSemaine from "./HorairesSemaine";
 import Conges from "./Conges";
 import Recurrents from "./Recurrents";
-
 import ColorPicker from "./ColorPicker";
+import IcalExport from "./IcalExport";
+import IcalImport from "./IcalImport";
 
 export default class Configuration extends React.Component {
   componentWillMount() {
@@ -35,7 +36,9 @@ export default class Configuration extends React.Component {
       reservationActiveIndex: -1,
       saved: true, // current config saved
       save: false, // modal save configs
-      load: false // modal load configs
+      load: false, // modal load configs
+      modalIcalExport: false,
+      modalIcalImport: false
     });
 
     this.reload(0);
@@ -437,6 +440,14 @@ export default class Configuration extends React.Component {
         reindexPlannings(plannings);
       }
     });
+  };
+
+  modalIcalExportOpen = bool => {
+    this.setState({ modalIcalExport: bool });
+  };
+
+  modalIcalImportOpen = bool => {
+    this.setState({ modalIcalImport: bool });
   };
 
   render() {
@@ -1543,15 +1554,11 @@ export default class Configuration extends React.Component {
                     icon="exchange"
                     content="Export / Import au format iCalendar (*.ics)"
                   />
-                  <Dropdown.Item
-                    onClick={() => this.setState({ export: true })}
-                  >
+                  <Dropdown.Item onClick={() => this.modalIcalExportOpen(true)}>
                     {"Exporter les rendez-vous inscrits sur le planning " +
                       planning.titre}
                   </Dropdown.Item>
-                  <Dropdown.Item
-                    onClick={() => this.setState({ import: true })}
-                  >
+                  <Dropdown.Item onClick={() => this.modalIcalImportOpen(true)}>
                     {"Importer des rendez-vous et les inscrire sur le planning " +
                       planning.titre}
                   </Dropdown.Item>
@@ -1725,76 +1732,39 @@ export default class Configuration extends React.Component {
         />
         <Divider hidden={true} />
 
-        {/* Import au format iCalendar (*.ics) => à placer dans une modal */}
-        <iframe // iframe masquée comme cible du formulaire
-          name="import-form-frame"
-          title="import-form-frame"
-          onLoad={() => {
-            alert("Fichier transmis");
-            // fin du chargement
-            // afficher un rendu (par exemple le nombre de rendez-vous pour ce planning)
-          }}
-          style={{ display: "none" }}
+        {/* IcalExport */}
+        <IcalExport
+          client={this.props.client}
+          open={this.state.modalIcalExport}
+          modalIcalExportOpen={this.modalIcalExportOpen}
+          planningId={
+            _.isUndefined(this.state.plannings[this.state.index])
+              ? -1
+              : this.state.plannings[this.state.index].id
+          }
+          planningTitre={
+            _.isUndefined(this.state.plannings[this.state.index])
+              ? ""
+              : this.state.plannings[this.state.index].titre
+          }
         />
-        <Form
-          id="import-form"
-          target="import-form-frame"
-          method="post"
-          encType="multipart/form-data"
-        >
-          <Form.Input name="ical" type="file" />
-          <Form.Input id="import-form-token" name="token" type="hidden" />
-          <Button
-            onClick={() => {
-              alert(
-                "Souhaitez-vous supprimer les rendez-vous existants avant de charger les nouveaux ?"
-              );
-              // TODO : si oui supression de tous les rendez-vous existants sur ce planning
-              let form = document.getElementById("import-form");
-              form.setAttribute(
-                "action",
-                this.props.client.baseUrl +
-                  "/Plannings/" +
-                  planning.id +
-                  "/importIcal"
-              );
-              document.getElementById(
-                "import-form-token"
-              ).value = this.props.client.token;
-              form.submit();
-            }}
-          >
-            Importer
-          </Button>
-        </Form>
-        {/* Import iCalendar Fin */}
 
-        {/* Export au format iCalendar (*.ics) */}
-        <Divider />
-        <Button
-          onClick={() => {
-            alert(
-              "Vous confirmez vouloir exporter les rendez-vous du planning ?"
-            );
-            alert(
-              "TODO : Si oui ouvrir une modal avec un lien de téléchargement obtenu avec Plannings.exportIcal."
-            );
-            if (true) {
-              let params = { titre: planning.titre };
-              this.props.client.Plannings.exportIcal(
-                planning.id,
-                params,
-                result => {
-                  alert(result.url);
-                },
-                err => {}
-              );
-            }
-          }}
-        >
-          Exporter
-        </Button>
-        {/* Export iCalendar Fin */}
+        {/* IcalImport */}
+        <IcalImport
+          client={this.props.client}
+          open={this.state.modalIcalImport}
+          modalIcalImportOpen={this.modalIcalImportOpen}
+          planningId={
+            _.isUndefined(this.state.plannings[this.state.index])
+              ? -1
+              : this.state.plannings[this.state.index].id
+          }
+          planningTitre={
+            _.isUndefined(this.state.plannings[this.state.index])
+              ? ""
+              : this.state.plannings[this.state.index].titre
+          }
+        />
       </div>
     );
   }
