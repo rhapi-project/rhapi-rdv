@@ -18,4 +18,4 @@ Le patient ne disposant pas d'indentifiant remplira les champs **Nom**, **Préno
 
 S'il dispose d'un identifiant personnel, il pourra cocher le champ "**Je dispose d'un identifiant personnel**" et il se connectera avec son **_identifiant_** (postfixé par le nom du cabinet "**_@dr-durand_**") et son **_mot de passe_**.
 
-Une autre possibilité d'accès à la prise de rendez-vous pour un patient connu du cabinet, sera de passer directement par le lien **_www.mon-appli-rdv.fr/rdv/#Patients/50:abcdefghij@dr-durand_**. Où **_50_** est l'identifiant du patient dans la base de données et **_abcdefghij_** son mot de passe. Ce lien aura généralement été fourni au patient par SMS, e-mail ou carton de rendez-vous.
+L'autre possibilité d'accès à la prise de rendez-vous, pour un patient connu du cabinet, sera de passer directement par le lien **_www.mon-appli-rdv.fr/rdv/#Patients/50:abcdefghij@dr-durand_**. Où **_50_** est l'identifiant du patient dans la base de données et **_abcdefghij_** son mot de passe. Ce lien aura généralement été fourni au patient par SMS ou e-mail.
