@@ -128,7 +128,7 @@ export default class IcalImport extends React.Component {
   };
 
   render() {
-    console.log(this.props.plannings);
+    //console.log(this.props.plannings);
     return (
       <React.Fragment>
         <Modal size="small" open={this.state.open}>
