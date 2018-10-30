@@ -70,7 +70,7 @@ export default class IcalExport extends React.Component {
             >
               <Button content="Annuler" primary={true} onClick={this.close} />
             </Ref>
-            <Button content="Sauvegarder" onClick={this.export} />
+            <Button content="Exporter" onClick={this.export} />
           </Modal.Actions>
         </Modal>
 
