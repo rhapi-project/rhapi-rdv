@@ -448,40 +448,41 @@
       <ul>
 <li><a class="" href="Agendas.html">Agendas</a></li>
 <li><a class="active" href="Configuration.html">Configuration</a></li>
+<li><a class="" href="Patients.html">Patients</a></li>
+<li><a class="" href="Profil.html">Profil</a></li>
 </ul>
     </nav>
     <article id="main" class="content">
-      <h1>rhapi-rdv</h1>
-<p>Une application de gestion de RDV pour RHAPI</p>
-<p>La configuration des agendas se fait depuis le menu Configuration du site :</p>
-<p><img src="images/1523621501-capture-d-ecran-2018-04-13-a-14-11-00.png" alt="alt text"></p>
+      <h1>CONFIGURATION</h1>
+<p>Configuration des agendas du praticien :</p>
+<p><img src="images/menu-configuration.png" alt="Menu configuration"></p>
 <p>Dans cette page, plusieurs options sont disponibles.</p>
 <p>Tout d’abord, il est possible de définir un nom pour le planning.
 Pour cela, il suffit de le saisir dans le champ « Titre » :</p>
 <p><img src="https://image.noelshack.com/fichiers/2018/15/5/1523621170-capture-d-ecran-2018-04-10-a-16-35-16.png" alt="alt text"></p>
 <p>On pourra également ajouter une description au Planning ainsi qu’une couleur par défaut pour les rendez-vous.</p>
-<p>Toute modification effectuée dans le menu de configuration devra être enregistrée via le bouton “Sauvegarder” en bas de page.</p>
-<h1>Utilisateurs et droits d’accès</h1>
-<p>Cette rubrique permet de définir les propriétaires et l’administrateur du planning sélectionné.</p>
+<p>Toute modification effectuée dans le menu de configuration devra être enregistrée via le bouton “<strong>Sauvegarder</strong>” en bas de page.</p>
+<h2>Utilisateurs et droits d’accès</h2>
+<p>Permet de définir les propriétaires et l’administrateur du planning sélectionné.</p>
 <p>L’administrateur est unique et il ne peut donc y en avoir qu’un.
 C’est lui qui définit quels sont les propriétaires d’un agenda. C’est à dire ceux ayant la possibilité d’accéder au planning et de pouvoir gérer celui-ci.
 L’administrateur peut ajouter autant de propriétaires qu’il le souhaite en passant par le menu de configuration.
 Pour ajouter un nouveau propriétaire, il suffit de saisir son nom dans la liste.
 Au cas où il y aurait plusieurs propriétaires, il faudra séparer chaque propriétaire par un espace.</p>
-<p>Exemple :</p>
-<p><img src="https://image.noelshack.com/fichiers/2018/15/5/1523621730-capture-d-ecran-2018-04-13-a-14-14-36.png" alt="alt text"></p>
+<p><strong>Exemple</strong> :</p>
+<p><img src="https://image.noelshack.com/fichiers/2018/15/5/1523621730-capture-d-ecran-2018-04-13-a-14-14-36.png" alt="Plusieurs propriétaires"></p>
 <p>Il est cependant possible de changer d’administrateur à tout moment.
 Pour transférer les droits d’administration à un autre utilisateur, il suffit de saisir son nom dans le champ “Transfert des droits administrateur” et de cliquer ensuite sur “Transférer” ou “Sauvegarder” :</p>
-<p><img src="https://image.noelshack.com/fichiers/2018/15/5/1523621959-capture-d-ecran-2018-04-13-a-14-18-45.png" alt="alt text"></p>
+<p><img src="https://image.noelshack.com/fichiers/2018/15/5/1523621959-capture-d-ecran-2018-04-13-a-14-18-45.png" alt="Nouvel administrateur"></p>
 <p>A partir de là, l’utilisateur indiqué dans “Transfert des droits administrateur” verra sur sa page un bouton &quot;Transférer un planning :</p>
-<p><img src="https://image.noelshack.com/fichiers/2018/15/5/1523622193-capture-d-ecran-2018-04-13-a-14-21-49.png" alt="alt text"></p>
+<p><img src="https://image.noelshack.com/fichiers/2018/15/5/1523622193-capture-d-ecran-2018-04-13-a-14-21-49.png" alt="Transférer un planning"></p>
 <p>Il n’aura donc plus qu’à cliquer sur ce bouton (qui lui demandera ensuite de confirmer ou non la prise de droits) pour devenir le nouvel administrateur :</p>
-<p><img src="https://image.noelshack.com/fichiers/2018/15/5/1523622193-capture-d-ecran-2018-04-13-a-14-22-02.png" alt="alt text"></p>
+<p><img src="https://image.noelshack.com/fichiers/2018/15/5/1523622193-capture-d-ecran-2018-04-13-a-14-22-02.png" alt="Transfer de planning confirmation"></p>
 <p>Enfin, le message suivant apparaitra pour confirmer la réussite du transfert de droits :</p>
-<p><img src="https://image.noelshack.com/fichiers/2018/15/5/1523622193-capture-d-ecran-2018-04-13-a-14-22-10.png" alt="alt text"></p>
+<p><img src="https://image.noelshack.com/fichiers/2018/15/5/1523622193-capture-d-ecran-2018-04-13-a-14-22-10.png" alt="Message de confirmation transfert de planning"></p>
 <p>Tant que la personne à qui les droits sont transférés n’a pas confirmer la récupération des droits administrateurs, c’est celui qui a initié le transfert qui restera administrateur.
 Cela dans le but d’éviter de perdre les droits administrateur en cas d’erreur dans le nom saisi pour le transfert.</p>
-<h1>Plages horaires d’ouverture</h1>
+<h2>Plages horaires d’ouverture</h2>
 <p>Ce menu permet la configuration complète des plages d’ouverture du cabinet.</p>
 <p>Trois paramètres sont modifiables, indépendament des journées :
 La “Durée par défaut d’un RDV”, qui correspond au temps par défaut pour le créneau d’un nouveau rendez-vous, et la “Durée minimale d’un RDV”, qui correspond à la durée visible des créneaux horaires dans l’agenda.
@@ -489,84 +490,96 @@ Le troisième paramètre est la couleur, qui sera ainsi la couleur par défaut d
 <p>Une fois ces paramètres saisis, il est possible de configurer les plages horaires d’ouverture soit pour la semaine entière directement, soit journée par journée.</p>
 <p>Pour la partie semaine :
 à compléter.</p>
-<p>Pour configurer journée par journée, il suffit de cliquer sur le jour souhaité puis de cliquer sur le bouton “+”, afin de définir les plages horaires souhaitées.
+<p>Pour configurer journée par journée, il suffit de cliquer sur le jour souhaité puis de cliquer sur le bouton “<strong>+</strong>”, afin de définir les plages horaires souhaitées.
 Il est par exemple possible d’ouvrir le lundi, de 9h à 12h et de 14h à 18h :</p>
-<p><img src="images/Plages-horaires.png" alt="alt text"></p>
-<p>Pour supprimer une plage horaire, il faut simplement cliquer sur le bouton “-” en bout de ligne.</p>
-<p>Une fois toutes les plages configurées, il ne reste plus qu’à tout valider via le bouton “Sauvegarder” en bas de page.</p>
-<h1>Evènements récurrents</h1>
+<p><img src="images/Plages-horaires.png" alt="Plages horaires"></p>
+<p>Pour supprimer une plage horaire, il faut simplement cliquer sur le bouton “<strong>-</strong>” en bout de ligne.</p>
+<p>Une fois toutes les plages configurées, il ne reste plus qu’à tout valider via le bouton “<strong>Sauvegarder</strong>” en bas de page.</p>
+<h2>Evènements récurrents</h2>
 <p>Il est possible de créer des évenènements récurrents qui apparaitront ensuite dans le planning et qui permettront d’indiquer ce qu’on a prévu de faire à tel jour et tel créneau horaire.
-Pour créer un évènement récurrent, il suffit de cliquer sur le bouton “+ Ajouter un évènement” :</p>
-<p><img src="images/evenement-recurrent.png" alt="alt text"></p>
+Pour créer un évènement récurrent, il suffit de cliquer sur le bouton “<strong>+ Ajouter un évènement</strong>” :</p>
+<p><img src="images/evenement-recurrent.png" alt="Evenement recurrents"></p>
 <p>Il faut ensuite donner un nom à l’évènement, lui choisir une couleur et indiquer si cette couleur apparaitra en arrière plan ou non.
 Arrière plan signifie que la couleur sera beaucoup plus transparente. Sans l’option arrière plan, la couleur sera de la même intensité que celles des rendez-vous.</p>
-<p>Exemple sans l’option arrière plan :</p>
-<p><img src="images/evenement-arriere-plan-on.png" alt="alt text"></p>
-<p>Exemple avec l’option arrière plan :</p>
-<p><img src="images/evenement-arriere-plan-off.png" alt="alt text"></p>
+<p><strong>Exemple sans l’option arrière plan</strong> :</p>
+<p><img src="images/evenement-arriere-plan-on.png" alt="Evenement recurrent arriere plan on"></p>
+<p><strong>Exemple avec l’option arrière plan</strong> :</p>
+<p><img src="images/evenement-arriere-plan-off.png" alt="Evenement recurrent arriere plan off"></p>
 <p>Une fois ces paramètres validés, il faut maintenant indiquer les créneaux horaires concernés par l’évènement.
-Le fonctionnement est le même que pour les plages horaires d’ouverture : on sélectionne une journée, on clique sur le bouton “+” et on mentionne le créneau horaire souhaité.</p>
-<p>Exemple :</p>
+Le fonctionnement est le même que pour les plages horaires d’ouverture : on sélectionne une journée, on clique sur le bouton “<strong>+</strong>” et on mentionne le créneau horaire souhaité.</p>
+<p><strong>Exemple</strong> :</p>
 <p><img src="images/exemple-evenement-recurrent.png" alt="alt text"></p>
 <p>Toutefois, il est possible d’indiquer qu’un évnèement s’applique à une journée entière plutôt qu’un créneau horaire.
 Pour cela, il faut cocher l’option “Toute la journée” :</p>
-<p><img src="images/evenement-journee-config.png" alt="alt text"></p>
+<p><img src="images/evenement-journee-config.png" alt="Configuration evenement recurrent"></p>
 <p>L’évènement récurrent s’affichera ainsi dans la zone “Toute la journée” de l’agenda :</p>
-<p><img src="images/evenement-journee-agenda.png" alt="alt text"></p>
-<h1>Prise de rendez-vous</h1>
+<p><img src="images/evenement-journee-agenda.png" alt="Evenement recurrent sur l'Agenda"></p>
+<h2>Prise de rendez-vous</h2>
 <p>La gestion des congés, des niveaux d’autorisation pour la prise des rendez-vous ainsi que la gestion des motifs de rendez-vous se fait via ce menu.
 Ici, on peut définir le délai maximum, en jours, pour la prise d’un rendez-vous ainsi que le délai de prévenance, en heures, pour leur annulation.
-On peut également définir le format des noms affichés dans l’agenda, comme NOM/PRENOM, NOM/Prénom, Nom/Prénom, etc… et indiquer la dénomination d’un rendez-vous par défaut pour les patients non identifiés :</p>
-<p><img src="images/prise-rdv.png" alt="alt text"></p>
-<h2>Congés</h2>
+On peut également définir le format des noms affichés dans l’agenda, comme <strong>NOM + PRENOM</strong>, <strong>NOM + Prénom</strong>, <strong>Nom + Prénom</strong>, etc. et indiquer la dénomination d’un rendez-vous par défaut pour les patients non identifiés :</p>
+<p><img src="images/prise-rdv.png" alt="Configuration prise de rendez-vous"></p>
+<h3>Congés</h3>
 <p>Tout d’abord, il est possible d’activer, ou non, l’affichage des jours fériés légaux dans l’agenda.
 Si on souhaite les afficher, il suffit de cocher la case “Les jours fériés légaux sont pris en compte automatiquement” :</p>
-<p><img src="images/jours-feries.png" alt="alt text"></p>
+<p><img src="images/jours-feries.png" alt="Les jours fériés légaux sont pris en compte"></p>
 <p>Pour obtenir le résultat suivant :</p>
-<p><img src="images/exemple-jour-ferie.png" alt="alt text"></p>
+<p><img src="images/exemple-jour-ferie.png" alt="Jour férié sur l'Agenda"></p>
 <p>Ensuite, on indique si on souhaite afficher les congés dans l’agenda, la couleur de ceux-ci et enfin les dates concernées.
-Là encore, on clique sur le bouton “+” pour ajouter une plage de dates, on saisit ensuite les dates et enfin son intitulé :</p>
-<p><img src="images/conges-config.png" alt="alt text"></p>
-<h2>Niveaux d’autorisation</h2>
+Là encore, on clique sur le bouton “<strong>+</strong>” pour ajouter une plage de dates, on saisit ensuite les dates et enfin son intitulé :</p>
+<p><img src="images/conges-config.png" alt="Configuration des congés"></p>
+<h3>Niveaux d’autorisation</h3>
 <p>Les niveaux d’autorisation, qui vont de 0 à 3, permettent de définir ce qu’un patient ou un correspondant peut faire au niveau du planning.
-Par exemple, si le patient A peut prendre des rendez-vous quand il le souhaite, ou bien uniquement pour certains motifs, ou encore certains créneaux horaires uniquement.
+Par exemple, si le patient <strong>A</strong> peut prendre des rendez-vous quand il le souhaite, ou bien uniquement pour certains motifs, ou encore certains créneaux horaires uniquement.
 Avant de pouvoir indiquer ce qu’un patient ou un correspondant peut faire, il faut donc commencer par définir ce qu’il est possible de faire selon chaque niveau d’autorisation.</p>
-<p>Le “Niveau minimum d’autorisation requis pour la prise de RDV en ligne” permet de savoir à partir de quel niveau on peut accéder aux rendez-vous en ligne :</p>
-<p><img src="images/niveau-minimum.png" alt="alt text"></p>
+<p>Le “<strong>Niveau minimum d’autorisation requis pour la prise de RDV en ligne</strong>” permet de savoir à partir de quel niveau on peut accéder aux rendez-vous en ligne :</p>
+<p><img src="images/niveau-minimum.png" alt="Niveau minimum de prise de rendez-vous"></p>
 <p>Il est possible de désactiver cette fonctionnalité en sélectionnant la ligne “RDV en ligne désactivés (4)”.</p>
-<p>Le “Niveau maximum accepté pour un RDV en ligne” permet cette fois d’indiquer le niveau maximum autorisé (A REVOIR)</p>
-<p><img src="images/niveau-maximum.png" alt="alt text"></p>
-<p>Le “Niveau d’autorisation minimum des motifs proposés pour la prise de RDV depuis l’agenda” sert à définir à partir de quel niveau on peut sélectionner un motif lors de notre prise de rendez-vous en ligne.</p>
-<p><img src="images/niveau-motifs.png" alt="alt text"></p>
-<p>Enfin, les “Plages horaires ouvertes par niveau d’autorisation” sont à définir de la même manière que les plages horaires classiques.
-Il faut d’abord sélectionner le niveau d’autorisation pour lequel on veut définir les plages, choisir ensuite une journée et cliquer sur le bouton “+” pour sélectionner le créneau souhaité.</p>
-<p>Par exemple, si on veut indiquer que les personnes, dont le niveau d’autorisation est 0, ont le droit de prendre des rendez-vous en ligne le lundi de 8h à 12h, on sélectionne la rubrique “Niveau d’autorisation 0”, on sélectionne le lundi et on ajoute la plage 8h-12h :</p>
-<p><img src="images/plage-niveau0.png" alt="alt text"></p>
-<h2>Motifs des rendez-vous</h2>
+<p>Le “<strong>Niveau maximum accepté pour un RDV en ligne</strong>” permet cette fois d’indiquer le niveau maximum autorisé (A REVOIR).</p>
+<p><img src="images/niveau-maximum.png" alt="Niveau maximum de prise de rendez-vous"></p>
+<p>Le “<strong>Niveau d’autorisation minimum des motifs proposés pour la prise de RDV depuis l’agenda</strong>” sert à définir à partir de quel niveau on peut sélectionner un motif lors de notre prise de rendez-vous en ligne.</p>
+<p><img src="images/niveau-motifs.png" alt="Niveau motifs"></p>
+<p>Enfin, les “<strong>Plages horaires ouvertes par niveau d’autorisation</strong>” sont à définir de la même manière que les plages horaires classiques.
+Il faut d’abord sélectionner le niveau d’autorisation pour lequel on veut définir les plages, choisir ensuite une journée et cliquer sur le bouton “<strong>+</strong>” pour sélectionner le créneau souhaité.</p>
+<p>Par exemple, si on veut indiquer que les personnes, dont le niveau d’autorisation est 0, ont le droit de prendre des rendez-vous en ligne le lundi de 8h à 12h, on sélectionne la rubrique “<strong>Niveau d’autorisation 0</strong>”, on sélectionne le lundi et on ajoute la plage 8h-12h :</p>
+<p><img src="images/plage-niveau0.png" alt="Plage niveau 0"></p>
+<h3>Motifs des rendez-vous</h3>
 <p>Il est possible de préparer des motifs de rendez-vous afin de ne pas avoir à les saisir manuellement pour chaque rendez-vous futur.</p>
-<p>Il faut utiliser le bouton “+” pour créer un nouveau motif et ensuite, saisir son intitulé, son niveau d’autorisation (pour la prise de rendez-vous en ligne), sa durée par défaut (qui pourra bien entendu être modifiée lors de la prise d’un rendez-vous) et sa couleur :</p>
-<p><img src="images/motif-rdv.png" alt="alt text"></p>
-<h1>Rappels par SMS</h1>
+<p>Il faut utiliser le bouton “<strong>+</strong>” pour créer un nouveau motif et ensuite, saisir son intitulé, son niveau d’autorisation (pour la prise de rendez-vous en ligne), sa durée par défaut (qui pourra bien entendu être modifiée lors de la prise d’un rendez-vous) et sa couleur :</p>
+<p><img src="images/motif-rdv.png" alt="Motifs des rendez-vous"></p>
+<h2>Rappels</h2>
 <p>Ce menu permet au praticien de définir s’il souhaite ou non envoyer des rappels de SMS aux patients.
 Pour activer l’option de rappels par SMS, il suffit de cocher la case “Emettre des rappels par SMS”</p>
-<p><img src="images/rappels-rdv-sms.png" alt="alt text"></p>
+<p><img src="images/rappels-rdv-sms-2.png" alt="Illustration rappel SMS 1"></p>
 <p>Une fois l’option activée, il faudra bien veiller à cocher les délais de rappels qui sont tous activés par défaut.
-Ainsi, pour activer uniquement un rappel toutes les 48h, il ne faudra cocher que la case “48h avant le rendez-vous”.
-Exemple :</p>
-<p><img src="images/rappels-rdv-48h.png" alt="alt text"></p>
+Ainsi, pour activer uniquement un rappel toutes les 48h, il ne faudra cocher que la case “48h avant le rendez-vous”.</p>
+<p><strong>Exemple</strong> :</p>
+<p><img src="images/rappels-rdv-48heures.png" alt="Illustration rappel SMS 2"></p>
 <p>Il est ensuite possible de personnaliser les deux types de SMS envoyés aux patients :</p>
 <ol>
 <li>Le SMS de confirmation initiale. C’est le SMS envoyé au patient lorsqu’il prend rendez-vous en ligne pour qu’il puisse le confirmer :</li>
 </ol>
-<p><img src="images/texte-confirmation-sms.png" alt="alt text"></p>
+<p><img src="images/texte-confirmation-sms.png" alt="Texte de confirmation SMS"></p>
 <ol start="2">
-<li>Le SMS de rappel, celui envoyé 48h, 24h ou 12h (selon le(s) choix effectué(s)) au patient pour lui rappeler son rendez-vous :</li>
+<li>Le SMS de rappel, celui envoyé 48h, 24h ou 1h (selon le(s) choix effectué(s)) au patient pour lui rappeler son rendez-vous :</li>
 </ol>
-<p><img src="images/texte-rappel-sms.png" alt="alt text"></p>
-<p>Dans ces deux zones de texte, tout ce qui est écrit entre les symboles {} sont des champs automatiques.
-Par exemple, le champ {date-heure} retourne la date et l’heure du rendez-vous du patient, dans le SMS.
+<p><img src="images/texte-rappel-sms.png" alt="Texte de rappel par SMS"></p>
+<p>Dans ces deux zones de texte, tout ce qui est écrit entre les symboles <strong>{}</strong> sont des champs automatiques.
+Par exemple, le champ <strong>{date-heure}</strong> retourne la date et l’heure du rendez-vous du patient, dans le SMS.
 Il ne faut donc pas modifier ces types de champs.
 Tout le reste par contre est modifiable.</p>
+<h2>Réutilisation des configurations</h2>
+<p><img src="images/reutilisation-des-configurations.png" alt="Réutilisation des configurations"></p>
+<ul>
+<li>
+<p>Le praticien peut <strong>Sauvegarder</strong> la configuration en cours et elle sera enregistré dans un fichier au format <strong>JSON</strong> nommé “<strong>config-plannings.json</strong>” et placé dans le dossier des <strong>Téléchargements</strong>.</p>
+</li>
+<li>
+<p>Le praticien peut réstaurer une configuration. Il faut <strong>charger une configuration</strong> à partir d’une sauvegarde et tous les plannings seront remplacés par les plannings de ce fichier. Si ce fichier est conforme à la configuration courante, cette restauration préservera les différents états des rendez-vous déjà pris.</p>
+</li>
+</ul>
+<h2>Import export au format iCalendar (.ics)</h2>
+<p>A venir</p>
 
     </article>
   </div>
