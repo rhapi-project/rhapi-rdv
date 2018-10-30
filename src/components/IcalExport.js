@@ -1,14 +1,13 @@
 import React from "react";
 
-import { Button, Modal, Ref } from "semantic-ui-react";
+import { Button, Message, Modal, Ref } from "semantic-ui-react";
 
 export default class IcalExport extends React.Component {
-  // TODO : Ajouter les retours utilisateurs d'erreurs si l'export a échoué par exemple
-
   state = {
     open: false,
     planningId: -1, // aucun planning
-    planningTitre: ""
+    planningTitre: "",
+    error: false // modal d'erreur
   };
 
   componentWillReceiveProps(next) {
@@ -38,7 +37,9 @@ export default class IcalExport extends React.Component {
         a.click(); // Warning
         this.close();
       },
-      error => {}
+      error => {
+        this.setState({ error: true });
+      }
     );
 
     // Warning : Resource interpreted as Document but transferred with MIME type application/octet-stream: ...lien
@@ -52,12 +53,14 @@ export default class IcalExport extends React.Component {
           <Modal.Header>Export des rendez-vous</Modal.Header>
           <Modal.Content>
             <p>
-              Voulez-vous exporter les rendez-vous du planning "{" "}
-              <strong>{this.state.planningTitre}</strong> " ?
+              Les rendez-vous du planning "
+              <strong>{this.state.planningTitre}</strong>" seront sauvegardés
+              dans un fichier au format <strong>iCalendar (*.ics)</strong>,
+              nommé "{this.state.planningTitre}
+              .ics" et placé dans le dossier des téléchargements.
             </p>
           </Modal.Content>
           <Modal.Actions>
-            <Button content="Non" onClick={this.close} />
             <Ref
               innerRef={node => {
                 if (this.state.open) {
@@ -65,7 +68,46 @@ export default class IcalExport extends React.Component {
                 }
               }}
             >
-              <Button content="Oui" primary={true} onClick={this.export} />
+              <Button content="Annuler" primary={true} onClick={this.close} />
+            </Ref>
+            <Button content="Sauvegarder" onClick={this.export} />
+          </Modal.Actions>
+        </Modal>
+
+        {/* Modal Erreur de sauvegarde */}
+
+        <Modal size="small" open={this.state.error}>
+          <Modal.Header>Erreur de sauvegarde</Modal.Header>
+          <Modal.Content>
+            <Message error={true}>
+              <Message.Content>
+                <Message.Header>
+                  Le téléchargement du fichier{" "}
+                  <strong>
+                    {this.state.planningTitre}
+                    .ics
+                  </strong>{" "}
+                  a échoué !
+                </Message.Header>
+                Vérifiez votre connexion réseau et recommencez la sauvegarde.
+              </Message.Content>
+            </Message>
+          </Modal.Content>
+          <Modal.Actions>
+            <Ref
+              innerRef={node => {
+                if (this.state.error) {
+                  node.focus();
+                }
+              }}
+            >
+              <Button
+                content="OK"
+                onClick={() => {
+                  this.setState({ error: false });
+                  this.close();
+                }}
+              />
             </Ref>
           </Modal.Actions>
         </Modal>

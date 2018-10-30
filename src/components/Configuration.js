@@ -1764,6 +1764,7 @@ export default class Configuration extends React.Component {
               ? ""
               : this.state.plannings[this.state.index].titre
           }
+          plannings={this.state.plannings}
         />
       </div>
     );
