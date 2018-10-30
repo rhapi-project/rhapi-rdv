@@ -16,21 +16,16 @@ import {
 export default class IcalImport extends React.Component {
   state = {
     open: false,
-    planningId: -1, // aucun planning
-    planningTitre: "",
-    plannings: [], // tous les plannings
-    selectPlannings: false,
-    selectedPlannings: [], // id plannings
-    clearRdv: true, //
-    finChargement: false
+    selectPlannings: false, // possibilité de pouvoir sélectionner d'autres plannings sur lesquels écrire les rdv
+    selectedPlannings: [], // contient les id des plannings sélectionnés
+    clearRdv: true, // les rdv préexistants sur les plannings sélectionnés seront supprimés
+    fileLoaded: false, // c'est la fin du chargement du fichier de rdv
+    fileReady: false // le fichier a été bien sélectionné et les rdv peuvent être chargés
   };
 
   componentWillReceiveProps(next) {
     this.setState({
       open: next.open,
-      planningId: next.planningId,
-      planningTitre: next.planningTitre,
-      plannings: next.plannings,
       selectedPlannings: this.initSelectedPlannings() // une valeur au début
     });
   }
@@ -39,11 +34,11 @@ export default class IcalImport extends React.Component {
   initSelectedPlannings = () => {
     let selPl = this.state.selectedPlannings;
     if (
-      this.state.planningId !== -1 &&
-      !_.includes(this.state.plannings, this.state.planningId) &&
+      this.props.planningId !== -1 &&
+      !_.includes(this.props.plannings, this.props.planningId) &&
       _.isEmpty(selPl)
     ) {
-      selPl.push(this.state.planningId);
+      selPl.push(this.props.planningId);
     }
     return selPl;
   };
@@ -122,11 +117,14 @@ export default class IcalImport extends React.Component {
     };
 
     inputFile.click();
+    this.setState({ fileReady: true });
   };
 
   onLoad = () => {
     // fin du chargement
-    this.setState({ finChargement: true });
+    if (this.state.fileReady) {
+      this.setState({ fileLoaded: true });
+    }
   };
 
   render() {
@@ -142,7 +140,7 @@ export default class IcalImport extends React.Component {
             </p>
             <p>
               Par défaut les nouveaux rendez-vous seront importés sur{" "}
-              <strong>{this.state.planningTitre}</strong> et ceux préexistants
+              <strong>{this.props.planningTitre}</strong> et ceux préexistants
               sur ce planning seront supprimés.
             </p>
             <Form>
@@ -161,8 +159,8 @@ export default class IcalImport extends React.Component {
                 />
               </Form.Input>
 
-              {_.size(this.state.plannings) !== 1 &&
-              !_.isEmpty(this.state.plannings) ? (
+              {_.size(this.props.plannings) !== 1 &&
+              !_.isEmpty(this.props.plannings) ? (
                 <Form.Input label="Importer les rendez-vous sur d'autres plannings.">
                   <Checkbox
                     toggle={true}
@@ -205,6 +203,7 @@ export default class IcalImport extends React.Component {
 
             {/* Import au format iCalendar (*.ics) => à placer dans une modal */}
             <iframe // iframe masquée comme cible du formulaire
+              id="import-form-frame"
               name="import-form-frame"
               title="import-form-frame"
               onLoad={this.onLoad}
@@ -233,18 +232,18 @@ export default class IcalImport extends React.Component {
           </Modal.Actions>
         </Modal>
         {/* Fin du chargement */}
-        <Modal size="small" open={this.state.finChargement}>
+        <Modal size="small" open={this.state.fileLoaded}>
           <Modal.Header>Import terminé</Modal.Header>
           <Modal.Content>
             <Message icon={true} positive={true}>
               <Icon name="check" />
-              <Message.Header>L'import a été effectué."</Message.Header>
+              <Message.Header>L'import a été effectué.</Message.Header>
             </Message>
           </Modal.Content>
           <Modal.Actions>
             <Ref
               innerRef={node => {
-                if (this.state.finChargement) {
+                if (this.state.fileLoaded) {
                   node.focus();
                 }
               }}
@@ -253,7 +252,7 @@ export default class IcalImport extends React.Component {
                 content="OK"
                 primary={true}
                 onClick={() => {
-                  this.setState({ finChargement: false });
+                  this.setState({ fileLoaded: false, fileReady: false });
                   this.close();
                 }}
               />

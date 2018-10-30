@@ -23,9 +23,11 @@ export default class IcalExport extends React.Component {
   };
 
   export = () => {
+    // Click sur la balise <a> dans firefox : a.click() -> ne fonctionne pas.
+    // Mettre l'élément <a> dans le DOM pour résoudre ce problème
+    // https://stackoverflow.com/questions/32225904/programmatical-click-on-a-tag-not-working-in-firefox
     let a = document.createElement("a");
-    //let myHeaders = new Headers();
-    //myHeaders.append("Content-type", "application/octet-stream");
+    a.type = "hidden";
 
     let params = { titre: this.state.planningTitre };
     this.props.client.Plannings.exportIcal(
@@ -34,6 +36,7 @@ export default class IcalExport extends React.Component {
       result => {
         //console.log(result);
         a.href = result.url;
+        document.body.appendChild(a); // "a" dans le DOM -> nécessaire sur Firefox
         a.click(); // Warning
         this.close();
       },
