@@ -111,10 +111,6 @@ export default class IcalImport extends React.Component {
     inputToken.id = "import-form-token";
     inputToken.type = "hidden";
 
-    document.body.appendChild(form); // pour ne pas afficher l'input dans la modal...
-
-    inputFile.click();
-
     inputFile.onchange = () => {
       if (_.isEmpty(inputFile.files)) {
         return;
@@ -123,8 +119,9 @@ export default class IcalImport extends React.Component {
         form.appendChild(inputToken);
         form.submit();
       }
-      document.body.removeChild(form);
     };
+
+    inputFile.click();
   };
 
   onLoad = () => {
@@ -140,25 +137,20 @@ export default class IcalImport extends React.Component {
           <Modal.Header>Import des rendez-vous</Modal.Header>
           <Modal.Content>
             <p>
-              <strong>Pour importer des rendez-vous</strong> à partir d'un
-              fichier au format <strong>iCalendar</strong>, cliquer sur le
-              bouton{" "}
-              <strong>
-                <i>Importer</i>
-              </strong>{" "}
-              puis sélectionner un fichier de rendez-vous.
-              <br />
-              Par défaut, les rendez-vous seront importés sur{" "}
-              <strong>{this.state.planningTitre}</strong> et ceux déjà existants
+              <strong>Import des rendez-vous</strong> à partir d'un fichier au
+              format <strong>iCalendar (.ics)</strong>.
+            </p>
+            <p>
+              Par défaut les nouveaux rendez-vous seront importés sur{" "}
+              <strong>{this.state.planningTitre}</strong> et ceux préexistants
               sur ce planning seront supprimés.
             </p>
-
             <Form>
               <Form.Input
                 label={
                   <label>
-                    Tous les rendez-vous existants sur les plannings
-                    sélectionnés seront supprimés !
+                    Effacer tous les rendez-vous préexistants sur le(s)
+                    planning(s) de destination.
                   </label>
                 }
               >
@@ -224,6 +216,7 @@ export default class IcalImport extends React.Component {
               target="import-form-frame"
               method="post"
               encType="multipart/form-data"
+              style={{ display: "none" }}
             />
           </Modal.Content>
           <Modal.Actions>
@@ -241,18 +234,11 @@ export default class IcalImport extends React.Component {
         </Modal>
         {/* Fin du chargement */}
         <Modal size="small" open={this.state.finChargement}>
-          <Modal.Header>Chargement du fichier terminé</Modal.Header>
+          <Modal.Header>Import terminé</Modal.Header>
           <Modal.Content>
             <Message icon={true} positive={true}>
               <Icon name="check" />
-              <Message.Content>
-                <Message.Header>
-                  Tous les rendez-vous ont été chargés
-                </Message.Header>
-                <p>
-                  {/* à remplir : nb de rdv supprimés, nombre de rdv ajoutés et total des rdv */}
-                </p>
-              </Message.Content>
+              <Message.Header>L'import a été effectué."</Message.Header>
             </Message>
           </Modal.Content>
           <Modal.Actions>
