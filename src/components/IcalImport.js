@@ -128,7 +128,7 @@ export default class IcalImport extends React.Component {
   };
 
   render() {
-    //console.log(this.requestParameters());
+    console.log(this.props.plannings);
     return (
       <React.Fragment>
         <Modal size="small" open={this.state.open}>
@@ -182,7 +182,7 @@ export default class IcalImport extends React.Component {
               <div>
                 <Divider />
                 <Form>
-                  {_.map(this.state.plannings, planning => (
+                  {_.map(this.props.plannings, planning => (
                     <Form.Input key={planning.id}>
                       <Checkbox
                         toggle={true}
