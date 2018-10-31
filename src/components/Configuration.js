@@ -281,7 +281,11 @@ export default class Configuration extends React.Component {
   };
 
   saveAll = () => {
+    // Click sur la balise <a> dans firefox : a.click() -> ne fonctionne pas.
+    // Mettre l'élément <a> dans le DOM pour résoudre ce problème
+    // https://stackoverflow.com/questions/32225904/programmatical-click-on-a-tag-not-working-in-firefox
     let a = document.createElement("a");
+    a.type = "hidden";
     let plannings = [...this.state.plannings];
     _.each(plannings, pl => {
       delete pl.lockRevision;
@@ -295,6 +299,7 @@ export default class Configuration extends React.Component {
     );
     a.href = URL.createObjectURL(file);
     a.download = "config-plannings.json";
+    document.body.appendChild(a); // "a" dans le DOM -> nécessaire sur Firefox
     a.click();
   };
 

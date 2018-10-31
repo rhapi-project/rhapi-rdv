@@ -72,15 +72,7 @@ export default class IcalImport extends React.Component {
   };
 
   requestParameters = () => {
-    let param = "";
-    let selectedPlannings = this.state.selectedPlannings;
-    for (let i = 0; i < selectedPlannings.length; i++) {
-      if (i === selectedPlannings.length - 1) {
-        param = param + "" + selectedPlannings[i];
-      } else {
-        param = param + "" + selectedPlannings[i] + "-";
-      }
-    }
+    let param = this.state.selectedPlannings.join("-");
     if (this.state.clearRdv) {
       param += "-clear";
     }
