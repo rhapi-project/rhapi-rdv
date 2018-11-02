@@ -16,10 +16,10 @@ import {
 export default class IcalImport extends React.Component {
   state = {
     open: false,
-    selectPlannings: false, // possibilité de pouvoir sélectionner d'autres plannings sur lesquels écrire les rdv
-    selectedPlannings: [], // contient les id des plannings sélectionnés
+    selectPlannings: false, // sélectionner d'autres plannings sur lesquels écrire les rdv
+    selectedPlannings: [], // les id des plannings sélectionnés
     clearRdv: true, // les rdv préexistants sur les plannings sélectionnés seront supprimés
-    fileLoaded: false, // c'est la fin du chargement du fichier de rdv
+    fileLoaded: false, // fin du chargement du fichier de rdv
     fileReady: false // le fichier a été bien sélectionné et les rdv peuvent être chargés
   };
 
