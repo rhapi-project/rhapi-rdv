@@ -233,4 +233,8 @@ Tout le reste par contre est modifiable.
 
 ## Import export au format iCalendar (.ics)
 
-A venir
+![Import export des rendez-vous](images/import-export-rdv.png)
+
+* Le praticien peut **Exporter** tous les rendez-vous se trouvant sur un planning sélectionné. Ces derniers seront dans un fichier au format **iCalendar** nommé "**_nom-planning.ics_**" et placé dans le dossier des **Téléchargements**.
+
+* Il est possible d'importer des rendez-vous à partir d'un fichier au format **iCalendar**. Par défaut, ces rendez-vous seront importés sur le planning sélectionné et ceux préexistants sur celui-ci seront supprimés. Pour ne pas supprimer les rendez-vous préexistants sur un planning, il faut désactiver l'option **_Effacer tous les rendez-vous préexistants sur le(s) planning(s) de destination_**. Pour choisir d'autres plannings sur lesquels importer des rendez-vous, il faut activer l'option **_Importer les rendez-vous sur d'autres plannings_**.
