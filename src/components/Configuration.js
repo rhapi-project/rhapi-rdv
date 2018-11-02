@@ -307,7 +307,7 @@ export default class Configuration extends React.Component {
     let input = document.createElement("input");
     input.type = "file";
     input.accept = "application/json";
-    input.click();
+    //input.click(); // input.click() avant input.onchange -> sur Microsoft Edge la configuration n'est pas chargée
     input.onchange = () => {
       let file = input.files[0];
       var reader = new FileReader();
@@ -333,6 +333,7 @@ export default class Configuration extends React.Component {
       };
       reader.readAsText(file);
     };
+    input.click();
   };
 
   loadAllAsBackup = () => {
