@@ -34,9 +34,6 @@ import Praticiens from "./components/Praticiens";
  * La solution proposée c'est d'installer ce package "airbnb-browser-shims"
  * https://www.npmjs.com/package/airbnb-browser-shims
  *
- * => ça ne marche toujours pas ! 
-
- * TODO : à revoir
  */
 import "airbnb-browser-shims";
 
@@ -310,8 +307,9 @@ class Main extends React.Component {
           <Iframe
             url="docs/Agendas.html"
             height={wHeight * 0.8 + "px"}
-            display="initial"
-            position="relative"
+            //display="initial"
+            //position="absolute"
+            styles={{background: "white"}}
             allowFullScreen={true}
           />
         </Modal>
