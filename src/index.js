@@ -309,7 +309,7 @@ class Main extends React.Component {
             height={wHeight * 0.8 + "px"}
             //display="initial"
             //position="absolute"
-            styles={{background: "white"}}
+            styles={{ background: "white" }}
             allowFullScreen={true}
           />
         </Modal>
