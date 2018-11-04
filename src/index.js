@@ -307,9 +307,8 @@ class Main extends React.Component {
           <Iframe
             url="docs/Agendas.html"
             height={wHeight * 0.8 + "px"}
-            //display="initial"
-            //position="absolute"
-            styles={{ background: "white" }}
+            display="initial"
+            position="relative"
             allowFullScreen={true}
           />
         </Modal>
