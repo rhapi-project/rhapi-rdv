@@ -42,17 +42,17 @@ En cliquant sur un créneau horaire, une interface de saisie d'information du re
 
 A la fin de la création d'un rendez-vous, le click sur le bouton "**OK**" correspond à l'enregistrement du rendez-vous et ce dernier sera visible sur l'agenda au bon créneau horaire.
 
-## Annulation et suppréssion d'un rendez-vous
+## Annulation et suppression d'un rendez-vous
 
 Ces deux actions sont faites à partir de l'interface de la visualisation du détail d'un rendez-vous. C'est l'interface qui s'ouvre quand on clique sur un rendez-vous dans l'agenda. 
 
-Le clique sur le bouton "**Supprimer**" ouvrira une fenêtre de dialogue avec trois options : **Retour**, **Marquer annulé** et **Supprimers**.
+Le clique sur le bouton "**Supprimer**" ouvrira une fenêtre de dialogue avec trois options : **Retour**, **Marquer annulé** et **Supprimer**.
 
 * **Retour** correspond à l'annulation de l'action
 
 * **Marquer annulé** marquera le rendez-vous comme annulé. Ce rendez-vous ne sera plus visible sur l'agenda mais sera toujours présente dans la base de données et fera partie de la liste des rendez-vous si le praticien veut l'historique des rendez-vous de ce patient
 
-* **Supprimer** : Suppréssion définitive du rendez-vous.
+* **Supprimer** : Suppression définitive du rendez-vous.
 
 ## Mise en attente d'un rendez-vous
 
