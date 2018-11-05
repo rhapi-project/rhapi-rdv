@@ -23,6 +23,8 @@ import {
 
 import PatientSearch from "./PatientSearch";
 
+import PatientSearchModal from "./PatientSearchModal";
+
 import FichePatient from "./FichePatient";
 
 import site from "./SiteSettings";
@@ -36,7 +38,8 @@ export default class ProfilsPatients extends React.Component {
       age: {},
       saved: true,
       errorOnSave: false,
-      modalDelete: false
+      modalDelete: false,
+      patientSearchModal: false
     });
   }
 
@@ -235,6 +238,10 @@ export default class ProfilsPatients extends React.Component {
     this.newSearch();
   };
 
+  patientSearchModalOpen = bool => {
+    this.setState({ patientSearchModal: bool });
+  };
+
   render() {
     return (
       <div id="profil-patients">
@@ -282,6 +289,14 @@ export default class ProfilsPatients extends React.Component {
             size="large"
             name="remove user"
           />
+
+          <Icon
+            style={{ cursor: "pointer", marginTop: 10, marginLeft: 10 }}
+            disabled={this.state.patientSearchModal}
+            onClick={() => this.patientSearchModalOpen(true)}
+            size="large"
+            name="search"
+          />
         </Form.Input>
         <Divider hidden={true} />
 
@@ -294,7 +309,16 @@ export default class ProfilsPatients extends React.Component {
           save={this.save} // new
           onPatientChange={this.onPatientChange} // new
         />
+
         <Divider hidden={true} />
+
+        {/* Recherche élargie d'un patient */}
+        <PatientSearchModal
+          open={this.state.patientSearchModal}
+          client={this.props.client}
+          patientChange={this.onPatientChange}
+          patientSearchModalOpen={this.patientSearchModalOpen}
+        />
 
         {this.state.patient.id && !site.hideDeletePatientButton ? (
           <Button
