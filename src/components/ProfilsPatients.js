@@ -75,8 +75,9 @@ export default class ProfilsPatients extends React.Component {
     );
   };
 
-  onPatientChange = id => {
-    //this.setState({ patient: {} });
+  onPatientChange = (id, denomPatient) => {
+    // denomPatient ne sera pas utilisé ici
+
     this.props.client.Patients.read(
       id,
       {},
@@ -339,7 +340,9 @@ export default class ProfilsPatients extends React.Component {
         )}
         {this.state.patient.id ? (
           <React.Fragment>
-            <Button onClick={() => this.onPatientChange(this.state.patient.id)}>
+            <Button
+              onClick={() => this.onPatientChange(this.state.patient.id, "")}
+            >
               Annuler / Actualiser
             </Button>
             <Button primary={!this.state.saved} onClick={this.save}>

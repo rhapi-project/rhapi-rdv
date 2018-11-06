@@ -22,7 +22,10 @@ import {
   emailRegex,
   telRegex,
   telFormat,
-  denominationDefaultFormat
+  civilite,
+  camelDenomination,
+  denominationDefaultFormat,
+  affichageDenomination
 } from "./Settings";
 
 import ImageReader from "./ImageReader";
@@ -32,7 +35,7 @@ import RdvPassCard from "./RdvPassCard";
 import { SingleDatePicker } from "react-dates";
 
 export default class FichePatient extends React.Component {
-  civilites = [
+  /*civilites = [
     {
       text: "",
       shorttext: "",
@@ -59,7 +62,7 @@ export default class FichePatient extends React.Component {
       shorttext: "Enfant",
       value: 4
     }
-  ];
+  ];*/
 
   civilitesNouvelles = [
     {
@@ -124,7 +127,7 @@ export default class FichePatient extends React.Component {
     });
   }
 
-  civilite = short => {
+  /*civilite = short => {
     if (_.isUndefined(this.state.patient.civilite)) {
       return "";
     }
@@ -142,7 +145,7 @@ export default class FichePatient extends React.Component {
       }
     }
     return civiliteStr;
-  };
+  };*/
 
   telephoneValide = numero => {
     for (let i = 0; i < telRegex.length; i++) {
@@ -153,7 +156,7 @@ export default class FichePatient extends React.Component {
     return false;
   };
 
-  camelDenomination = text => {
+  /*camelDenomination = text => {
     let result = "";
     let prev = "";
     for (let i = 0; i < text.length; i++) {
@@ -167,7 +170,7 @@ export default class FichePatient extends React.Component {
       result += c;
     }
     return result;
-  };
+  };*/
 
   conversionDenominationFormat = (champ, value) => {
     if (champ !== "nom" && champ !== "prenom") {
@@ -177,26 +180,22 @@ export default class FichePatient extends React.Component {
         case "NP":
           return _.toUpper(value);
         case "Np":
-          return champ === "nom"
-            ? _.toUpper(value)
-            : this.camelDenomination(value);
+          return champ === "nom" ? _.toUpper(value) : camelDenomination(value);
         case "PN":
           return _.toUpper(value);
         case "pN":
-          return champ === "nom"
-            ? _.toUpper(value)
-            : this.camelDenomination(value);
+          return champ === "nom" ? _.toUpper(value) : camelDenomination(value);
         case "np":
-          return this.camelDenomination(value);
+          return camelDenomination(value);
         case "pn":
-          return this.camelDenomination(value);
+          return camelDenomination(value);
         default:
           return value;
       }
     }
   };
 
-  affichageDenomination = () => {
+  /*affichageDenomination = () => {
     switch (denominationDefaultFormat) {
       case "NP":
         return (
@@ -237,7 +236,7 @@ export default class FichePatient extends React.Component {
       default:
         return this.state.patient.nom + " " + this.state.patient.prenom;
     }
-  };
+  };*/
 
   handleClickAccordion = (e, i) => {
     if (this.state.activeIndex === i) {
@@ -380,9 +379,16 @@ export default class FichePatient extends React.Component {
                             " / " +
                             this.props.patient.ipp2 +
                             " / " +
-                            this.civilite(true) +
+                            (_.isUndefined(this.state.patient.civilite)
+                              ? ""
+                              : civilite(true, this.state.patient.civilite)) +
+                            //this.civilite(true) +
                             "  " +
-                            this.affichageDenomination() +
+                            affichageDenomination(
+                              denominationDefaultFormat,
+                              this.state.patient.nom,
+                              this.state.patient.prenom
+                            ) +
                             "  " +
                             (_.isNull(patient.naissance) ||
                             _.isNull(this.state.naissanceDate)
@@ -493,7 +499,7 @@ export default class FichePatient extends React.Component {
                     <Form.Input
                       label="Autre"
                       name="civilite"
-                      value={this.civilite(false)}
+                      value={civilite(false, this.state.patient.civilite)}
                       placeholder="Professeur..."
                       onChange={(e, d) => this.handleChangeCivilite(e, d)}
                     />
@@ -654,9 +660,13 @@ export default class FichePatient extends React.Component {
                         rdvPassCardOpen={this.rdvPassCardOpen}
                         patient={this.state.patient}
                         denomination={
-                          this.civilite(true) +
+                          civilite(true, this.state.patient.civilite) +
                           " " +
-                          this.affichageDenomination()
+                          affichageDenomination(
+                            denominationDefaultFormat,
+                            this.state.patient.nom,
+                            this.state.patient.prenom
+                          )
                         }
                         client={this.props.client}
                         saved={this.props.saved}

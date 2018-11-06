@@ -12,6 +12,8 @@ import { Divider, Button, Form, Icon, Modal } from "semantic-ui-react";
 
 import PatientSearch from "./PatientSearch";
 
+import PatientSearchModal from "./PatientSearchModal";
+
 import CalendarModalRdv from "./CalendarModalRdv";
 
 import RdvPassCard from "./RdvPassCard";
@@ -30,7 +32,8 @@ export default class CalendarPanel extends React.Component {
       modalRdvIsOpen: false,
       eventToEdit: {},
       patient: {},
-      rdvPassCard: false
+      rdvPassCard: false,
+      patientSearchModal: false
     });
   }
 
@@ -380,6 +383,10 @@ export default class CalendarPanel extends React.Component {
     }
   };
 
+  patientSearchModalOpen = bool => {
+    this.setState({ patientSearchModal: bool });
+  };
+
   render() {
     // RDV du patient
     let rdvPatient = "RDV du patient";
@@ -392,6 +399,9 @@ export default class CalendarPanel extends React.Component {
             moment(patient.rdv.liste[index].startAt).format("D MMMM à HH:mm")
           : "";
     }
+
+    //console.log(this.state.currentPatient);
+    //console.log(patient.title);
     return (
       <React.Fragment>
         <Divider />
@@ -416,7 +426,7 @@ export default class CalendarPanel extends React.Component {
                 : this.props.options.reservation.denominationFormat
             }
             clear={this.state.clearSearch}
-            value={patient ? patient.titre : ""}
+            value={!_.isEmpty(patient) ? patient.titre : ""}
           />
           {window.qWebChannel ? (
             <React.Fragment>
@@ -510,31 +520,51 @@ export default class CalendarPanel extends React.Component {
               />
             </React.Fragment>
           ) : (
-            <Icon
-              style={{
-                cursor: "pointer",
-                marginTop: 8,
-                marginLeft: 10
-              }}
-              onClick={() => {
-                this.setState({
-                  clearSearch: true,
-                  currentPatient: {
-                    id: 0,
-                    title: "",
-                    rdv: { liste: [], index: -1 }
-                  }
-                });
-              }}
-              name="remove user"
-              disabled={this.state.currentPatient.id === 0}
-            />
+            <React.Fragment>
+              <Icon
+                style={{
+                  cursor: "pointer",
+                  marginTop: 8,
+                  marginLeft: 5
+                }}
+                onClick={() => {
+                  this.setState({
+                    clearSearch: true,
+                    currentPatient: {
+                      id: 0,
+                      title: "",
+                      rdv: { liste: [], index: -1 }
+                    }
+                  });
+                }}
+                name="remove user"
+                disabled={this.state.currentPatient.id === 0}
+              />
+
+              {/* Recherche élargie d'un patient */}
+              <Icon
+                name="search"
+                disabled={this.state.patientSearchModal}
+                style={{
+                  cursor: "pointer",
+                  marginTop: 8
+                }}
+                onClick={() => this.patientSearchModalOpen(true)}
+              />
+
+              <PatientSearchModal
+                open={this.state.patientSearchModal}
+                client={this.props.client}
+                patientChange={this.onPatientChange}
+                patientSearchModalOpen={this.patientSearchModalOpen}
+              />
+            </React.Fragment>
           )}
           <Icon
             style={{
               cursor: "pointer",
               marginTop: 8,
-              marginLeft: window.qWebChannel ? 0 : 8
+              marginLeft: window.qWebChannel ? 0 : 2
             }}
             onClick={() => {
               if (this.state.currentPatient.id === 0) {

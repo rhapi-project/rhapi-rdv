@@ -4,7 +4,11 @@ import _ from "lodash";
 
 import { Button, Form, Icon, Modal, Search } from "semantic-ui-react";
 
-import { denominationDefaultFormat } from "./Settings";
+import {
+  affichageDenomination,
+  civilite,
+  denominationDefaultFormat
+} from "./Settings";
 
 export default class PatientSearchModal extends React.Component {
   state = {
@@ -21,6 +25,9 @@ export default class PatientSearchModal extends React.Component {
     { text: "Recherche par numéro de sécurité sociale", value: 6 }
   ];
 
+  regexNumber = /([0-9])+/;
+  regexLetter = /([a-zA-Z])+/;
+
   componentWillReceiveProps(next) {
     this.setState({
       open: next.open
@@ -32,8 +39,10 @@ export default class PatientSearchModal extends React.Component {
     this.setState({
       isLoading: false,
       results: [],
+      resultStr: "", // denomination du patient sélectionné + ipp, ipp2 et naissance
       value: "",
       patientId: -1,
+      patientDenom: "", // denomination du patient
       error: false
     });
   };
@@ -51,28 +60,23 @@ export default class PatientSearchModal extends React.Component {
     let params = {};
     let results = [];
 
-    let regexNumber = /([0-9])+/;
-    //let regexLetter = /([a-z][A-Z])+/;
-
     if (champ === "ipp") {
       params = { ipp: valeur, format: denominationDefaultFormat };
-      if (!regexNumber.test(valeur)) {
+      if (!this.regexNumber.test(valeur)) {
         this.setState({ error: true });
         return;
       }
     } else {
       params = { format: valeur, texte: texte };
-      /*if (!regexLetter.test(valeur)) {
-        //console.log("coucou");
+      if (!this.regexLetter.test(texte)) {
         this.setState({ error: true });
         return;
-      }*/
+      }
     }
 
     this.props.client.Patients.completion(
       params,
       patients => {
-        //console.log(patients);
         _.forEach(patients, patient => {
           let result = {
             id: patient.id,
@@ -95,9 +99,7 @@ export default class PatientSearchModal extends React.Component {
     let params = { format: denominationDefaultFormat, texte: telephone };
     let results = [];
 
-    let regexNumber = /([0-9])+/;
-
-    if (!regexNumber.test(telephone)) {
+    if (!this.regexNumber.test(telephone)) {
       this.setState({ error: true });
       return;
     }
@@ -105,7 +107,6 @@ export default class PatientSearchModal extends React.Component {
     this.props.client.Patients.telephones(
       params,
       patients => {
-        //console.log(patients);
         _.forEach(patients, patient => {
           let result = {
             id: patient.id,
@@ -124,9 +125,7 @@ export default class PatientSearchModal extends React.Component {
     let params = {};
     let results = [];
 
-    let regexNumber = /([0-9])+/;
-
-    if (!regexNumber.test(value)) {
+    if (!this.regexNumber.test(value)) {
       this.setState({ error: true });
       return;
     }
@@ -137,7 +136,6 @@ export default class PatientSearchModal extends React.Component {
       };
     } else {
       // query === nir
-
       params = {
         q1: "nir,Like," + value + "*"
       };
@@ -145,7 +143,6 @@ export default class PatientSearchModal extends React.Component {
     this.props.client.Patients.readAll(
       params,
       patients => {
-        //console.log(patients.results);
         _.forEach(patients.results, patient => {
           let result = {
             id: patient.id,
@@ -203,15 +200,60 @@ export default class PatientSearchModal extends React.Component {
   };
 
   handleResultSelect = (e, { result }) => {
-    this.setState({ value: result.title, patientId: result.id });
+    this.props.client.Patients.read(
+      result.id,
+      {},
+      patient => {
+        //console.log(patient);
+        let naissanceDate = _.isEmpty(patient.naissance)
+          ? ""
+          : new Date(patient.naissance.split("T")[0]).toLocaleDateString(
+              "fr-FR"
+            );
+
+        let display =
+          "#" +
+          patient.id +
+          " / " +
+          patient.ipp2 +
+          " / " +
+          (_.isUndefined(patient.civilite)
+            ? ""
+            : civilite(true, patient.civilite)) +
+          "  " +
+          affichageDenomination(
+            denominationDefaultFormat,
+            patient.nom,
+            patient.prenom
+          ) +
+          "  " +
+          (patient.genre === 2 ? "née" : "né") +
+          " le " +
+          naissanceDate;
+
+        this.setState({
+          value: result.title,
+          patientId: result.id,
+          resultStr: display,
+          patientDenom: affichageDenomination(
+            denominationDefaultFormat,
+            patient.nom,
+            patient.prenom
+          )
+        });
+      },
+      data => {
+        console.log("Erreur");
+        console.log(data);
+      }
+    );
   };
 
   render() {
-    //console.log(this.state);
     return (
       <React.Fragment>
         <Modal size="tiny" open={this.state.open}>
-          <Modal.Header>Recherche élagie d'un patient</Modal.Header>
+          <Modal.Header>Recherche élargie d'un patient</Modal.Header>
           <Modal.Content>
             <Form>
               <Form.Dropdown
@@ -245,18 +287,19 @@ export default class PatientSearchModal extends React.Component {
                 )}
               </Form.Input>
 
-              {this.state.patientId !== -1 ? (
-                <Form.Input>
-                  <span>
-                    <strong>
-                      Identifiant du patient sélectionné :{" "}
-                      {this.state.patientId}
-                    </strong>
-                  </span>
-                </Form.Input>
-              ) : (
-                ""
-              )}
+              <Form.Input
+                style={{
+                  visibility: this.state.patientId === -1 ? "hidden" : "visible"
+                }}
+              >
+                <div style={{ fontSize: "12px" }}>
+                  <strong>{this.state.resultStr}</strong>
+                </div>
+                {/*<Icon 
+                    name="user"
+                    style={{ float: "right", paddingLeft: "40%" }}
+                  />*/}
+              </Form.Input>
             </Form>
           </Modal.Content>
           <Modal.Actions>
@@ -272,7 +315,10 @@ export default class PatientSearchModal extends React.Component {
               content="Sélectionner"
               onClick={() => {
                 if (this.state.patientId !== -1) {
-                  this.props.patientChange(this.state.patientId);
+                  this.props.patientChange(
+                    this.state.patientId,
+                    this.state.patientDenom
+                  );
                   this.reload();
                   this.close();
                 } else {
