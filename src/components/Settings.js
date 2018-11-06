@@ -2,6 +2,8 @@ import site from "./SiteSettings";
 
 import moment from "moment";
 
+import _ from "lodash";
+
 /*
  * maxWidth : Largeur de la colonne centrale
  * (d'autres largeurs sont définies
@@ -369,6 +371,73 @@ const telFormat = telephone => {
 const denominationDefaultFormat = "NP";
 
 /*
+ * Fonctions qui seront utilisées pour le formatage de la dénomination
+ * lors de l'affichage
+ * -> camelDenomination et affichageDenomination
+ */
+const camelDenomination = text => {
+  let result = "";
+  let prev = "";
+  for (let i = 0; i < text.length; i++) {
+    let c = text[i];
+    if (i === 0 || prev === " " || prev === "'" || prev === "-") {
+      c = _.toUpper(c);
+    } else {
+      c = _.toLower(c);
+    }
+    prev = c;
+    result += c;
+  }
+  return result;
+};
+
+const affichageDenomination = (denominationDefaultFormat, nom, prenom) => {
+  switch (denominationDefaultFormat) {
+    case "NP":
+      return _.toUpper(nom) + " " + _.toUpper(prenom);
+    case "Np":
+      return _.toUpper(nom) + " " + camelDenomination(prenom);
+    case "PN":
+      return _.toUpper(prenom) + " " + _.toUpper(nom);
+    case "pN":
+      return camelDenomination(prenom) + " " + _.toUpper(nom);
+    case "np":
+      return camelDenomination(nom) + " " + camelDenomination(prenom);
+    case "pn":
+      return camelDenomination(prenom) + " " + camelDenomination(nom);
+    default:
+      return nom + " " + prenom;
+  }
+};
+
+// Retourne une chaine de caractères décrivant la civilité
+// ex : M., Mme, Professeur etc.
+const civilite = (short, valCivilite) => {
+  let civilites = [
+    { text: "", shorttext: "", value: 0 },
+    { text: "Monsieur", shorttext: "M.", value: 1 },
+    { text: "Madame", shorttext: "Mme", value: 2, hidden: true },
+    { text: "Mademoiselle", shorttext: "Mlle", value: 3 },
+    { text: "Enfant", shorttext: "Enfant", value: 4 }
+  ];
+
+  let civiliteNum = 1 * valCivilite;
+  let civiliteStr = "" + valCivilite;
+  if (!isNaN(civiliteNum)) {
+    if (civiliteNum < civilites.length) {
+      civiliteStr = short
+        ? civilites[civiliteNum].shorttext
+        : civiliteNum === 3 // Mademoiselle (obsolète) est géré comme un texte libre (autre)
+          ? civilites[civiliteNum].text
+          : "";
+    } else {
+      civiliteStr = "";
+    }
+  }
+  return civiliteStr;
+};
+
+/*
  * rdvEtats états des rendez-vous (idEtat du groupe RendezVous)
  */
 const rdvEtats = [
@@ -403,6 +472,9 @@ export {
   emailRegex,
   telRegex,
   telFormat,
+  civilite,
+  camelDenomination,
   denominationDefaultFormat,
+  affichageDenomination,
   rdvEtats
 };
