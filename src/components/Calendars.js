@@ -10,7 +10,7 @@ import CalendarPanel from "./CalendarPanel";
 
 export default class Calendars extends React.Component {
   componentWillMount() {
-    this.setState({ plannings: [], index: -1, print: 0 });
+    this.setState({ plannings: [], index: -1, print: 0, hidePanel: false });
   }
 
   componentDidMount() {
@@ -32,6 +32,16 @@ export default class Calendars extends React.Component {
     window.addEventListener("resize", () => this.setState({}));
 
     this.reload();
+
+    // CTRL + ESPACE pour masquer le panel
+    // Ecoute d'une suite de touches sur le clavier
+    // -> https://www.yosko.net/article33/snippet-06-javascript-capturer-des-raccourcis-clavier-utilises-par-votre-navigateur
+    document.addEventListener("keydown", e => {
+      if (e.ctrlKey && e.keyCode === 32) {
+        e.preventDefault();
+        this.hidePanel();
+      }
+    });
   }
 
   componentDidUpdate() {
@@ -94,6 +104,10 @@ export default class Calendars extends React.Component {
     this.setState({});
   };
 
+  hidePanel = () => {
+    this.setState({ hidePanel: !this.state.hidePanel });
+  };
+
   render() {
     let calendar = (
       <Calendar
@@ -135,7 +149,8 @@ export default class Calendars extends React.Component {
             width: panelWidth,
             float: "left",
             marginLeft: 10,
-            marginTop: 5
+            marginTop: 5,
+            display: this.state.hidePanel ? "none" : "block"
           }}
         >
           <div style={{ textAlign: "right" }}>
@@ -187,7 +202,8 @@ export default class Calendars extends React.Component {
         </div>
         <div
           style={{
-            width: calendarWidth,
+            //width: calendarWidth,
+            width: this.state.hidePanel ? "98%" : calendarWidth,
             float: "right",
             marginRight: 10,
             marginTop: 5
