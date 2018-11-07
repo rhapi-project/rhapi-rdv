@@ -176,6 +176,14 @@ export default class CalendarPanel extends React.Component {
       });
     } else {
       // rdv du patient
+      console.log("id du patient sélectionné : " + id);
+      console.log("title : " + title);
+      console.log(
+        "Note : à partir de la recherche élargie, " +
+          title +
+          " n'est pas affiché dans le search"
+      );
+      console.log("TODO : Mettre ce titre dans le search");
       this.props.client.RendezVous.readAll(
         {
           _idPatient: id,
