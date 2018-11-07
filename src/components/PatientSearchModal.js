@@ -2,7 +2,7 @@ import React from "react";
 
 import _ from "lodash";
 
-import { Button, Form, Icon, Modal, Search } from "semantic-ui-react";
+import { Button, Form, Modal, Search } from "semantic-ui-react";
 
 import {
   affichageDenomination,
@@ -25,9 +25,6 @@ export default class PatientSearchModal extends React.Component {
     { text: "Recherche par numéro de sécurité sociale", value: 6 }
   ];
 
-  regexNumber = /([0-9])+/;
-  regexLetter = /([a-zA-Z])+/;
-
   componentWillReceiveProps(next) {
     this.setState({
       open: next.open
@@ -42,8 +39,7 @@ export default class PatientSearchModal extends React.Component {
       resultStr: "", // denomination du patient sélectionné + ipp, ipp2 et naissance
       value: "",
       patientId: -1,
-      patientDenom: "", // denomination du patient
-      error: false
+      patientDenom: "" // denomination du patient
     });
   };
 
@@ -61,17 +57,10 @@ export default class PatientSearchModal extends React.Component {
     let results = [];
 
     if (champ === "ipp") {
-      params = { ipp: valeur, format: denominationDefaultFormat };
-      if (!this.regexNumber.test(valeur)) {
-        this.setState({ error: true });
-        return;
-      }
+      params = { ipp: valeur, format: denominationDefaultFormat, texte: "***" };
+      //params = { ipp: valeur, format: denominationDefaultFormat};
     } else {
       params = { format: valeur, texte: texte };
-      if (!this.regexLetter.test(texte)) {
-        this.setState({ error: true });
-        return;
-      }
     }
 
     this.props.client.Patients.completion(
@@ -99,11 +88,6 @@ export default class PatientSearchModal extends React.Component {
     let params = { format: denominationDefaultFormat, texte: telephone };
     let results = [];
 
-    if (!this.regexNumber.test(telephone)) {
-      this.setState({ error: true });
-      return;
-    }
-
     this.props.client.Patients.telephones(
       params,
       patients => {
@@ -124,11 +108,6 @@ export default class PatientSearchModal extends React.Component {
   readAllSearch = (query, value) => {
     let params = {};
     let results = [];
-
-    if (!this.regexNumber.test(value)) {
-      this.setState({ error: true });
-      return;
-    }
 
     if (query === "ipp2") {
       params = {
@@ -179,7 +158,7 @@ export default class PatientSearchModal extends React.Component {
       // recherche par ipp ou nom + prenom ou prenom + nom
       // api Patients.completion
       if (this.state.searchBy === 1) {
-        this.completionSearch("ipp", d.value, "");
+        this.completionSearch("ipp", d.value);
       } else if (this.state.searchBy === 3) {
         this.completionSearch("format", "NP", d.value);
       } else {
@@ -273,18 +252,8 @@ export default class PatientSearchModal extends React.Component {
                   results={this.state.results}
                   onSearchChange={(e, d) => this.search(e, d)}
                   onResultSelect={this.handleResultSelect}
-                  style={{ width: this.state.error ? "65%" : "100%" }}
+                  style={{ width: "100%" }}
                 />
-                {this.state.error ? (
-                  <span style={{ paddingTop: "8px", paddingLeft: "5px" }}>
-                    <strong>
-                      <Icon name="warning sign" color="red" />
-                      saisie invalide
-                    </strong>
-                  </span>
-                ) : (
-                  ""
-                )}
               </Form.Input>
 
               <Form.Input
@@ -295,10 +264,6 @@ export default class PatientSearchModal extends React.Component {
                 <div style={{ fontSize: "12px" }}>
                   <strong>{this.state.resultStr}</strong>
                 </div>
-                {/*<Icon 
-                    name="user"
-                    style={{ float: "right", paddingLeft: "40%" }}
-                  />*/}
               </Form.Input>
             </Form>
           </Modal.Content>
