@@ -10,7 +10,14 @@ import CalendarPanel from "./CalendarPanel";
 
 export default class Calendars extends React.Component {
   componentWillMount() {
-    this.setState({ plannings: [], index: -1, print: 0, hidePanel: false });
+    let hidePanel =
+      localStorage.getItem("calendarPanelHide") === "true" ? true : false;
+    this.setState({
+      plannings: [],
+      index: -1,
+      print: 0,
+      hidePanel: _.isNull(hidePanel) ? false : hidePanel
+    });
   }
 
   componentDidMount() {
@@ -33,15 +40,8 @@ export default class Calendars extends React.Component {
 
     this.reload();
 
-    // CTRL + ESPACE pour masquer le panel
-    // Ecoute d'une suite de touches sur le clavier
-    // -> https://www.yosko.net/article33/snippet-06-javascript-capturer-des-raccourcis-clavier-utilises-par-votre-navigateur
-    document.addEventListener("keydown", e => {
-      if (e.ctrlKey && e.keyCode === 32) {
-        e.preventDefault();
-        this.hidePanel();
-      }
-    });
+    // commande pour masquer le panel
+    document.addEventListener("keydown", this.handleHiddingPanel);
   }
 
   componentDidUpdate() {
@@ -51,6 +51,10 @@ export default class Calendars extends React.Component {
         window.print();
       }
     }, 1000);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener("keydown", this.handleHiddingPanel); // ne marchera pas avec une fonction anonyme
   }
 
   afterPrint = () => {
@@ -104,8 +108,20 @@ export default class Calendars extends React.Component {
     this.setState({});
   };
 
-  hidePanel = () => {
-    this.setState({ hidePanel: !this.state.hidePanel });
+  hidePanel = bool => {
+    this.setState({
+      hidePanel: bool
+    });
+    localStorage.setItem("calendarPanelHide", bool ? "true" : "false");
+  };
+
+  handleHiddingPanel = event => {
+    // CTRL + ESPACE pour masquer le panel
+    // Ecoute d'une suite de touches sur le clavier
+    // -> https://www.yosko.net/article33/snippet-06-javascript-capturer-des-raccourcis-clavier-utilises-par-votre-navigateur
+    if (event.ctrlKey && event.keyCode === 32) {
+      this.hidePanel(!this.state.hidePanel);
+    }
   };
 
   render() {
@@ -142,17 +158,19 @@ export default class Calendars extends React.Component {
     let panelWidth = 280;
     let calendarWidth = width - 320;
 
+    let panelStyle = {
+      width: panelWidth,
+      float: "left",
+      marginLeft: 10,
+      marginTop: 5
+    };
+    if (this.state.hidePanel) {
+      panelStyle["display"] = "none";
+    }
+
     return (
       <React.Fragment>
-        <div
-          style={{
-            width: panelWidth,
-            float: "left",
-            marginLeft: 10,
-            marginTop: 5,
-            display: this.state.hidePanel ? "none" : "block"
-          }}
-        >
+        <div style={panelStyle}>
           <div style={{ textAlign: "right" }}>
             <Button.Group basic={true} size="mini">
               <Button icon="print" onClick={this.print} />
@@ -161,6 +179,13 @@ export default class Calendars extends React.Component {
             <Button.Group basic={true} size="mini">
               <Button icon="zoom out" onClick={this.zoomOut} />
               <Button icon="zoom in" onClick={this.zoomIn} />
+            </Button.Group>
+            &nbsp;
+            <Button.Group basic={true} size="mini">
+              <Button
+                icon="caret square left outline"
+                onClick={() => this.hidePanel(!this.state.hidePanel)}
+              />
             </Button.Group>
           </div>
           <Divider fitted={true} hidden={true} />
@@ -202,13 +227,25 @@ export default class Calendars extends React.Component {
         </div>
         <div
           style={{
-            //width: calendarWidth,
             width: this.state.hidePanel ? "98%" : calendarWidth,
             float: "right",
             marginRight: 10,
-            marginTop: 5
+            marginTop: 5,
+            display: "flex"
           }}
         >
+          {this.state.hidePanel ? (
+            <div>
+              <Button
+                basic={true}
+                size="mini"
+                icon="caret square right outline"
+                onClick={() => this.hidePanel(!this.state.hidePanel)}
+              />
+            </div>
+          ) : (
+            ""
+          )}
           {this.state.index < 0 ? "" : calendar}
         </div>
       </React.Fragment>
