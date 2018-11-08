@@ -12,11 +12,13 @@ Sur cet agenda, il peut y avoir plusieurs plannings et un rendez-vous peut figur
 
 ![Changement de planning](images/agenda-plannings.png)
 
-## Impression de l'agenda
+## Actions sur l'Agenda
 
-Cliquer sur l'icône d'impression : 
+![Actions sur l'Agenda](images/agenda-actions.png)
 
-![Impression de l'agenda](images/agenda-impression.png)
+* En **_Vert_** : Bouton pour imprimer l'Agenda.
+* En **_Bleu_** : Augmentation et réduction de la hauteur des créneaux sur l'Agenda.
+* En **_Rouge_** : Bouton pour masquer le panneau latéral gauche.
 
 ## Création d'un nouveau rendez-vous
 
@@ -25,6 +27,8 @@ En cliquant sur un créneau horaire, une interface de saisie d'information du re
 ![Nouveau rendez-vous](images/agenda-nouveau-rdv.png)
 
 * Le nom et le prénom du patient : voir l'image de la recherche d'un patient
+
+* On peut faire une recherche élargie d'un patient par son **_IPP_** (son identifiant unique), son **_nom_** et **_prénom_**, son **_numéro de téléphone_** etc. Icône encadrée en **_vert_**.
 
 ![Recherche d'un patient](images/agenda-recherche-patient.png)
 
@@ -64,7 +68,11 @@ Sur l'agenda, il faut d'abord faire une recherche d'un patient et une fois le pa
 
 * En **_Bleu_** c'est la liste des rendez-vous qui sont en attente. Il y a aussi deux icônes, l'une c'est pour vider cette liste et l'autre c'est pour ajouter un rendez-vous à cette liste; icône "**+**"
 
-* En **_Violet_** nous avons deux icônes qui sont actives dès qu'un patient est sélectionné dans la liste des suggestions : une pour nettoyer la barre de recherche et l'autre pour afficher la liste des rendez-vous du patient sélectionné.
+* En **_Violet_** nous avons une icône pour nettoyer la barre de recherche d'un patient, une icône pour faire une recherche élargie d'un patient et une autre afficher la liste des rendez-vous du patient sélectionné.
+
+Une fois le patient sélectionné, les boutons en dessous de la barre de recherche seront utilisés pour chercher un rendez-vous dans la liste des rendez-vous de ce patient et aller directement sur ce rendez-vous dans l'Agenda. 
+
+![Aller sur un rendez-vous](images/agenda-aller-sur-rdv.png)
 
 ## Liste des rendez-vous d'un patient
 

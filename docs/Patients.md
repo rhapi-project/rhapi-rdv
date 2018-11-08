@@ -10,9 +10,15 @@ Création d'une nouvelle fiche :
 
 ![Menu patients](images/nouveau-patient.png)
 
+En **_Rouge_**, le bouton pour créer une nouvelle fiche et en **_Vert_**, l'icône pour lancer une recherche élargie d'un patient.
+
 * Sur une fiche, les informations générales se trouvent dans la rubrique **Informations générales**. On y retrouve aussi l'identifiant du patient dans la base de données (préfixé par un "**_#_**").
 
 * Les coordonnées du patient sont dans la rubrique **Adresse et contact**. Il faut noter qu'un numéro de téléphone portable du patient est nécessaire que le praticien puisse faire un rappel de rendez-vous par SMS.
+
+## Recherche élargie d'un patient
+
+C'est une interface qui donne la possibilité au praticien de rechercher un patient par son **_IPP_** ss(identifiant unique du patient), son **_nom_** et **_prénom_**, **_numéro de téléphone_** etc. 
 
 ## Gestion des rendez-vous
 
