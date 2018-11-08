@@ -2,11 +2,13 @@ import _ from "lodash";
 
 import React from "react";
 
-import { Dropdown, Button, Divider } from "semantic-ui-react";
+import { Dropdown, Button, Divider, Popup } from "semantic-ui-react";
 
 import Calendar from "./Calendar";
 
 import CalendarPanel from "./CalendarPanel";
+
+import { darkPopup } from "./Settings";
 
 export default class Calendars extends React.Component {
   componentWillMount() {
@@ -54,6 +56,7 @@ export default class Calendars extends React.Component {
   }
 
   componentWillUnmount() {
+    console.log("unmount");
     document.removeEventListener("keydown", this.handleHiddingPanel); // ne marchera pas avec une fonction anonyme
   }
 
@@ -173,18 +176,42 @@ export default class Calendars extends React.Component {
         <div style={panelStyle}>
           <div style={{ textAlign: "right" }}>
             <Button.Group basic={true} size="mini">
-              <Button icon="print" onClick={this.print} />
+              <Popup
+                trigger={<Button icon="print" onClick={this.print} />}
+                content="Imprimer l'Agenda"
+                size="small"
+                inverted={darkPopup}
+              />
             </Button.Group>
             &nbsp;
             <Button.Group basic={true} size="mini">
-              <Button icon="zoom out" onClick={this.zoomOut} />
-              <Button icon="zoom in" onClick={this.zoomIn} />
+              <Popup
+                trigger={<Button icon="zoom out" onClick={this.zoomOut} />}
+                content="Réduire la hauteur des créneaux"
+                size="small"
+                inverted={darkPopup}
+              />
+              <Popup
+                trigger={<Button icon="zoom in" onClick={this.zoomIn} />}
+                content="Augmenter la hauteur des créneaux"
+                size="small"
+                inverted={darkPopup}
+              />
+              {/*<Button icon="zoom out" onClick={this.zoomOut} />
+              <Button icon="zoom in" onClick={this.zoomIn} />*/}
             </Button.Group>
             &nbsp;
             <Button.Group basic={true} size="mini">
-              <Button
-                icon="caret square left outline"
-                onClick={() => this.hidePanel(!this.state.hidePanel)}
+              <Popup
+                trigger={
+                  <Button
+                    icon="caret left"
+                    onClick={() => this.hidePanel(!this.state.hidePanel)}
+                  />
+                }
+                content="Masquer le panneau lateral gauche CTRL + ESPACE"
+                size="small"
+                inverted={darkPopup}
               />
             </Button.Group>
           </div>
@@ -236,11 +263,18 @@ export default class Calendars extends React.Component {
         >
           {this.state.hidePanel ? (
             <div>
-              <Button
-                basic={true}
-                size="mini"
-                icon="caret square right outline"
-                onClick={() => this.hidePanel(!this.state.hidePanel)}
+              <Popup
+                trigger={
+                  <Button
+                    basic={true}
+                    size="mini"
+                    icon="caret right"
+                    onClick={() => this.hidePanel(!this.state.hidePanel)}
+                  />
+                }
+                content="Démasquer le panneau lateral gauche CTRL + ESPACE"
+                inverted={darkPopup}
+                size="small"
               />
             </div>
           ) : (

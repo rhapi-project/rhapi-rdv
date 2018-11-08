@@ -19,7 +19,7 @@ import {
   Modal
 } from "semantic-ui-react";
 
-import { maxWidth, fsize, hsize, defaultPlanning } from "./Settings";
+import { maxWidth, fsize, hsize, darkPopup, defaultPlanning } from "./Settings";
 
 import HorairesSemaine from "./HorairesSemaine";
 import Conges from "./Conges";
@@ -1066,7 +1066,7 @@ export default class Configuration extends React.Component {
                       <Icon name="help circle" />
                     </Form.Group>
                   }
-                  inverted={true}
+                  inverted={darkPopup}
                 >
                   Chaque période est définie par des dates de début et de fin
                   (de manière inclusive).
@@ -1518,58 +1518,89 @@ export default class Configuration extends React.Component {
                 })}
               />
               &nbsp;
-              <Dropdown
-                icon="recycle"
-                floating={true}
-                button={true}
-                basic={true}
-                className="icon"
-              >
-                <Dropdown.Menu>
-                  <Dropdown.Header
+              <Popup
+                trigger={
+                  <Dropdown
                     icon="recycle"
-                    content="Réutilisation des configurations"
-                  />
-                  <Dropdown.Item onClick={() => this.setState({ save: true })}>
-                    {"Sauvegarder cette configuration de " +
-                      plannings.length +
-                      " planning" +
-                      (plannings.length > 1 ? "s" : "")}
-                  </Dropdown.Item>
-                  <Dropdown.Item onClick={() => this.setState({ load: true })}>
-                    {"Charger une configuration (remplacera ce" +
-                      (plannings.length > 1 ? "s" : "") +
-                      " " +
-                      plannings.length +
-                      " planning" +
-                      (plannings.length > 1 ? "s" : "") +
-                      ")"}
-                  </Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown>
-              &nbsp;
-              <Dropdown
-                icon="exchange"
-                floating={true}
-                button={true}
-                basic={true}
-                className="icon"
+                    floating={true}
+                    button={true}
+                    basic={true}
+                    className="icon"
+                  >
+                    <Dropdown.Menu>
+                      <Dropdown.Header
+                        icon="recycle"
+                        content="Réutilisation des configurations"
+                      />
+                      <Dropdown.Item
+                        onClick={() => this.setState({ save: true })}
+                      >
+                        {"Sauvegarder cette configuration de " +
+                          plannings.length +
+                          " planning" +
+                          (plannings.length > 1 ? "s" : "")}
+                      </Dropdown.Item>
+                      <Dropdown.Item
+                        onClick={() => this.setState({ load: true })}
+                      >
+                        {"Charger une configuration (remplacera ce" +
+                          (plannings.length > 1 ? "s" : "") +
+                          " " +
+                          plannings.length +
+                          " planning" +
+                          (plannings.length > 1 ? "s" : "") +
+                          ")"}
+                      </Dropdown.Item>
+                    </Dropdown.Menu>
+                  </Dropdown>
+                }
+                //header="Réutilisation des configurations"
+                position="bottom left"
+                //wide={true}
+                inverted={darkPopup}
+                size="small"
               >
-                <Dropdown.Menu>
-                  <Dropdown.Header
+                {/*<Popup.Header>Réutilisation des configurations</Popup.Header>*/}
+                <Popup.Content>
+                  Sauvegarder la configuration en cours ou charger une nouvelle
+                  configuration
+                </Popup.Content>
+              </Popup>
+              &nbsp;
+              <Popup
+                trigger={
+                  <Dropdown
                     icon="exchange"
-                    content="Export / Import au format iCalendar (*.ics)"
-                  />
-                  <Dropdown.Item onClick={() => this.modalIcalExportOpen(true)}>
-                    {"Exporter les rendez-vous inscrits sur le planning " +
-                      planning.titre}
-                  </Dropdown.Item>
-                  <Dropdown.Item onClick={() => this.modalIcalImportOpen(true)}>
-                    {"Importer des rendez-vous et les inscrire sur le planning " +
-                      planning.titre}
-                  </Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown>
+                    floating={true}
+                    button={true}
+                    basic={true}
+                    className="icon"
+                  >
+                    <Dropdown.Menu>
+                      <Dropdown.Header
+                        icon="exchange"
+                        content="Export / Import au format iCalendar (*.ics)"
+                      />
+                      <Dropdown.Item
+                        onClick={() => this.modalIcalExportOpen(true)}
+                      >
+                        {"Exporter les rendez-vous inscrits sur le planning " +
+                          planning.titre}
+                      </Dropdown.Item>
+                      <Dropdown.Item
+                        onClick={() => this.modalIcalImportOpen(true)}
+                      >
+                        {"Importer des rendez-vous et les inscrire sur le planning " +
+                          planning.titre}
+                      </Dropdown.Item>
+                    </Dropdown.Menu>
+                  </Dropdown>
+                }
+                content="Import/Export des rendez-vous au format iCalendar"
+                position="bottom left"
+                inverted={darkPopup}
+                size="small"
+              />
               &nbsp;&nbsp;
               <b>
                 {this.state.index >= 0

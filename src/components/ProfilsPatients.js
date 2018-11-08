@@ -10,12 +10,14 @@ import {
   Form,
   Button,
   Modal,
+  Popup,
   Ref
 } from "semantic-ui-react";
 
 import {
   hsize,
   codePostalRegex,
+  darkPopup,
   denominationDefaultFormat,
   emailRegex,
   telRegex
@@ -284,19 +286,39 @@ export default class ProfilsPatients extends React.Component {
             clear={this.state.clearSearch}
           />
 
-          <Icon
+          <Popup
+            trigger={
+              <Icon
+                style={{ cursor: "pointer", marginTop: 10, marginLeft: 10 }}
+                onClick={this.newSearch}
+                size="large"
+                name="remove user"
+              />
+            }
+            content="Rechercher un nouveau patient"
+            inverted={darkPopup}
+            size="small"
+          />
+          {/*<Icon
             style={{ cursor: "pointer", marginTop: 10, marginLeft: 10 }}
             onClick={this.newSearch}
             size="large"
             name="remove user"
-          />
+          />*/}
 
-          <Icon
-            style={{ cursor: "pointer", marginTop: 10, marginLeft: 10 }}
-            disabled={this.state.patientSearchModal}
-            onClick={() => this.patientSearchModalOpen(true)}
-            size="large"
-            name="search"
+          <Popup
+            trigger={
+              <Icon
+                style={{ cursor: "pointer", marginTop: 10, marginLeft: 10 }}
+                disabled={this.state.patientSearchModal}
+                onClick={() => this.patientSearchModalOpen(true)}
+                size="large"
+                name="search"
+              />
+            }
+            content="Recherche élargie d'un patient"
+            inverted={darkPopup}
+            size="small"
           />
         </Form.Input>
         <Divider hidden={true} />

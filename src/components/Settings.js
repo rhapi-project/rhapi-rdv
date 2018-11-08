@@ -456,7 +456,10 @@ const localdev = false;
 const appToken = "bXlhcHA6bXlhcHBteWFwcA";
 const authUrl = "https://auth-dev.rhapi.net";
 
-//
+/*
+ * Fond noir des popups
+ */
+const darkPopup = true;
 
 export {
   localdev,
@@ -464,6 +467,7 @@ export {
   authUrl,
   site,
   maxWidth,
+  darkPopup,
   fsize,
   hsize,
   defaultPlanning,

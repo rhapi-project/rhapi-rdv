@@ -12,6 +12,7 @@ import {
   Dropdown,
   Image,
   Message,
+  Popup,
   Icon,
   Button,
   Grid
@@ -24,6 +25,7 @@ import {
   telFormat,
   civilite,
   camelDenomination,
+  darkPopup,
   denominationDefaultFormat,
   affichageDenomination
 } from "./Settings";
@@ -636,10 +638,18 @@ export default class FichePatient extends React.Component {
                 <Form>
                   <Form.Group widths="equal">
                     <Form.Input label="Autorisation SMS">
-                      <Checkbox
-                        toggle={true}
-                        checked={patient.gestionRdvJO.autoriseSMS}
-                        onChange={(e, d) => this.changeAutoriseSMS(e, d)}
+                      <Popup
+                        trigger={
+                          <Checkbox
+                            toggle={true}
+                            checked={patient.gestionRdvJO.autoriseSMS}
+                            onChange={(e, d) => this.changeAutoriseSMS(e, d)}
+                          />
+                        }
+                        content="Autoriser la réception de SMS pour ce patient"
+                        position="bottom left"
+                        inverted={darkPopup}
+                        size="small"
                       />
                     </Form.Input>
 
