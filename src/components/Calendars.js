@@ -73,7 +73,7 @@ export default class Calendars extends React.Component {
       {},
       result => {
         let index = _.toInteger(localStorage.getItem("calendarPlanningIndex"));
-        if (_.isNull(index)) {
+        if (_.isNull(index) || index >= result.results.length) {
           index = result.results.length > 0 ? 0 : -1;
           localStorage.setItem("calendarPlanningIndex", index);
         }
@@ -179,87 +179,87 @@ export default class Calendars extends React.Component {
     //console.log(this.state.plannings[this.state.index]);
     return (
       <React.Fragment>
-        {!this.state.hidePanel
-          ?
-            <div style={panelStyle}>
-              <div style={{ textAlign: "right" }}>
-                <Button.Group basic={true} size="mini">
-                  <Popup
-                    trigger={<Button icon="print" onClick={this.print} />}
-                    content="Imprimer l'Agenda"
-                    size="small"
-                    inverted={darkPopup}
-                  />
-                </Button.Group>
-                &nbsp;
-                <Button.Group basic={true} size="mini">
-                  <Popup
-                    trigger={<Button icon="zoom out" onClick={this.zoomOut} />}
-                    content="Réduire la hauteur des créneaux"
-                    size="small"
-                    inverted={darkPopup}
-                  />
-                  <Popup
-                    trigger={<Button icon="zoom in" onClick={this.zoomIn} />}
-                    content="Augmenter la hauteur des créneaux"
-                    size="small"
-                    inverted={darkPopup}
-                  />
-                </Button.Group>
-                &nbsp;
-                <Button.Group basic={true} size="mini">
-                  <Popup
-                    trigger={
-                      <Button
-                        icon="caret left"
-                        onClick={() => this.hidePanel(!this.state.hidePanel)}
-                      />
-                    }
-                    content="Masquer le panneau latéral gauche CTRL + ESPACE"
-                    size="small"
-                    inverted={darkPopup}
-                  />
-                </Button.Group>
-              </div>
-              <Divider fitted={true} hidden={true} />
-              <Dropdown
-                style={{ fontSize: "0.8rem" }}
-                value={this.state.index}
-                onChange={this.onPlanningChange}
-                fluid={true}
-                selection={true}
-                multiple={false}
-                options={_.map(this.state.plannings, (planning, i) => {
-                  return {
-                    text: planning.titre,
-                    value: i
-                  };
-                })}
-              />
-              <CalendarPanel
-                client={this.props.client}
-                couleur={
-                  this.state.index < 0
-                    ? ""
-                    : this.state.plannings[this.state.index].couleur
-                }
-                planning={
-                  this.state.index < 0
-                    ? "0"
-                    : this.state.plannings[this.state.index].id
-                }
-                options={
-                  this.state.index < 0
-                    ? {}
-                    : this.state.plannings[this.state.index].optionsJO
-                }
-                handleExternalRefetch={externalRefetch =>
-                  this.setState({ externalRefetch: externalRefetch })
-                }
-              />
+        {!this.state.hidePanel ? (
+          <div style={panelStyle}>
+            <div style={{ textAlign: "right" }}>
+              <Button.Group basic={true} size="mini">
+                <Popup
+                  trigger={<Button icon="print" onClick={this.print} />}
+                  content="Imprimer l'Agenda"
+                  size="small"
+                  inverted={darkPopup}
+                />
+              </Button.Group>
+              &nbsp;
+              <Button.Group basic={true} size="mini">
+                <Popup
+                  trigger={<Button icon="zoom out" onClick={this.zoomOut} />}
+                  content="Réduire la hauteur des créneaux"
+                  size="small"
+                  inverted={darkPopup}
+                />
+                <Popup
+                  trigger={<Button icon="zoom in" onClick={this.zoomIn} />}
+                  content="Augmenter la hauteur des créneaux"
+                  size="small"
+                  inverted={darkPopup}
+                />
+              </Button.Group>
+              &nbsp;
+              <Button.Group basic={true} size="mini">
+                <Popup
+                  trigger={
+                    <Button
+                      icon="caret left"
+                      onClick={() => this.hidePanel(!this.state.hidePanel)}
+                    />
+                  }
+                  content="Masquer le panneau latéral gauche CTRL + ESPACE"
+                  size="small"
+                  inverted={darkPopup}
+                />
+              </Button.Group>
             </div>
-          : "" 
-        }
+            <Divider fitted={true} hidden={true} />
+            <Dropdown
+              style={{ fontSize: "0.8rem" }}
+              value={this.state.index}
+              onChange={this.onPlanningChange}
+              fluid={true}
+              selection={true}
+              multiple={false}
+              options={_.map(this.state.plannings, (planning, i) => {
+                return {
+                  text: planning.titre,
+                  value: i
+                };
+              })}
+            />
+            <CalendarPanel
+              client={this.props.client}
+              couleur={
+                this.state.index < 0
+                  ? ""
+                  : this.state.plannings[this.state.index].couleur
+              }
+              planning={
+                this.state.index < 0
+                  ? "0"
+                  : this.state.plannings[this.state.index].id
+              }
+              options={
+                this.state.index < 0
+                  ? {}
+                  : this.state.plannings[this.state.index].optionsJO
+              }
+              handleExternalRefetch={externalRefetch =>
+                this.setState({ externalRefetch: externalRefetch })
+              }
+            />
+          </div>
+        ) : (
+          ""
+        )}
         <div
           style={{
             width: this.state.hidePanel ? "98%" : calendarWidth,
