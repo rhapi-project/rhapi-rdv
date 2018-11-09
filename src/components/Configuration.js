@@ -785,7 +785,7 @@ export default class Configuration extends React.Component {
                       <Table.Cell>
                         <Form.Input
                           type="text"
-                          value={motif.motif}
+                          value={_.isUndefined(motif.motif) ? "" : motif.motif}
                           onChange={(e, d) => {
                             options.reservation.motifs[i].motif = d.value;
                             this.setState({ saved: false });
@@ -1182,7 +1182,11 @@ export default class Configuration extends React.Component {
             <Form.Input
               label="Dénomination par défaut (si patient non identifié)"
               placeholder="Dénomination par défaut"
-              value={options.reservation.denominationDefaut}
+              value={
+                _.isUndefined(options.reservation.denominationDefaut)
+                  ? ""
+                  : options.reservation.denominationDefaut
+              }
               onChange={(e, d) => {
                 plannings[index].optionsJO.reservation.denominationDefaut =
                   d.value;
@@ -1226,7 +1230,11 @@ export default class Configuration extends React.Component {
               label="Transfert des droits administrateur"
               placeholder="Utilisateur vers lequel transférer les droits"
               value={
-                _.isString(options.acl.transfer) ? options.acl.transfer : ""
+                _.isUndefined(options.acl.transfer)
+                  ? ""
+                  : _.isString(options.acl.transfer)
+                    ? options.acl.transfer
+                    : ""
               }
               onChange={(e, d) => {
                 options.acl.transfer = d.value;
@@ -1237,7 +1245,11 @@ export default class Configuration extends React.Component {
           <Form.Group widths={2}>
             <Form.Input
               label="Organisation @"
-              value={this.state.organisation}
+              value={
+                _.isUndefined(this.state.organisation)
+                  ? ""
+                  : this.state.organisation
+              }
             />
           </Form.Group>
         </React.Fragment>
@@ -1318,7 +1330,7 @@ export default class Configuration extends React.Component {
           <Form.Group widths="equal">
             <Form.Input
               label="URL du site (lien présent sur les rappels)"
-              value={options.sms.site}
+              value={_.isUndefined(options.sms.site) ? "" : options.sms.site}
               onChange={(e, d) => {
                 options.sms.site = e.target.value;
                 this.setState({
@@ -1346,7 +1358,11 @@ export default class Configuration extends React.Component {
             <Form.TextArea
               style={{ resize: "none" }}
               label="Texte pour la confirmation initiale (e-mail et SMS)"
-              value={options.sms.confirmationTexte}
+              value={
+                _.isUndefined(options.sms.confirmationTexte)
+                  ? ""
+                  : options.sms.confirmationTexte
+              }
               onChange={(e, d) => {
                 options.sms.confirmationTexte = e.target.value;
                 plannings[index].optionsJO = options;
@@ -1410,7 +1426,7 @@ export default class Configuration extends React.Component {
               <Form.Input
                 label="Titre"
                 placeholder="Titre du planning / Nom du praticien / Nom de la ressource"
-                value={planning.titre}
+                value={_.isUndefined(planning.titre) ? "" : planning.titre}
                 onChange={(e, d) => {
                   plannings[index].titre = d.value;
                   this.setState({ /* plannings: plannings, */ saved: false });
@@ -1419,7 +1435,11 @@ export default class Configuration extends React.Component {
               <Form.Input
                 label="Description"
                 placeholder="Description du planning"
-                value={planning.description}
+                value={
+                  _.isUndefined(planning.description)
+                    ? ""
+                    : planning.description
+                }
                 onChange={(e, d) => {
                   plannings[index].description = d.value;
                   this.setState({ /*plannings: plannings,*/ saved: false });
