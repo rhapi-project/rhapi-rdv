@@ -340,39 +340,34 @@ export default class FichePatient extends React.Component {
                             soit pour nous :
                             <img src={patient.profilJO.base64} alt="Mon profil" />
                           */}
-                        <div style={{ textAlign: "center" }}>
-                          {_.isEmpty(patient.profilJO.base64) ? (
-                            <div>
-                              <Icon name="user" size="massive" /> <br />
-                              <ImageReader
-                                image=""
-                                content="Modifier"
-                                icon="photo"
-                                onImageChange={image =>
-                                  this.onImageChange(image)
-                                }
-                              />
-                            </div>
-                          ) : (
-                            // photo du patient
-                            <div>
+                        <Grid column="equal">
+                          <Grid.Column />
+                          <Grid.Column
+                            width={12}
+                            style={{ textAlign: "center" }}
+                          >
+                            {_.isEmpty(patient.profilJO.base64) ? (
+                              <Icon name="user" size="massive" />
+                            ) : (
                               <Image
                                 src={patient.profilJO.base64}
                                 centered={true}
-                                //style={{ height: "128px", width: "128px" }}
-                              />{" "}
-                              <Divider hidden={true} />
-                              <ImageReader
-                                image={patient.profilJO.base64}
-                                content="Modifier"
-                                icon="photo"
-                                onImageChange={image =>
-                                  this.onImageChange(image)
-                                }
                               />
-                            </div>
-                          )}
-                        </div>
+                            )}
+                            <Divider hidden={true} />
+                            <ImageReader
+                              image={
+                                _.isEmpty(patient.profilJO.base64)
+                                  ? ""
+                                  : patient.profilJO.base64
+                              }
+                              content="Modifier"
+                              icon="photo"
+                              onImageChange={image => this.onImageChange(image)}
+                            />
+                          </Grid.Column>
+                          <Grid.Column />
+                        </Grid>
                       </Grid.Column>
                       <Grid.Column width={12}>
                         <strong>
