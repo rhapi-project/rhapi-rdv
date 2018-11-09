@@ -425,8 +425,6 @@ export default class CalendarPanel extends React.Component {
           : "";
     }
 
-    console.log(this.state.currentPatient);
-    //console.log(patient.title);
     return (
       <React.Fragment>
         <Divider />
