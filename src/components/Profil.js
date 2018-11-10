@@ -165,21 +165,18 @@ export default class Profil extends React.Component {
       // redondance
       this.setState({ passwordConfirm: "" });
       let obj = this.state;
-      //console.log(this.state);
-      _.unset(obj, "passwordConfirm");
-      _.unset(obj, "saved");
-      _.unset(obj, "changePassword");
-      _.unset(obj, "sms");
       if (!this.state.changePassword) {
         // si le mot de passe n'est pas modifié, on ne le met pas à jour dans la BDD
         _.unset(obj, "userPassword");
       }
-      //console.log(obj);
+      _.unset(obj, "passwordConfirm");
+      _.unset(obj, "saved");
+      _.unset(obj, "changePassword");
+      _.unset(obj, "sms");
+      _.unset(obj, "errorMessage");
       this.props.client.MonCompte.update(
         obj,
         monProfil => {
-          //success
-          console.log(monProfil);
           this.setState({
             ...monProfil,
             saved: true
@@ -190,7 +187,8 @@ export default class Profil extends React.Component {
           console.log(data);
           console.log("La sauvegarde a échoué !");
           this.setState({
-            saved: false
+            saved: false,
+            errorMessage: data.userMessage
           });
           //this.reload();
         }
@@ -214,14 +212,22 @@ export default class Profil extends React.Component {
         {this.state.saved ? (
           <Message
             header={"Bienvenue " + this.state.userName}
-            content="Voici les données de votre profil utilisateur"
+            content=<p>
+              Votre profil utilisateur ({" "}
+              <sup style={{ color: "red" }}>
+                <b>*</b>
+              </sup>
+              données obligatoires)
+            </p>
           />
         ) : (
           <Message
             warning={true}
             header="Modifications non sauvegardées"
             content={
-              "Les dernières modifications effectuées ne sont pas sauvegardées. Vous pouvez annuler pour revenir à la version précédente."
+              this.state.errorMessage
+                ? this.state.errorMessage
+                : "Les dernières modifications effectuées ne sont pas sauvegardées. Vous pouvez annuler pour revenir à la version précédente."
             }
           />
         )}
@@ -231,7 +237,11 @@ export default class Profil extends React.Component {
             required={true}
             label="Nom courant"
             placeholder="Dr Jean DUPONT"
-            value={this.state.currentName}
+            value={
+              _.isUndefined(this.state.currentName)
+                ? ""
+                : this.state.currentName
+            }
             name="currentName"
             onChange={(e, d) => this.handleChangeInput(e, d)}
           />
@@ -257,7 +267,11 @@ export default class Profil extends React.Component {
                   ? true
                   : false
               }
-              value={this.state.userPassword}
+              value={
+                _.isUndefined(this.state.userPassword)
+                  ? ""
+                  : this.state.userPassword
+              }
               name="userPassword"
               onChange={(e, d) => this.handleChangeInput(e, d)}
             />
@@ -271,7 +285,11 @@ export default class Profil extends React.Component {
                   ? true
                   : false
               }
-              value={this.state.passwordConfirm}
+              value={
+                _.isUndefined(this.state.passwordConfirm)
+                  ? ""
+                  : this.state.passwordConfirm
+              }
               name="passwordConfirm"
               onChange={(e, d) => this.handleChangeInput(e, d)}
             />
@@ -284,7 +302,11 @@ export default class Profil extends React.Component {
               required={true}
               label="Prénom"
               placeholder="Votre prénom"
-              value={this.state.account.prenom}
+              value={
+                _.isUndefined(this.state.account.prenom)
+                  ? ""
+                  : this.state.account.prenom
+              }
               name="prenom"
               onChange={(e, d) => this.handleChangeInput(e, d)}
             />
@@ -293,7 +315,11 @@ export default class Profil extends React.Component {
               label="Nom"
               placeholder="Votre nom"
               name="nom"
-              value={this.state.account.nom}
+              value={
+                _.isUndefined(this.state.account.nom)
+                  ? ""
+                  : this.state.account.nom
+              }
               onChange={(e, d) => this.handleChangeInput(e, d)}
             />
           </Form.Group>
@@ -304,13 +330,21 @@ export default class Profil extends React.Component {
               label="Adresse"
               placeholder="Votre adresse"
               name="adresse1"
-              value={this.state.account.adresse1}
+              value={
+                _.isUndefined(this.state.account.adresse1)
+                  ? ""
+                  : this.state.account.adresse1
+              }
               onChange={(e, d) => this.handleChangeInput(e, d)}
             />
             <Form.Input
               label="Adresse (ligne 2)"
               placeholder="Votre adresse"
-              value={this.state.account.adresse2}
+              value={
+                _.isUndefined(this.state.account.adresse2)
+                  ? ""
+                  : this.state.account.adresse2
+              }
               name="adresse2"
               onChange={(e, d) => this.handleChangeInput(e, d)}
             />
@@ -318,7 +352,11 @@ export default class Profil extends React.Component {
               label="Adresse (ligne 3)"
               placeholder="Votre adresse"
               name="adresse3"
-              value={this.state.account.adresse3}
+              value={
+                _.isUndefined(this.state.account.adresse3)
+                  ? ""
+                  : this.state.account.adresse3
+              }
               onChange={(e, d) => this.handleChangeInput(e, d)}
             />
           </Form.Group>
@@ -335,7 +373,11 @@ export default class Profil extends React.Component {
                   ? false
                   : true
               }
-              value={this.state.account.codePostal}
+              value={
+                _.isUndefined(this.state.account.codePostal)
+                  ? ""
+                  : this.state.account.codePostal
+              }
               onChange={(e, d) => this.handleChangeInput(e, d)}
             />
             <Form.Input
@@ -343,7 +385,11 @@ export default class Profil extends React.Component {
               label="Ville"
               placeholder="Votre ville"
               name="ville"
-              value={this.state.account.ville}
+              value={
+                _.isUndefined(this.state.account.ville)
+                  ? ""
+                  : this.state.account.ville
+              }
               onChange={(e, d) => this.handleChangeInput(e, d)}
             />
             <Form.Input
@@ -351,7 +397,11 @@ export default class Profil extends React.Component {
               label="Pays"
               placeholder="Votre pays"
               name="pays"
-              value={this.state.account.pays}
+              value={
+                _.isUndefined(this.state.account.pays)
+                  ? ""
+                  : this.state.account.pays
+              }
               onChange={(e, d) => this.handleChangeInput(e, d)}
             />
           </Form.Group>
@@ -363,7 +413,11 @@ export default class Profil extends React.Component {
             <Form.Input
               required={true}
               label="Téléphone mobile"
-              value={this.state.account.telMobile}
+              value={
+                _.isUndefined(this.state.account.telMobile)
+                  ? ""
+                  : this.state.account.telMobile
+              }
               name="telMobile"
               error={
                 this.telephoneValide(this.state.account.telMobile) ||
@@ -376,7 +430,11 @@ export default class Profil extends React.Component {
             <Form.Input
               required={true}
               label="Téléphone bureau"
-              value={this.state.account.telBureau}
+              value={
+                _.isUndefined(this.state.account.telBureau)
+                  ? ""
+                  : this.state.account.telBureau
+              }
               name="telBureau"
               error={
                 this.telephoneValide(this.state.account.telBureau) ||
@@ -397,7 +455,11 @@ export default class Profil extends React.Component {
                   ? false
                   : true
               }
-              value={this.state.account.email}
+              value={
+                _.isUndefined(this.state.account.email)
+                  ? ""
+                  : this.state.account.email
+              }
               onChange={(e, d) => this.handleChangeInput(e, d)}
             />
           </Form.Group>

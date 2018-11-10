@@ -10,18 +10,22 @@ import {
   Form,
   Button,
   Modal,
+  Popup,
   Ref
 } from "semantic-ui-react";
 
 import {
   hsize,
   codePostalRegex,
+  helpPopup,
   denominationDefaultFormat,
   emailRegex,
   telRegex
 } from "./Settings";
 
 import PatientSearch from "./PatientSearch";
+
+import PatientSearchModal from "./PatientSearchModal";
 
 import FichePatient from "./FichePatient";
 
@@ -36,7 +40,8 @@ export default class ProfilsPatients extends React.Component {
       age: {},
       saved: true,
       errorOnSave: false,
-      modalDelete: false
+      modalDelete: false,
+      patientSearchModal: false
     });
   }
 
@@ -72,8 +77,9 @@ export default class ProfilsPatients extends React.Component {
     );
   };
 
-  onPatientChange = id => {
-    //this.setState({ patient: {} });
+  onPatientChange = (id, denomPatient) => {
+    // denomPatient ne sera pas utilisé ici
+
     this.props.client.Patients.read(
       id,
       {},
@@ -235,6 +241,10 @@ export default class ProfilsPatients extends React.Component {
     this.newSearch();
   };
 
+  patientSearchModalOpen = bool => {
+    this.setState({ patientSearchModal: bool });
+  };
+
   render() {
     return (
       <div id="profil-patients">
@@ -276,11 +286,41 @@ export default class ProfilsPatients extends React.Component {
             clear={this.state.clearSearch}
           />
 
-          <Icon
+          <Popup
+            trigger={
+              <Icon
+                style={{ cursor: "pointer", marginTop: 10, marginLeft: 10 }}
+                onClick={this.newSearch}
+                size="large"
+                name="remove user"
+              />
+            }
+            content="Nouvelle recherche"
+            on={helpPopup.on}
+            size={helpPopup.size}
+            inverted={helpPopup.inverted}
+          />
+          {/*<Icon
             style={{ cursor: "pointer", marginTop: 10, marginLeft: 10 }}
             onClick={this.newSearch}
             size="large"
             name="remove user"
+          />*/}
+
+          <Popup
+            trigger={
+              <Icon
+                style={{ cursor: "pointer", marginTop: 10, marginLeft: 10 }}
+                disabled={this.state.patientSearchModal}
+                onClick={() => this.patientSearchModalOpen(true)}
+                size="large"
+                name="search"
+              />
+            }
+            content="Recherche élargie d'un patient"
+            on={helpPopup.on}
+            size={helpPopup.size}
+            inverted={helpPopup.inverted}
           />
         </Form.Input>
         <Divider hidden={true} />
@@ -294,7 +334,16 @@ export default class ProfilsPatients extends React.Component {
           save={this.save} // new
           onPatientChange={this.onPatientChange} // new
         />
+
         <Divider hidden={true} />
+
+        {/* Recherche élargie d'un patient */}
+        <PatientSearchModal
+          open={this.state.patientSearchModal}
+          client={this.props.client}
+          patientChange={this.onPatientChange}
+          patientSearchModalOpen={this.patientSearchModalOpen}
+        />
 
         {this.state.patient.id && !site.hideDeletePatientButton ? (
           <Button
@@ -315,7 +364,9 @@ export default class ProfilsPatients extends React.Component {
         )}
         {this.state.patient.id ? (
           <React.Fragment>
-            <Button onClick={() => this.onPatientChange(this.state.patient.id)}>
+            <Button
+              onClick={() => this.onPatientChange(this.state.patient.id, "")}
+            >
               Annuler / Actualiser
             </Button>
             <Button primary={!this.state.saved} onClick={this.save}>

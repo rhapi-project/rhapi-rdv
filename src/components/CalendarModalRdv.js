@@ -18,16 +18,19 @@ import {
   List,
   Checkbox,
   Ref,
-  Accordion
+  Accordion,
+  Popup
 } from "semantic-ui-react";
 
 import TimeField from "react-simple-timefield";
 
 import moment from "moment";
 
-import { maxWidth, rdvEtats, telFormat } from "./Settings";
+import { maxWidth, rdvEtats, telFormat, helpPopup } from "./Settings";
 
 import PatientSearch from "./PatientSearch";
+
+import PatientSearchModal from "./PatientSearchModal";
 
 import ColorPicker from "./ColorPicker";
 
@@ -92,7 +95,8 @@ export default class CalendarModalRdv extends React.Component {
     this.setState({
       rdvPassCard: false,
       deleteRdv: false,
-      dateRdvFocused: false
+      dateRdvFocused: false,
+      patientSearchModal: false
     });
     this.reload(this.props);
   }
@@ -641,6 +645,10 @@ export default class CalendarModalRdv extends React.Component {
     this.setState({ rdvPassCard: bool });
   };
 
+  patientSearchModalOpen = bool => {
+    this.setState({ patientSearchModal: bool });
+  };
+
   rdvEtatsChange = idEtat => {
     let rdv = this.state.rdv;
     rdv.idEtat = idEtat;
@@ -818,73 +826,116 @@ export default class CalendarModalRdv extends React.Component {
                         minWidth={215}
                       />
                     </Ref>
+
                     {window.qWebChannel ? (
                       <React.Fragment>
-                        <Icon
-                          name="user"
-                          style={{
-                            cursor: "pointer",
-                            marginTop: 10
-                          }}
-                          onClick={() => {
-                            window.qWebChannel.currentPatientId(id => {
-                              this.props.client.Patients.completion(
-                                {
-                                  ipp2: id,
-                                  format: this.props.denominationFormat
-                                },
-                                results => {
-                                  if (results.length) {
-                                    this.patientChange(
-                                      results[0].id,
-                                      results[0].completion
-                                    );
-                                  }
-                                },
-                                data => {
-                                  // error
-                                  console.log("Erreur completion sur ipp2");
-                                  console.log(data);
-                                }
-                              );
-                            });
-                          }}
+                        <Popup
+                          trigger={
+                            <Icon
+                              name="user"
+                              style={{
+                                cursor: "pointer",
+                                marginTop: 10
+                              }}
+                              onClick={() => {
+                                window.qWebChannel.currentPatientId(id => {
+                                  this.props.client.Patients.completion(
+                                    {
+                                      ipp2: id,
+                                      format: this.props.denominationFormat
+                                    },
+                                    results => {
+                                      if (results.length) {
+                                        this.patientChange(
+                                          results[0].id,
+                                          results[0].completion
+                                        );
+                                      }
+                                    },
+                                    data => {
+                                      // error
+                                      console.log("Erreur completion sur ipp2");
+                                      console.log(data);
+                                    }
+                                  );
+                                });
+                              }}
+                            />
+                          }
+                          content="Sélectionner le patient courant"
+                          position="bottom left"
+                          on={helpPopup.on}
+                          size={helpPopup.size}
+                          inverted={helpPopup.inverted}
                         />
-                        <Icon
-                          name="user add"
-                          style={{
-                            cursor: "pointer",
-                            marginTop: 10,
-                            marginLeft: 3
-                          }}
-                          onClick={() => {
-                            window.qWebChannel.patientCreate2(result => {
-                              this.props.client.Patients.completion(
-                                {
-                                  ipp2: result.id,
-                                  format: this.props.denominationFormat
-                                },
-                                results => {
-                                  if (results.length) {
-                                    this.patientChange(
-                                      results[0].id,
-                                      results[0].completion
-                                    );
-                                  }
-                                },
-                                data => {
-                                  // error
-                                  console.log("Erreur completion sur ipp2");
-                                  console.log(data);
-                                }
-                              );
-                            });
-                          }}
+                        <Popup
+                          trigger={
+                            <Icon
+                              name="user add"
+                              style={{
+                                cursor: "pointer",
+                                marginTop: 10
+                              }}
+                              onClick={() => {
+                                window.qWebChannel.patientCreate2(result => {
+                                  this.props.client.Patients.completion(
+                                    {
+                                      ipp2: result.id,
+                                      format: this.props.denominationFormat
+                                    },
+                                    results => {
+                                      if (results.length) {
+                                        this.patientChange(
+                                          results[0].id,
+                                          results[0].completion
+                                        );
+                                      }
+                                    },
+                                    data => {
+                                      // error
+                                      console.log("Erreur completion sur ipp2");
+                                      console.log(data);
+                                    }
+                                  );
+                                });
+                              }}
+                            />
+                          }
+                          content="Créer un nouveau dossier patient"
+                          position="bottom left"
+                          on={helpPopup.on}
+                          size={helpPopup.size}
+                          inverted={helpPopup.inverted}
                         />
                       </React.Fragment>
                     ) : (
                       ""
                     )}
+                    {/* Recherche élargie d'un patient */}
+                    <Popup
+                      trigger={
+                        <Icon
+                          name="search"
+                          disabled={this.state.patientSearchModal}
+                          style={{
+                            cursor: "pointer",
+                            marginTop: 10
+                          }}
+                          onClick={() => this.patientSearchModalOpen(true)}
+                        />
+                      }
+                      content="Recherche élargie d'un patient"
+                      position="bottom left"
+                      on={helpPopup.on}
+                      size={helpPopup.size}
+                      inverted={helpPopup.inverted}
+                    />
+                    <PatientSearchModal
+                      open={this.state.patientSearchModal}
+                      client={this.props.client}
+                      patientChange={this.patientChange}
+                      patientSearchModalOpen={this.patientSearchModalOpen}
+                    />
                   </React.Fragment>
                 ) : (
                   <h3>
@@ -893,31 +944,40 @@ export default class CalendarModalRdv extends React.Component {
                   </h3>
                 )}
                 {this.state.rdv.idPatient && window.qWebChannel ? (
-                  <Icon
-                    name="folder open"
-                    style={{
-                      cursor: "pointer",
-                      marginTop: this.state.isNewOne ? 11 : 1,
-                      marginLeft: this.state.isNewOne ? 3 : 10
-                    }}
-                    onClick={() => {
-                      this.props.client.Patients.read(
-                        this.state.rdv.idPatient,
-                        {},
-                        result => {
-                          window.qWebChannel.patientSelect(
-                            result.ipp2,
-                            () => {}
+                  <Popup
+                    trigger={
+                      <Icon
+                        name="folder open"
+                        style={{
+                          cursor: "pointer",
+                          marginTop: this.state.isNewOne ? 11 : 1,
+                          marginLeft: this.state.isNewOne ? 3 : 10
+                        }}
+                        onClick={() => {
+                          this.props.client.Patients.read(
+                            this.state.rdv.idPatient,
+                            {},
+                            result => {
+                              window.qWebChannel.patientSelect(
+                                result.ipp2,
+                                () => {}
+                              );
+                              // this.handleOk();
+                            },
+                            data => {
+                              // error
+                              console.log("Erreur read patient");
+                              console.log(data);
+                            }
                           );
-                          // this.handleOk();
-                        },
-                        data => {
-                          // error
-                          console.log("Erreur read patient");
-                          console.log(data);
-                        }
-                      );
-                    }}
+                        }}
+                      />
+                    }
+                    content="Ouvrir le dossier du patient"
+                    position="bottom left"
+                    on={helpPopup.on}
+                    size={helpPopup.size}
+                    inverted={helpPopup.inverted}
                   />
                 ) : (
                   ""
