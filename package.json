@@ -1,6 +1,6 @@
 {
   "name": "rhapi-rdv",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "homepage": "{homepage}",
   "repository": {
     "type": "git",
@@ -40,7 +40,13 @@
   "devDependencies": {
     "markdown-folder-to-html": "^1.6.0",
     "prettier": "^1.12.1",
-    "react-scripts": "^1.1.4",
+    "react-scripts": "^2.1.1",
     "shelljs": "^0.8.2"
-  }
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
 }
