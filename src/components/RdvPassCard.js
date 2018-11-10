@@ -646,8 +646,8 @@ export default class RdvPassCard extends React.Component {
               </Ref>
             </Modal.Actions>
           ) : this.state.errorSMS === 0 ||
-          this.state.errorSMS === 1 ||
-          this.state.errorSMS === 4 ? (
+            this.state.errorSMS === 1 ||
+            this.state.errorSMS === 4 ? (
             <Modal.Actions>
               <Ref innerRef={node => node.firstChild.parentElement.focus()}>
                 <Button
@@ -884,8 +884,8 @@ class Carte extends React.Component {
             {this.state.mesRdv.length === 0
               ? ""
               : this.state.mesRdv.length === 1
-                ? "Votre prochain rendez-vous"
-                : "Vos prochains rendez-vous"}
+              ? "Votre prochain rendez-vous"
+              : "Vos prochains rendez-vous"}
           </strong>
         </div>
         {this.state.mesRdv.length === 0 ? (

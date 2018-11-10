@@ -20,7 +20,7 @@ import RdvPassCard from "./RdvPassCard";
 
 import { DayPickerSingleDateController } from "react-dates";
 
-import { darkPopup /*, denominationDefaultFormat*/ } from "./Settings";
+import { helpPopup } from "./Settings";
 
 export default class CalendarPanel extends React.Component {
   rhapiMd5 = "";
@@ -453,93 +453,120 @@ export default class CalendarPanel extends React.Component {
           />
           {window.qWebChannel ? (
             <React.Fragment>
-              <Icon
-                name="user"
-                style={{
-                  cursor: "pointer",
-                  marginTop: 8,
-                  marginLeft: 4
-                }}
-                onClick={() => {
-                  window.qWebChannel.currentPatientId(id => {
-                    this.props.client.Patients.completion(
-                      {
-                        ipp2: id,
-                        format: this.props.options.reservation
-                          .denominationFormat
-                      },
-                      results => {
-                        if (results.length) {
-                          let current = this.state.currentPatient;
-                          current.id = results[0].id;
-                          current.titre = results[0].completion;
-                          this.setState({ currentPatient: current });
-                          this.onPatientChange(current.id, current.titre);
-                        }
-                      },
-                      data => {
-                        // error
-                        console.log("Erreur completion sur ipp2");
-                        console.log(data);
-                      }
-                    );
-                  });
-                }}
+              <Popup
+                trigger={
+                  <Icon
+                    name="user"
+                    style={{
+                      cursor: "pointer",
+                      marginTop: 8,
+                      marginLeft: 4
+                    }}
+                    onClick={() => {
+                      window.qWebChannel.currentPatientId(id => {
+                        this.props.client.Patients.completion(
+                          {
+                            ipp2: id,
+                            format: this.props.options.reservation
+                              .denominationFormat
+                          },
+                          results => {
+                            if (results.length) {
+                              let current = this.state.currentPatient;
+                              current.id = results[0].id;
+                              current.titre = results[0].completion;
+                              this.setState({ currentPatient: current });
+                              this.onPatientChange(current.id, current.titre);
+                            }
+                          },
+                          data => {
+                            // error
+                            console.log("Erreur completion sur ipp2");
+                            console.log(data);
+                          }
+                        );
+                      });
+                    }}
+                  />
+                }
+                content="Sélectionner le patient courant"
+                on={helpPopup.on}
+                size={helpPopup.size}
+                inverted={helpPopup.inverted}
               />
-              <Icon
-                name="user add"
-                style={{
-                  cursor: "pointer",
-                  marginTop: 8
-                }}
-                onClick={() => {
-                  window.qWebChannel.patientCreate2(result => {
-                    this.props.client.Patients.completion(
-                      {
-                        ipp2: result.id,
-                        format: this.props.options.reservation
-                          .denominationFormat
-                      },
-                      results => {
-                        if (results.length) {
-                          let current = this.state.currentPatient;
-                          current.id = results[0].id;
-                          current.titre = results[0].completion;
-                          this.setState({ currentPatient: current });
-                          this.onPatientChange(current.id, current.titre);
-                        }
-                      },
-                      data => {
-                        // error
-                        console.log("Erreur completion sur ipp2");
-                        console.log(data);
-                      }
-                    );
-                  });
-                }}
+              <Popup
+                trigger={
+                  <Icon
+                    name="user add"
+                    style={{
+                      cursor: "pointer",
+                      marginTop: 8
+                    }}
+                    onClick={() => {
+                      window.qWebChannel.patientCreate2(result => {
+                        this.props.client.Patients.completion(
+                          {
+                            ipp2: result.id,
+                            format: this.props.options.reservation
+                              .denominationFormat
+                          },
+                          results => {
+                            if (results.length) {
+                              let current = this.state.currentPatient;
+                              current.id = results[0].id;
+                              current.titre = results[0].completion;
+                              this.setState({ currentPatient: current });
+                              this.onPatientChange(current.id, current.titre);
+                            }
+                          },
+                          data => {
+                            // error
+                            console.log("Erreur completion sur ipp2");
+                            console.log(data);
+                          }
+                        );
+                      });
+                    }}
+                  />
+                }
+                content="Créer un nouveau dossier patient"
+                on={helpPopup.on}
+                size={helpPopup.size}
+                inverted={helpPopup.inverted}
               />
-              <Icon
-                name="folder open"
-                disabled={this.state.currentPatient.id === 0}
-                style={{
-                  cursor: "pointer",
-                  marginTop: 8
-                }}
-                onClick={() => {
-                  this.props.client.Patients.read(
-                    this.state.currentPatient.id,
-                    {},
-                    result => {
-                      window.qWebChannel.patientSelect(result.ipp2, () => {});
-                      // this.handleOk();
-                    },
-                    data => {
-                      // error
-                      console.log("Erreur read patient");
-                      console.log(data);
-                    }
-                  );
-                }}
+              <Popup
+                trigger={
+                  <Icon
+                    name="folder open"
+                    disabled={this.state.currentPatient.id === 0}
+                    style={{
+                      cursor: "pointer",
+                      marginTop: 8
+                    }}
+                    onClick={() => {
+                      this.props.client.Patients.read(
+                        this.state.currentPatient.id,
+                        {},
+                        result => {
+                          window.qWebChannel.patientSelect(
+                            result.ipp2,
+                            () => {}
+                          );
+                          // this.handleOk();
+                        },
+                        data => {
+                          // error
+                          console.log("Erreur read patient");
+                          console.log(data);
+                        }
+                      );
+                    }}
+                  />
+                }
+                content="Ouvrir le dossier du patient"
+                on={helpPopup.on}
+                size={helpPopup.size}
+                inverted={helpPopup.inverted}
               />
             </React.Fragment>
           ) : (
@@ -566,10 +593,10 @@ export default class CalendarPanel extends React.Component {
                     disabled={this.state.currentPatient.id === 0}
                   />
                 }
-                content="Rechercher un nouveau patient"
-                position="top right"
-                size="small"
-                inverted={darkPopup}
+                content="Nouvelle recherche"
+                on={helpPopup.on}
+                size={helpPopup.size}
+                inverted={helpPopup.inverted}
               />
 
               {/* Recherche élargie d'un patient */}
@@ -586,9 +613,9 @@ export default class CalendarPanel extends React.Component {
                   />
                 }
                 content="Recherche élargie d'un patient"
-                size="small"
-                position="top center"
-                inverted={darkPopup}
+                on={helpPopup.on}
+                size={helpPopup.size}
+                inverted={helpPopup.inverted}
               />
 
               <PatientSearchModal
@@ -634,10 +661,10 @@ export default class CalendarPanel extends React.Component {
                 disabled={this.state.currentPatient.id === 0}
               />
             }
-            content="Liste des rendez-vous"
-            position="top left"
-            inverted={darkPopup}
-            size="small"
+            content="Liste des rendez-vous du patient"
+            on={helpPopup.on}
+            size={helpPopup.size}
+            inverted={helpPopup.inverted}
           />
 
           {!_.isEmpty(this.state.patient) ? (
@@ -682,8 +709,9 @@ export default class CalendarPanel extends React.Component {
             }
             content="Rendez-vous précédent"
             position="bottom left"
-            inverted={darkPopup}
-            size="small"
+            on={helpPopup.on}
+            size={helpPopup.size}
+            inverted={helpPopup.inverted}
           />
 
           <Popup
@@ -708,10 +736,11 @@ export default class CalendarPanel extends React.Component {
                 }
               />
             }
-            content="Aller sur un rendez-vous"
+            content="Afficher la date de ce rendez-vous"
             position="bottom center"
-            inverted={darkPopup}
-            size="small"
+            on={helpPopup.on}
+            size={helpPopup.size}
+            inverted={helpPopup.inverted}
           />
 
           <Popup
@@ -731,8 +760,9 @@ export default class CalendarPanel extends React.Component {
             }
             content="Rendez-vous suivant"
             position="bottom right"
-            inverted={darkPopup}
-            size="small"
+            on={helpPopup.on}
+            size={helpPopup.size}
+            inverted={helpPopup.inverted}
           />
         </div>
         <Divider />
@@ -743,15 +773,17 @@ export default class CalendarPanel extends React.Component {
               trigger={
                 <Button icon="eraser" onClick={this.modalClearExternalOpen} />
               }
-              content="Nettoyer la liste d'attente"
-              size="small"
-              inverted={darkPopup}
+              content="Effacer la liste d'attente"
+              on={helpPopup.on}
+              size={helpPopup.size}
+              inverted={helpPopup.inverted}
             />
             <Popup
               trigger={<Button icon="add" onClick={this.addExternal} />}
               content="Ajouter un rendez-vous à la liste d'attente"
-              size="small"
-              inverted={darkPopup}
+              on={helpPopup.on}
+              size={helpPopup.size}
+              inverted={helpPopup.inverted}
             />
           </Button.Group>
         </div>
@@ -811,8 +843,8 @@ export default class CalendarPanel extends React.Component {
           <Modal.Header>Vider la liste d'attente</Modal.Header>
           <Modal.Content>
             {_.size(this.state.externalEventsDatas) === 1
-              ? "Voulez-vous supprimer le rendez-vous en attente ?"
-              : "Voulez-vous supprimer les " +
+              ? "Souhaitez-vous supprimer le rendez-vous en attente ?"
+              : "Souhaitez-vous supprimer les " +
                 _.size(this.state.externalEventsDatas) +
                 " rendez-vous en attente ?"}
             <br />

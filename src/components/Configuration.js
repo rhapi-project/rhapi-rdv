@@ -19,7 +19,7 @@ import {
   Modal
 } from "semantic-ui-react";
 
-import { maxWidth, fsize, hsize, darkPopup, defaultPlanning } from "./Settings";
+import { maxWidth, fsize, hsize, helpPopup, defaultPlanning } from "./Settings";
 
 import HorairesSemaine from "./HorairesSemaine";
 import Conges from "./Conges";
@@ -1066,7 +1066,9 @@ export default class Configuration extends React.Component {
                       <Icon name="help circle" />
                     </Form.Group>
                   }
-                  inverted={darkPopup}
+                  on={helpPopup.on}
+                  size={helpPopup.size}
+                  inverted={helpPopup.inverted}
                 >
                   Chaque période est définie par des dates de début et de fin
                   (de manière inclusive).
@@ -1233,8 +1235,8 @@ export default class Configuration extends React.Component {
                 _.isUndefined(options.acl.transfer)
                   ? ""
                   : _.isString(options.acl.transfer)
-                    ? options.acl.transfer
-                    : ""
+                  ? options.acl.transfer
+                  : ""
               }
               onChange={(e, d) => {
                 options.acl.transfer = d.value;
@@ -1576,16 +1578,11 @@ export default class Configuration extends React.Component {
                 }
                 //header="Réutilisation des configurations"
                 position="bottom left"
-                //wide={true}
-                inverted={darkPopup}
-                size="small"
-              >
-                {/*<Popup.Header>Réutilisation des configurations</Popup.Header>*/}
-                <Popup.Content>
-                  Sauvegarder la configuration en cours ou charger une nouvelle
-                  configuration
-                </Popup.Content>
-              </Popup>
+                on={helpPopup.on}
+                size={helpPopup.size}
+                inverted={helpPopup.inverted}
+                content="Sauvegarder / Charger une nouvelle configuration"
+              />
               &nbsp;
               <Popup
                 trigger={
@@ -1616,10 +1613,11 @@ export default class Configuration extends React.Component {
                     </Dropdown.Menu>
                   </Dropdown>
                 }
-                content="Import/Export des rendez-vous au format iCalendar"
+                content="Export / Import au format iCalendar (*.ics)"
                 position="bottom left"
-                inverted={darkPopup}
-                size="small"
+                on={helpPopup.on}
+                size={helpPopup.size}
+                inverted={helpPopup.inverted}
               />
               &nbsp;&nbsp;
               <b>

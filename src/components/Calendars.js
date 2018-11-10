@@ -8,7 +8,7 @@ import Calendar from "./Calendar";
 
 import CalendarPanel from "./CalendarPanel";
 
-import { darkPopup } from "./Settings";
+import { helpPopup } from "./Settings";
 
 export default class Calendars extends React.Component {
   componentWillMount() {
@@ -185,24 +185,27 @@ export default class Calendars extends React.Component {
               <Button.Group basic={true} size="mini">
                 <Popup
                   trigger={<Button icon="print" onClick={this.print} />}
-                  content="Imprimer l'Agenda"
-                  size="small"
-                  inverted={darkPopup}
+                  content="Imprimer l'agenda"
+                  on={helpPopup.on}
+                  size={helpPopup.size}
+                  inverted={helpPopup.inverted}
                 />
               </Button.Group>
               &nbsp;
               <Button.Group basic={true} size="mini">
                 <Popup
                   trigger={<Button icon="zoom out" onClick={this.zoomOut} />}
-                  content="Réduire la hauteur des créneaux"
-                  size="small"
-                  inverted={darkPopup}
+                  content="Réduire la hauteur des créneaux horaires"
+                  on={helpPopup.on}
+                  size={helpPopup.size}
+                  inverted={helpPopup.inverted}
                 />
                 <Popup
                   trigger={<Button icon="zoom in" onClick={this.zoomIn} />}
-                  content="Augmenter la hauteur des créneaux"
-                  size="small"
-                  inverted={darkPopup}
+                  content="Augmenter la hauteur des créneaux horaires"
+                  on={helpPopup.on}
+                  size={helpPopup.size}
+                  inverted={helpPopup.inverted}
                 />
               </Button.Group>
               &nbsp;
@@ -214,9 +217,10 @@ export default class Calendars extends React.Component {
                       onClick={() => this.hidePanel(!this.state.hidePanel)}
                     />
                   }
-                  content="Masquer le panneau latéral gauche CTRL + ESPACE"
-                  size="small"
-                  inverted={darkPopup}
+                  content="Masquer le panneau latéral gauche (Ctrl + Espace)"
+                  on={helpPopup.on}
+                  size={helpPopup.size}
+                  inverted={helpPopup.inverted}
                 />
               </Button.Group>
             </div>
@@ -280,9 +284,10 @@ export default class Calendars extends React.Component {
                     onClick={() => this.hidePanel(!this.state.hidePanel)}
                   />
                 }
-                content="Afficher le panneau latéral gauche CTRL + ESPACE"
-                inverted={darkPopup}
-                size="small"
+                content="Afficher le panneau latéral gauche (Ctrl + Espace)"
+                on={helpPopup.on}
+                size={helpPopup.size}
+                inverted={helpPopup.inverted}
               />
             </div>
           ) : (

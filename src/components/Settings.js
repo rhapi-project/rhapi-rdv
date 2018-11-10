@@ -13,7 +13,7 @@ import _ from "lodash";
 const maxWidth = 500;
 
 /*
- * psize : Preferred Semantic UI Form size 
+ * psize : Preferred Semantic UI Form size
  * hsize : Preferred Semantic UI Header/Title Size
  */
 
@@ -27,7 +27,7 @@ const hsize = "large";
 const rdvDateTime = dateStr =>
   moment(dateStr).format("dddd D MMMM YYYY à HH:mm");
 
-/* 
+/*
  * defaultPlanning : Planning par défaut
  */
 
@@ -428,8 +428,8 @@ const civilite = (short, valCivilite) => {
       civiliteStr = short
         ? civilites[civiliteNum].shorttext
         : civiliteNum === 3 // Mademoiselle (obsolète) est géré comme un texte libre (autre)
-          ? civilites[civiliteNum].text
-          : "";
+        ? civilites[civiliteNum].text
+        : "";
     } else {
       civiliteStr = "";
     }
@@ -457,9 +457,13 @@ const appToken = "bXlhcHA6bXlhcHBteWFwcA";
 const authUrl = "https://auth-dev.rhapi.net";
 
 /*
- * Fond noir des popups
+ * popups d'aide
  */
-const darkPopup = true;
+const helpPopup = {
+  on: "hover",
+  size: "mini",
+  inverted: true
+};
 
 export {
   localdev,
@@ -467,7 +471,7 @@ export {
   authUrl,
   site,
   maxWidth,
-  darkPopup,
+  helpPopup,
   fsize,
   hsize,
   defaultPlanning,

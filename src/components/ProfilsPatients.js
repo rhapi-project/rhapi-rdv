@@ -17,7 +17,7 @@ import {
 import {
   hsize,
   codePostalRegex,
-  darkPopup,
+  helpPopup,
   denominationDefaultFormat,
   emailRegex,
   telRegex
@@ -295,9 +295,10 @@ export default class ProfilsPatients extends React.Component {
                 name="remove user"
               />
             }
-            content="Rechercher un nouveau patient"
-            inverted={darkPopup}
-            size="small"
+            content="Nouvelle recherche"
+            on={helpPopup.on}
+            size={helpPopup.size}
+            inverted={helpPopup.inverted}
           />
           {/*<Icon
             style={{ cursor: "pointer", marginTop: 10, marginLeft: 10 }}
@@ -317,8 +318,9 @@ export default class ProfilsPatients extends React.Component {
               />
             }
             content="Recherche élargie d'un patient"
-            inverted={darkPopup}
-            size="small"
+            on={helpPopup.on}
+            size={helpPopup.size}
+            inverted={helpPopup.inverted}
           />
         </Form.Input>
         <Divider hidden={true} />

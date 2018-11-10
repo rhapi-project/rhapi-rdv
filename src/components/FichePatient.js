@@ -25,7 +25,7 @@ import {
   telFormat,
   civilite,
   camelDenomination,
-  darkPopup,
+  helpPopup,
   denominationDefaultFormat,
   affichageDenomination
 } from "./Settings";
@@ -643,8 +643,9 @@ export default class FichePatient extends React.Component {
                         }
                         content="Autoriser la réception de SMS pour ce patient"
                         position="bottom left"
-                        inverted={darkPopup}
-                        size="small"
+                        on={helpPopup.on}
+                        size={helpPopup.size}
+                        inverted={helpPopup.inverted}
                       />
                     </Form.Input>
 
