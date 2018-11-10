@@ -612,7 +612,7 @@ export default class CalendarPanel extends React.Component {
                     onClick={() => this.patientSearchModalOpen(true)}
                   />
                 }
-                content="Recherche élargie d'un patient"
+                content="Recherche élargie"
                 on={helpPopup.on}
                 size={helpPopup.size}
                 inverted={helpPopup.inverted}

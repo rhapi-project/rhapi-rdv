@@ -317,7 +317,7 @@ export default class ProfilsPatients extends React.Component {
                 name="search"
               />
             }
-            content="Recherche élargie d'un patient"
+            content="Recherche élargie"
             on={helpPopup.on}
             size={helpPopup.size}
             inverted={helpPopup.inverted}

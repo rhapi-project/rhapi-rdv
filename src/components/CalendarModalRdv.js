@@ -924,7 +924,7 @@ export default class CalendarModalRdv extends React.Component {
                           onClick={() => this.patientSearchModalOpen(true)}
                         />
                       }
-                      content="Recherche élargie d'un patient"
+                      content="Recherche élargie"
                       position="bottom left"
                       on={helpPopup.on}
                       size={helpPopup.size}
