@@ -3,7 +3,6 @@ import React from "react";
 import {
   Button,
   Form,
-  Grid,
   Icon,
   Image,
   Message,
@@ -14,24 +13,26 @@ import {
 import _ from "lodash";
 
 export default class ImageReader extends React.Component {
-  componentWillMount() {
-    this.setState({
-      open: false,
-      errorPhoto: false,
-      image: this.props.image,
-      photoPreview: false
-    });
-  }
+  state = {
+    open: false,
+    errorPhoto: false,
+    image: "",
+    photoPreview: false
+  };
 
   componentWillReceiveProps(next) {
     this.setState({
       image: next.image
+      //height: 0,
+      //width: 0
     });
   }
 
   base64Photo = (e, d) => {
     let filesSelected = document.getElementById(d.id).files;
-    //console.log(filesSelected);
+
+    console.log(filesSelected);
+
     if (
       !(
         filesSelected[0].type === "image/png" ||
@@ -56,21 +57,30 @@ export default class ImageReader extends React.Component {
         let newImage = document.createElement("img");
         newImage.src = srcData;
 
-        /*console.log(newImage.width + " - " + newImage.height);
+        //console.log(newImage.width + " - " + newImage.height);
 
-        if (newImage.height === 0 || newImage.height > 128) {
-          //newImage.height = 128;
-          this.setState({ height: 128 });
+        if (newImage.height > 128) {
+          newImage.height = 128;
+          //this.setState({ height: newImage.height });
         } else {
-          this.setState({ height: newImage.height });
+          //this.setState({ height: newImage.height });
         }
 
-        if (newImage.width === 0 || newImage.width > 128) {
-          //newImage.width = 128;
-          this.setState({ width: 128 });
+        if (newImage.width > 128) {
+          newImage.width = 128;
+          //this.setState({ width: newImage.width });
         } else {
-          this.setState({ width: newImage.widths });
-        }*/
+          //this.setState({ width: newImage.widths });
+        }
+
+        /*let canvas = document.createElement("canvas");
+        canvas.width = newImage.width;
+        canvas.height = newImage.height;
+
+        let ctx = canvas.getContext("2d");
+        ctx.drawImage(newImage, 0, 0);*/
+
+        //let dataURL = canvas.toDataURL("image/png");
 
         this.setState({
           image: srcData,
@@ -88,26 +98,29 @@ export default class ImageReader extends React.Component {
     return (
       <React.Fragment>
         {/* Modal Photo de profil*/}
+
         <Modal
-          size="mini"
+          size="tiny"
           open={this.state.open}
           closeIcon={true}
           onClose={() => this.setState({ open: false })}
         >
           <Modal.Header>Photo de profil</Modal.Header>
           <Modal.Content>
-            <Grid columns="equal" style={{ marginBottom: "7px" }}>
-              <Grid.Column />
-              <Grid.Column width={12} style={{ textAlign: "center" }}>
-                {_.isEmpty(this.state.image) ? (
-                  <Icon name="user" size="massive" />
-                ) : (
-                  <Image src={this.state.image} centered={true} />
-                )}
-              </Grid.Column>
-              <Grid.Column />
-            </Grid>
-
+            {_.isEmpty(this.state.image) ? (
+              <Icon name="user" size="massive" />
+            ) : (
+              <div>
+                {" "}
+                {/* vraie photo */}
+                <Image
+                  src={this.state.image}
+                  centered={
+                    true
+                  } /*style={{ height: this.state.height + "px", width: this.state.width + "px"}}*/
+                />
+              </div>
+            )}
             <Form>
               <Form.Input
                 id="photo"
@@ -156,19 +169,7 @@ export default class ImageReader extends React.Component {
           <Modal.Header>Photo de profil</Modal.Header>
           <Modal.Content>
             {/*<div id="photoPreview" style={{ textAlign: "center" }} />*/}
-            <Grid columns="equal">
-              <Grid.Column />
-              <Grid.Column width={12}>
-                <Image
-                  id="photoPreview"
-                  src={this.state.image}
-                  //height={this.state.height}
-                  //width={this.state.width}
-                  centered={true}
-                />
-              </Grid.Column>
-              <Grid.Column />
-            </Grid>
+            <Image id="photoPreview" src={this.state.image} />
           </Modal.Content>
           <Modal.Actions>
             <Button

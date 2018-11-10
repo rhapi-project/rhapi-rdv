@@ -29,8 +29,6 @@ import { maxWidth, rdvEtats, telFormat } from "./Settings";
 
 import PatientSearch from "./PatientSearch";
 
-import PatientSearchModal from "./PatientSearchModal";
-
 import ColorPicker from "./ColorPicker";
 
 import RdvPassCard from "./RdvPassCard";
@@ -94,8 +92,7 @@ export default class CalendarModalRdv extends React.Component {
     this.setState({
       rdvPassCard: false,
       deleteRdv: false,
-      dateRdvFocused: false,
-      patientSearchModal: false
+      dateRdvFocused: false
     });
     this.reload(this.props);
   }
@@ -644,10 +641,6 @@ export default class CalendarModalRdv extends React.Component {
     this.setState({ rdvPassCard: bool });
   };
 
-  patientSearchModalOpen = bool => {
-    this.setState({ patientSearchModal: bool });
-  };
-
   rdvEtatsChange = idEtat => {
     let rdv = this.state.rdv;
     rdv.idEtat = idEtat;
@@ -825,25 +818,6 @@ export default class CalendarModalRdv extends React.Component {
                         minWidth={215}
                       />
                     </Ref>
-
-                    {/* Recherche élargie d'un patient */}
-                    <Icon
-                      name="search"
-                      size="large"
-                      disabled={this.state.patientSearchModal}
-                      style={{
-                        paddingLeft: "10px",
-                        paddingTop: "7px",
-                        cursor: "pointer"
-                      }}
-                      onClick={() => this.patientSearchModalOpen(true)}
-                    />
-                    <PatientSearchModal
-                      open={this.state.patientSearchModal}
-                      client={this.props.client}
-                      patientChange={this.patientChange}
-                      patientSearchModalOpen={this.patientSearchModalOpen}
-                    />
                     {window.qWebChannel ? (
                       <React.Fragment>
                         <Icon

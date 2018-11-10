@@ -8,19 +8,15 @@ import moment from "moment";
 
 import React from "react";
 
-import { Divider, Button, Form, Icon, Modal, Popup } from "semantic-ui-react";
+import { Divider, Button, Form, Icon, Modal } from "semantic-ui-react";
 
 import PatientSearch from "./PatientSearch";
-
-import PatientSearchModal from "./PatientSearchModal";
 
 import CalendarModalRdv from "./CalendarModalRdv";
 
 import RdvPassCard from "./RdvPassCard";
 
 import { DayPickerSingleDateController } from "react-dates";
-
-import { helpPopup } from "./Settings";
 
 export default class CalendarPanel extends React.Component {
   rhapiMd5 = "";
@@ -34,8 +30,7 @@ export default class CalendarPanel extends React.Component {
       modalRdvIsOpen: false,
       eventToEdit: {},
       patient: {},
-      rdvPassCard: false,
-      patientSearchModal: false
+      rdvPassCard: false
     });
   }
 
@@ -158,29 +153,6 @@ export default class CalendarPanel extends React.Component {
   onDateChange = date => {
     this.setState({ currentDate: date });
     $("#calendar").fullCalendar("gotoDate", date);
-  };
-
-  getPatient = (id, title) => {
-    this.props.client.Patients.completion(
-      {
-        ipp2: id,
-        format: this.props.options.reservation.denominationFormat
-      },
-      results => {
-        if (results.length) {
-          let current = this.state.currentPatient;
-          current.id = results[0].id;
-          current.titre = results[0].completion;
-          this.setState({ currentPatient: current });
-          this.onPatientChange(current.id, current.titre);
-        }
-      },
-      data => {
-        // error
-        console.log("Erreur completion sur ipp2");
-        console.log(data);
-      }
-    );
   };
 
   onPatientChange = (id, title) => {
@@ -408,10 +380,6 @@ export default class CalendarPanel extends React.Component {
     }
   };
 
-  patientSearchModalOpen = bool => {
-    this.setState({ patientSearchModal: bool });
-  };
-
   render() {
     // RDV du patient
     let rdvPatient = "RDV du patient";
@@ -424,7 +392,6 @@ export default class CalendarPanel extends React.Component {
             moment(patient.rdv.liste[index].startAt).format("D MMMM à HH:mm")
           : "";
     }
-
     return (
       <React.Fragment>
         <Divider />
@@ -449,224 +416,152 @@ export default class CalendarPanel extends React.Component {
                 : this.props.options.reservation.denominationFormat
             }
             clear={this.state.clearSearch}
-            value={!_.isEmpty(patient) ? patient.titre : ""}
+            value={patient ? patient.titre : ""}
           />
           {window.qWebChannel ? (
             <React.Fragment>
-              <Popup
-                trigger={
-                  <Icon
-                    name="user"
-                    style={{
-                      cursor: "pointer",
-                      marginTop: 8,
-                      marginLeft: 4
-                    }}
-                    onClick={() => {
-                      window.qWebChannel.currentPatientId(id => {
-                        this.props.client.Patients.completion(
-                          {
-                            ipp2: id,
-                            format: this.props.options.reservation
-                              .denominationFormat
-                          },
-                          results => {
-                            if (results.length) {
-                              let current = this.state.currentPatient;
-                              current.id = results[0].id;
-                              current.titre = results[0].completion;
-                              this.setState({ currentPatient: current });
-                              this.onPatientChange(current.id, current.titre);
-                            }
-                          },
-                          data => {
-                            // error
-                            console.log("Erreur completion sur ipp2");
-                            console.log(data);
-                          }
-                        );
-                      });
-                    }}
-                  />
-                }
-                content="Sélectionner le patient courant"
-                on={helpPopup.on}
-                size={helpPopup.size}
-                inverted={helpPopup.inverted}
-              />
-              <Popup
-                trigger={
-                  <Icon
-                    name="user add"
-                    style={{
-                      cursor: "pointer",
-                      marginTop: 8
-                    }}
-                    onClick={() => {
-                      window.qWebChannel.patientCreate2(result => {
-                        this.props.client.Patients.completion(
-                          {
-                            ipp2: result.id,
-                            format: this.props.options.reservation
-                              .denominationFormat
-                          },
-                          results => {
-                            if (results.length) {
-                              let current = this.state.currentPatient;
-                              current.id = results[0].id;
-                              current.titre = results[0].completion;
-                              this.setState({ currentPatient: current });
-                              this.onPatientChange(current.id, current.titre);
-                            }
-                          },
-                          data => {
-                            // error
-                            console.log("Erreur completion sur ipp2");
-                            console.log(data);
-                          }
-                        );
-                      });
-                    }}
-                  />
-                }
-                content="Créer un nouveau dossier patient"
-                on={helpPopup.on}
-                size={helpPopup.size}
-                inverted={helpPopup.inverted}
-              />
-              <Popup
-                trigger={
-                  <Icon
-                    name="folder open"
-                    disabled={this.state.currentPatient.id === 0}
-                    style={{
-                      cursor: "pointer",
-                      marginTop: 8
-                    }}
-                    onClick={() => {
-                      this.props.client.Patients.read(
-                        this.state.currentPatient.id,
-                        {},
-                        result => {
-                          window.qWebChannel.patientSelect(
-                            result.ipp2,
-                            () => {}
-                          );
-                          // this.handleOk();
-                        },
-                        data => {
-                          // error
-                          console.log("Erreur read patient");
-                          console.log(data);
-                        }
-                      );
-                    }}
-                  />
-                }
-                content="Ouvrir le dossier du patient"
-                on={helpPopup.on}
-                size={helpPopup.size}
-                inverted={helpPopup.inverted}
-              />
-            </React.Fragment>
-          ) : (
-            <React.Fragment>
-              <Popup
-                trigger={
-                  <Icon
-                    style={{
-                      cursor: "pointer",
-                      marginTop: 8,
-                      marginLeft: 5
-                    }}
-                    onClick={() => {
-                      this.setState({
-                        clearSearch: true,
-                        currentPatient: {
-                          id: 0,
-                          title: "",
-                          rdv: { liste: [], index: -1 }
-                        }
-                      });
-                    }}
-                    name="remove user"
-                    disabled={this.state.currentPatient.id === 0}
-                  />
-                }
-                content="Nouvelle recherche"
-                on={helpPopup.on}
-                size={helpPopup.size}
-                inverted={helpPopup.inverted}
-              />
-
-              {/* Recherche élargie d'un patient */}
-              <Popup
-                trigger={
-                  <Icon
-                    name="search"
-                    disabled={this.state.patientSearchModal}
-                    style={{
-                      cursor: "pointer",
-                      marginTop: 8
-                    }}
-                    onClick={() => this.patientSearchModalOpen(true)}
-                  />
-                }
-                content="Recherche élargie d'un patient"
-                on={helpPopup.on}
-                size={helpPopup.size}
-                inverted={helpPopup.inverted}
-              />
-
-              <PatientSearchModal
-                open={this.state.patientSearchModal}
-                client={this.props.client}
-                patientChange={this.getPatient}
-                patientSearchModalOpen={this.patientSearchModalOpen}
-              />
-            </React.Fragment>
-          )}
-          <Popup
-            trigger={
               <Icon
+                name="user"
                 style={{
                   cursor: "pointer",
                   marginTop: 8,
-                  marginLeft: window.qWebChannel ? 0 : 2
+                  marginLeft: 4
                 }}
                 onClick={() => {
-                  if (this.state.currentPatient.id === 0) {
-                    return;
-                  } else {
-                    this.props.client.Patients.read(
-                      this.state.currentPatient.id,
-                      {},
-                      patient => {
-                        //console.log(patient);
-                        this.setState({
-                          patient: patient
-                          //rdvPassCard: true
-                        });
-                        this.rdvPassCardOpen(true);
+                  window.qWebChannel.currentPatientId(id => {
+                    this.props.client.Patients.completion(
+                      {
+                        ipp2: id,
+                        format: this.props.options.reservation
+                          .denominationFormat
+                      },
+                      results => {
+                        if (results.length) {
+                          let current = this.state.currentPatient;
+                          current.id = results[0].id;
+                          current.titre = results[0].completion;
+                          this.setState({ currentPatient: current });
+                          this.onPatientChange(current.id, current.titre);
+                        }
                       },
                       data => {
-                        //Error
-                        console.log("Erreur");
+                        // error
+                        console.log("Erreur completion sur ipp2");
                         console.log(data);
                       }
                     );
-                  }
+                  });
                 }}
-                name="list layout"
-                disabled={this.state.currentPatient.id === 0}
               />
-            }
-            content="Liste des rendez-vous du patient"
-            on={helpPopup.on}
-            size={helpPopup.size}
-            inverted={helpPopup.inverted}
+              <Icon
+                name="user add"
+                style={{
+                  cursor: "pointer",
+                  marginTop: 8
+                }}
+                onClick={() => {
+                  window.qWebChannel.patientCreate2(result => {
+                    this.props.client.Patients.completion(
+                      {
+                        ipp2: result.id,
+                        format: this.props.options.reservation
+                          .denominationFormat
+                      },
+                      results => {
+                        if (results.length) {
+                          let current = this.state.currentPatient;
+                          current.id = results[0].id;
+                          current.titre = results[0].completion;
+                          this.setState({ currentPatient: current });
+                          this.onPatientChange(current.id, current.titre);
+                        }
+                      },
+                      data => {
+                        // error
+                        console.log("Erreur completion sur ipp2");
+                        console.log(data);
+                      }
+                    );
+                  });
+                }}
+              />
+              <Icon
+                name="folder open"
+                disabled={this.state.currentPatient.id === 0}
+                style={{
+                  cursor: "pointer",
+                  marginTop: 8
+                }}
+                onClick={() => {
+                  this.props.client.Patients.read(
+                    this.state.currentPatient.id,
+                    {},
+                    result => {
+                      window.qWebChannel.patientSelect(result.ipp2, () => {});
+                      // this.handleOk();
+                    },
+                    data => {
+                      // error
+                      console.log("Erreur read patient");
+                      console.log(data);
+                    }
+                  );
+                }}
+              />
+            </React.Fragment>
+          ) : (
+            <Icon
+              style={{
+                cursor: "pointer",
+                marginTop: 8,
+                marginLeft: 10
+              }}
+              onClick={() => {
+                this.setState({
+                  clearSearch: true,
+                  currentPatient: {
+                    id: 0,
+                    title: "",
+                    rdv: { liste: [], index: -1 }
+                  }
+                });
+              }}
+              name="remove user"
+              disabled={this.state.currentPatient.id === 0}
+            />
+          )}
+          <Icon
+            style={{
+              cursor: "pointer",
+              marginTop: 8,
+              marginLeft: window.qWebChannel ? 0 : 8
+            }}
+            onClick={() => {
+              if (this.state.currentPatient.id === 0) {
+                return;
+              } else {
+                this.props.client.Patients.read(
+                  this.state.currentPatient.id,
+                  {},
+                  patient => {
+                    //console.log(patient);
+                    this.setState({
+                      patient: patient
+                      //rdvPassCard: true
+                    });
+                    this.rdvPassCardOpen(true);
+                  },
+                  data => {
+                    //Error
+                    console.log("Erreur");
+                    console.log(data);
+                  }
+                );
+              }
+            }}
+            name="list layout"
+            disabled={this.state.currentPatient.id === 0}
           />
-
           {!_.isEmpty(this.state.patient) ? (
             <RdvPassCard
               open={this.state.rdvPassCard}
@@ -692,99 +587,56 @@ export default class CalendarPanel extends React.Component {
             marginRight: -15
           }}
         >
-          <Popup
-            trigger={
-              <Button
-                icon="left chevron"
-                style={{ fontSize: "0.7rem" }}
-                onClick={() => {
-                  this.onPatientChange(-1);
-                  let index = patient.rdv.index - 1;
-                  if (index >= 0) {
-                    patient.rdv.index = index;
-                    this.setState({ currentPatient: patient });
-                  }
-                }}
-              />
-            }
-            content="Rendez-vous précédent"
-            position="bottom left"
-            on={helpPopup.on}
-            size={helpPopup.size}
-            inverted={helpPopup.inverted}
+          <Button
+            icon="left chevron"
+            style={{ fontSize: "0.7rem" }}
+            onClick={() => {
+              this.onPatientChange(-1);
+              let index = patient.rdv.index - 1;
+              if (index >= 0) {
+                patient.rdv.index = index;
+                this.setState({ currentPatient: patient });
+              }
+            }}
           />
-
-          <Popup
-            trigger={
-              <Button
-                onClick={() => {
-                  this.onPatientChange(-1);
-                  let index = patient.rdv.index;
-                  if (index >= 0) {
-                    $("#calendar").fullCalendar(
-                      "gotoDate",
-                      patient.rdv.liste[index].startAt
-                    );
-                  }
-                }}
-                style={{ width: "70%", fontSize: "0.7rem" }}
-                icon={_.isEmpty(rdvPatient) ? "refresh" : ""}
-                content={
-                  _.isEmpty(rdvPatient)
-                    ? ""
-                    : rdvPatient + "\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0"
-                }
-              />
+          <Button
+            onClick={() => {
+              this.onPatientChange(-1);
+              let index = patient.rdv.index;
+              if (index >= 0) {
+                $("#calendar").fullCalendar(
+                  "gotoDate",
+                  patient.rdv.liste[index].startAt
+                );
+              }
+            }}
+            style={{ width: "70%", fontSize: "0.7rem" }}
+            icon={_.isEmpty(rdvPatient) ? "refresh" : ""}
+            content={
+              _.isEmpty(rdvPatient)
+                ? ""
+                : rdvPatient + "\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0"
             }
-            content="Afficher la date de ce rendez-vous"
-            position="bottom center"
-            on={helpPopup.on}
-            size={helpPopup.size}
-            inverted={helpPopup.inverted}
           />
-
-          <Popup
-            trigger={
-              <Button
-                icon="right chevron"
-                style={{ fontSize: "0.7rem" }}
-                onClick={() => {
-                  this.onPatientChange(-1);
-                  let index = patient.rdv.index + 1;
-                  if (index < patient.rdv.liste.length) {
-                    patient.rdv.index = index;
-                    this.setState({ currentPatient: patient });
-                  }
-                }}
-              />
-            }
-            content="Rendez-vous suivant"
-            position="bottom right"
-            on={helpPopup.on}
-            size={helpPopup.size}
-            inverted={helpPopup.inverted}
+          <Button
+            icon="right chevron"
+            style={{ fontSize: "0.7rem" }}
+            onClick={() => {
+              this.onPatientChange(-1);
+              let index = patient.rdv.index + 1;
+              if (index < patient.rdv.liste.length) {
+                patient.rdv.index = index;
+                this.setState({ currentPatient: patient });
+              }
+            }}
           />
         </div>
         <Divider />
         <div style={{ textAlign: "right" }}>
           <Button.Group basic={true} size="mini">
             {/*<Button icon="eraser" onClick={this.clearExternal} />*/}
-            <Popup
-              trigger={
-                <Button icon="eraser" onClick={this.modalClearExternalOpen} />
-              }
-              content="Effacer la liste d'attente"
-              on={helpPopup.on}
-              size={helpPopup.size}
-              inverted={helpPopup.inverted}
-            />
-            <Popup
-              trigger={<Button icon="add" onClick={this.addExternal} />}
-              content="Ajouter un rendez-vous à la liste d'attente"
-              on={helpPopup.on}
-              size={helpPopup.size}
-              inverted={helpPopup.inverted}
-            />
+            <Button icon="eraser" onClick={this.modalClearExternalOpen} />
+            <Button icon="add" onClick={this.addExternal} />
           </Button.Group>
         </div>
         <div id="external-events">
@@ -843,8 +695,8 @@ export default class CalendarPanel extends React.Component {
           <Modal.Header>Vider la liste d'attente</Modal.Header>
           <Modal.Content>
             {_.size(this.state.externalEventsDatas) === 1
-              ? "Souhaitez-vous supprimer le rendez-vous en attente ?"
-              : "Souhaitez-vous supprimer les " +
+              ? "Voulez-vous supprimer le rendez-vous en attente ?"
+              : "Voulez-vous supprimer les " +
                 _.size(this.state.externalEventsDatas) +
                 " rendez-vous en attente ?"}
             <br />

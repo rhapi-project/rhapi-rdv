@@ -257,8 +257,8 @@ class MonRdv extends React.Component {
                   revolu
                     ? "Ce RDV n'est plus modifiable en ligne"
                     : unchangeable
-                    ? "Ce RDV n'est pas modifiable en ligne"
-                    : "Ce RDV n'est pas modifiable en ligne..." // autre raison... (?)
+                      ? "Ce RDV n'est pas modifiable en ligne"
+                      : "Ce RDV n'est pas modifiable en ligne..." // autre raison... (?)
                 }
                 size="large"
                 color="orange"
@@ -397,11 +397,11 @@ export default class MesRdv extends React.Component {
                 ? "Vous n'avez aucun RDV prévu"
                 : "Erreur d'identification"
               : !this.props.rdv.id
-              ? "Erreur d'identification RDV"
-              : "Le RDV a été annulé"
+                ? "Erreur d'identification RDV"
+                : "Le RDV a été annulé"
             : this.state.mesRdv.length === 1
-            ? "Mon prochain rendez-vous"
-            : "Mes prochains rendez-vous"}
+              ? "Mon prochain rendez-vous"
+              : "Mes prochains rendez-vous"}
         </Header>
         <Divider />
         {_.map(this.state.mesRdv, (rdv, i) => {

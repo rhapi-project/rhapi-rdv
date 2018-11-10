@@ -201,8 +201,8 @@ export default class RdvPassCardA4 extends React.Component {
                                   : dateRef
                                 : dateRef.diff(moment("2000-01-01"), "days") ===
                                   0
-                                ? moment()
-                                : dateRef;
+                                  ? moment()
+                                  : dateRef;
                               this.setState({
                                 defaut: false,
                                 etatRdv: !this.state.etatRdv,

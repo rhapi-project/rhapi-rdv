@@ -19,7 +19,7 @@ import {
   Modal
 } from "semantic-ui-react";
 
-import { maxWidth, fsize, hsize, helpPopup, defaultPlanning } from "./Settings";
+import { maxWidth, fsize, hsize, defaultPlanning } from "./Settings";
 
 import HorairesSemaine from "./HorairesSemaine";
 import Conges from "./Conges";
@@ -785,7 +785,7 @@ export default class Configuration extends React.Component {
                       <Table.Cell>
                         <Form.Input
                           type="text"
-                          value={_.isUndefined(motif.motif) ? "" : motif.motif}
+                          value={motif.motif}
                           onChange={(e, d) => {
                             options.reservation.motifs[i].motif = d.value;
                             this.setState({ saved: false });
@@ -1066,9 +1066,7 @@ export default class Configuration extends React.Component {
                       <Icon name="help circle" />
                     </Form.Group>
                   }
-                  on={helpPopup.on}
-                  size={helpPopup.size}
-                  inverted={helpPopup.inverted}
+                  inverted={true}
                 >
                   Chaque période est définie par des dates de début et de fin
                   (de manière inclusive).
@@ -1184,11 +1182,7 @@ export default class Configuration extends React.Component {
             <Form.Input
               label="Dénomination par défaut (si patient non identifié)"
               placeholder="Dénomination par défaut"
-              value={
-                _.isUndefined(options.reservation.denominationDefaut)
-                  ? ""
-                  : options.reservation.denominationDefaut
-              }
+              value={options.reservation.denominationDefaut}
               onChange={(e, d) => {
                 plannings[index].optionsJO.reservation.denominationDefaut =
                   d.value;
@@ -1232,11 +1226,7 @@ export default class Configuration extends React.Component {
               label="Transfert des droits administrateur"
               placeholder="Utilisateur vers lequel transférer les droits"
               value={
-                _.isUndefined(options.acl.transfer)
-                  ? ""
-                  : _.isString(options.acl.transfer)
-                  ? options.acl.transfer
-                  : ""
+                _.isString(options.acl.transfer) ? options.acl.transfer : ""
               }
               onChange={(e, d) => {
                 options.acl.transfer = d.value;
@@ -1247,11 +1237,7 @@ export default class Configuration extends React.Component {
           <Form.Group widths={2}>
             <Form.Input
               label="Organisation @"
-              value={
-                _.isUndefined(this.state.organisation)
-                  ? ""
-                  : this.state.organisation
-              }
+              value={this.state.organisation}
             />
           </Form.Group>
         </React.Fragment>
@@ -1332,7 +1318,7 @@ export default class Configuration extends React.Component {
           <Form.Group widths="equal">
             <Form.Input
               label="URL du site (lien présent sur les rappels)"
-              value={_.isUndefined(options.sms.site) ? "" : options.sms.site}
+              value={options.sms.site}
               onChange={(e, d) => {
                 options.sms.site = e.target.value;
                 this.setState({
@@ -1360,11 +1346,7 @@ export default class Configuration extends React.Component {
             <Form.TextArea
               style={{ resize: "none" }}
               label="Texte pour la confirmation initiale (e-mail et SMS)"
-              value={
-                _.isUndefined(options.sms.confirmationTexte)
-                  ? ""
-                  : options.sms.confirmationTexte
-              }
+              value={options.sms.confirmationTexte}
               onChange={(e, d) => {
                 options.sms.confirmationTexte = e.target.value;
                 plannings[index].optionsJO = options;
@@ -1428,7 +1410,7 @@ export default class Configuration extends React.Component {
               <Form.Input
                 label="Titre"
                 placeholder="Titre du planning / Nom du praticien / Nom de la ressource"
-                value={_.isUndefined(planning.titre) ? "" : planning.titre}
+                value={planning.titre}
                 onChange={(e, d) => {
                   plannings[index].titre = d.value;
                   this.setState({ /* plannings: plannings, */ saved: false });
@@ -1437,11 +1419,7 @@ export default class Configuration extends React.Component {
               <Form.Input
                 label="Description"
                 placeholder="Description du planning"
-                value={
-                  _.isUndefined(planning.description)
-                    ? ""
-                    : planning.description
-                }
+                value={planning.description}
                 onChange={(e, d) => {
                   plannings[index].description = d.value;
                   this.setState({ /*plannings: plannings,*/ saved: false });
@@ -1540,85 +1518,58 @@ export default class Configuration extends React.Component {
                 })}
               />
               &nbsp;
-              <Popup
-                trigger={
-                  <Dropdown
+              <Dropdown
+                icon="recycle"
+                floating={true}
+                button={true}
+                basic={true}
+                className="icon"
+              >
+                <Dropdown.Menu>
+                  <Dropdown.Header
                     icon="recycle"
-                    floating={true}
-                    button={true}
-                    basic={true}
-                    className="icon"
-                  >
-                    <Dropdown.Menu>
-                      <Dropdown.Header
-                        icon="recycle"
-                        content="Réutilisation des configurations"
-                      />
-                      <Dropdown.Item
-                        onClick={() => this.setState({ save: true })}
-                      >
-                        {"Sauvegarder cette configuration de " +
-                          plannings.length +
-                          " planning" +
-                          (plannings.length > 1 ? "s" : "")}
-                      </Dropdown.Item>
-                      <Dropdown.Item
-                        onClick={() => this.setState({ load: true })}
-                      >
-                        {"Charger une configuration (remplacera ce" +
-                          (plannings.length > 1 ? "s" : "") +
-                          " " +
-                          plannings.length +
-                          " planning" +
-                          (plannings.length > 1 ? "s" : "") +
-                          ")"}
-                      </Dropdown.Item>
-                    </Dropdown.Menu>
-                  </Dropdown>
-                }
-                //header="Réutilisation des configurations"
-                position="bottom left"
-                on={helpPopup.on}
-                size={helpPopup.size}
-                inverted={helpPopup.inverted}
-                content="Sauvegarder / Charger une nouvelle configuration"
-              />
+                    content="Réutilisation des configurations"
+                  />
+                  <Dropdown.Item onClick={() => this.setState({ save: true })}>
+                    {"Sauvegarder cette configuration de " +
+                      plannings.length +
+                      " planning" +
+                      (plannings.length > 1 ? "s" : "")}
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={() => this.setState({ load: true })}>
+                    {"Charger une configuration (remplacera ce" +
+                      (plannings.length > 1 ? "s" : "") +
+                      " " +
+                      plannings.length +
+                      " planning" +
+                      (plannings.length > 1 ? "s" : "") +
+                      ")"}
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
               &nbsp;
-              <Popup
-                trigger={
-                  <Dropdown
+              <Dropdown
+                icon="exchange"
+                floating={true}
+                button={true}
+                basic={true}
+                className="icon"
+              >
+                <Dropdown.Menu>
+                  <Dropdown.Header
                     icon="exchange"
-                    floating={true}
-                    button={true}
-                    basic={true}
-                    className="icon"
-                  >
-                    <Dropdown.Menu>
-                      <Dropdown.Header
-                        icon="exchange"
-                        content="Export / Import au format iCalendar (*.ics)"
-                      />
-                      <Dropdown.Item
-                        onClick={() => this.modalIcalExportOpen(true)}
-                      >
-                        {"Exporter les rendez-vous inscrits sur le planning " +
-                          planning.titre}
-                      </Dropdown.Item>
-                      <Dropdown.Item
-                        onClick={() => this.modalIcalImportOpen(true)}
-                      >
-                        {"Importer des rendez-vous et les inscrire sur le planning " +
-                          planning.titre}
-                      </Dropdown.Item>
-                    </Dropdown.Menu>
-                  </Dropdown>
-                }
-                content="Export / Import au format iCalendar (*.ics)"
-                position="bottom left"
-                on={helpPopup.on}
-                size={helpPopup.size}
-                inverted={helpPopup.inverted}
-              />
+                    content="Export / Import au format iCalendar (*.ics)"
+                  />
+                  <Dropdown.Item onClick={() => this.modalIcalExportOpen(true)}>
+                    {"Exporter les rendez-vous inscrits sur le planning " +
+                      planning.titre}
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={() => this.modalIcalImportOpen(true)}>
+                    {"Importer des rendez-vous et les inscrire sur le planning " +
+                      planning.titre}
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
               &nbsp;&nbsp;
               <b>
                 {this.state.index >= 0
