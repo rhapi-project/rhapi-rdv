@@ -290,7 +290,7 @@ export default class Configuration extends React.Component {
     _.each(plannings, pl => {
       delete pl.lockRevision;
     });
-    console.log(this.state.plannings);
+    //console.log(this.state.plannings);
     let file = new Blob(
       [
         JSON.stringify(plannings, null, 2) // pretty/2 spaces
@@ -341,6 +341,7 @@ export default class Configuration extends React.Component {
       if (!plannings) {
         return;
       }
+
       this.setState({ plannings: plannings, saved: false });
     });
   };
@@ -434,8 +435,6 @@ export default class Configuration extends React.Component {
         return;
       }
       let delta = plannings.length - this.state.plannings.length;
-
-      console.log(delta);
 
       if (delta > 0) {
         addPlannings(plannings, delta);
@@ -1059,32 +1058,30 @@ export default class Configuration extends React.Component {
                     />
                   </Form.Input>
                 </Form.Group>
-                <Popup
-                  trigger={
-                    <Form.Group>
-                      <Header size="tiny">Liste des congés&nbsp;</Header>
-                      <Icon name="help circle" />
-                    </Form.Group>
-                  }
-                  on={helpPopup.on}
-                  size={helpPopup.size}
-                  inverted={helpPopup.inverted}
-                >
-                  Chaque période est définie par des dates de début et de fin
-                  (de manière inclusive).
-                  <br />
-                  L'intitulé de la période sera repris sur l'agenda, si l'option
-                  d'affichage ci-dessus est cochée.
-                  <br />
-                  Les périodes ainsi définies seront exclues lors d'une prise de
-                  rendez-vous en ligne.
-                  <br />
-                  Les jours fériés légaux, peuvent être pris en compte
-                  automatiquement (cocher ci-dessus l'option correspondante).
-                  <br />
-                  Les périodes passées les plus anciennes pourront être
-                  supprimées.
-                </Popup>
+                <Form.Group>
+                  <Header size="tiny">Liste des congés&nbsp;</Header>
+                  <Popup
+                    trigger={<Icon name="help circle" />}
+                    on={helpPopup.on}
+                    size={helpPopup.size}
+                    inverted={helpPopup.inverted}
+                  >
+                    Chaque période est définie par des dates de début et de fin
+                    (de manière inclusive).
+                    <br />
+                    L'intitulé de la période sera repris sur l'agenda, si
+                    l'option d'affichage ci-dessus est cochée.
+                    <br />
+                    Les périodes ainsi définies seront exclues lors d'une prise
+                    de rendez-vous en ligne.
+                    <br />
+                    Les jours fériés légaux, peuvent être pris en compte
+                    automatiquement (cocher ci-dessus l'option correspondante).
+                    <br />
+                    Les périodes passées les plus anciennes pourront être
+                    supprimées.
+                  </Popup>
+                </Form.Group>
 
                 <Conges
                   plagesConges={congesPrevus}
@@ -1577,7 +1574,7 @@ export default class Configuration extends React.Component {
                   </Dropdown>
                 }
                 //header="Réutilisation des configurations"
-                position="bottom left"
+                //position="bottom left"
                 on={helpPopup.on}
                 size={helpPopup.size}
                 inverted={helpPopup.inverted}
@@ -1614,7 +1611,7 @@ export default class Configuration extends React.Component {
                   </Dropdown>
                 }
                 content="Export / Import au format iCalendar (*.ics)"
-                position="bottom left"
+                //position="bottom left"
                 on={helpPopup.on}
                 size={helpPopup.size}
                 inverted={helpPopup.inverted}

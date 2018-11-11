@@ -122,7 +122,7 @@ const defaultPlanning = {
     ],
     reservation: {
       autorisationMin: 0,
-      autorisationMax: 1,
+      autorisationMax: 2,
       autorisationMinAgenda: 1,
       congesCouleur: "#D0021B",
       congesVisibles: true,
@@ -164,35 +164,10 @@ const defaultPlanning = {
           motif: "Consultation de suivi"
         },
         {
-          autorisationMin: 1,
+          autorisationMin: 2,
           couleur: "#4A90E2",
           duree: 30,
-          motif: "Détartrage"
-        },
-        {
-          autorisationMin: 1,
-          couleur: "#4A90E2",
-          duree: 30,
-          motif:
-            "J'envisage la réalisation du plan de traitement qui m'a été proposé"
-        },
-        {
-          autorisationMin: 1,
-          couleur: "#4A90E2",
-          duree: 20,
-          motif: "Je pense avoir un problème à une dent"
-        },
-        {
-          autorisationMin: 1,
-          couleur: "#4A90E2",
-          duree: 20,
-          motif: "Je pense avoir un problème à la gencive"
-        },
-        {
-          autorisationMin: 1,
-          couleur: "#4A90E2",
-          duree: 10,
-          motif: "Je pense avoir des problèmes avec une prothèse"
+          motif: "Intervention programmée"
         }
       ],
       horaires: [
@@ -451,11 +426,6 @@ const rdvEtats = [
   { text: "RDV annulé", color: "black" } // (7) // Annulation dans les délais (masqué)
 ];
 
-// local dev => no auth -> identification patient par id + password
-const localdev = false;
-const appToken = "bXlhcHA6bXlhcHBteWFwcA";
-const authUrl = "https://auth-dev.rhapi.net";
-
 /*
  * popups d'aide
  */
@@ -465,10 +435,11 @@ const helpPopup = {
   inverted: true
 };
 
+// local dev => no auth -> identification patient par id + password
+const localdev = false;
+
 export {
   localdev,
-  appToken,
-  authUrl,
   site,
   maxWidth,
   helpPopup,

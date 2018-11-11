@@ -13,20 +13,11 @@ import {
 import _ from "lodash";
 
 import { Client } from "rhapi-client";
-import {
-  maxWidth,
-  hsize,
-  fsize,
-  localdev,
-  authUrl,
-  appToken
-} from "./Settings";
+import { site, maxWidth, hsize, fsize, localdev } from "./Settings";
 import Configuration from "./Configuration";
 import Calendars from "./Calendars";
 import Profil from "./Profil";
 import ProfilsPatients from "./ProfilsPatients";
-
-import site from "./SiteSettings";
 
 var client = localdev
   ? new Client("http://localhost", (datas, response) => {
@@ -57,8 +48,8 @@ export default class Praticiens extends React.Component {
     }
 
     client.authorize(
-      authUrl,
-      appToken,
+      site.authUrl,
+      site.appToken,
       this.state.user, // username
       this.state.password, // password
       () => {

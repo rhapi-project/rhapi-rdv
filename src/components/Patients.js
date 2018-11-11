@@ -13,15 +13,8 @@ import _ from "lodash";
 
 import { Client } from "rhapi-client";
 
-import {
-  maxWidth,
-  fsize,
-  hsize,
-  localdev,
-  authUrl,
-  appToken,
-  telRegex
-} from "./Settings";
+import { maxWidth, fsize, hsize, localdev, site, telRegex } from "./Settings";
+
 import PriseRdv from "./PriseRdv";
 
 import MesRdv from "./MesRdv";
@@ -111,8 +104,8 @@ export default class Patients extends React.Component {
 
   authorize = (etablissement, gestionRDVOnSuccess) => {
     client.authorize(
-      authUrl,
-      appToken,
+      site.authUrl,
+      site.appToken,
       "reservation@" + etablissement, // username
       "reservation@" + etablissement, //password
       () => {

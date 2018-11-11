@@ -49,7 +49,7 @@ class MonRdv extends React.Component {
       },
       datas => {
         console.log(datas);
-        alert(datas.internalMessage + " : " + datas.userMessage);
+        //alert(datas.internalMessage + " : " + datas.userMessage);
         this.close();
       }
     );
@@ -202,14 +202,14 @@ class MonRdv extends React.Component {
                   <Modal.Header
                     icon="archive"
                     content={
-                      maxModifs ? "Trop de modifications !" : "Confirmation"
+                      maxModifs ? "Trop de modifications" : "Confirmation"
                     }
                   />
                   <Modal.Content>
                     {maxModifs
-                      ? "J'ai trop souvent modifié ce rendez-vous. " +
+                      ? "Le rendez-vous a été trop souvent modifié. " +
                         "Il n'est maintenant plus modifiable en ligne. " +
-                        "Je peux néanmoins toujours l'annuler."
+                        "Il peut néanmoins toujours être annulé."
                       : "Je confirme vouloir déplacer ce RDV du " +
                         rdvDateTime(this.props.rdv.startAt) +
                         " au " +
@@ -302,7 +302,6 @@ export default class MesRdv extends React.Component {
       result => {
         let planningsMap = {};
         _.forEach(result.results, planning => {
-          console.log(planning);
           planningsMap[planning.id] = {
             titre: planning.titre,
             description: planning.description,

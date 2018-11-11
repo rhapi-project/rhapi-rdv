@@ -295,6 +295,10 @@ export default class Calendar extends React.Component {
                   : defaultColor
                 : result.couleur;
 
+              if (_.isUndefined(couleur)) {
+                couleur = defaultColor;
+              }
+
               let etat = rdvEtats[result.idEtat];
               let couleurBordure = _.isObject(etat)
                 ? etat.color
