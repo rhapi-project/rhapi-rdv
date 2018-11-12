@@ -340,7 +340,14 @@ class Preview extends React.Component {
         },
         result => {
           // success
-          this.setState({ mesRdv: result.results });
+          // les rendez-vous annulés (masqués) ne sont pas affichés qu'en mode "statistiques"
+          let mesRdv = result.results;
+          if (!this.props.etatRdv) {
+            mesRdv = _.filter(mesRdv, function(o) {
+              return o.idEtat !== 7;
+            });
+          }
+          this.setState({ mesRdv: mesRdv });
         },
         () => {
           // error

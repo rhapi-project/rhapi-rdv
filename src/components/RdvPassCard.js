@@ -2,7 +2,7 @@ import React from "react";
 
 import _ from "lodash";
 
-import { rdvDateTime, site } from "./Settings";
+import { rdvDateTime, site, helpPopup } from "./Settings";
 
 import {
   Button,
@@ -11,7 +11,8 @@ import {
   Ref,
   List,
   Message,
-  Modal
+  Modal,
+  Popup
 } from "semantic-ui-react";
 
 import RdvPassCardA4 from "./RdvPassCardA4";
@@ -62,8 +63,11 @@ export default class RdvPassCard extends React.Component {
       { ipp: this.props.patient.id },
       result => {
         // success
-        //console.log(result);
-        this.setState({ mesRdv: result.results });
+        // les rendez-vous annulés (masqués) ne sont pas affichés
+        let mesRdv = _.filter(result.results, function(o) {
+          return o.idEtat !== 7;
+        });
+        this.setState({ mesRdv: mesRdv });
       },
       () => {
         // error
@@ -396,20 +400,28 @@ export default class RdvPassCard extends React.Component {
                 <br />
                 Lien direct : <b>{infos}</b>
                 &nbsp;
-                <Button
-                  icon="copy"
-                  size="mini"
-                  compact={true}
-                  circular={true}
-                  onClick={() => {
-                    // copy to clipboard
-                    const el = document.createElement("textarea");
-                    el.value = infos;
-                    document.body.appendChild(el);
-                    el.select();
-                    document.execCommand("copy");
-                    document.body.removeChild(el);
-                  }}
+                <Popup
+                  trigger={
+                    <Button
+                      icon="copy"
+                      size="mini"
+                      compact={true}
+                      circular={true}
+                      onClick={() => {
+                        // copy to clipboard
+                        const el = document.createElement("textarea");
+                        el.value = infos;
+                        document.body.appendChild(el);
+                        el.select();
+                        document.execCommand("copy");
+                        document.body.removeChild(el);
+                      }}
+                    />
+                  }
+                  content="Copier le lien"
+                  on={helpPopup.on}
+                  size={helpPopup.size}
+                  inverted={helpPopup.inverted}
                 />
               </div>
             ) : (
