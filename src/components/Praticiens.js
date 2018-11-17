@@ -35,8 +35,8 @@ var client = localdev
 
 export default class Praticiens extends React.Component {
   state = {
-    user: "masteruser", // dev => place automatiquement masteruser/masteruser
-    password: "masteruser",
+    user: _.isUndefined(site.user) ? "" : site.user, // dev => place automatiquement masteruser/masteruser
+    password: _.isUndefined(site.password) ? "" : site.password,
     validation: null,
     errorMessage: ""
   };
