@@ -88,14 +88,13 @@ export default class IcalImport extends React.Component {
       "/importIcal";
 
     let inputFile = document.createElement("input");
-    inputFile.id = "import-form";
     inputFile.name = "ical";
     inputFile.type = "file";
     inputFile.accept = "text/calendar";
     form.appendChild(inputFile);
 
     let inputToken = document.createElement("input");
-    inputToken.id = "import-form-token";
+    inputToken.name = "token";
     inputToken.type = "hidden";
 
     inputFile.onchange = () => {
