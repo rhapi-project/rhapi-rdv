@@ -62,7 +62,6 @@ export default class Profil extends React.Component {
   reload = () => {
     this.props.client.MonCompte.read(
       monProfil => {
-        //console.log(monProfil);
         if (!_.isEmpty(monProfil.account)) {
           //monProfil.account.telBureau = telFormat(monProfil.account.telBureau);
           //monProfil.account.telMobile = telFormat(monProfil.account.telMobile);
@@ -83,7 +82,7 @@ export default class Profil extends React.Component {
         }
       },
       data => {
-        console.log("erreur");
+        console.log("Erreur lecture profil");
         console.log(data);
       }
     );
@@ -300,18 +299,6 @@ export default class Profil extends React.Component {
           <Form.Group widths="equal">
             <Form.Input
               required={true}
-              label="Prénom"
-              placeholder="Votre prénom"
-              value={
-                _.isUndefined(this.state.account.prenom)
-                  ? ""
-                  : this.state.account.prenom
-              }
-              name="prenom"
-              onChange={(e, d) => this.handleChangeInput(e, d)}
-            />
-            <Form.Input
-              required={true}
               label="Nom"
               placeholder="Votre nom"
               name="nom"
@@ -322,11 +309,22 @@ export default class Profil extends React.Component {
               }
               onChange={(e, d) => this.handleChangeInput(e, d)}
             />
+            <Form.Input
+              required={true}
+              label="Prénom"
+              placeholder="Votre prénom"
+              value={
+                _.isUndefined(this.state.account.prenom)
+                  ? ""
+                  : this.state.account.prenom
+              }
+              name="prenom"
+              onChange={(e, d) => this.handleChangeInput(e, d)}
+            />
           </Form.Group>
 
           <Form.Group widths="equal">
             <Form.Input
-              required={true}
               label="Adresse"
               placeholder="Votre adresse"
               name="adresse1"
@@ -363,7 +361,6 @@ export default class Profil extends React.Component {
 
           <Form.Group widths="equal">
             <Form.Input
-              required={true}
               label="Code postal"
               placeholder="Code postal"
               name="codePostal"
@@ -381,7 +378,6 @@ export default class Profil extends React.Component {
               onChange={(e, d) => this.handleChangeInput(e, d)}
             />
             <Form.Input
-              required={true}
               label="Ville"
               placeholder="Votre ville"
               name="ville"
@@ -393,7 +389,6 @@ export default class Profil extends React.Component {
               onChange={(e, d) => this.handleChangeInput(e, d)}
             />
             <Form.Input
-              required={true}
               label="Pays"
               placeholder="Votre pays"
               name="pays"
@@ -411,7 +406,6 @@ export default class Profil extends React.Component {
 
           <Form.Group widths="equal">
             <Form.Input
-              required={true}
               label="Téléphone mobile"
               value={
                 _.isUndefined(this.state.account.telMobile)
@@ -428,7 +422,6 @@ export default class Profil extends React.Component {
               onChange={(e, d) => this.handleChangeInput(e, d)}
             />
             <Form.Input
-              required={true}
               label="Téléphone bureau"
               value={
                 _.isUndefined(this.state.account.telBureau)
@@ -445,7 +438,6 @@ export default class Profil extends React.Component {
               onChange={(e, d) => this.handleChangeInput(e, d)}
             />
             <Form.Input
-              required={true}
               label="E-Mail"
               placeholder="exemple@exemple.com"
               name="email"
