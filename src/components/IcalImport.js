@@ -10,6 +10,8 @@ import {
   Icon,
   Message,
   Modal,
+  Loader,
+  Dimmer,
   Ref
 } from "semantic-ui-react";
 
@@ -104,11 +106,11 @@ export default class IcalImport extends React.Component {
         inputToken.value = this.props.client.token;
         form.appendChild(inputToken);
         form.submit();
+        this.setState({ fileReady: true });
       }
     };
 
     inputFile.click();
-    this.setState({ fileReady: true });
   };
 
   onLoad = () => {
@@ -131,8 +133,8 @@ export default class IcalImport extends React.Component {
             </p>
             <p>
               Par défaut les nouveaux rendez-vous seront importés sur{" "}
-              <strong>{this.props.planningTitre}</strong> et ceux préexistants
-              sur ce planning seront supprimés.
+              <strong>{this.props.planningTitre}</strong> et fusionnés avec ceux
+              préexistants sur ce planning.
             </p>
             <Form>
               <Form.Input
@@ -221,6 +223,9 @@ export default class IcalImport extends React.Component {
             </Ref>
             <Button content="Importer" onClick={this.import} />
           </Modal.Actions>
+          <Dimmer active={this.state.fileReady}>
+            <Loader>Chargement en cours...</Loader>
+          </Dimmer>
         </Modal>
         {/* Fin du chargement */}
         <Modal size="small" open={this.state.fileLoaded}>
