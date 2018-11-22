@@ -113,14 +113,12 @@ export default class Profil extends React.Component {
 
   //Une fonction qui vérifie si tous les champs obligatoires sont renseignés
   verification = () => {
-    let valideForm =
-      this.state.currentName !== "" &&
-      this.state.account.nom !== "" &&
-      this.state.account.prenom !== "" &&
-      this.state.account.adresse1 !== "" &&
-      this.state.account.ville !== "" &&
-      this.state.account.pays !== "" &&
+    let valideForm = true;
+    !_.isEmpty(this.state.currentName) &&
+      !_.isEmpty(this.state.account.nom) &&
+      !_.isEmpty(this.state.account.prenom) &&
       this.formatsValides();
+
     return this.state.changePassword
       ? valideForm &&
           this.state.userPassword !== "" &&
@@ -152,16 +150,19 @@ export default class Profil extends React.Component {
 
   formatsValides = () => {
     return (
-      this.codePostalValide(this.state.account.codePostal) &&
-      this.telephoneValide(this.state.account.telMobile) &&
-      this.telephoneValide(this.state.account.telBureau) &&
-      this.emailValide(this.state.account.email)
+      (_.isEmpty(this.state.account.codePostal) ||
+        this.codePostalValide(this.state.account.codePostal)) &&
+      (_.isEmpty(this.state.account.telMobile) ||
+        this.telephoneValide(this.state.account.telMobile)) &&
+      (_.isEmpty(this.state.account.telBureau) ||
+        this.telephoneValide(this.state.account.telBureau)) &&
+      (_.isEmpty(this.state.account.email) ||
+        this.emailValide(this.state.account.email))
     );
   };
 
   save = () => {
-    if (this.verification() /*&& this.formatsValides()*/) {
-      // redondance
+    if (this.verification()) {
       this.setState({ passwordConfirm: "" });
       let obj = this.state;
       if (!this.state.changePassword) {
@@ -173,6 +174,7 @@ export default class Profil extends React.Component {
       _.unset(obj, "changePassword");
       _.unset(obj, "sms");
       _.unset(obj, "errorMessage");
+
       this.props.client.MonCompte.update(
         obj,
         monProfil => {
