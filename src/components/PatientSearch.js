@@ -51,6 +51,11 @@ export default class PatientSearch extends React.Component {
       this.props.patientChange(0, "");
       return;
     }
+
+    if (_.isFunction(this.props.onTextChange)) {
+      this.props.onTextChange(value);
+    }
+
     this.setState({ isLoading: true, value });
 
     this.props.client.Patients.completion(

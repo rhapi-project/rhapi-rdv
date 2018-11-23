@@ -39,6 +39,9 @@ import RdvPassCard from "./RdvPassCard";
 import { SingleDatePicker } from "react-dates";
 
 class FromTo extends React.Component {
+  titleText = ""; // texte en retour de SearchPatient > onTextChange
+  // (repris comme titre si patient non identifié)
+
   componentWillMount() {
     this.setState({ hfrom: this.props.hfrom, hto: this.props.hto });
   }
@@ -430,6 +433,8 @@ export default class CalendarModalRdv extends React.Component {
       !_.isUndefined(this.state.patient.ipp2)
     ) {
       rdv.ipp2 = this.state.patient.ipp2;
+    } else {
+      rdv.titre = this.titleText;
     }
 
     if (this.state.isNewOne) {
@@ -764,7 +769,8 @@ export default class CalendarModalRdv extends React.Component {
     _.forEach(planning.motifs, (m, i) => {
       if (
         !m.hidden &&
-        (_.isEmpty(rdv.origine) || // pour un RDV pris en ligne on reprend tous les motifs
+        (rdv.origine === "" || // pour un RDV pris en ligne on reprend tous les motifs
+          // /!\ rdv.origine isUndefined (&& isEmpty) si nouveau RDV
           m.autorisationMin >= planning.autorisationMinAgenda)
       ) {
         motifsOptions.push({ value: i + 1, text: m.motif });
@@ -821,6 +827,7 @@ export default class CalendarModalRdv extends React.Component {
                       <PatientSearch
                         client={this.props.client}
                         patientChange={this.patientChange}
+                        onTextChange={text => (this.titleText = text)}
                         format={this.props.denominationFormat}
                         value={this.state.rdv ? this.state.rdv.titre : ""}
                         minWidth={215}
@@ -1204,7 +1211,8 @@ export default class CalendarModalRdv extends React.Component {
                           _.forEach(planning2.motifs, (m, i) => {
                             if (
                               !m.hidden &&
-                              (_.isEmpty(rdv.origine) || // pour un RDV pris en ligne on reprend tous les motifs
+                              (rdv.origine === "" || // pour un RDV pris en ligne on reprend tous les motifs
+                                // /!\ rdv.origine isUndefined (&& isEmpty) si nouveau RDV
                                 m.autorisationMin >=
                                   planning.autorisationMinAgenda)
                             ) {
@@ -1320,8 +1328,9 @@ export default class CalendarModalRdv extends React.Component {
                       <span>
                         <Icon name="doctor" size="large" />
                         &nbsp;
-                        {_.isEmpty(rdv.origine)
-                          ? "RDV pris en ligne"
+                        {rdv.origine === ""
+                          ? // /!\ rdv.origine isUndefined (&& isEmpty) si nouveau RDV
+                            "RDV pris en ligne"
                           : rdv.origine}
                       </span>
                     </Form.Input>
@@ -1502,8 +1511,7 @@ export default class CalendarModalRdv extends React.Component {
             </Accordion>
             {/*
               Il n'y a pas besoin des props "saved" et "save (fonction)" dans le composant RdvPassCard.
-              Elles seront utiles dans le cas où nous sommes sur l'interface de 
-              la fiche du patient.
+              Elles ne sont utiles que dans le cadre de la fiche du patient.
           */}
             {!this.state.isNewOne &&
             !_.isEmpty(this.state.patient) &&
