@@ -492,7 +492,7 @@ export default class Configuration extends React.Component {
       }
 
       if (_.isUndefined(options.sms.site)) {
-        options.sms.site = window.location.origin + window.location.pathname;
+        options.sms.site = "";
       }
 
       const Plages = (
