@@ -1329,7 +1329,7 @@ export default class Configuration extends React.Component {
           <Form.Group widths="equal">
             <Form.Input
               label="URL du site (lien présent sur les rappels)"
-              value={_.isUndefined(options.sms.site) ? "" : options.sms.site}
+              value={options.sms.site}
               onChange={(e, d) => {
                 options.sms.site = e.target.value;
                 this.setState({
@@ -1344,8 +1344,13 @@ export default class Configuration extends React.Component {
                 icon="arrow left"
                 circular={true}
                 onClick={() => {
-                  options.sms.site =
-                    window.location.origin + window.location.pathname;
+                  options.sms.site = options.sms.site =
+                    window.location.origin +
+                    window.location.pathname
+                      .split("/")
+                      .slice(0, -1)
+                      .join("/") +
+                    "/";
                   this.setState({
                     /*plannings: plannings*/ saved: false
                   });
