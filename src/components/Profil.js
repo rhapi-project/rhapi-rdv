@@ -300,7 +300,6 @@ export default class Profil extends React.Component {
 
           <Form.Group widths="equal">
             <Form.Input
-              required={true}
               label="Nom"
               placeholder="Votre nom"
               name="nom"
@@ -312,7 +311,6 @@ export default class Profil extends React.Component {
               onChange={(e, d) => this.handleChangeInput(e, d)}
             />
             <Form.Input
-              required={true}
               label="Prénom"
               placeholder="Votre prénom"
               value={
