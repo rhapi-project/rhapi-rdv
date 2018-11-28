@@ -491,10 +491,6 @@ export default class Configuration extends React.Component {
         };
       }
 
-      if (_.isUndefined(options.sms.site)) {
-        options.sms.site = "";
-      }
-
       const Plages = (
         <React.Fragment>
           <Form.Group>
@@ -1329,7 +1325,7 @@ export default class Configuration extends React.Component {
           <Form.Group widths="equal">
             <Form.Input
               label="URL du site (lien présent sur les rappels)"
-              value={options.sms.site}
+              value={_.isUndefined(options.sms.site) ? "" : options.sms.site}
               onChange={(e, d) => {
                 options.sms.site = e.target.value;
                 this.setState({

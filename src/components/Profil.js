@@ -259,7 +259,7 @@ export default class Profil extends React.Component {
 
           <Form.Group widths="equal">
             <Form.Input
-              required={true}
+              required={this.state.changePassword}
               label="Mot de passe"
               type="password"
               disabled={!this.state.changePassword}
@@ -277,7 +277,7 @@ export default class Profil extends React.Component {
               onChange={(e, d) => this.handleChangeInput(e, d)}
             />
             <Form.Input
-              required={true}
+              required={this.state.changePassword}
               label="Confirmer le mot de passe"
               type="password"
               disabled={!this.state.changePassword}
