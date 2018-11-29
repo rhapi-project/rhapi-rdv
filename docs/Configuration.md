@@ -110,7 +110,7 @@ Le fonctionnement est le même que pour les plages horaires d'ouverture : on sé
 
 ![alt text](images/exemple-evenement-recurrent.png)
 
-Toutefois, il est possible d'indiquer qu'un évnèement s'applique à une journée entière plutôt qu'un créneau horaire.
+Toutefois, il est possible d'indiquer qu'un évènement s'applique à une journée entière plutôt qu'un créneau horaire.
 Pour cela, il faut cocher l'option "Toute la journée" :
 
 ![Configuration evenement recurrent](images/evenement-journee-config.png)
