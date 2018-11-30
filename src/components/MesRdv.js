@@ -385,7 +385,7 @@ export default class MesRdv extends React.Component {
           <Icon name="calendar" loading />
           <Message.Content>
             <Message.Header>Accès aux rendez-vous impossible</Message.Header>
-            La gestion par le patient, de ses rendez-vous, n'est activée sur
+            La gestion par le patient de ses rendez-vous, n'est activée sur
             aucun planning de ce praticien.
           </Message.Content>
         </Message>
