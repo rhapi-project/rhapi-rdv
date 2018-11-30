@@ -1,5 +1,13 @@
 import React from "react";
-import { Header, Button, Divider, Modal, Label, Icon } from "semantic-ui-react";
+import {
+  Header,
+  Button,
+  Divider,
+  Modal,
+  Label,
+  Icon,
+  Message
+} from "semantic-ui-react";
 
 import _ from "lodash";
 
@@ -101,9 +109,10 @@ class MonRdv extends React.Component {
     );
 
     if (index === -1) {
-      // Inscription unique sur un planning non géré => ne devrait pas survenir
+      //console.log("Inscription sur un planning non géré => ne devrait pas survenir.");
       return "";
     }
+
     let planning = this.props.rdv.planningsJA[index];
 
     let unchangeable = false;
@@ -351,7 +360,6 @@ export default class MesRdv extends React.Component {
           password: this.props.patient.password
         },
         result => {
-          //console.log(result.informations);
           this.setState({
             mesRdv: result.results,
             totalOnline: result.informations.totalOnline,
@@ -370,8 +378,21 @@ export default class MesRdv extends React.Component {
   };
 
   render() {
-    // Prendre un nouveau RDV ?
+    // Aucun planning ne gère les rendez-vous en ligne
+    if (_.isEmpty(this.state.plannings)) {
+      return (
+        <Message icon>
+          <Icon name="calendar" loading />
+          <Message.Content>
+            <Message.Header>Accès aux rendez-vous impossible</Message.Header>
+            La gestion par le patient, de ses rendez-vous, n'est activée sur
+            aucun planning de ce praticien.
+          </Message.Content>
+        </Message>
+      );
+    }
 
+    // Prendre un nouveau RDV ?
     if (this.state.nouveauRdv) {
       return (
         <PriseRdv
