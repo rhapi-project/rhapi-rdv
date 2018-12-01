@@ -491,7 +491,12 @@ class Preview extends React.Component {
     let identifiant = "";
     if (this.props.printWithPassword) {
       siteUrl =
-        window.location.origin + window.location.pathname + "#Patients/";
+        window.location.origin +
+        window.location.pathname
+          .split("/")
+          .slice(0, -1)
+          .join("/") +
+        "/#Patients/";
       identifiant =
         this.props.patient.id +
         "@" +

@@ -313,8 +313,11 @@ export default class RdvPassCard extends React.Component {
     let infos =
       "Infos et annulation : " +
       window.location.origin +
-      window.location.pathname +
-      "#Patients/";
+      window.location.pathname
+        .split("/")
+        .slice(0, -1)
+        .join("/") +
+      "/#Patients/";
     infos += this.props.patient.id;
     //infos += ":" + this.state.newPassword;
     infos += ":" + pwd;
@@ -363,7 +366,12 @@ export default class RdvPassCard extends React.Component {
     let infos = "";
     if (this.state.printWithPassword) {
       let siteUrl =
-        window.location.origin + window.location.pathname + "#Patients/";
+        window.location.origin +
+        window.location.pathname
+          .split("/")
+          .slice(0, -1)
+          .join("/") +
+        "/#Patients/";
       infos = siteUrl;
       infos += this.props.patient.id;
       infos += ":" + this.state.newPassword;
@@ -853,7 +861,12 @@ class Carte extends React.Component {
     let identifiant = "";
     if (this.props.printWithPassword) {
       siteUrl =
-        window.location.origin + window.location.pathname + "#Patients/";
+        window.location.origin +
+        window.location.pathname
+          .split("/")
+          .slice(0, -1)
+          .join("/") +
+        "/#Patients/";
       identifiant =
         this.props.patient.id +
         "@" +
