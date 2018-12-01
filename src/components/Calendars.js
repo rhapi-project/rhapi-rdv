@@ -48,11 +48,16 @@ export default class Calendars extends React.Component {
 
   componentDidUpdate() {
     //console.log(document.getElementById("calendars"));
-    setTimeout(() => {
-      if (this.state.print) {
-        window.print();
-      }
-    }, 1000);
+    if (this.state.print) {
+      setTimeout(() => {
+        if (window.qWebChannel) {
+          window.qWebChannel.webEnginePagePrint();
+          this.afterPrint();
+        } else {
+          window.print();
+        }
+      }, 1000);
+    }
   }
 
   componentWillUnmount() {
