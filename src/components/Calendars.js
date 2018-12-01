@@ -46,13 +46,20 @@ export default class Calendars extends React.Component {
     document.addEventListener("keydown", this.handleHiddingPanel);
   }
 
+  isPrinting = false;
   componentDidUpdate() {
     //console.log(document.getElementById("calendars"));
-    if (this.state.print) {
+    if (this.state.print && !this.isPrinting) {
       setTimeout(() => {
         if (window.qWebChannel) {
-          window.qWebChannel.webEnginePagePrint();
-          this.afterPrint();
+          this.isPrinting = true;
+          window.qWebChannel.webEnginePagePrint(() => {
+            setTimeout(() => {
+              this.afterPrint();
+              this.isPrinting = false;
+            }, 1000);
+          });
+          //this.afterPrint();
         } else {
           window.print();
         }
