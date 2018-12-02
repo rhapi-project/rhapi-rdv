@@ -59,7 +59,6 @@ export default class Calendars extends React.Component {
               this.isPrinting = false;
             }, 1000);
           });
-          //this.afterPrint();
         } else {
           window.print();
         }
