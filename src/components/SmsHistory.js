@@ -124,12 +124,17 @@ export default class SmsHistory extends React.Component {
   };
 
   formatYearMonth = (year, month) => {
+    if (month === 13) {
+      month = 1;
+      year++; // janvier de l'année suivante
+    }
     let format = "";
     if (month < 10) {
       format = year + "-0" + month;
     } else {
       format = year + "-" + month;
     }
+    //console.log(format);
     return format;
   };
 
@@ -163,13 +168,7 @@ export default class SmsHistory extends React.Component {
     if (d.name === "mois") {
       if (d.value !== this.state.mois) {
         let fromStr = this.formatYearMonth(this.state.currentYear, d.value + 1);
-        let toStr = "";
-        if (d.value < 11) {
-          toStr = this.formatYearMonth(this.state.currentYear, d.value + 2);
-        } else {
-          // janvier de l'année suivante
-          toStr = this.formatYearMonth(this.state.currentYear + 1, 1);
-        }
+        let toStr = this.formatYearMonth(this.state.currentYear, d.value + 2);
         //console.log(argFrom);
         this.setState({ loading: true, mois: d.value });
         this.reload(fromStr, toStr, this.state.sortBy);
