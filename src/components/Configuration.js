@@ -1396,13 +1396,13 @@ export default class Configuration extends React.Component {
             />
           </Form.Group>
           <Label pointing="above">
-          <Icon name="warning sign"/>
+            <Icon name="warning sign" />
             Les champs{" "}
             <b>
               <i>{"{infos-annulation} "}</i>
             </b>
-            doivent être supprimés si la gestion/prise de RDV par les patients n'est
-            pas activée
+            doivent être supprimés si la gestion/prise de RDV par les patients
+            n'est pas activée
           </Label>
         </React.Fragment>
       );

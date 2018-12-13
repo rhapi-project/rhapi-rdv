@@ -111,6 +111,13 @@ export default class Patients extends React.Component {
       () => {
         // success
         //console.log("client ok");
+        client.MonCompte.read(
+          monProfil => {
+            this.setState({ titre: monProfil.currentName });
+          },
+          () => {}
+        );
+
         let gestionRDV =
           !_.isUndefined(gestionRDVOnSuccess) && gestionRDVOnSuccess;
 
@@ -231,6 +238,7 @@ export default class Patients extends React.Component {
             <React.Fragment>
               <Divider hidden={true} />
               <Header size={hsize}>
+                {_.isEmpty(this.state.titre) ? "" : <p>{this.state.titre}</p>}
                 Je m'identifie pour accéder au service
               </Header>
               <Form
