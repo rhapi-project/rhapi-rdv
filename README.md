@@ -10,7 +10,7 @@ Il est possible d'intégrer un lien vers la prise de RDV en ligne, directement s
 
 **Exemple** : 
 
-Pour un site de prise de rendez-vous dont l'URL est _**www.mon-appli-rdv.fr**_, le lien d'intégration à placer sur le site du praticien (ou toute autre page Web en ligne) sera du type _**www.mon-appli-rdv.fr/rdv/#Patients/@dr-durand**_
+Pour un site de prise de rendez-vous dont l'URL est _**www.mon-appli-rdv.fr**_, le lien d'intégration à placer sur le site du praticien (ou toute autre page Web en ligne) sera du type _**www.mon-appli-rdv.fr/rdv/#Patients/@dr-durand**_, ou plus simplement _**www.mon-appli-rdv.fr/rdv/#Patients/dr-durand**_.
 
 Où **_dr-durand_** est l'identifiant du praticien pour **mon-appli-rdv**.
 
