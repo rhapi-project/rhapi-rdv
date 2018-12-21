@@ -148,40 +148,9 @@ export default class CalendarPanel extends React.Component {
 
       let textColor = lightness > 110 ? "#000000" : "#ffffff";
 
-      let l = 18; // lightness to add
-      let rs;
-      r += l;
-      if (r > 255) {
-        rs = "ff";
-      } else {
-        rs = r.toString(16);
-        if (r < 16) {
-          rs = "0" + rs;
-        }
-      }
-      let gs;
-      g += l;
-      if (g > 255) {
-        gs = "ff";
-      } else {
-        gs = g.toString(16);
-        if (g < 16) {
-          gs = "0" + gs;
-        }
-      }
-      let bs;
-      b += l;
-      if (b > 255) {
-        bs = "ff";
-      } else {
-        bs = b.toString(16);
-        if (b < 16) {
-          bs = "0" + bs;
-        }
-      }
-
-      jEvent.css("background", "#" + rs + gs + bs);
       jEvent.css("color", textColor);
+
+      jEvent.css("background", couleur + "a0"); // add alpha
 
       // jQuery UI : ui-widget(options, element);
       // make the event draggable using jQuery UI
