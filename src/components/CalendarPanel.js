@@ -176,7 +176,7 @@ export default class CalendarPanel extends React.Component {
       } else {
         bs = b.toString(16);
         if (b < 16) {
-          bs = "0" + rs;
+          bs = "0" + bs;
         }
       }
 
