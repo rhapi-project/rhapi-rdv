@@ -150,7 +150,7 @@ export default class CalendarPanel extends React.Component {
 
       jEvent.css("color", textColor);
 
-      jEvent.css("background", couleur + "c0"); // add alpha
+      jEvent.css("background", "rgba(" + r + "," + g + "," + b + ",0.75)"); // add transparency
 
       // jQuery UI : ui-widget(options, element);
       // make the event draggable using jQuery UI
