@@ -429,8 +429,10 @@ export default class Calendar extends React.Component {
         }
         let externalEvents = $("#external-events");
         let offset = externalEvents.offset();
+        
         let x = jsEvent.clientX;
         let y = jsEvent.clientY;
+        offset.top -= $(document).scrollTop();
         offset.right = externalEvents.width() + offset.left;
         offset.bottom = externalEvents.height() + offset.top;
         if (
