@@ -24,6 +24,7 @@ import { helpPopup } from "./Settings";
 
 export default class CalendarPanel extends React.Component {
   rhapiMd5 = "";
+  dayPickerNavDiff = 0;
 
   componentWillMount() {
     this.setState({
@@ -112,6 +113,33 @@ export default class CalendarPanel extends React.Component {
     this.props.handleExternalRefetch(this.reloadExternalEvents);
 
     this.componentDidUpdate();
+
+    setTimeout(() => {
+      $(".fc-today-button").click(() => {
+        if (this.dayPickerNavDiff > 0) {
+          for (let i = 0; i < this.dayPickerNavDiff; i++) {
+            setTimeout(function() {
+              document
+                .getElementsByClassName(
+                  "DayPickerNavigation_leftButton__horizontal"
+                )[0]
+                .click();
+            }, i * 500);
+          }
+        } else {
+          for (let i = 0; i > this.dayPickerNavDiff; i--) {
+            setTimeout(function() {
+              document
+                .getElementsByClassName(
+                  "DayPickerNavigation_rightButton__horizontal"
+                )[0]
+                .click();
+            }, -i * 500);
+          }
+        }
+        this.setState({ currentDate: moment() });
+      });
+    }, 1000); // fullCalendar doit être en place avec son bouton 'today'
   }
 
   componentWillUnmount() {
@@ -259,7 +287,7 @@ export default class CalendarPanel extends React.Component {
           }
 
           if (!forceReload && !index && liste.length) {
-            // aucun futur rednez-vous => se placer sur le dernier en date
+            // aucun futur rendez-vous => se placer sur le dernier en date
             index = liste.length - 1;
           }
 
@@ -446,6 +474,8 @@ export default class CalendarPanel extends React.Component {
             onDateChange={this.onDateChange}
             focused={false}
             date={this.state.currentDate}
+            onPrevMonthClick={() => this.dayPickerNavDiff--}
+            onNextMonthClick={() => this.dayPickerNavDiff++}
           />
         </div>
         <Divider />

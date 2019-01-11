@@ -1066,7 +1066,10 @@ export default class Configuration extends React.Component {
                   </Form.Input>
                 </Form.Group>
                 <Form.Group>
-                  <Header size="tiny">Liste des congés&nbsp;</Header>
+                  <Header size="tiny">
+                    Liste des congés (ces périodes seront exclues lors d'une
+                    prise de RDV en ligne) &nbsp;
+                  </Header>
                   <Popup
                     trigger={<Icon name="help circle" />}
                     on={helpPopup.on}

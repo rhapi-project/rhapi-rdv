@@ -680,7 +680,8 @@ export default class CalendarModalRdv extends React.Component {
       return true;
     }
 
-    // les congés
+    // les congés ne sont pas pris en compte (utilisés pour marquer les vacances scolaires)
+    /* ne 
     if (
       _.findIndex(this.props.options.reservation.conges, conge => {
         return day.isBetween(conge.start, conge.end);
@@ -688,6 +689,7 @@ export default class CalendarModalRdv extends React.Component {
     ) {
       return true;
     }
+    */
     /*
       Les jours fériés légaux ne sont pas pris en compte pour l'instant.
       Si cela doit être fait :
