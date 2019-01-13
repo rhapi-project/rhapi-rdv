@@ -139,7 +139,7 @@ export default class CalendarPanel extends React.Component {
         }
         this.setState({ currentDate: moment() });
       });
-    }, 5000); // fullCalendar doit être en place avec son bouton 'today'
+    }, 1000); // fullCalendar doit être en place avec son bouton 'today'
   }
 
   componentWillUnmount() {
