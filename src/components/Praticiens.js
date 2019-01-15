@@ -7,7 +7,9 @@ import {
   Header,
   Message,
   Segment,
-  Divider
+  Divider,
+  Dimmer,
+  Loader
 } from "semantic-ui-react";
 
 import _ from "lodash";
@@ -37,6 +39,7 @@ export default class Praticiens extends React.Component {
   state = {
     user: _.isUndefined(site.user) ? "" : site.user, // dev => place automatiquement masteruser/masteruser
     password: _.isUndefined(site.password) ? "" : site.password,
+    autoLog: false,
     validation: null,
     errorMessage: ""
   };
@@ -80,9 +83,9 @@ export default class Praticiens extends React.Component {
   };
 
   componentWillMount() {
-    if (window.qWebChannel) {
-      // Qt App auto login
-      let parts = window.location.hash.split("/")[1].split("?");
+    let parts = window.location.hash.split("/");
+    if (parts.length === 2) {
+      parts = parts[1].split("?");
       if (parts.length === 2) {
         parts = parts[1].split("&");
         let params = {};
@@ -105,7 +108,7 @@ export default class Praticiens extends React.Component {
 
   componentDidMount() {
     if (this.state.autoLog) {
-      // Qt App auto login
+      // auto login
       this.accept();
     }
   }
@@ -134,6 +137,7 @@ export default class Praticiens extends React.Component {
     this.setState({
       user: event.target.value,
       validation: null,
+      autoLog: false,
       errorMessage: ""
     });
   };
@@ -142,6 +146,7 @@ export default class Praticiens extends React.Component {
     this.setState({
       password: event.target.value,
       validation: null,
+      autoLog: false,
       errorMessage: ""
     });
   };
@@ -167,14 +172,22 @@ export default class Praticiens extends React.Component {
         return <div style={{ minHeight: 400 }} />;
       }
     } else
-      return window.qWebChannel ? (
-        ""
-      ) : (
+      return (
         <div id="praticiens">
+          <Dimmer
+            active={this.state.autoLog && this.state.validation !== "warning"}
+          >
+            <Loader />
+          </Dimmer>
           <Divider hidden={true} />
           <div
             className="login-form"
-            style={{ maxWidth: maxWidth, textAlign: "center", margin: "auto" }}
+            style={{
+              maxWidth: maxWidth,
+              textAlign: "center",
+              margin: "auto",
+              height: "100vh"
+            }}
           >
             <Header size={hsize}>
               {/*<Image src='/logo.png' />*/}
