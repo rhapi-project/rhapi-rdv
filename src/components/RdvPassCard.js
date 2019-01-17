@@ -38,8 +38,21 @@ export default class RdvPassCard extends React.Component {
     printWithPassword: false,
     //pwdGeneration: false, // proposition de génération de mot de passe (modal)
     carte: false,
+    onlineRdv: false, // prise de rendez-vous en ligne désactivé par défaut
     mesRdv: [],
     mesPlannings: [],
+    praticien: {
+      currentName: "",
+      organisation: "",
+      account: {
+        adresse1: "",
+        adresse2: "",
+        adresse3: "",
+        codePostal: "",
+        ville: "",
+        telBureau: ""
+      }
+    },
     savingModal: false,
     retourSMS: false,
     errorSMS: -1, // pas d'envoi effectué encore
@@ -79,7 +92,15 @@ export default class RdvPassCard extends React.Component {
       {},
       result => {
         // success
-        this.setState({ mesPlannings: result.results });
+        //console.log(result);
+        let onlineRdv = this.state.onlineRdv;
+        let plannings = result.results;
+        for (let i = 0; i < plannings.length; i++) {
+          if (plannings[i].optionsJO.reservation.autorisationMin !== 4) {
+            onlineRdv = true;
+          }
+        }
+        this.setState({ mesPlannings: result.results, onlineRdv: onlineRdv });
       },
       () => {
         // error
@@ -376,7 +397,7 @@ export default class RdvPassCard extends React.Component {
       infos += this.props.patient.id;
       infos += ":" + this.state.newPassword;
       infos += "@";
-      if (this.state.praticien.organisation) {
+      if (/*this.state.praticien && */ this.state.praticien.organisation) {
         infos += this.state.praticien.organisation.split("@")[0];
       }
     }
@@ -402,7 +423,7 @@ export default class RdvPassCard extends React.Component {
                 })}
               </List>
             )}
-            {this.state.printWithPassword ? (
+            {this.state.printWithPassword && this.state.onlineRdv ? (
               <div>
                 Nouveau mot de passe : <b>{this.state.newPassword}</b>
                 <br />
@@ -467,6 +488,7 @@ export default class RdvPassCard extends React.Component {
               praticien={this.state.praticien}
               denomination={this.props.denomination}
               afterPrint={this.afterPrint}
+              onlineRdv={this.state.onlineRdv}
             />
             {/* L'envoi de mail ne sera pas nécessairement implémenté...
             <Button
@@ -480,27 +502,32 @@ export default class RdvPassCard extends React.Component {
               content="Aide Carte"
               onClick={() => this.openHelp(true)}
             />
-            <Button
-              content="Nouveau mot de passe"
-              icon="lock"
-              onClick={() => {
-                let pwd = this.makePasswd();
-                if (this.state.newPassword === "") {
-                  this.setState({
-                    newPassword: pwd,
-                    modalPassword: true,
-                    carte: false
-                  });
-                } else {
-                  this.setState({
-                    oldPassword: this.state.newPassword,
-                    newPassword: pwd,
-                    modalPassword: true,
-                    carte: false
-                  });
-                }
-              }}
-            />
+            {/* si la prise de rdv en ligne est activé, on affiche le bouton de génération d'un nouveau mot de passe */}
+            {this.state.onlineRdv ? (
+              <Button
+                content="Nouveau mot de passe"
+                icon="lock"
+                onClick={() => {
+                  let pwd = this.makePasswd();
+                  if (this.state.newPassword === "") {
+                    this.setState({
+                      newPassword: pwd,
+                      modalPassword: true,
+                      carte: false
+                    });
+                  } else {
+                    this.setState({
+                      oldPassword: this.state.newPassword,
+                      newPassword: pwd,
+                      modalPassword: true,
+                      carte: false
+                    });
+                  }
+                }}
+              />
+            ) : (
+              ""
+            )}
             <Ref
               innerRef={node => {
                 if (this.props.open) {
@@ -799,6 +826,7 @@ export default class RdvPassCard extends React.Component {
               newPassword={this.state.newPassword}
               print={this.print}
               patient={this.props.patient}
+              onlineRdv={this.state.onlineRdv}
               //idPatient={this.props.patient.id}
               //denomination={this.props.denomination}
             />
@@ -901,7 +929,11 @@ class Carte extends React.Component {
                 this.props.praticien.account.ville}
             </span>
             <br />
-            <span>{"Tél. : " + this.props.praticien.account.telBureau}</span>
+            <span>
+              {this.props.praticien.account.telBureau === ""
+                ? ""
+                : "Tél. : " + this.props.praticien.account.telBureau}
+            </span>
           </p>
         </div>
         <div className="titre-principal">
@@ -933,7 +965,7 @@ class Carte extends React.Component {
         )}
         {this.props.printWithPassword ? (
           <div className="new-password">
-            {this.props.printWithPassword ? (
+            {this.props.printWithPassword && this.props.onlineRdv ? (
               <p>
                 {site.title} : <b>{siteUrl}</b>
                 <br />

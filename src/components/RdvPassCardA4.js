@@ -297,6 +297,7 @@ export default class RdvPassCardA4 extends React.Component {
                 mesPlannings={this.props.mesPlannings}
                 print={this.state.print}
                 afterPrint={this.afterPrint}
+                onlineRdv={this.props.onlineRdv}
               />
             </Modal.Content>
           </Modal>
@@ -591,9 +592,11 @@ class Preview extends React.Component {
                   </span>
                   <br />
                   <span>
-                    {"Tél. " +
-                      this.props.praticien.account.telBureau +
-                      " (Bureau)"}
+                    {this.props.praticien.account.telBureau !== ""
+                      ? "Tél. " +
+                        this.props.praticien.account.telBureau +
+                        " (Bureau)"
+                      : ""}
                   </span>
                   <br />
                   <span>{this.props.praticien.account.email}</span>
@@ -613,7 +616,7 @@ class Preview extends React.Component {
               </div>
 
               <div className="new-password" style={{ marginBottom: "20px" }}>
-                {this.props.printWithPassword ? (
+                {this.props.printWithPassword && this.props.onlineRdv ? (
                   <p>
                     {site.title} : <b>{siteUrl}</b>
                     <br />
