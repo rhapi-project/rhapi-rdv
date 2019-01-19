@@ -92,15 +92,13 @@ export default class RdvPassCard extends React.Component {
       {},
       result => {
         // success
-        //console.log(result);
-        let onlineRdv = this.state.onlineRdv;
-        let plannings = result.results;
-        for (let i = 0; i < plannings.length; i++) {
-          if (plannings[i].optionsJO.reservation.autorisationMin !== 4) {
-            onlineRdv = true;
-          }
-        }
-        this.setState({ mesPlannings: result.results, onlineRdv: onlineRdv });
+        this.setState({
+          mesPlannings: result.results,
+          onlineRdv:
+            _.findIndex(result.results, planning => {
+              return planning.optionsJO.reservation.autorisationMin !== 4;
+            }) > -1
+        });
       },
       () => {
         // error
