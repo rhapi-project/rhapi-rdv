@@ -152,7 +152,6 @@ export default class ProfilsPatients extends React.Component {
 
   save = () => {
     let patient = this.state.patient;
-    console.log(patient);
 
     if (this.verification()) {
       this.props.client.Patients.update(

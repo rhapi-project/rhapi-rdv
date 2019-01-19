@@ -65,8 +65,12 @@ export default class RdvPassCard extends React.Component {
 
   componentWillReceiveProps(next) {
     if (!_.isUndefined(this.props.saved)) {
-      if (next.open && !next.saved) {
-        this.setState({ savingModal: true });
+      if (next.open) {
+        if (!next.saved) {
+          this.setState({ savingModal: true });
+        } else {
+          this.reload(); // prise en compte d'un éventuel changement d'autorisation
+        }
       }
     }
   }
@@ -92,11 +96,20 @@ export default class RdvPassCard extends React.Component {
       {},
       result => {
         // success
+        // onlineRdv : true si le patient a une autorisation suffisante pour
+        // accéder à ses RDV sur au moins un des plannings disponibles
+        let autorisationPatient = this.props.patient.gestionRdvJO.reservation
+          ? this.props.patient.gestionRdvJO.reservation.autorisation
+          : 0;
+
         this.setState({
           mesPlannings: result.results,
           onlineRdv:
             _.findIndex(result.results, planning => {
-              return planning.optionsJO.reservation.autorisationMin !== 4;
+              return (
+                autorisationPatient >=
+                planning.optionsJO.reservation.autorisationMin
+              );
             }) > -1
         });
       },
