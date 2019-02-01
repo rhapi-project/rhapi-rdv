@@ -430,13 +430,17 @@ export default class CalendarModalRdv extends React.Component {
     // ipp2 est renseigné si defini pour le patient
     if (
       !_.isUndefined(this.state.patient) &&
-      !_.isEmpty(this.state.patient.ipp2)
+      !_.isUndefined(this.state.patient.ipp2)
     ) {
       rdv.ipp2 = this.state.patient.ipp2;
-    } else {
-      rdv.ipp2 = "";
+    } 
+    
+    if (_.isUndefined(rdv.titre)) {
+      // permet de saisir un texte libre comme titre (nouveau patient)
       rdv.titre = this.titleText;
     }
+    
+    this.titleText = ""; // reset
 
     if (this.state.isNewOne) {
       this.props.client.RendezVous.create(
