@@ -433,13 +433,13 @@ export default class CalendarModalRdv extends React.Component {
       !_.isUndefined(this.state.patient.ipp2)
     ) {
       rdv.ipp2 = this.state.patient.ipp2;
-    } 
-    
+    }
+
     if (_.isUndefined(rdv.titre)) {
       // permet de saisir un texte libre comme titre (nouveau patient)
       rdv.titre = this.titleText;
     }
-    
+
     this.titleText = ""; // reset
 
     if (this.state.isNewOne) {
