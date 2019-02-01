@@ -430,10 +430,11 @@ export default class CalendarModalRdv extends React.Component {
     // ipp2 est renseigné si defini pour le patient
     if (
       !_.isUndefined(this.state.patient) &&
-      !_.isUndefined(this.state.patient.ipp2)
+      !_.isEmpty(this.state.patient.ipp2)
     ) {
       rdv.ipp2 = this.state.patient.ipp2;
     } else {
+      rdv.ipp2 = "";
       rdv.titre = this.titleText;
     }
 
@@ -969,9 +970,10 @@ export default class CalendarModalRdv extends React.Component {
                             result => {
                               window.qWebChannel.patientSelect(
                                 result.ipp2,
-                                () => {}
+                                () => {
+                                  this.handleOk();
+                                }
                               );
-                              // this.handleOk();
                             },
                             data => {
                               // error
