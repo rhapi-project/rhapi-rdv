@@ -607,28 +607,27 @@ export default class CalendarModalRdv extends React.Component {
       //
       // planning associé à ce motif ?
       let planningsAssocies = this.props.options.reservation.planningsAssocies;
-      let associe = _.find(planningsAssocies, p => {
+
+      let associes = _.filter(planningsAssocies, p => {
         return p.motif === Math.abs(d.value) - 1 || p.motif === -1;
       });
 
-      if (!_.isUndefined(associe)) {
+      // supprime tous les associés
+      _.remove(rdv.planningsJA, pl => {
+        return (
+          _.findIndex(planningsAssocies, p => {
+            return p.planning2 === pl.id;
+          }) !== -1
+        );
+      });
+
+      _.forEach(associes, associe => {
         // il existe un planning associé
 
         let i = _.findIndex(rdv.planningsJA, pl => {
           return pl.id === associe.planning2;
         });
         if (i === -1) {
-          // associé non défini
-          //console.log(associe);
-          //
-          // supprime tous les associés
-          _.remove(rdv.planningsJA, pl => {
-            return (
-              _.findIndex(planningsAssocies, p => {
-                return p.planning2 === pl.id;
-              }) !== -1
-            );
-          });
           //
           // ajoute l'associé défini pour le motif courant
           rdv.planningsJA.push({
@@ -645,10 +644,10 @@ export default class CalendarModalRdv extends React.Component {
             this.patientLoad(this.state.patient.id);
           }
         }
-      }
-    }
+      });
 
-    this.setState({ rdv: rdv });
+      this.setState({ rdv: rdv });
+    }
   };
 
   rdvPassCardOpen = bool => {

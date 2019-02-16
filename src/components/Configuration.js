@@ -32,7 +32,8 @@ import IcalImport from "./IcalImport";
 export default class Configuration extends React.Component {
   componentWillMount() {
     this.setState({
-      plannings: [],
+      plannings: [], // plannings administrés
+      planningsAccess: [], // plannings accessibles
       index: -1,
       reservationActiveIndex: -1,
       saved: true, // current config saved
@@ -76,6 +77,25 @@ export default class Configuration extends React.Component {
           plannings: result.results,
           index: index,
           saved: true
+        });
+      },
+      datas => {
+        console.log(datas);
+      }
+    );
+
+    this.props.client.Plannings.mesPlannings(
+      { admin: false },
+      result => {
+        // se placer sur le planning d'id id ?
+        if (!_.isUndefined(id)) {
+          let i = _.findIndex(result.results, { id: id });
+          index = i < 0 ? index : i;
+        } else {
+          index = index < result.results.length ? index : -1;
+        }
+        this.setState({
+          planningsAccess: result.results
         });
       },
       datas => {
@@ -457,7 +477,7 @@ export default class Configuration extends React.Component {
   };
 
   render() {
-    let { index, plannings, saved } = this.state;
+    let { index, plannings, planningsAccess, saved } = this.state;
     let form = "";
     let planning = {};
 
@@ -907,14 +927,14 @@ export default class Configuration extends React.Component {
             <Table.Body>
               {_.map(planningsAssocies, (associe, i) => {
                 let index = _.findIndex(
-                  plannings,
+                  planningsAccess,
                   o => o.id === associe.planning2
                 );
                 let optionsMotifs =
                   index !== -1
                     ? _.filter(
                         _.map(
-                          plannings[index].optionsJO.reservation.motifs,
+                          planningsAccess[index].optionsJO.reservation.motifs,
                           (motif, i) => {
                             return {
                               text: motif.motif,
@@ -961,7 +981,7 @@ export default class Configuration extends React.Component {
                         fluid={true}
                         selection={true}
                         options={_.filter(
-                          _.map(plannings, pl => {
+                          _.map(planningsAccess, pl => {
                             return {
                               text: pl.titre,
                               value: pl.id === planning.id ? -1 : pl.id
