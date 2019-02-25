@@ -87,13 +87,6 @@ export default class Configuration extends React.Component {
     this.props.client.Plannings.mesPlannings(
       { admin: false },
       result => {
-        // se placer sur le planning d'id id ?
-        if (!_.isUndefined(id)) {
-          let i = _.findIndex(result.results, { id: id });
-          index = i < 0 ? index : i;
-        } else {
-          index = index < result.results.length ? index : -1;
-        }
         this.setState({
           planningsAccess: result.results
         });
@@ -130,7 +123,16 @@ export default class Configuration extends React.Component {
     }
     this.saveProcessing = true;
     let last = this.state.plannings.length - 1;
+    let planningsAccess = this.state.planningsAccess;
     _.each(this.state.plannings, (planning, i) => {
+      // màj planningsAccess
+      planningsAccess = _.map(planningsAccess, pa => {
+        if ((pa.id = planning.id)) {
+          return planning;
+        } else {
+          return pa;
+        }
+      });
       //
       planning.optionsJO.organisation = this.state.organisation;
       this.props.client.Plannings.update(
@@ -159,6 +161,9 @@ export default class Configuration extends React.Component {
         }
       );
     });
+
+    // màj planningsAccess (pour IcalImport par ex)
+    this.setState({ planningsAccess: planningsAccess });
   };
 
   supprimer = () => {
@@ -1223,6 +1228,20 @@ export default class Configuration extends React.Component {
               }}
             />
           </Form.Group>
+          <Form.Input
+            label="Demander une confirmation pour tout déplacement par glisser-déposer d'un RDV"
+            style={{ maxWidth: maxWidth / 10 }}
+          >
+            <Checkbox
+              toggle={true}
+              checked={options.reservation.confirmationDragAndDrop}
+              onChange={(e, d) => {
+                options.reservation.confirmationDragAndDrop = d.checked;
+                plannings[index].optionsJO = options;
+                this.setState({ /*plannings: plannings*/ saved: false });
+              }}
+            />
+          </Form.Input>
           <Accordion.Accordion panels={reservationsPanels} />
         </React.Fragment>
       );
@@ -1860,7 +1879,7 @@ export default class Configuration extends React.Component {
               ? ""
               : this.state.plannings[this.state.index].titre
           }
-          plannings={this.state.plannings}
+          plannings={this.state.planningsAccess}
         />
       </div>
     );

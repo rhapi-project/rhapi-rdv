@@ -99,16 +99,27 @@ export default class CalendarModalRdv extends React.Component {
       rdvPassCard: false,
       deleteRdv: false,
       dateRdvFocused: false,
-      patientSearchModal: false
+      patientSearchModal: false,
+      dureeDefaut: false
     });
     this.reload(this.props);
   }
 
   componentWillReceiveProps(next) {
+    let d = _.get(next, "options.plages.dureeMin", 0);
+    let s = _.get(next, "selectStart", _.get(next, "event.start", moment()));
+    let e = _.get(next, "selectEnd", _.get(next, "event.end", moment()));
+    let d2 = e.diff(s) / 60000;
+    let dureeDefaut = d === d2;
     if (next.open) {
       this.reload(next);
     }
-    this.setState({ image: "", accordionIndex: -1, accordionIndex2: -1 });
+    this.setState({
+      image: "",
+      accordionIndex: -1,
+      accordionIndex2: -1,
+      dureeDefaut: dureeDefaut
+    });
   }
 
   patientTodos = (idPatient, rdv) => {
@@ -598,6 +609,21 @@ export default class CalendarModalRdv extends React.Component {
           rdv.planningJO.motif = d.value;
         }
         pl.motif = d.value;
+        let pc = _.find(this.state.plannings, p => {
+          return p.value === pl.id;
+        });
+        if (
+          this.state.dureeDefaut &&
+          pc &&
+          pc.motifs &&
+          pc.motifs[pl.motif - 1] &&
+          pc.motifs[pl.motif - 1].duree
+        ) {
+          //console.log( pc.motifs[pl.motif - 1]);
+          rdv.endAt = moment(this.state.rdv.startAt)
+            .add(pc.motifs[pl.motif - 1].duree, "minutes")
+            .format("YYYY-MM-DDTHH:mm:ss");
+        }
         return true;
       }
       return false;
@@ -645,9 +671,9 @@ export default class CalendarModalRdv extends React.Component {
           }
         }
       });
-
-      this.setState({ rdv: rdv });
     }
+
+    this.setState({ rdv: rdv });
   };
 
   rdvPassCardOpen = bool => {

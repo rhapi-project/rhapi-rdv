@@ -361,6 +361,15 @@ export default class Calendar extends React.Component {
           $("#calendar").fullCalendar("refetchEvents");
           return;
         }
+
+        if (
+          options.reservation.confirmationDragAndDrop &&
+          !window.confirm("Vous confirmez le déplacement de ce RDV ?")
+        ) {
+          $("#calendar").fullCalendar("refetchEvents");
+          return;
+        }
+
         var params = {
           startAt: event.start.toISOString(),
           endAt: event.end.toISOString()
@@ -427,6 +436,7 @@ export default class Calendar extends React.Component {
         if (_.isUndefined(jsEvent)) {
           return;
         }
+
         let externalEvents = $("#external-events");
         let offset = externalEvents.offset();
 

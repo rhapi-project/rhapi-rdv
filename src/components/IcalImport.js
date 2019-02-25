@@ -12,14 +12,15 @@ import {
   Modal,
   Loader,
   Dimmer,
-  Ref
+  Ref,
+  Dropdown
 } from "semantic-ui-react";
 
 export default class IcalImport extends React.Component {
   state = {
     open: false,
-    selectPlannings: false, // sélectionner d'autres plannings sur lesquels écrire les rdv
     selectedPlannings: [], // les id des plannings sélectionnés
+    motifs: {},
     clearRdv: false, // les rdv préexistants sur les plannings sélectionnés seront supprimés
     fileLoaded: false, // fin du chargement du fichier de rdv
     fileReady: false // le fichier a été bien sélectionné et les rdv peuvent être chargés
@@ -27,14 +28,18 @@ export default class IcalImport extends React.Component {
 
   componentWillReceiveProps(next) {
     this.setState({
+      clearRdv: false, // les rdv préexistants sur les plannings sélectionnés seront supprimés
+      fileLoaded: false, // fin du chargement du fichier de rdv
+      fileReady: false, // le fichier a été bien sélectionné et les rdv peuvent être chargés
       open: next.open,
+      motifs: {},
       selectedPlannings: this.initSelectedPlannings() // une valeur au début
     });
   }
 
   // le planning courant est sélectionné par défaut
   initSelectedPlannings = () => {
-    let selPl = this.state.selectedPlannings;
+    let selPl = []; // = this.state.selectedPlannings;
     if (
       this.props.planningId !== -1 &&
       !_.includes(this.props.plannings, this.props.planningId) &&
@@ -62,6 +67,11 @@ export default class IcalImport extends React.Component {
     this.setState({ selectedPlannings: selPl });
   };
 
+  planningMotifChange = d => {
+    let motifs = this.state.motifs;
+    _.set(motifs, d.planning, d.value);
+  };
+
   close = () => {
     this.props.modalIcalImportOpen(false);
   };
@@ -74,10 +84,18 @@ export default class IcalImport extends React.Component {
   };
 
   requestParameters = () => {
-    let param = this.state.selectedPlannings.join("-");
+    let motifs = this.state.motifs;
+
+    let idMotifs = _.map(this.state.selectedPlannings, planning => {
+      return planning + "_" + _.get(motifs, planning, 0);
+    });
+
+    let param = idMotifs.join("-");
+
     if (this.state.clearRdv) {
       param += "-clear";
     }
+    console.log(param);
     return param;
   };
 
@@ -121,7 +139,7 @@ export default class IcalImport extends React.Component {
   };
 
   render() {
-    //console.log(this.props.plannings);
+    if (!this.state.open) return "";
     return (
       <React.Fragment>
         <Modal size="small" open={this.state.open}>
@@ -137,46 +155,29 @@ export default class IcalImport extends React.Component {
               préexistants sur ce planning.
             </p>
             <Form>
-              <Form.Input
-                label={
-                  <label>
-                    Effacer tous les rendez-vous préexistants sur le(s)
-                    planning(s) de destination.
-                  </label>
-                }
-              >
-                <Checkbox
-                  toggle={true}
-                  checked={this.state.clearRdv}
-                  onChange={(e, d) => this.clearRdvChange()}
-                />
-              </Form.Input>
+              <Checkbox
+                label="Effacer tous les rendez-vous préexistants sur le(s) planning(s) de destination."
+                toggle={true}
+                checked={this.state.clearRdv}
+                onChange={(e, d) => this.clearRdvChange()}
+              />
+              <Divider />
 
-              {_.size(this.props.plannings) !== 1 &&
-              !_.isEmpty(this.props.plannings) ? (
-                <Form.Input label="Importer les rendez-vous sur d'autres plannings.">
-                  <Checkbox
-                    toggle={true}
-                    checked={this.state.selectPlannings}
-                    onChange={() =>
-                      this.setState({
-                        selectPlannings: !this.state.selectPlannings
-                      })
-                    }
-                  />
-                </Form.Input>
-              ) : (
-                ""
-              )}
-            </Form>
+              {_.map(this.props.plannings, (planning, i) => {
+                let motifsOptions = [{ value: 0, text: "Aucun motif défini" }];
 
-            {/* Sélection d'autres plannings */}
-            {this.state.selectPlannings ? (
-              <div>
-                <Divider />
-                <Form>
-                  {_.map(this.props.plannings, planning => (
-                    <Form.Input key={planning.id}>
+                _.forEach(planning.optionsJO.reservation.motifs, (m, i) => {
+                  if (!m.hidden) {
+                    motifsOptions.push({
+                      value: i + 1,
+                      text: m.motif
+                    });
+                  }
+                });
+
+                return (
+                  <Form.Group widths="equal" key={planning.id}>
+                    <Form.Input>
                       <Checkbox
                         toggle={true}
                         label={<label>{planning.titre}</label>}
@@ -187,13 +188,21 @@ export default class IcalImport extends React.Component {
                         onChange={() => this.addRemovePlanning(planning.id)}
                       />
                     </Form.Input>
-                  ))}
-                </Form>
-              </div>
-            ) : (
-              ""
-            )}
-
+                    <Form.Input>
+                      <Dropdown
+                        fluid={true}
+                        planning={planning.id}
+                        selection={true}
+                        options={motifsOptions}
+                        onChange={(e, d) => {
+                          this.planningMotifChange(d);
+                        }}
+                      />
+                    </Form.Input>
+                  </Form.Group>
+                );
+              })}
+            </Form>
             {/* Import au format iCalendar (*.ics) => à placer dans une modal */}
             <iframe // iframe masquée comme cible du formulaire
               id="import-form-frame"
@@ -202,7 +211,6 @@ export default class IcalImport extends React.Component {
               onLoad={this.onLoad}
               style={{ display: "none" }}
             />
-
             <Form
               id="import-form"
               target="import-form-frame"
