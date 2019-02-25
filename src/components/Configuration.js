@@ -125,7 +125,8 @@ export default class Configuration extends React.Component {
     let last = this.state.plannings.length - 1;
     let planningsAccess = this.state.planningsAccess;
     _.each(this.state.plannings, (planning, i) => {
-      // màj planningsAccess
+      // màj planningsAccess => TODO : à corriger
+      /*
       planningsAccess = _.map(planningsAccess, pa => {
         if ((pa.id = planning.id)) {
           return planning;
@@ -133,6 +134,7 @@ export default class Configuration extends React.Component {
           return pa;
         }
       });
+      */
       //
       planning.optionsJO.organisation = this.state.organisation;
       this.props.client.Plannings.update(
@@ -162,8 +164,8 @@ export default class Configuration extends React.Component {
       );
     });
 
-    // màj planningsAccess (pour IcalImport par ex)
-    this.setState({ planningsAccess: planningsAccess });
+    // màj planningsAccess (pour IcalImport par ex) => TODO : à corriger
+    //this.setState({ planningsAccess: planningsAccess });
   };
 
   supprimer = () => {
