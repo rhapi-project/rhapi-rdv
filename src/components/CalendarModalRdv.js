@@ -446,9 +446,14 @@ export default class CalendarModalRdv extends React.Component {
       rdv.ipp2 = this.state.patient.ipp2;
     }
 
-    if (_.isUndefined(rdv.titre)) {
+    if (
+      _.isUndefined(rdv.titre) ||
+      _.isUndefined(this.state.patient) ||
+      _.isUndefined(this.state.patient.id)
+    ) {
       // permet de saisir un texte libre comme titre (nouveau patient)
       rdv.titre = this.titleText;
+      _.unset(rdv, "ipp2");
     }
 
     this.titleText = ""; // reset
@@ -603,6 +608,8 @@ export default class CalendarModalRdv extends React.Component {
       rdv.planningsJA = [];
     }
 
+    // Recherche d'un planning associé
+
     _.find(rdv.planningsJA, pl => {
       if (pl.id === d.planning) {
         if (d.planning === this.props.planning) {
@@ -638,7 +645,14 @@ export default class CalendarModalRdv extends React.Component {
         return p.motif === Math.abs(d.value) - 1 || p.motif === -1;
       });
 
-      // supprime tous les associés
+      if (associes.length > 1) {
+        // si plusieurs possibilités on ne conserve que l'association définie pour un motif précis
+        associes = _.filter(associes, p => {
+          return p.motif === Math.abs(d.value) - 1;
+        });
+      }
+
+      // supprime tous les associés (ils seront redéfinis ensuite)
       _.remove(rdv.planningsJA, pl => {
         return (
           _.findIndex(planningsAssocies, p => {
@@ -648,9 +662,10 @@ export default class CalendarModalRdv extends React.Component {
       });
 
       _.forEach(associes, associe => {
-        // il existe un planning associé
+        // il existe un planning associé (et à priori
+        // associes ne doit comporter qu'un seul item)
 
-        let i = _.findIndex(rdv.planningsJA, pl => {
+        let i = _.findIndex(rdv.planningsJA, (pl, index) => {
           return pl.id === associe.planning2;
         });
         if (i === -1) {
@@ -849,7 +864,7 @@ export default class CalendarModalRdv extends React.Component {
           <Segment clearing={true}>
             <Header size="small" floated="left">
               <Form.Input>
-                {this.state.isNewOne ? (
+                {this.state.isNewOne || !this.state.rdv.idPatient ? (
                   <React.Fragment>
                     <Ref
                       innerRef={node => {
@@ -977,10 +992,7 @@ export default class CalendarModalRdv extends React.Component {
                     />
                   </React.Fragment>
                 ) : (
-                  <h3>
-                    {this.state.rdv.titre +
-                      (this.state.rdv.idPatient ? "" : " (nouveau patient)")}
-                  </h3>
+                  <h3>{this.state.rdv.titre}</h3>
                 )}
                 {this.state.rdv.idPatient && window.qWebChannel ? (
                   <Popup

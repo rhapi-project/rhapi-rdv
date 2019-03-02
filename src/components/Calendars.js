@@ -161,6 +161,9 @@ export default class Calendars extends React.Component {
           this.state.index < 0 ? "0" : this.state.plannings[this.state.index].id
         }
         externalRefetch={this.state.externalRefetch}
+        todayClick={() => {
+          this.setState({ todayClicked: true });
+        }}
       />
     );
 
@@ -270,6 +273,7 @@ export default class Calendars extends React.Component {
               handleExternalRefetch={externalRefetch =>
                 this.setState({ externalRefetch: externalRefetch })
               }
+              todayClicked={this.state.todayClicked}
             />
           </div>
         ) : (

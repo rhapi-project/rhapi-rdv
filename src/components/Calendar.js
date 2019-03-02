@@ -97,11 +97,21 @@ export default class Calendar extends React.Component {
         });
         // début/fin arrondis à l'heure précédente/suivante
         minTime = moment(minT, "HH:mm")
-          .subtract(60, "minutes")
+          .subtract(
+            _.isUndefined(options.plages.margeDebut)
+              ? 60
+              : options.plages.margeDebut,
+            "minutes"
+          )
           .minutes(0)
           .format("HH:mm");
         maxTime = moment(maxT, "HH:mm")
-          .add(60, "minutes")
+          .add(
+            _.isUndefined(options.plages.margeDebut)
+              ? 60
+              : options.plages.margeDebut,
+            "minutes"
+          )
           .minutes(0)
           .format("HH:mm");
       });
@@ -501,6 +511,9 @@ export default class Calendar extends React.Component {
       }
     });
 
+    $(".fc-today-button").click(() => {
+      this.props.todayClick();
+    });
     // ajustement CSS fullcalendar
     $(".fc-button").css("background", "white");
     // prev & next buttons padding-top

@@ -123,7 +123,7 @@ export default class Configuration extends React.Component {
     }
     this.saveProcessing = true;
     let last = this.state.plannings.length - 1;
-    let planningsAccess = this.state.planningsAccess;
+    //let planningsAccess = this.state.planningsAccess;
     _.each(this.state.plannings, (planning, i) => {
       // màj planningsAccess => TODO : à corriger
       /*
@@ -533,6 +533,7 @@ export default class Configuration extends React.Component {
         <React.Fragment>
           <Form.Group>
             <Form.Input
+              width={8}
               label="Durée par défaut d'un RDV (en mn)"
               style={{ maxWidth: maxWidth / 5 }}
               placeholder="Durée par défaut"
@@ -544,13 +545,48 @@ export default class Configuration extends React.Component {
               }}
             />
             <Form.Input
-              label="Durée minimale d'un RDV (plus petit créneau visible sur l'agenda en mn)"
+              width={8}
+              label="Durée minimale d'un RDV (plus petit créneau visible en mn)"
               style={{ maxWidth: maxWidth / 5 }}
               placeholder="Durée minimale"
               value={options.plages.dureeMin}
               type="number"
               onChange={(e, d) => {
                 options.plages.dureeMin = _.toNumber(d.value);
+                this.setState({ /*plannings: plannings,*/ saved: false });
+              }}
+            />
+          </Form.Group>
+          <Form.Group>
+            <Form.Input
+              width={8}
+              step={options.plages.dureeMin}
+              label="Marge minimale affichée en début de journée (en mn)"
+              style={{ maxWidth: maxWidth / 5 }}
+              value={
+                _.isUndefined(options.plages.margeDebut)
+                  ? 60
+                  : options.plages.margeDebut
+              }
+              type="number"
+              onChange={(e, d) => {
+                options.plages.margeDebut = _.max([_.toNumber(d.value), 0]);
+                this.setState({ /*plannings: plannings,*/ saved: false });
+              }}
+            />
+            <Form.Input
+              width={8}
+              step={options.plages.dureeMin}
+              label="Marge minimale affichée en fin de journée (en mn)"
+              style={{ maxWidth: maxWidth / 5 }}
+              value={
+                _.isUndefined(options.plages.margeFin)
+                  ? 60
+                  : options.plages.margeFin
+              }
+              type="number"
+              onChange={(e, d) => {
+                options.plages.margeFin = _.max([_.toNumber(d.value), 0]);
                 this.setState({ /*plannings: plannings,*/ saved: false });
               }}
             />
@@ -566,7 +602,7 @@ export default class Configuration extends React.Component {
         <React.Fragment>
           <Form.Group>
             <Form.Input
-              label="Niveau minimum d'autorisation requis pour la prise de RDV en ligne"
+              label="Niveau minimal d'autorisation requis pour la prise de RDV en ligne"
               style={{ maxWidth: maxWidth / 5 }}
             >
               <Dropdown
@@ -608,7 +644,7 @@ export default class Configuration extends React.Component {
               />
             </Form.Input>
             <Form.Input
-              label="Niveau maximum accepté pour un RDV en ligne"
+              label="Niveau maximal accepté pour un RDV en ligne"
               style={{ maxWidth: maxWidth / 5 }}
             >
               <Dropdown
@@ -649,7 +685,7 @@ export default class Configuration extends React.Component {
           </Form.Group>
           <Form.Group>
             <Form.Input
-              label="Niveau d'autorisation minimum des motifs exposés aux menus l'agenda"
+              label="Niveau d'autorisation minimal des motifs exposés aux menus l'agenda"
               style={{ maxWidth: maxWidth / 5 }}
             >
               <Dropdown
@@ -803,7 +839,7 @@ export default class Configuration extends React.Component {
               <Table.Row>
                 <Table.HeaderCell>Motif</Table.HeaderCell>
                 <Table.HeaderCell>
-                  Niveau d'autorisation minimum requis
+                  Niveau d'autorisation minimal requis
                 </Table.HeaderCell>
                 <Table.HeaderCell>Durée par défaut (en mn)</Table.HeaderCell>
                 <Table.HeaderCell>Couleur</Table.HeaderCell>
@@ -937,6 +973,19 @@ export default class Configuration extends React.Component {
                   planningsAccess,
                   o => o.id === associe.planning2
                 );
+                let opts = _.filter(
+                  _.map(options.reservation.motifs, (motif, i) => {
+                    return {
+                      text: motif.motif,
+                      value: motif.hidden ? -1 : i
+                    };
+                  }),
+                  o => o.value !== -1
+                );
+                opts.unshift({
+                  value: -1,
+                  text: "Tout motif"
+                });
                 let optionsMotifs =
                   index !== -1
                     ? _.filter(
@@ -956,6 +1005,7 @@ export default class Configuration extends React.Component {
                   value: -1,
                   text: "Aucun motif défini"
                 });
+
                 return (
                   <Table.Row key={i}>
                     <Table.Cell>
@@ -967,15 +1017,7 @@ export default class Configuration extends React.Component {
                         }}
                         fluid={true}
                         selection={true}
-                        options={_.filter(
-                          _.map(options.reservation.motifs, (motif, i) => {
-                            return {
-                              text: motif.motif,
-                              value: motif.hidden ? -1 : i
-                            };
-                          }),
-                          o => o.value !== -1
-                        )}
+                        options={opts}
                       />
                     </Table.Cell>
                     <Table.Cell>
@@ -1147,9 +1189,9 @@ export default class Configuration extends React.Component {
         <React.Fragment>
           <Form.Group>
             <Form.Input
-              label="Délai maximum pour un RDV (en jours)"
+              label="Délai maximal pour un RDV (en jours)"
               style={{ maxWidth: maxWidth / 5 }}
-              placeholder="Délai maximum"
+              placeholder="Délai maximal"
               value={options.reservation.delaiMax}
               type="number"
               onChange={(e, d) => {

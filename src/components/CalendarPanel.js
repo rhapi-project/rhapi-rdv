@@ -47,6 +47,33 @@ export default class CalendarPanel extends React.Component {
     });
     this.reloadExternalEvents(next.planning);
     this.onPatientChange(-1, ""); // force reload rdv patient
+
+    if (next.todayClicked && !this.state.todayClicked) {
+      if (this.dayPickerNavDiff > 0) {
+        for (let i = 0; i < this.dayPickerNavDiff; i++) {
+          setTimeout(() => {
+            document
+              .getElementsByClassName(
+                "DayPickerNavigation_leftButton__horizontal"
+              )[0]
+              .click();
+          }, i * 500);
+        }
+      } else {
+        for (let i = 0; i > this.dayPickerNavDiff; i--) {
+          setTimeout(() => {
+            document
+              .getElementsByClassName(
+                "DayPickerNavigation_rightButton__horizontal"
+              )[0]
+              .click();
+          }, -i * 500);
+        }
+      }
+      this.setState({ currentDate: moment(), todayClicked: true });
+    }
+
+    this.setState({ currentDate: moment(), todayClicked: false });
   }
 
   componentDidMount() {
@@ -113,33 +140,6 @@ export default class CalendarPanel extends React.Component {
     this.props.handleExternalRefetch(this.reloadExternalEvents);
 
     this.componentDidUpdate();
-
-    setTimeout(() => {
-      $(".fc-today-button").click(() => {
-        if (this.dayPickerNavDiff > 0) {
-          for (let i = 0; i < this.dayPickerNavDiff; i++) {
-            setTimeout(function() {
-              document
-                .getElementsByClassName(
-                  "DayPickerNavigation_leftButton__horizontal"
-                )[0]
-                .click();
-            }, i * 500);
-          }
-        } else {
-          for (let i = 0; i > this.dayPickerNavDiff; i--) {
-            setTimeout(function() {
-              document
-                .getElementsByClassName(
-                  "DayPickerNavigation_rightButton__horizontal"
-                )[0]
-                .click();
-            }, -i * 500);
-          }
-        }
-        this.setState({ currentDate: moment() });
-      });
-    }, 5000); // fullCalendar doit être en place avec son bouton 'today'
   }
 
   componentWillUnmount() {
