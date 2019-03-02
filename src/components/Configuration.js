@@ -533,7 +533,7 @@ export default class Configuration extends React.Component {
         <React.Fragment>
           <Form.Group>
             <Form.Input
-              width={8}
+              width={6}
               label="Durée par défaut d'un RDV (en mn)"
               style={{ maxWidth: maxWidth / 5 }}
               placeholder="Durée par défaut"
@@ -545,7 +545,7 @@ export default class Configuration extends React.Component {
               }}
             />
             <Form.Input
-              width={8}
+              width={10}
               label="Durée minimale d'un RDV (plus petit créneau visible en mn)"
               style={{ maxWidth: maxWidth / 5 }}
               placeholder="Durée minimale"
@@ -559,7 +559,7 @@ export default class Configuration extends React.Component {
           </Form.Group>
           <Form.Group>
             <Form.Input
-              width={8}
+              width={6}
               step={options.plages.dureeMin}
               label="Marge minimale affichée en début de journée (en mn)"
               style={{ maxWidth: maxWidth / 5 }}
@@ -575,7 +575,7 @@ export default class Configuration extends React.Component {
               }}
             />
             <Form.Input
-              width={8}
+              width={10}
               step={options.plages.dureeMin}
               label="Marge minimale affichée en fin de journée (en mn)"
               style={{ maxWidth: maxWidth / 5 }}
@@ -1189,6 +1189,7 @@ export default class Configuration extends React.Component {
         <React.Fragment>
           <Form.Group>
             <Form.Input
+              width={6}
               label="Délai maximal pour un RDV (en jours)"
               style={{ maxWidth: maxWidth / 5 }}
               placeholder="Délai maximal"
@@ -1202,6 +1203,7 @@ export default class Configuration extends React.Component {
               }}
             />
             <Form.Input
+              width={10}
               label="Délai de prévenance pour annuler un RDV (en heures)"
               style={{ maxWidth: maxWidth / 5 }}
               placeholder="Délai de prévenance"
@@ -1217,6 +1219,7 @@ export default class Configuration extends React.Component {
           </Form.Group>
           <Form.Group>
             <Form.Input
+              width={6}
               label="Format pour la dénomination des patients"
               style={{ maxWidth: maxWidth / 5 }}
             >
@@ -1258,6 +1261,8 @@ export default class Configuration extends React.Component {
               />
             </Form.Input>
             <Form.Input
+              width={10}
+              style={{ maxWidth: maxWidth / 2 }}
               label="Dénomination par défaut (si patient non identifié)"
               placeholder="Dénomination par défaut"
               value={
