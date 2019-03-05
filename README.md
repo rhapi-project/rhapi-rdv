@@ -1,7 +1,7 @@
 # rhapi-rdv
 Une application de gestion de RDV pour RHAPI
 
-[Tester la démo en ligne](https://static.rhapi.net/demos/rdv)
+[Tester la démo en ligne](https://static.rhapi.net/demos/rdv/#Praticiens)
 
 
 ## Note pour intégration
