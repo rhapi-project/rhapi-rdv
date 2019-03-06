@@ -154,8 +154,10 @@ export default class CalendarModalRdv extends React.Component {
     let rdv = _.isUndefined(rdv0) ? this.state.rdv : rdv0;
 
     if (!idPatient) {
-      // patient non encore défini (RDV pris en ligne)
+      // patient non encore défini (RDV pris en ligne ou RDV saisi sans identification)
       // rappelsJO déjà en rdv
+      this.titleText = rdv.titre;
+      
       if (_.isUndefined(rdv.rappelsJO)) {
         rdv.rappelsJO = {};
       }
@@ -488,6 +490,9 @@ export default class CalendarModalRdv extends React.Component {
   };
 
   handleRemove = () => {
+    
+    this.titleText = ""; // reset
+    
     if (this.state.isNewOne) {
       this.close();
       return;
