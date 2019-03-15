@@ -420,7 +420,7 @@ export default class CalendarPanel extends React.Component {
     });
   };
 
-  patientReload = idPatient => {
+  patientReload = () => {
     this.props.client.Patients.read(
       this.state.currentPatient.id,
       {},
@@ -682,12 +682,10 @@ export default class CalendarPanel extends React.Component {
                       this.state.currentPatient.id,
                       {},
                       patient => {
-                        //console.log(patient);
                         this.setState({
-                          patient: patient
-                          //rdvPassCard: true
+                          patient: patient,
+                          rdvPassCard: true
                         });
-                        this.rdvPassCardOpen(true);
                       },
                       data => {
                         //Error

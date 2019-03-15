@@ -64,20 +64,22 @@ export default class RdvPassCard extends React.Component {
   }
 
   componentWillReceiveProps(next) {
-    if (!_.isUndefined(this.props.saved)) {
+    if (!_.isUndefined(next.saved)) {
       if (next.open) {
         if (!next.saved) {
           this.setState({ savingModal: true });
         } else {
-          this.reload(); // prise en compte d'un éventuel changement d'autorisation
+          this.reload(next.patient.id);
         }
       }
+    } else if (next.open) {
+      this.reload(next.patient.id);
     }
   }
 
-  reload = () => {
+  reload = id => {
     this.props.client.RendezVous.mesRendezVous(
-      { ipp: this.props.patient.id },
+      { ipp: _.isUndefined(id) ? this.props.patient.id : id },
       result => {
         // success
         // les rendez-vous annulés (masqués) ne sont pas affichés
