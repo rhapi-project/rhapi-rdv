@@ -496,6 +496,16 @@ export default class Calendar extends React.Component {
       },
 
       eventResize: function(event) {
+        if (
+          options.reservation.confirmationDragAndDrop &&
+          !window.confirm(
+            "Vous confirmez la modification de la durée de ce RDV ?"
+          )
+        ) {
+          $("#calendar").fullCalendar("refetchEvents");
+          return;
+        }
+
         var params = {
           startAt: event.start.toISOString(),
           endAt: event.end.toISOString()
