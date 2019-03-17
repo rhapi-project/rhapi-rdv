@@ -839,7 +839,7 @@ export default class Configuration extends React.Component {
               <Table.Row>
                 <Table.HeaderCell>Motif</Table.HeaderCell>
                 <Table.HeaderCell>
-                  Niveau d'autorisation minimal requis
+                  Niveau d'autorisation requis (définissant les plages ouvertes)
                 </Table.HeaderCell>
                 <Table.HeaderCell>Durée par défaut (en mn)</Table.HeaderCell>
                 <Table.HeaderCell>Couleur</Table.HeaderCell>
