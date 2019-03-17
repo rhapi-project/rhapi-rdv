@@ -46,8 +46,6 @@ export default class PriseRdv extends React.Component {
       currentMotifId: 0,
       currentMotifIndex: null,
       currentMotifText: "",
-      horairesDisponibles: [],
-      horaireDisponibleNext: "",
       horaire: "",
       completed: false,
       voirMesRdv: false
@@ -74,9 +72,7 @@ export default class PriseRdv extends React.Component {
         motifs: planning.motifs,
         currentMotifId: 0,
         currentMotifIndex: null,
-        currentPlanningId: planning.id,
-        horairesDisponibles: [],
-        horaireDisponibleNext: ""
+        currentPlanningId: planning.id
       });
     }
   };
