@@ -18,28 +18,28 @@ export default class HorairesDisponibles extends React.Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.motifId !== this.props.motifId) {
-      this.loadNext(nextProps);
+  componentWillReceiveProps(next) {
+    if (next.motifId !== this.props.motifId) {
+      this.loadNext(next, true);
     }
   }
 
-  loadNext = nextProps => {
-    //console.log(nextProps);
-    const params = { ...nextProps.patient };
-    const index = this.state.joursIndex;
+  loadNext = (next, reset) => {
+    let params = { ...next.patient };
+    let index = reset ? -1 : this.state.joursIndex;
     if (index >= 0) {
       params.from = this.state.jours[index].informations.next;
     }
-    params.planning = nextProps.planningId;
-    params.motif = nextProps.motifId;
-    this.props.client.Reservation.readAll(
+    params.planning = next.planningId;
+    params.motif = next.motifId;
+    next.client.Reservation.readAll(
       params,
       result => {
-        let jours = this.state.jours;
+        let jours = reset ? [] : this.state.jours;
+        let maxHoraires = reset ? 4 : this.state.maxHoraires;
         jours.push(result);
         let index = jours.length - 1;
-        this.setState({ jours: jours, joursIndex: index });
+        this.setState({ jours: jours, joursIndex: index, maxHoraires: maxHoraires });
       },
       datas => {
         // erreur
