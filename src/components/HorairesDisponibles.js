@@ -39,7 +39,11 @@ export default class HorairesDisponibles extends React.Component {
         let maxHoraires = reset ? 4 : this.state.maxHoraires;
         jours.push(result);
         let index = jours.length - 1;
-        this.setState({ jours: jours, joursIndex: index, maxHoraires: maxHoraires });
+        this.setState({
+          jours: jours,
+          joursIndex: index,
+          maxHoraires: maxHoraires
+        });
       },
       datas => {
         // erreur

@@ -86,7 +86,9 @@ class MonRdv extends React.Component {
         this.close();
       },
       datas => {
-        console.log(datas.internalMessage + " : " + datas.userMessage);
+        // TODO : Afficher le message en utilisant un Component semantic à la place de 'alert'
+        console.log(datas);
+        alert(datas.internalMessage + " : " + datas.userMessage);
         this.close();
       }
     );
