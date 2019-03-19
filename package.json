@@ -26,7 +26,7 @@
     "react-simple-timefield": "^2.0.0",
     "rhapi-client": "^1.0.14",
     "semantic-ui-css": "2.2",
-    "semantic-ui-react": "^0.80.0"
+    "semantic-ui-react": "^0.82.0"
   },
   "scripts": {
     "start": "npm run docs && npm run print-css && react-scripts start",
