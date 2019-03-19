@@ -532,6 +532,31 @@ export default class Configuration extends React.Component {
       const Plages = (
         <React.Fragment>
           <Form.Group>
+            <Form.Dropdown
+              selection={true}
+              text={"Reprendre les plages horaires du planning..."}
+              options={_.map(
+                _.filter(plannings, pl => {
+                  return pl.id !== planning.id;
+                }),
+                (pl, i) => {
+                  return {
+                    key: pl.id,
+                    text: pl.titre,
+                    value: pl.id
+                  };
+                }
+              )}
+              onChange={(e, d) => {
+                let pl = _.find(plannings, pl => {
+                  return pl.id === d.value;
+                });
+                options.plages = _.cloneDeep(pl.optionsJO.plages);
+                this.setState({ saved: false });
+              }}
+            />
+          </Form.Group>
+          <Form.Group>
             <Form.Input
               width={6}
               label="Durée par défaut d'un RDV (en mn)"
@@ -541,7 +566,7 @@ export default class Configuration extends React.Component {
               type="number"
               onChange={(e, d) => {
                 options.plages.duree = _.toNumber(d.value);
-                this.setState({ /*plannings: plannings,*/ saved: false });
+                this.setState({ saved: false });
               }}
             />
             <Form.Input
@@ -553,7 +578,7 @@ export default class Configuration extends React.Component {
               type="number"
               onChange={(e, d) => {
                 options.plages.dureeMin = _.toNumber(d.value);
-                this.setState({ /*plannings: plannings,*/ saved: false });
+                this.setState({ saved: false });
               }}
             />
           </Form.Group>
@@ -571,7 +596,7 @@ export default class Configuration extends React.Component {
               type="number"
               onChange={(e, d) => {
                 options.plages.margeDebut = _.max([_.toNumber(d.value), 0]);
-                this.setState({ /*plannings: plannings,*/ saved: false });
+                this.setState({ saved: false });
               }}
             />
             <Form.Input
@@ -587,7 +612,7 @@ export default class Configuration extends React.Component {
               type="number"
               onChange={(e, d) => {
                 options.plages.margeFin = _.max([_.toNumber(d.value), 0]);
-                this.setState({ /*plannings: plannings,*/ saved: false });
+                this.setState({ saved: false });
               }}
             />
           </Form.Group>
@@ -639,7 +664,7 @@ export default class Configuration extends React.Component {
                 onChange={(e, d) => {
                   options.reservation.autorisationMin = d.value;
                   plannings[index].optionsJO = options;
-                  this.setState({ saved: false /*, plannings: plannings*/ });
+                  this.setState({ saved: false });
                 }}
               />
             </Form.Input>
@@ -678,7 +703,7 @@ export default class Configuration extends React.Component {
                 onChange={(e, d) => {
                   options.reservation.autorisationMax = d.value;
                   plannings[index].optionsJO = options;
-                  this.setState({ saved: false /*, plannings: plannings*/ });
+                  this.setState({ saved: false });
                 }}
               />
             </Form.Input>
@@ -717,7 +742,7 @@ export default class Configuration extends React.Component {
                 onChange={(e, d) => {
                   options.reservation.autorisationMinAgenda = d.value;
                   plannings[index].optionsJO = options;
-                  this.setState({ saved: false /*, plannings: plannings*/ });
+                  this.setState({ saved: false });
                 }}
               />
             </Form.Input>
@@ -811,10 +836,12 @@ export default class Configuration extends React.Component {
                             ];
                           } else if (d.value === -1) {
                             // tous les horaires d'ouvertures
-                            horairesReservation[i] = horaires;
+                            horairesReservation[i] = _.cloneDeep(horaires);
                           } else {
                             // les horaires du jour d.value
-                            horairesReservation[i][d.value] = horaires[d.value];
+                            horairesReservation[i][d.value] = _.cloneDeep(
+                              horaires[d.value]
+                            );
                           }
                           this.onHorairesReservationChange();
                         }}
@@ -834,6 +861,41 @@ export default class Configuration extends React.Component {
 
       const MotifsRDV = (
         <React.Fragment>
+          <Form.Group>
+            <Form.Dropdown
+              selection={true}
+              text={"Reprendre les motifs du planning..."}
+              options={_.map(
+                _.filter(plannings, pl => {
+                  return pl.id !== planning.id;
+                }),
+                (pl, i) => {
+                  return {
+                    key: pl.id,
+                    text: pl.titre,
+                    value: pl.id
+                  };
+                }
+              )}
+              onChange={(e, d) => {
+                let pl = _.find(plannings, pl => {
+                  return pl.id === d.value;
+                });
+                options.reservation.motifs = _.cloneDeep(
+                  _.concat(
+                    _.map(options.reservation.motifs, motif => {
+                      motif.hidden = true;
+                      return motif;
+                    }),
+                    _.filter(pl.optionsJO.reservation.motifs, motif => {
+                      return !motif.hidden;
+                    })
+                  )
+                );
+                this.setState({ saved: false });
+              }}
+            />
+          </Form.Group>
           <Table basic={true}>
             <Table.Header>
               <Table.Row>
@@ -1199,7 +1261,7 @@ export default class Configuration extends React.Component {
                 plannings[index].optionsJO.reservation.delaiMax = _.toNumber(
                   d.value
                 );
-                this.setState({ /*plannings: plannings,*/ saved: false });
+                this.setState({ saved: false });
               }}
             />
             <Form.Input
@@ -1213,7 +1275,7 @@ export default class Configuration extends React.Component {
                 plannings[
                   index
                 ].optionsJO.reservation.delaiPrevenance = _.toNumber(d.value);
-                this.setState({ /*plannings: plannings,*/ saved: false });
+                this.setState({ saved: false });
               }}
             />
           </Form.Group>
@@ -1273,7 +1335,7 @@ export default class Configuration extends React.Component {
               onChange={(e, d) => {
                 plannings[index].optionsJO.reservation.denominationDefaut =
                   d.value;
-                this.setState({ saved: false /*, plannings: plannings*/ });
+                this.setState({ saved: false });
               }}
             />
           </Form.Group>
@@ -1335,7 +1397,7 @@ export default class Configuration extends React.Component {
               }
               onChange={(e, d) => {
                 options.acl.transfer = d.value;
-                this.setState({ /*plannings: plannings,*/ saved: false });
+                this.setState({ saved: false });
               }}
             />
           </Form.Group>
@@ -1553,7 +1615,7 @@ export default class Configuration extends React.Component {
                 }
                 onChange={(e, d) => {
                   plannings[index].description = d.value;
-                  this.setState({ /*plannings: plannings,*/ saved: false });
+                  this.setState({ saved: false });
                 }}
               />
               <Form.Input label="Couleur">
@@ -1561,7 +1623,7 @@ export default class Configuration extends React.Component {
                   color={planning.couleur}
                   onChange={color => {
                     plannings[index].couleur = color;
-                    this.setState({ /*plannings: plannings,*/ saved: false });
+                    this.setState({ saved: false });
                   }}
                 />
               </Form.Input>
