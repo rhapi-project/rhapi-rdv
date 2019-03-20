@@ -32,8 +32,9 @@ import IcalImport from "./IcalImport";
 export default class Configuration extends React.Component {
   componentWillMount() {
     this.setState({
-      plannings: [], // plannings administrés
-      planningsAccess: [], // plannings accessibles
+      plannings: [], // plannings administrés (plannings configurables)
+      planningsAccess: [], // plannings accessibles (plannings associés)
+      planningsAll: [], // tous les plannings (reprise de plages, de motifs, etc.)
       index: -1,
       reservationActiveIndex: -1,
       saved: true, // current config saved
@@ -95,6 +96,18 @@ export default class Configuration extends React.Component {
         console.log(datas);
       }
     );
+
+    this.props.client.Plannings.readAll(
+      { limit: 10000 /*no limit */ },
+      result => {
+        this.setState({
+          planningsAll: result.results
+        });
+      },
+      datas => {
+        console.log(datas);
+      }
+    );
   };
 
   cancel = () => {
@@ -125,26 +138,17 @@ export default class Configuration extends React.Component {
     let last = this.state.plannings.length - 1;
     //let planningsAccess = this.state.planningsAccess;
     _.each(this.state.plannings, (planning, i) => {
-      // màj planningsAccess => TODO : à corriger
-      /*
-      planningsAccess = _.map(planningsAccess, pa => {
-        if ((pa.id = planning.id)) {
-          return planning;
-        } else {
-          return pa;
-        }
-      });
-      */
       //
       planning.optionsJO.organisation = this.state.organisation;
       this.props.client.Plannings.update(
         planning.id,
         planning,
         result => {
-          planning.lockRevision++;
-          this.setState({ saved: true });
           if (i === last) {
             this.saveProcessing = false;
+            // force update planningsAll and planningsAccess
+            // force update lockRevision
+            this.reload();
           }
         },
         datas => {
@@ -163,9 +167,6 @@ export default class Configuration extends React.Component {
         }
       );
     });
-
-    // màj planningsAccess (pour IcalImport par ex) => TODO : à corriger
-    //this.setState({ planningsAccess: planningsAccess });
   };
 
   supprimer = () => {
@@ -484,7 +485,7 @@ export default class Configuration extends React.Component {
   };
 
   render() {
-    let { index, plannings, planningsAccess, saved } = this.state;
+    let { index, plannings, planningsAccess, planningsAll, saved } = this.state;
     let form = "";
     let planning = {};
 
@@ -536,7 +537,7 @@ export default class Configuration extends React.Component {
               selection={true}
               text={"Reprendre les plages horaires du planning..."}
               options={_.map(
-                _.filter(plannings, pl => {
+                _.filter(planningsAll, pl => {
                   return pl.id !== planning.id;
                 }),
                 (pl, i) => {
@@ -548,7 +549,7 @@ export default class Configuration extends React.Component {
                 }
               )}
               onChange={(e, d) => {
-                let pl = _.find(plannings, pl => {
+                let pl = _.find(planningsAll, pl => {
                   return pl.id === d.value;
                 });
                 options.plages = _.cloneDeep(pl.optionsJO.plages);
@@ -866,7 +867,7 @@ export default class Configuration extends React.Component {
               selection={true}
               text={"Reprendre les motifs du planning..."}
               options={_.map(
-                _.filter(plannings, pl => {
+                _.filter(planningsAll, pl => {
                   return pl.id !== planning.id;
                 }),
                 (pl, i) => {
@@ -878,7 +879,7 @@ export default class Configuration extends React.Component {
                 }
               )}
               onChange={(e, d) => {
-                let pl = _.find(plannings, pl => {
+                let pl = _.find(planningsAll, pl => {
                   return pl.id === d.value;
                 });
                 options.reservation.motifs = _.cloneDeep(

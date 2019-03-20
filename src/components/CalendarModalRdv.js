@@ -458,8 +458,6 @@ export default class CalendarModalRdv extends React.Component {
       _.unset(rdv, "ipp2");
     }
 
-    this.titleText = ""; // reset
-
     if (this.state.isNewOne) {
       this.props.client.RendezVous.create(
         rdv,
@@ -487,6 +485,8 @@ export default class CalendarModalRdv extends React.Component {
         () => this.close()
       );
     }
+
+    this.titleText = ""; // reset
   };
 
   handleRemove = () => {
