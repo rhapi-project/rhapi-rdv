@@ -41,6 +41,16 @@
   margin: 2px;
 }
 
+/* REACT-DAY-PICKER */
+.DayPicker-Body, .DayPicker-Month, .DayPicker-Months, .DayPicker-wrapper, .DayPicker
+  /*.DayPickerInput-OverlayWrapper, .DayPickerInput-Overlay, .DayPickerInput */{
+  width: 100%;
+}
+
+/*.DayPickerInput-OverlayWrapper {
+  width: 45%;
+}*/
+
 /* Search scrolling */
 .search .results {
   overflow-y: auto;

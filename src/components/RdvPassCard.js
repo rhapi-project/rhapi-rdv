@@ -247,10 +247,10 @@ export default class RdvPassCard extends React.Component {
     }
 
     // Firefox et Chrome onafterprint
-    win.onafterprint = () => {
+    /*win.onafterprint = () => {
       win.close();
       this.afterPrint();
-    };
+    };*/
 
     if (navigator.userAgent.indexOf("Firefox") === -1) {
       /*
@@ -278,6 +278,12 @@ export default class RdvPassCard extends React.Component {
 
       win.onload = () => {
         win.print();
+      };
+      
+      // bloc à supprimer éventuellement
+      win.onafterprint = () => {
+        win.close();
+        this.afterPrint();
       };
     }
   };

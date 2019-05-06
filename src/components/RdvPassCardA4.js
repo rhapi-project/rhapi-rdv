@@ -19,14 +19,17 @@ import {
   Ref
 } from "semantic-ui-react";
 
-import { SingleDatePicker } from "react-dates";
+import DayPickerInput from 'react-day-picker/DayPickerInput';
+import MomentLocaleUtils, {
+  formatDate,
+  parseDate
+} from 'react-day-picker/moment';
+import 'react-day-picker/lib/style.css';
 
 export default class RdvPassCardA4 extends React.Component {
   state = {
     defaut: true,
-    //dateRefCheckbox: false,
     dateRef: moment(),
-    dateRefFocused: false,
     commentaires: false,
     etatRdv: false,
     allPlannings: true,
@@ -61,9 +64,7 @@ export default class RdvPassCardA4 extends React.Component {
   defaut = () => {
     this.setState({
       defaut: true,
-      //dateRefCheckbox: false,
       dateRef: moment(),
-      dateRefFocused: false,
       commentaires: false,
       etatRdv: false,
       allPlannings: true
@@ -121,42 +122,30 @@ export default class RdvPassCardA4 extends React.Component {
                           />
                         </Form.Input>
                         <Form.Input label="À partir du" style={{ zIndex: 3 }}>
-                          <SingleDatePicker
+                          <DayPickerInput
+                            dayPickerProps={{
+                              locale: "fr",
+                              localeUtils: MomentLocaleUtils
+                            }}
+                            format="L"
+                            formatDate={formatDate}
+                            parseDate={parseDate}
                             placeholder="JJ/MM/AAAA"
-                            hideKeyboardShortcutsPanel={true}
-                            //withPortal={true} // Ne fonctionne pas si on est dans une modal
-                            isOutsideRange={() => false}
-                            date={this.state.dateRef}
-                            numberOfMonths={2}
-                            readOnly={false}
-                            onClose={() =>
-                              this.setState({ dateRefFocused: false })
-                            }
-                            onDateChange={date => {
-                              this.setState({ dateRef: null });
-                              if (!_.isNull(date)) {
+                            value={this.state.dateRef.toDate()}
+                            onDayChange={day => {
+                              if (day) {
                                 this.setState({
-                                  dateRef: date,
-                                  dateRefFocused: false
+                                  dateRef: moment(day),
+                                  defaut: false
                                 });
                               }
                             }}
-                            focused={this.state.dateRefFocused}
-                            onFocusChange={() => {}}
-                          />
-                          <Button
-                            icon="calendar"
-                            onClick={() =>
-                              this.setState({
-                                dateRefFocused: !this.state.dateRefFocused
-                              })
-                            }
                           />
                         </Form.Input>
                       </Form.Group>
                     </Form>
                   </Grid.Column>
-                  <Grid.Column width={4} /*textAlign="center"*/>
+                  <Grid.Column width={4}>
                     <Ref
                       innerRef={node => node.firstChild.parentElement.focus()}
                     >
@@ -194,7 +183,6 @@ export default class RdvPassCardA4 extends React.Component {
                             checked={this.state.etatRdv}
                             onChange={(e, d) => {
                               let dateRef = this.state.dateRef;
-                              //console.log(dateRef.format("L"));
                               dateRef = d.checked
                                 ? dateRef.diff(moment(), "days") === 0
                                   ? moment("2000-01-01")
@@ -397,11 +385,6 @@ class Preview extends React.Component {
       return;
     }
 
-    if (_.isEmpty(this.state.mesRdv) && !this.state.printWithPassword) {
-      this.afterPrint();
-      return;
-    }
-
     let content = document.getElementById("details");
 
     let win = window.open("", "Impression", "height=600,width=800");
@@ -427,7 +410,7 @@ class Preview extends React.Component {
       mediaQueryList.addListener(mql => {
         if (!mql.matches) {
           win.close();
-          this.afterPrint();
+          this.props.afterPrint();
         }
       });
     }
@@ -452,11 +435,11 @@ class Preview extends React.Component {
       return;
     }
 
-    // Firefox et Chrome onafterprint
-    win.onafterprint = () => {
+    /*win.onafterprint = () => {
+      console.log("Execution of onafterprint");
       win.close();
       this.props.afterPrint();
-    };
+    };*/
 
     if (navigator.userAgent.indexOf("Firefox") === -1) {
       /*
@@ -482,6 +465,10 @@ class Preview extends React.Component {
 
       win.onload = () => {
         win.print();
+      };
+      win.onafterprint = () => {
+        win.close();
+        this.props.afterPrint();
       };
     }
   };
@@ -681,7 +668,7 @@ class Preview extends React.Component {
                 ""
               )}
 
-              <div /*style={{ marginLeft: "10px" }}*/>
+              <div>
                 <List>
                   {_.map(this.state.mesRdv, (item, i) => {
                     if (this.afficherRdv(item)) {

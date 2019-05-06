@@ -34,7 +34,12 @@ import ImageReader from "./ImageReader";
 
 import RdvPassCard from "./RdvPassCard";
 
-import { SingleDatePicker } from "react-dates";
+import DayPickerInput from 'react-day-picker/DayPickerInput';
+import MomentLocaleUtils, {
+  formatDate,
+  parseDate
+} from 'react-day-picker/moment';
+import 'react-day-picker/lib/style.css';
 
 export default class FichePatient extends React.Component {
   /*civilites = [
@@ -123,7 +128,7 @@ export default class FichePatient extends React.Component {
       patient: { ...next.patient },
       saved: true,
       naissanceDate: moment(next.patient.naissance),
-      naissanceFocused: false,
+      //naissanceFocused: false,
       modalPassword: false,
       newPassword: ""
     });
@@ -433,37 +438,24 @@ export default class FichePatient extends React.Component {
                       onChange={(e, d) => this.handleChangeInput(e, d)}
                     />
                     <Form.Input label="Date de naissance" name="naissance">
-                      <SingleDatePicker
-                        placeholder="JJ/MM/AAAA"
-                        hideKeyboardShortcutsPanel={true}
-                        withPortal={true}
-                        isOutsideRange={() => false}
-                        date={
-                          _.isNull(patient.naissance)
-                            ? null
-                            : this.state.naissanceDate
-                        }
-                        numberOfMonths={1}
-                        readOnly={false}
-                        onClose={() => {
-                          this.setState({ naissanceFocused: false });
+                      <DayPickerInput
+                        dayPickerProps={{
+                          locale: "fr",
+                          localeUtils: MomentLocaleUtils,
+                          showOutsideDays: true
                         }}
-                        onDateChange={naissanceDate => {
+                        format="L"
+                        formatDate={formatDate}
+                        parseDate={parseDate}
+                        placeholder="JJ/MM/AAAA"
+                        value={this.state.naissanceDate.toDate()}
+                        onDayChange={day => {
                           let saved = this.state.saved;
-                          if (naissanceDate) {
-                            patient.naissance = naissanceDate.format();
+                          if (day) {
+                            patient.naissance = moment(day).format();
                             this.props.onChange(patient);
                           }
-                          this.setState({ naissanceDate, saved });
-                          //eq => this.setState({naissanceDate: naissanceDate, saved: saved});
-                        }}
-                        focused={this.state.naissanceFocused}
-                        onFocusChange={() => {}}
-                      />
-                      <Button
-                        icon="calendar"
-                        onClick={() => {
-                          this.setState({ naissanceFocused: true });
+                          this.setState({ naissanceDate: moment(day), saved: saved });
                         }}
                       />
                     </Form.Input>

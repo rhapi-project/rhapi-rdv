@@ -1,204 +1,127 @@
 import React from "react";
 
-import { Button, Input, List } from "semantic-ui-react";
+import { Button, Grid, Icon, Input } from "semantic-ui-react";
 
 import _ from "lodash";
-
-import PropTypes from "prop-types";
 
 import momentPropTypes from "react-moment-proptypes";
 
 import moment from "moment";
 
-import {
-  DateRangePicker,
-  DateRangePickerPhrases,
-  DateRangePickerShape
-} from "react-dates";
+import DayPickerInput from 'react-day-picker/DayPickerInput';
+import 'react-day-picker/lib/style.css';
 
-import {
-  START_DATE,
-  END_DATE,
-  HORIZONTAL_ORIENTATION,
-  ANCHOR_LEFT
-} from "react-dates/constants";
+import MomentLocaleUtils, { formatDate, parseDate } from 'react-day-picker/moment';
 
-//import isInclusivelyAfterDay from "react-dates/src/utils/isInclusivelyAfterDay";
-
-// Note importante :
-// rhapi-rdv Periode reprend le fonctionnement du airbnb DateRangePickerWrapper
-// https://github.com/airbnb/react-dates/blob/master/examples/DateRangePickerWrapper.jsx
+// NOTE : reprend la méthode utilisée dans l'exemple du REACT-DAY-PICKER
+// http://react-day-picker.js.org/examples/input-from-to
 
 const propTypes = {
-  //  props for rhapi-rdv Periode
-  autoFocus: PropTypes.bool,
-  autoFocusEndDate: PropTypes.bool,
   initialStartDate: momentPropTypes.momentObj,
   initialEndDate: momentPropTypes.momentObj,
-
-  ..._.omit(DateRangePickerShape, [
-    "startDate",
-    "endDate",
-    "onDatesChange",
-    "focusedInput",
-    "onFocusChange"
-  ])
 };
 
 const defaultProps = {
   // props for rhapi-rdv Periode
-  autoFocus: false,
-  autoFocusEndDate: false,
-  initialStartDate: null,
-  initialEndDate: null,
-
-  // input related props
-  startDateId: START_DATE,
-  startDatePlaceholderText: "Date de début",
-  endDateId: END_DATE,
-  endDatePlaceholderText: "Date de fin",
-  disabled: false,
-  required: false,
-  screenReaderInputMessage: "",
-  showClearDates: false,
-  showDefaultInputIcon: true,
-  customInputIcon: null,
-  customArrowIcon: null,
-  customCloseIcon: null,
-  block: false,
-  small: false,
-  regular: false,
-
-  // calendar presentation and interaction related props
-  renderMonth: null,
-  orientation: HORIZONTAL_ORIENTATION,
-  anchorDirection: ANCHOR_LEFT,
-  horizontalMargin: 0,
-  daySize: undefined,
-  withPortal: true,
-  withFullScreenPortal: false,
-  initialVisibleMonth: null,
-  numberOfMonths: 2,
-  keepOpenOnDateSelect: false,
-  reopenPickerOnClearDates: false,
-  isRTL: false,
-  hideKeyboardShortcutsPanel: true,
-
-  // navigation related props
-  navPrev: null,
-  navNext: null,
-  onPrevMonthClick() {},
-  onNextMonthClick() {},
-  onClose() {},
-
-  // day presentation and interaction related props
-  renderCalendarDay: undefined,
-  renderDayContents: null,
-  minimumNights: 0,
-  enableOutsideDays: false,
-  isDayBlocked: () => false,
-  isOutsideRange: day => false, //!isInclusivelyAfterDay(day, moment()),
-  isDayHighlighted: () => false,
-
-  // internationalization
-  displayFormat: () => moment.localeData().longDateFormat("L"),
-  monthFormat: "MMMM YYYY",
-  phrases: DateRangePickerPhrases
+  initialStartDate: undefined,
+  initialEndDate: undefined,
 };
 
 export class Periode extends React.Component {
-  constructor(props) {
-    super(props);
 
-    let focusedInput = null;
-    if (props.autoFocus) {
-      focusedInput = START_DATE;
-    } else if (props.autoFocusEndDate) {
-      focusedInput = END_DATE;
-    }
+  // méthode utilisée dans l'exemple du REACT-DAY-PICKER
+  // http://react-day-picker.js.org/examples/input-from-to
 
-    this.state = {
-      focusedInput,
-      startDate: props.initialStartDate,
-      endDate: props.initialEndDate
-    };
-  }
-
+  componentWillMount() {
+    this.setState({
+      from: this.props.initialStartDate,
+      to: this.props.initialEndDate
+    })
+  };
+  
   componentWillReceiveProps(next) {
-    this.setState({});
-    if (next.clearFocus) {
-      this.setState({
-        startDate: next.initialStartDate,
-        endDate: next.initialEndDate,
-        focusedInput: null // after plages sort if order change
-      });
-    } else {
-      this.setState({
-        startDate: next.initialStartDate,
-        endDate: next.initialEndDate
-      });
-    }
-  }
-
-  componentDidUpdate() {
-    this.reactDateStyleHack();
-  }
-
-  reactDateStyleHack = () => {
-    // Style hack for react-date
-    setTimeout(() => {
-      _.forEach(
-        document.getElementsByClassName("CalendarMonth_caption"),
-        elt => (elt.style.paddingBottom = "47px")
-      );
-    }, 0);
+    this.setState({
+      from: next.initialStartDate,
+      to: next.initialEndDate,
+    });
   };
 
-  onDatesChange = ({ startDate, endDate }) => {
-    // may be null on range error (endDate < startDate)
-    if (_.isNull(startDate) || _.isNull(endDate)) {
+  handleFromChange(from) {
+    if (!from) {
       return;
     }
-    this.setState({ startDate, endDate });
+    this.setState({ from: moment(from) });
     // moments to ISO Dates (onPeriodeChange accepts ISO Dates Strings only)
-    if (!_.isNull(startDate) && !_.isNull(endDate)) {
+    if (from && this.state.to) {
       this.props.onPeriodeChange(
-        startDate.format("YYYY-MM-DD"),
-        endDate.format("YYYY-MM-DD")
+        moment(from).format("YYYY-MM-DD"),
+        this.state.to.format("YYYY-MM-DD")
       );
     }
   };
 
-  onFocusChange = focusedInput => {
-    this.setState({ focusedInput });
-  };
+  handleToChange(to) {
+    if (!to) {
+      return;
+    }
+    this.setState({ to: moment(to) });
+    if (this.state.from && to) {
+      this.props.onPeriodeChange(
+        this.state.from.format("YYYY-MM-DD"),
+        moment(to).format("YYYY-MM-DD")
+      );
+    }
+  }
 
   render() {
-    const { focusedInput, startDate, endDate } = this.state;
-
-    // autoFocus, autoFocusEndDate, initialStartDate and initialEndDate are helper props for the
-    // example wrapper but are not props on the SingleDatePicker itself and
-    // thus, have to be omitted.
-    const props = _.omit(this.props, [
-      "autoFocus",
-      "autoFocusEndDate",
-      "initialStartDate",
-      "initialEndDate",
-      "onPeriodeChange", // onPeriodeChange is a rhapi-rdv defined prop
-      "clearFocus" // clearFocus is a rhapi-rdv defined prop
-    ]);
-
+    const from = this.state.from.toDate();
+    const to = this.state.to.toDate();
+    const modifiers = { start: from, end: to };
     return (
-      <DateRangePicker
-        {...props}
-        onDatesChange={this.onDatesChange}
-        onFocusChange={this.onFocusChange}
-        onNextMonthClick={this.reactDateStyleHack}
-        onPrevMonthClick={this.reactDateStyleHack}
-        focusedInput={focusedInput}
-        startDate={startDate}
-        endDate={endDate}
-      />
+      <React.Fragment>
+        <Grid.Column width={2}>
+          <DayPickerInput
+            dayPickerProps={{
+              locale: "fr",
+              localeUtils: MomentLocaleUtils,
+              selectedDays: [from, { from, to }],
+              disabledDays: { after: to },
+              toMonth: to,
+              modifiers,
+              numberOfMonths: 1
+            }}
+            format="L"
+            formatDate={formatDate}
+            onDayChange={day => this.handleFromChange(day)}
+            parseDate={parseDate}
+            placeholder="Date de début"
+            value={from}
+          />
+        </Grid.Column>
+        <Grid.Column textAlign="center">
+          <Icon name="arrow right" size="large"/>
+        </Grid.Column>
+        <Grid.Column width={2}>
+          <DayPickerInput
+            dayPickerProps={{
+              locale: "fr",
+              localeUtils: MomentLocaleUtils,
+              selectedDays: [from, { from, to }],
+              disabledDays: { before: from },
+              modifiers,
+              month: from,
+              fromMonth: from,
+              numberOfMonths: 1
+            }}
+            format="L"
+            formatDate={formatDate}
+            onDayChange={day => this.handleToChange(day)}
+            parseDate={parseDate}
+            placeholder="Date de fin"
+            value={to}
+          />
+        </Grid.Column>
+      </React.Fragment>
     );
   }
 }
@@ -261,39 +184,40 @@ export default class Conges extends React.Component {
   render() {
     return (
       <React.Fragment>
-        <List>
+        <Grid>
           {_.map(this.state.plagesConges, (plageConges, i) => {
             return (
-              <React.Fragment key={i}>
-                <Periode
-                  initialStartDate={moment(plageConges.start)}
-                  initialEndDate={moment(plageConges.end)}
-                  key={i}
-                  clearFocus={this.state.clearFocus}
-                  onPeriodeChange={(start, end) =>
-                    this.onPeriodeChange(i, start, end)
-                  }
-                />
-                &nbsp;Intitulé :&nbsp;
-                <Input
-                  type="text"
-                  placeholder="Intitulé de la période"
-                  value={plageConges.titre}
-                  onChange={(e, d) => this.onTitreChange(i, d.value)}
-                />
-                &nbsp;
-                <Button
-                  style={{ verticalAlign: "middle" }}
-                  size="tiny"
-                  icon="minus"
-                  circular={true}
-                  onClick={() => this.supprimer(i)}
-                />
-                <br />
-              </React.Fragment>
+              <Grid.Row key={i} verticalAlign="middle">
+                  <Periode
+                    initialStartDate={moment(plageConges.start)}
+                    initialEndDate={moment(plageConges.end)}
+                    key={i}
+                    clearFocus={this.state.clearFocus}
+                    onPeriodeChange={(start, end) =>
+                      this.onPeriodeChange(i, start, end)
+                    }
+                  />
+                <Grid.Column width={3}>
+                  <span>Intitulé : </span>
+                  <Input 
+                    placeholder="Intitulé de la période"
+                    value={plageConges.titre}
+                    onChange={(e, d) => this.onTitreChange(i, d.value)}
+                  />
+                </Grid.Column>
+                <Grid.Column>
+                  <Button
+                    size="tiny"
+                    icon="minus"
+                    circular={true}
+                    onClick={() => this.supprimer(i)}
+                  />
+                </Grid.Column>
+                
+              </Grid.Row>
             );
           })}
-        </List>
+        </Grid>
         <Button size="tiny" icon="add" circular={true} onClick={this.ajouter} />
       </React.Fragment>
     );

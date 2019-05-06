@@ -18,7 +18,9 @@ import CalendarModalRdv from "./CalendarModalRdv";
 
 import RdvPassCard from "./RdvPassCard";
 
-import { DayPickerSingleDateController } from "react-dates";
+import DayPicker from 'react-day-picker';
+import MomentLocaleUtils from 'react-day-picker/moment';
+import 'react-day-picker/lib/style.css';
 
 import { helpPopup } from "./Settings";
 
@@ -49,7 +51,7 @@ export default class CalendarPanel extends React.Component {
     this.onPatientChange(-1, ""); // force reload rdv patient
 
     if (next.todayClicked && !this.state.todayClicked) {
-      if (this.dayPickerNavDiff > 0) {
+      /*if (this.dayPickerNavDiff > 0) {
         for (let i = 0; i < this.dayPickerNavDiff; i++) {
           setTimeout(() => {
             document
@@ -70,7 +72,7 @@ export default class CalendarPanel extends React.Component {
           }, -i * 500);
         }
       }
-      this.setState({ currentDate: moment(), todayClicked: true });
+      this.setState({ currentDate: moment(), todayClicked: true });*/
     }
 
     this.setState({ currentDate: moment(), todayClicked: false });
@@ -194,7 +196,7 @@ export default class CalendarPanel extends React.Component {
   }
 
   onDateChange = date => {
-    this.setState({ currentDate: date });
+    this.setState({ currentDate: moment(date) });
     $("#calendar").fullCalendar("gotoDate", date);
   };
 
@@ -462,22 +464,31 @@ export default class CalendarPanel extends React.Component {
             moment(patient.rdv.liste[index].startAt).format("D MMMM à HH:mm")
           : "";
     }
-
+    let displayedMonth = this.state.currentDate.month();
+    let displayedYear = this.state.currentDate.year();
     return (
       <React.Fragment>
         <Divider />
-        <div style={{ marginLeft: -22, marginBottom: -14, marginTop: -14 }}>
-          <DayPickerSingleDateController
-            noBorder={true}
-            hideKeyboardShortcutsPanel={true}
-            enableOutsideDays={true}
-            onDateChange={this.onDateChange}
-            focused={false}
-            date={this.state.currentDate}
-            onPrevMonthClick={() => this.dayPickerNavDiff--}
-            onNextMonthClick={() => this.dayPickerNavDiff++}
-          />
-        </div>
+        <DayPicker
+          locale="fr"
+          localeUtils={MomentLocaleUtils}
+          fixedWeeks={true}
+          showOutsideDays={true}
+          selectedDays={this.state.currentDate.toDate()}
+          onDayClick={day => this.onDateChange(day)}
+          onMonthChange={month => {
+            let m = moment(month).month();
+            let y = moment(month).year();
+            if (m > displayedMonth || y > displayedYear) {
+              this.dayPickerNavDiff++;
+            }
+            if (m < displayedMonth || y < displayedYear) {
+              this.dayPickerNavDiff--;
+            }
+            displayedMonth = m;
+            displayedYear = y;
+          }}
+        />
         <Divider />
         <Form.Input>
           <PatientSearch

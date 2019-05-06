@@ -22,7 +22,7 @@ export default class Calendars extends React.Component {
     });
   }
 
-  componentDidMount() {
+  componentDidMount() {    
     // cross browser window.print callback
     // window.onafterprint is not defined on Safari
     if (_.isUndefined(window.onafterprint) && window.matchMedia) {

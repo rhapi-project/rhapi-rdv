@@ -36,7 +36,12 @@ import ColorPicker from "./ColorPicker";
 
 import RdvPassCard from "./RdvPassCard";
 
-import { SingleDatePicker } from "react-dates";
+import DayPickerInput from 'react-day-picker/DayPickerInput';
+import MomentLocaleUtils, {
+  formatDate,
+  parseDate
+} from 'react-day-picker/moment';
+import 'react-day-picker/lib/style.css';
 
 class FromTo extends React.Component {
   titleText = ""; // texte en retour de SearchPatient > onTextChange
@@ -1170,48 +1175,35 @@ export default class CalendarModalRdv extends React.Component {
                         />
                       </Form.Input>
                       <Form.Input label="Jour">
-                        <div
-                          style={{ cursor: "pointer" }}
-                          onClick={() =>
-                            this.setState({
-                              dateRdvFocused: !this.state.dateRdvFocused
-                            })
-                          }
-                        >
-                          <SingleDatePicker
-                            disabled={true}
-                            noBorder={true}
-                            hideKeyboardShortcutsPanel={true}
-                            isOutsideRange={() => false}
-                            isDayBlocked={day => this.isDayBlocked(day)}
-                            date={moment(this.state.rdv.startAt)}
-                            numberOfMonths={2}
-                            onClose={() =>
-                              this.setState({ dateRdvFocused: false })
+                        <DayPickerInput 
+                          dayPickerProps={{
+                            locale: "fr",
+                            localeUtils: MomentLocaleUtils,
+                            disabledDays:[{daysOfWeek: [0, 6]}],
+                            showOutsideDays: true
+                          }}
+                          format="L"
+                          formatDate={formatDate}
+                          parseDate={parseDate}
+                          placeholder="JJ/MM/AAAA"
+                          value={moment(this.state.rdv.startAt).toDate()}
+                          onDayChange={day => {
+                            let rdv = this.state.rdv;
+                            if (day) {
+                              let startAt =
+                                _.split(moment(day).toISOString(), "T")[0] +
+                                "T" +
+                                _.split(rdv.startAt, "T")[1];
+                              let endAt =
+                                _.split(moment(day).toISOString(), "T")[0] +
+                                "T" +
+                                _.split(rdv.endAt, "T")[1];
+                              rdv.startAt = startAt;
+                              rdv.endAt = endAt;
+                              this.setState({ rdv: rdv });
                             }
-                            onDateChange={dateRdv => {
-                              let rdv = this.state.rdv;
-                              if (dateRdv) {
-                                let startAt =
-                                  _.split(dateRdv.toISOString(), "T")[0] +
-                                  "T" +
-                                  _.split(rdv.startAt, "T")[1];
-                                let endAt =
-                                  _.split(dateRdv.toISOString(), "T")[0] +
-                                  "T" +
-                                  _.split(rdv.endAt, "T")[1];
-                                rdv.startAt = startAt;
-                                rdv.endAt = endAt;
-                                this.setState({ rdv: rdv });
-                              } else {
-                                console.log("dateRdv est null");
-                                return;
-                              }
-                            }}
-                            focused={this.state.dateRdvFocused}
-                            onFocusChange={() => {}}
-                          />
-                        </div>
+                          }}
+                        />
                       </Form.Input>
                     </Form.Group>
                   )}

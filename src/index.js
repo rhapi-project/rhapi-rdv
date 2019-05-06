@@ -4,8 +4,10 @@ import { render } from "react-dom";
 
 //CSS
 
-import "react-dates/lib/css/_datepicker.css";
-import "react-dates/initialize";
+import 'react-day-picker/lib/style.css';
+
+/*import "react-dates/lib/css/_datepicker.css";
+import "react-dates/initialize";*/
 
 //import "fullcalendar/dist/fullcalendar.print.css";
 import "fullcalendar/dist/fullcalendar.css";
@@ -27,15 +29,7 @@ import App from "./components/App";
 import Patients from "./components/Patients";
 import Praticiens from "./components/Praticiens";
 
-/*
- * Le date picker ne fonctionne pas sur internet explorer
- * https://github.com/airbnb/react-dates/issues/1076
- *
- * La solution proposée c'est d'installer ce package "airbnb-browser-shims"
- * https://www.npmjs.com/package/airbnb-browser-shims
- *
- */
-import "airbnb-browser-shims";
+//import "airbnb-browser-shims";
 
 window.qWebChannel = false;
 
