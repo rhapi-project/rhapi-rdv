@@ -25,17 +25,19 @@ export default class Calendars extends React.Component {
   componentDidMount() {    
     // cross browser window.print callback
     // window.onafterprint is not defined on Safari
-    if (_.isUndefined(window.onafterprint) && window.matchMedia) {
+    /*if (_.isUndefined(window.onafterprint) && window.matchMedia) {
       let mediaQueryList = window.matchMedia("print");
       mediaQueryList.addListener(mql => {
         //console.log(mql);
         if (!mql.matches) {
+          console.log("afterprint 1");
           this.afterPrint();
         }
       });
     } else {
+      console.log("afterprint 2 - listener");
       window.addEventListener("afterprint", () => this.afterPrint());
-    }
+    }*/
 
     // ajust panel & calendar widths
     window.addEventListener("resize", () => this.setState({}));
@@ -49,7 +51,36 @@ export default class Calendars extends React.Component {
   isPrinting = false;
   componentDidUpdate() {
     //console.log(document.getElementById("calendars"));
-    if (this.state.print && !this.isPrinting) {
+    /*if (this.state.print && !this.isPrinting) {
+      setTimeout(() => {
+        if (window.qWebChannel) {
+          this.isPrinting = true;
+          window.qWebChannel.webEnginePagePrint(() => {
+            setTimeout(() => {
+              this.afterPrint();
+              this.isPrinting = false;
+            }, 1000);
+          });
+        } else {
+          console.log("printing");  
+          window.print();
+        }
+      }, 1000);
+    }*/
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener("keydown", this.handleHiddingPanel); // ne marchera pas avec une fonction anonyme
+  }
+
+  afterPrint = () => {
+    this.setState({ print: false });
+  };
+
+  print = () => {
+    this.setState({ print: true });
+    // ce que j'ajoute pour résoudre le problème d'impression
+    if (!this.isPrinting) {
       setTimeout(() => {
         if (window.qWebChannel) {
           this.isPrinting = true;
@@ -64,19 +95,53 @@ export default class Calendars extends React.Component {
         }
       }, 1000);
     }
-  }
 
-  componentWillUnmount() {
-    document.removeEventListener("keydown", this.handleHiddingPanel); // ne marchera pas avec une fonction anonyme
-  }
+    // Safari mediaQueryList.addListener
+    let mediaQueryList = window.matchMedia("print");
+    if (mediaQueryList) {
+      mediaQueryList.addListener(mql => {
+        if (!mql.matches) {
+          this.afterPrint();
+        }
+      });
+    }
 
-  afterPrint = () => {
-    //console.log("Functionality to run after printing");
-    this.setState({ print: false });
-  };
+    // Microsoft Internet Explorer ou Edge
+    if (
+      navigator.userAgent.indexOf("Edge/") !== -1 ||
+      navigator.userAgent.indexOf("Trident") !== -1
+    ) {
+      // l'attribut "Trident" de navigator.userAgent existe
+      // uniquement sur les navigateurs IE (pas Edge)
+      this.browserDelay = _.isUndefined(this.browserDelay) ? 1500 : 500;
 
-  print = () => {
-    this.setState({ print: true });
+      window.onafterprint = () => {
+        this.afterPrint();
+      };
+      _.delay(() => {
+        window.print();
+      }, this.browserDelay);
+      return;
+    }
+
+    if (navigator.userAgent.indexOf("Firefox") === -1) {
+      this.browserDelay = _.isUndefined(this.browserDelay) ? 1500 : 500;
+
+      window.onload = () => {
+        _.delay(() => {
+          window.print();
+        }, this.browserDelay);
+      };
+    } else {
+      // Firefox (no delay)
+      window.onload = () => {
+        window.print();
+      };
+      // bloc à supprimer éventuellement
+      window.onafterprint = () => {
+        this.afterPrint();
+      };
+    }
   };
 
   reload = () => {

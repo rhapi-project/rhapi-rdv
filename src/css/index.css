@@ -42,14 +42,16 @@
 }
 
 /* REACT-DAY-PICKER */
-.DayPicker-Body, .DayPicker-Month, .DayPicker-Months, .DayPicker-wrapper, .DayPicker
-  /*.DayPickerInput-OverlayWrapper, .DayPickerInput-Overlay, .DayPickerInput */{
+.DayPicker-Body, .DayPicker-Months, .DayPicker-wrapper, .DayPicker
+  ,.DayPickerInput-OverlayWrapper {
   width: 100%;
 }
-
-/*.DayPickerInput-OverlayWrapper {
-  width: 45%;
-}*/
+.DayPickerInput-Overlay {
+  width: 140%;
+}
+.DayPicker-Month {
+  width: 85%;
+}
 
 /* Search scrolling */
 .search .results {
