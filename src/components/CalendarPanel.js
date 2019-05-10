@@ -18,15 +18,14 @@ import CalendarModalRdv from "./CalendarModalRdv";
 
 import RdvPassCard from "./RdvPassCard";
 
-import DayPicker from 'react-day-picker';
-import MomentLocaleUtils from 'react-day-picker/moment';
-import 'react-day-picker/lib/style.css';
+import DayPicker from "react-day-picker";
+import MomentLocaleUtils from "react-day-picker/moment";
+import "react-day-picker/lib/style.css";
 
 import { helpPopup } from "./Settings";
 
 export default class CalendarPanel extends React.Component {
   rhapiMd5 = "";
-  dayPickerNavDiff = 0;
 
   componentWillMount() {
     this.setState({
@@ -50,32 +49,10 @@ export default class CalendarPanel extends React.Component {
     this.reloadExternalEvents(next.planning);
     this.onPatientChange(-1, ""); // force reload rdv patient
 
-    if (next.todayClicked && !this.state.todayClicked) {
-      /*if (this.dayPickerNavDiff > 0) {
-        for (let i = 0; i < this.dayPickerNavDiff; i++) {
-          setTimeout(() => {
-            document
-              .getElementsByClassName(
-                "DayPickerNavigation_leftButton__horizontal"
-              )[0]
-              .click();
-          }, i * 500);
-        }
-      } else {
-        for (let i = 0; i > this.dayPickerNavDiff; i--) {
-          setTimeout(() => {
-            document
-              .getElementsByClassName(
-                "DayPickerNavigation_rightButton__horizontal"
-              )[0]
-              .click();
-          }, -i * 500);
-        }
-      }
-      this.setState({ currentDate: moment(), todayClicked: true });*/
+    if (next.todayClicked) {
+      document.getElementsByClassName("DayPicker-TodayButton")[0].click();
     }
-
-    this.setState({ currentDate: moment(), todayClicked: false });
+    this.setState({ currentDate: moment() });
   }
 
   componentDidMount() {
@@ -464,8 +441,6 @@ export default class CalendarPanel extends React.Component {
             moment(patient.rdv.liste[index].startAt).format("D MMMM à HH:mm")
           : "";
     }
-    let displayedMonth = this.state.currentDate.month();
-    let displayedYear = this.state.currentDate.year();
     return (
       <React.Fragment>
         <Divider />
@@ -475,19 +450,8 @@ export default class CalendarPanel extends React.Component {
           fixedWeeks={true}
           showOutsideDays={true}
           selectedDays={this.state.currentDate.toDate()}
+          todayButton="Aujourd'hui" // click sur ce bouton au click sur 'Aujourd'hui' de fullcalendar
           onDayClick={day => this.onDateChange(day)}
-          onMonthChange={month => {
-            let m = moment(month).month();
-            let y = moment(month).year();
-            if (m > displayedMonth || y > displayedYear) {
-              this.dayPickerNavDiff++;
-            }
-            if (m < displayedMonth || y < displayedYear) {
-              this.dayPickerNavDiff--;
-            }
-            displayedMonth = m;
-            displayedYear = y;
-          }}
         />
         <Divider />
         <Form.Input>

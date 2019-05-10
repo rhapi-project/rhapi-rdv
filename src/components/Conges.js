@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Button, Grid, Icon, Input } from "semantic-ui-react";
+import { Button, Input, List } from "semantic-ui-react";
 
 import _ from "lodash";
 
@@ -8,27 +8,29 @@ import momentPropTypes from "react-moment-proptypes";
 
 import moment from "moment";
 
-import DayPickerInput from 'react-day-picker/DayPickerInput';
-import 'react-day-picker/lib/style.css';
+import DayPickerInput from "react-day-picker/DayPickerInput";
+import "react-day-picker/lib/style.css";
 
-import MomentLocaleUtils, { formatDate, parseDate } from 'react-day-picker/moment';
+import MomentLocaleUtils, {
+  formatDate,
+  parseDate
+} from "react-day-picker/moment";
 
 // NOTE : reprend la méthode utilisée dans l'exemple du REACT-DAY-PICKER
 // http://react-day-picker.js.org/examples/input-from-to
 
 const propTypes = {
   initialStartDate: momentPropTypes.momentObj,
-  initialEndDate: momentPropTypes.momentObj,
+  initialEndDate: momentPropTypes.momentObj
 };
 
 const defaultProps = {
   // props for rhapi-rdv Periode
   initialStartDate: undefined,
-  initialEndDate: undefined,
+  initialEndDate: undefined
 };
 
 export class Periode extends React.Component {
-
   // méthode utilisée dans l'exemple du REACT-DAY-PICKER
   // http://react-day-picker.js.org/examples/input-from-to
 
@@ -36,15 +38,15 @@ export class Periode extends React.Component {
     this.setState({
       from: this.props.initialStartDate,
       to: this.props.initialEndDate
-    })
-  };
-  
+    });
+  }
+
   componentWillReceiveProps(next) {
     this.setState({
       from: next.initialStartDate,
-      to: next.initialEndDate,
+      to: next.initialEndDate
     });
-  };
+  }
 
   handleFromChange(from) {
     if (!from) {
@@ -58,7 +60,7 @@ export class Periode extends React.Component {
         this.state.to.format("YYYY-MM-DD")
       );
     }
-  };
+  }
 
   handleToChange(to) {
     if (!to) {
@@ -78,8 +80,8 @@ export class Periode extends React.Component {
     const to = this.state.to.toDate();
     const modifiers = { start: from, end: to };
     return (
-      <React.Fragment>
-        <Grid.Column width={2}>
+      <div className="InputFromTo" style={{ display: "flex" }}>
+        <div>
           <DayPickerInput
             dayPickerProps={{
               locale: "fr",
@@ -97,11 +99,9 @@ export class Periode extends React.Component {
             placeholder="Date de début"
             value={from}
           />
-        </Grid.Column>
-        <Grid.Column textAlign="center">
-          <Icon name="arrow right" size="large"/>
-        </Grid.Column>
-        <Grid.Column width={2}>
+        </div>
+        <div style={{ paddingTop: "10px" }}> &nbsp; - &nbsp; </div>
+        <span className="InputFromTo-to">
           <DayPickerInput
             dayPickerProps={{
               locale: "fr",
@@ -120,8 +120,8 @@ export class Periode extends React.Component {
             placeholder="Date de fin"
             value={to}
           />
-        </Grid.Column>
-      </React.Fragment>
+        </span>
+      </div>
     );
   }
 }
@@ -184,40 +184,39 @@ export default class Conges extends React.Component {
   render() {
     return (
       <React.Fragment>
-        <Grid>
+        <List>
           {_.map(this.state.plagesConges, (plageConges, i) => {
             return (
-              <Grid.Row key={i} verticalAlign="middle">
-                  <Periode
-                    initialStartDate={moment(plageConges.start)}
-                    initialEndDate={moment(plageConges.end)}
-                    key={i}
-                    clearFocus={this.state.clearFocus}
-                    onPeriodeChange={(start, end) =>
-                      this.onPeriodeChange(i, start, end)
-                    }
-                  />
-                <Grid.Column width={3}>
+              <List.Item key={i} style={{ display: "flex" }}>
+                <Periode
+                  initialStartDate={moment(plageConges.start)}
+                  initialEndDate={moment(plageConges.end)}
+                  key={i}
+                  clearFocus={this.state.clearFocus}
+                  onPeriodeChange={(start, end) =>
+                    this.onPeriodeChange(i, start, end)
+                  }
+                />
+                <div style={{ paddingLeft: "5px" }}>
                   <span>Intitulé : </span>
-                  <Input 
+                  <Input
                     placeholder="Intitulé de la période"
                     value={plageConges.titre}
                     onChange={(e, d) => this.onTitreChange(i, d.value)}
                   />
-                </Grid.Column>
-                <Grid.Column>
+                </div>
+                <div style={{ paddingLeft: "5px", paddingTop: "5px" }}>
                   <Button
                     size="tiny"
                     icon="minus"
                     circular={true}
                     onClick={() => this.supprimer(i)}
                   />
-                </Grid.Column>
-                
-              </Grid.Row>
+                </div>
+              </List.Item>
             );
           })}
-        </Grid>
+        </List>
         <Button size="tiny" icon="add" circular={true} onClick={this.ajouter} />
       </React.Fragment>
     );

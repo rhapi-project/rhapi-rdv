@@ -34,7 +34,7 @@
     "build": "npm run docs && npm run print-css && react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "prettier": "prettier --write src/components/* src/css/* src/index.js",
+    "prettier": "prettier --write src/components/* src/css/* src/lib/* src/index.js",
     "docs": "markdown-folder-to-html && node ./scripts/docs.js",
     "print-css": "node ./scripts/print-css.js"
   },

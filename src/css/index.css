@@ -42,15 +42,43 @@
 }
 
 /* REACT-DAY-PICKER */
-.DayPicker-Body, .DayPicker-Months, .DayPicker-wrapper, .DayPicker
-  ,.DayPickerInput-OverlayWrapper {
-  width: 100%;
+.DayPicker div:focus,
+.DayPicker-NavButton {
+  outline: none; /* suppression du contours au focus*/
 }
-.DayPickerInput-Overlay {
-  width: 140%;
+.DayPicker-Body,
+.DayPicker-Months,
+.DayPicker-wrapper,
+.DayPicker,
+.DayPickerInput-OverlayWrapper {
+  width: 100%;
 }
 .DayPicker-Month {
   width: 85%;
+}
+.DayPickerInput {
+  width: 120px; /* largeur nécessaire pour afficher la date */
+}
+.DayPicker-Footer {
+  display: none; /* masquer le bouton today */
+}
+
+/* Selected period in REACT-DAY-PICKER */
+.InputFromTo
+  .DayPicker-Day--selected:not(.DayPicker-Day--start):not(.DayPicker-Day--end):not(.DayPicker-Day--outside) {
+  background-color: #f0f8ff !important;
+  color: #4a90e2;
+}
+.InputFromTo .DayPicker-Day {
+  border-radius: 0 !important;
+}
+.InputFromTo .DayPicker-Day--start {
+  border-top-left-radius: 50% !important;
+  border-bottom-left-radius: 50% !important;
+}
+.InputFromTo .DayPicker-Day--end {
+  border-top-right-radius: 50% !important;
+  border-bottom-right-radius: 50% !important;
 }
 
 /* Search scrolling */

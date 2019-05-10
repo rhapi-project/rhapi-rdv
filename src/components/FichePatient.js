@@ -34,12 +34,12 @@ import ImageReader from "./ImageReader";
 
 import RdvPassCard from "./RdvPassCard";
 
-import DayPickerInput from 'react-day-picker/DayPickerInput';
+import DayPickerInput from "react-day-picker/DayPickerInput";
 import MomentLocaleUtils, {
   formatDate,
   parseDate
-} from 'react-day-picker/moment';
-import 'react-day-picker/lib/style.css';
+} from "react-day-picker/moment";
+import "react-day-picker/lib/style.css";
 
 export default class FichePatient extends React.Component {
   /*civilites = [
@@ -455,7 +455,10 @@ export default class FichePatient extends React.Component {
                             patient.naissance = moment(day).format();
                             this.props.onChange(patient);
                           }
-                          this.setState({ naissanceDate: moment(day), saved: saved });
+                          this.setState({
+                            naissanceDate: moment(day),
+                            saved: saved
+                          });
                         }}
                       />
                     </Form.Input>

@@ -3,6 +3,7 @@ import React from "react";
 import _ from "lodash";
 
 import { rdvDateTime, site, helpPopup } from "./Settings";
+import { print } from "../lib/Helpers";
 
 import {
   Button,
@@ -215,77 +216,11 @@ export default class RdvPassCard extends React.Component {
     win.document.close();
     win.focus();
 
-    let mediaQueryList = win.matchMedia("print");
-
-    // Safari mediaQueryList.addListener
-    if (mediaQueryList) {
-      mediaQueryList.addListener(mql => {
-        if (!mql.matches) {
-          win.close();
-          this.afterPrint();
-        }
-      });
-    }
-
-    // Microsoft Internet Explorer ou Edge
-    if (
-      navigator.userAgent.indexOf("Edge/") !== -1 ||
-      navigator.userAgent.indexOf("Trident") !== -1
-    ) {
-      // l'attribut "Trident" de navigator.userAgent existe
-      // uniquement sur les navigateurs IE (pas Edge)
-      this.browserDelay = _.isUndefined(this.browserDelay) ? 1500 : 500;
-
-      win.onafterprint = () => {
-        // win.close(); // crash => impossibilité de fermer la fenêtre ici !
-        this.afterPrint();
-      };
-      _.delay(() => {
-        win.print();
-      }, this.browserDelay);
-      return;
-    }
-
-    // Firefox et Chrome onafterprint
-    /*win.onafterprint = () => {
+    let windowClose = () => {
       win.close();
-      this.afterPrint();
-    };*/
+    };
 
-    if (navigator.userAgent.indexOf("Firefox") === -1) {
-      /*
-      Delay requis par les navigateurs autres que Firefox :
-      Firefox déclenche onload lorsque le DOM ET les CSS sont complètement chargés.
-      Les autres navigateurs chargent le CSS de manière asynchrone parallèlement au DOM.
-      Le trigger onload est déclenché à la fin du chargement du DOM. Le CSS semantic -
-      plus volumineux - n'est alors pas toujours totalement chargé et il 
-      n'est pas encore en cache à la première impression...
-      => delay plus important la première fois (chargement en cache)
-      */
-
-      this.browserDelay = _.isUndefined(this.browserDelay) ? 1500 : 500;
-      //console.log("Browser delay : " + this.browserDelay);
-      //console.log(win.onload);
-
-      win.onload = () => {
-        //console.log("Browser delay : " + this.browserDelay);
-        _.delay(() => {
-          win.print();
-        }, this.browserDelay);
-      };
-    } else {
-      // Firefox (no delay)
-
-      win.onload = () => {
-        win.print();
-      };
-      
-      // bloc à supprimer éventuellement
-      win.onafterprint = () => {
-        win.close();
-        this.afterPrint();
-      };
-    }
+    print(this, win, this.afterPrint, windowClose);
   };
 
   afterPrint = () => {

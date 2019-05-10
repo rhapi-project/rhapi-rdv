@@ -36,12 +36,12 @@ import ColorPicker from "./ColorPicker";
 
 import RdvPassCard from "./RdvPassCard";
 
-import DayPickerInput from 'react-day-picker/DayPickerInput';
+import DayPickerInput from "react-day-picker/DayPickerInput";
 import MomentLocaleUtils, {
   formatDate,
   parseDate
-} from 'react-day-picker/moment';
-import 'react-day-picker/lib/style.css';
+} from "react-day-picker/moment";
+import "react-day-picker/lib/style.css";
 
 class FromTo extends React.Component {
   titleText = ""; // texte en retour de SearchPatient > onTextChange
@@ -1175,11 +1175,11 @@ export default class CalendarModalRdv extends React.Component {
                         />
                       </Form.Input>
                       <Form.Input label="Jour">
-                        <DayPickerInput 
+                        <DayPickerInput
                           dayPickerProps={{
                             locale: "fr",
                             localeUtils: MomentLocaleUtils,
-                            disabledDays:[{daysOfWeek: [0, 6]}],
+                            disabledDays: [{ daysOfWeek: [0, 6] }],
                             showOutsideDays: true
                           }}
                           format="L"

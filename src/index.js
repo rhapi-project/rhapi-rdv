@@ -4,11 +4,6 @@ import { render } from "react-dom";
 
 //CSS
 
-import 'react-day-picker/lib/style.css';
-
-/*import "react-dates/lib/css/_datepicker.css";
-import "react-dates/initialize";*/
-
 //import "fullcalendar/dist/fullcalendar.print.css";
 import "fullcalendar/dist/fullcalendar.css";
 
@@ -28,8 +23,6 @@ import { maxWidth, site } from "./components/Settings";
 import App from "./components/App";
 import Patients from "./components/Patients";
 import Praticiens from "./components/Praticiens";
-
-//import "airbnb-browser-shims";
 
 window.qWebChannel = false;
 
