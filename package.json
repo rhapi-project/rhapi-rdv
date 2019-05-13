@@ -41,7 +41,7 @@
   "devDependencies": {
     "markdown-folder-to-html": "^1.6.0",
     "prettier": "^1.12.1",
-    "react-scripts": "^2.1.1",
+    "react-scripts": "^3.0.1",
     "shelljs": "^0.8.2"
   },
   "browserslist": [

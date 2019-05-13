@@ -51,6 +51,7 @@
 .DayPicker-wrapper,
 .DayPicker,
 .DayPickerInput-OverlayWrapper {
+  padding: 0px !important;
   width: 100%;
 }
 .DayPicker-Month {

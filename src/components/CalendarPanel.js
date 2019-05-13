@@ -443,7 +443,7 @@ export default class CalendarPanel extends React.Component {
     }
     return (
       <React.Fragment>
-        <Divider />
+        <Divider style={{ marginBottom: "0px" }} />
         <DayPicker
           locale="fr"
           localeUtils={MomentLocaleUtils}
@@ -453,7 +453,7 @@ export default class CalendarPanel extends React.Component {
           todayButton="Aujourd'hui" // click sur ce bouton au click sur 'Aujourd'hui' de fullcalendar
           onDayClick={day => this.onDateChange(day)}
         />
-        <Divider />
+        <Divider style={{ marginTop: "0px" }} />
         <Form.Input>
           <PatientSearch
             client={this.props.client}
