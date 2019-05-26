@@ -279,7 +279,7 @@ export default class ProfilsPatients extends React.Component {
                 this.setState({ activeItem: "FichePatient" });
               }}
             >
-              Données administratives et médicales
+              Patient
             </Menu.Item>
             <Menu.Item
               name="SaisieActes"
@@ -385,7 +385,7 @@ export default class ProfilsPatients extends React.Component {
             <Icon name="doctor" size="small" />
             <Message.Content>
               <Message.Header>{this.state.praticien}</Message.Header>
-              Nombre de patients : {this.state.npatients}
+              Nombre total de patients : {this.state.npatients}
             </Message.Content>
           </Message>
         ) : (
