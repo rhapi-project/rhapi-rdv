@@ -21,7 +21,9 @@ import {
   helpPopup,
   denominationDefaultFormat,
   emailRegex,
-  telRegex
+  telRegex,
+  civilite,
+  affichageDenomination
 } from "./Settings";
 
 import PatientSearch from "./PatientSearch";
@@ -247,17 +249,34 @@ export default class ProfilsPatients extends React.Component {
   };
 
   render() {
-    let activeItem = this.state.activeItem;
+    let { activeItem, patient, age } = this.state;
     return (
       <div id="profil-patients">
-        <Header size={hsize}>Patients</Header>
+        <Header size={hsize}>
+          {!site.evolution || !patient || !patient.id
+            ? "Patients"
+            : "IPP " +
+              patient.id +
+              " - " +
+              affichageDenomination("pN", patient.nom, patient.prenom) +
+              "  " +
+              (_.isNull(patient.naissance) || _.isNull(this.state.naissanceDate)
+                ? ""
+                : " - " +
+                  (patient.genre === 2 ? "née" : "né") +
+                  " le " +
+                  _.split(age.naissanceSmall, " ")[0] +
+                  " (" +
+                  age.texte +
+                  ")")}
+        </Header>
         {site.evolution ? (
           <Menu attached="top" secondary>
             <Menu.Item
               name="FichePatient"
               active={activeItem === "FichePatient"}
               onClick={() => {
-                this.onPatientChange(this.state.patient.id);
+                this.onPatientChange(patient.id);
                 this.setState({ activeItem: "FichePatient" });
               }}
             >
@@ -437,7 +456,7 @@ export default class ProfilsPatients extends React.Component {
         {this.state.activeItem === "FichePatient" ? (
           <React.Fragment>
             <FichePatient
-              patient={this.state.patient}
+              patient={patient}
               age={this.state.age}
               onChange={this.onChange}
               client={this.props.client}
@@ -509,22 +528,22 @@ export default class ProfilsPatients extends React.Component {
         ) : this.state.activeItem === "SaisieActes" ? (
           <Header color="purple">
             &lt;PatientSaisieActes idPatient=
-            {this.state.patient.id ? this.state.patient.id : 0}/&gt;
+            {this.state.patient.id ? patient.id : 0}/&gt;
           </Header>
         ) : this.state.activeItem === "HistoriqueActes" ? (
           <Header color="orange">
             &lt;PatientHistorique idPatient=
-            {this.state.patient.id ? this.state.patient.id : 0}/&gt;
+            {this.state.patient.id ? patient.id : 0}/&gt;
           </Header>
         ) : this.state.activeItem === "Documents" ? (
           <Header color="blue">
             &lt;PatientDocuments idPatient=
-            {this.state.patient.id ? this.state.patient.id : 0}/&gt;
+            {this.state.patient.id ? patient.id : 0}/&gt;
           </Header>
         ) : this.state.activeItem === "Radiologie" ? (
           <Header color="pink">
             &lt;PatientRadiologie idPatient=
-            {this.state.patient.id ? this.state.patient.id : 0}/&gt;
+            {this.state.patient.id ? patient.id : 0}/&gt;
           </Header>
         ) : (
           ""
