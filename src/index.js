@@ -147,14 +147,16 @@ class Main extends React.Component {
                 {site.evolution ? (
                   <React.Fragment>
                     <Menu.Item
-                      name="Comptabilité"
-                      icon="calculator"
+                      name="Comptabilite"
                       onClick={() => {
                         window.location =
                           originPath + "#Praticiens/Comptabilite";
                         this.setState({ visible: false });
                       }}
-                    />
+                    >
+                      <Icon name="calculator" />
+                      Comptabilité
+                    </Menu.Item>
                     <Menu.Item
                       name="Statistiques"
                       icon="chart line"
