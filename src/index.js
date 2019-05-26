@@ -118,7 +118,7 @@ class Main extends React.Component {
             </Menu.Item>
             <Menu.Item header={true}>
               <Icon name="doctor" />
-              Praticien
+              Accès praticien
               <Menu.Menu>
                 <Menu.Item
                   name="Agendas"
@@ -144,6 +144,30 @@ class Main extends React.Component {
                     this.setState({ visible: false });
                   }}
                 />
+                {site.evolution ? (
+                  <React.Fragment>
+                    <Menu.Item
+                      name="Comptabilité"
+                      icon="calculator"
+                      onClick={() => {
+                        window.location =
+                          originPath + "#Praticiens/Comptabilite";
+                        this.setState({ visible: false });
+                      }}
+                    />
+                    <Menu.Item
+                      name="Statistiques"
+                      icon="chart line"
+                      onClick={() => {
+                        window.location =
+                          originPath + "#Praticiens/Statistiques";
+                        this.setState({ visible: false });
+                      }}
+                    />
+                  </React.Fragment>
+                ) : (
+                  ""
+                )}
                 <Menu.Item
                   name="Profil"
                   icon="address card"
@@ -175,7 +199,7 @@ class Main extends React.Component {
               }}
             >
               <Icon name="user" />
-              Patient
+              Accès patient
             </Menu.Item>
           </Sidebar>
           <Sidebar.Pusher>
