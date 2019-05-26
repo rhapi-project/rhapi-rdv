@@ -22,7 +22,6 @@ import {
   denominationDefaultFormat,
   emailRegex,
   telRegex,
-  civilite,
   affichageDenomination
 } from "./Settings";
 
@@ -304,11 +303,11 @@ export default class ProfilsPatients extends React.Component {
               Documents
             </Menu.Item>
             <Menu.Item
-              name="Radiologie"
-              active={activeItem === "Radiologie"}
-              onClick={() => this.setState({ activeItem: "Radiologie" })}
+              name="Imagerie"
+              active={activeItem === "Imagerie"}
+              onClick={() => this.setState({ activeItem: "Imagerie" })}
             >
-              Radiologie
+              Imagerie
             </Menu.Item>
             <Menu.Menu position="right">
               <Menu.Item>
@@ -540,9 +539,9 @@ export default class ProfilsPatients extends React.Component {
             &lt;PatientDocuments idPatient=
             {this.state.patient.id ? patient.id : 0}/&gt;
           </Header>
-        ) : this.state.activeItem === "Radiologie" ? (
+        ) : this.state.activeItem === "Imagerie" ? (
           <Header color="pink">
-            &lt;PatientRadiologie idPatient=
+            &lt;PatientImagerie idPatient=
             {this.state.patient.id ? patient.id : 0}/&gt;
           </Header>
         ) : (
