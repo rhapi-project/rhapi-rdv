@@ -31,6 +31,10 @@ import PatientSearchModal from "./PatientSearchModal";
 
 import FichePatient from "./FichePatient";
 
+import PatientSaisieActes from "./PatientSaisieActes";
+
+import PatientHistorique from "./PatientHistorique";
+
 import site from "./SiteSettings";
 
 export default class ProfilsPatients extends React.Component {
@@ -375,7 +379,7 @@ export default class ProfilsPatients extends React.Component {
           <Message negative={true} icon={true}>
             <Icon name="warning" size="small" />
             <Message.Content>
-              <Message.Header>Erreur les sauvegarde</Message.Header>
+              <Message.Header>Erreur lors d'une sauvegarde</Message.Header>
               Les données ont probablement été modifiées depuis un autre poste.
               Merci de bien vouloir annuler pour actualiser la fiche.
             </Message.Content>
@@ -525,15 +529,15 @@ export default class ProfilsPatients extends React.Component {
             </Modal>
           </React.Fragment>
         ) : this.state.activeItem === "SaisieActes" ? (
-          <Header color="purple">
-            &lt;PatientSaisieActes idPatient=
-            {this.state.patient.id ? patient.id : 0}/&gt;
-          </Header>
+          <PatientSaisieActes
+            client={this.props.client}
+            idPatient={patient.id ? patient.id : 0}
+          />
         ) : this.state.activeItem === "HistoriqueActes" ? (
-          <Header color="orange">
-            &lt;PatientHistorique idPatient=
-            {this.state.patient.id ? patient.id : 0}/&gt;
-          </Header>
+          <PatientHistorique
+            client={this.props.client}
+            idPatient={patient.id ? patient.id : 0}
+          />
         ) : this.state.activeItem === "Documents" ? (
           <Header color="blue">
             &lt;PatientDocuments idPatient=
