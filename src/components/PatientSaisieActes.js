@@ -123,6 +123,7 @@ export default class PatientSaisieActes extends React.Component {
               msgSaveFSE: "Cette FSE a été bien enregistrée !",
               fse: {}
             });
+            this.onPatientChange(this.props.idPatient);
           },
           error => {
             this.setState({ msgSaveFSE: "Erreur de sauvegarde de la FSE !" });
@@ -142,7 +143,8 @@ export default class PatientSaisieActes extends React.Component {
     this.props.client.Actes.destroy(
       this.state.fse.id,
       result => {
-        this.setState({ idPatient: null, fse: {} });
+        this.setState({ fse: {} });
+        this.onPatientChange(this.props.idPatient);
       },
       error => {
         console.log(error);
