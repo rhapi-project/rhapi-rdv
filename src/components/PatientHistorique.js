@@ -29,9 +29,14 @@ export default class PatientHistorique extends React.Component {
     console.log(`onSelectionChange ${actes}`);
   };
 
-  onActionTest = id => {
+  onActionTest1 = id => {
     // l'id de l'acte en paramètre
-    console.log(`onActionTest ${id}`);
+    console.log(`onActionTest1 ${id}`);
+  };
+
+  onActionTest2 = id => {
+    // l'id de l'acte en paramètre
+    console.log(`onActionTest2 ${id}`);
   };
 
   render() {
@@ -48,10 +53,15 @@ export default class PatientHistorique extends React.Component {
             onActeDoubleClick={this.onActeDoubleClick}
             onSelectionChange={this.onSelectionChange}
             actions={[
+              // Ces actions seront ajoutées aux actions par défaut (Supprimer, Éditer)
               {
-                // Cette action sera ajoutée aux actions par défaut (Supprimer, Éditer)
-                action: this.onActionTest,
-                text: "Une action de test",
+                action: this.onActionTest1,
+                text: "Action de test 1",
+                icon: "code"
+              },
+              {
+                action: this.onActionTest2,
+                text: "Ation de test 2",
                 icon: "code"
               }
             ]}
