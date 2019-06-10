@@ -61,7 +61,7 @@ export default class PatientHistorique extends React.Component {
               },
               {
                 action: this.onActionTest2,
-                text: "Ation de test 2",
+                text: "Action de test 2",
                 icon: "code"
               }
             ]}
