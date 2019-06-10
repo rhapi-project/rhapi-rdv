@@ -13,18 +13,25 @@ export default class PatientHistorique extends React.Component {
     this.setState({ idPatient: id });
   };
 
-  onActeClick = (e, id) => {
+  onActeClick = id => {
+    // l'id de l'acte en paramètre
     console.log(`onActeClick ${id}`);
+  };
 
-    // client.Actes.destroy(
-    //   id,
-    //   result => {
-    //     console.log(result);
-    //   },
-    //   error => {
-    //     console.log(error);
-    //   }
-    // )
+  onActeDoubleClick = id => {
+    // l'id de l'acte en paramètre
+    console.log(`onActeDoubleClick ${id}`);
+  };
+
+  onSelectionChange = ids => {
+    // array des id des actes en paramètre
+    let actes = ids.join(",");
+    console.log(`onSelectionChange ${actes}`);
+  };
+
+  onActionTest = id => {
+    // l'id de l'acte en paramètre
+    console.log(`onActionTest ${id}`);
   };
 
   render() {
@@ -37,7 +44,17 @@ export default class PatientHistorique extends React.Component {
           <Actes.Historique
             client={this.props.client}
             idPatient={this.props.idPatient}
-            onHandleRow={this.onActeClick}
+            onActeClick={this.onActeClick}
+            onActeDoubleClick={this.onActeDoubleClick}
+            onSelectionChange={this.onSelectionChange}
+            actions={[
+              {
+                // Cette action sera ajoutée aux actions par défaut (Supprimer, Éditer)
+                action: this.onActionTest,
+                text: "Une action de test",
+                icon: "code"
+              }
+            ]}
           />
         </React.Fragment>
       );
