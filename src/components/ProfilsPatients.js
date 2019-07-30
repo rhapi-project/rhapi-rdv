@@ -48,7 +48,9 @@ export default class ProfilsPatients extends React.Component {
       saved: true,
       errorOnSave: false,
       modalDelete: false,
-      patientSearchModal: false
+      patientSearchModal: false,
+      idActe: null,
+      acteCopy: false
     });
   }
 
@@ -288,7 +290,13 @@ export default class ProfilsPatients extends React.Component {
             <Menu.Item
               name="SaisieActes"
               active={activeItem === "SaisieActes"}
-              onClick={() => this.setState({ activeItem: "SaisieActes" })}
+              onClick={() =>
+                this.setState({
+                  activeItem: "SaisieActes",
+                  idActe: null,
+                  acteCopy: false
+                })
+              }
             >
               Saisie des actes
             </Menu.Item>
@@ -532,11 +540,24 @@ export default class ProfilsPatients extends React.Component {
           <PatientSaisieActes
             client={this.props.client}
             idPatient={patient.id ? patient.id : 0}
+            idActe={this.state.idActe}
+            acteCopy={this.state.acteCopy}
           />
         ) : this.state.activeItem === "HistoriqueActes" ? (
           <PatientHistorique
             client={this.props.client}
             idPatient={patient.id ? patient.id : 0}
+            onReedition={idActe => {
+              //console.log(idActe);
+              this.setState({ activeItem: "SaisieActes", idActe: idActe });
+            }}
+            onCopy={idActe => {
+              this.setState({
+                activeItem: "SaisieActes",
+                idActe: idActe,
+                acteCopy: true
+              });
+            }}
           />
         ) : this.state.activeItem === "Documents" ? (
           <Header color="blue">

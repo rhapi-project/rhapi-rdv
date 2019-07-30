@@ -1,6 +1,13 @@
 import React from "react";
 import { Actes } from "rhapi-ui-react";
-import { Button, Divider, Message, Modal } from "semantic-ui-react";
+import {
+  Button,
+  Divider,
+  Form,
+  Message,
+  Modal,
+  Radio
+} from "semantic-ui-react";
 
 import moment from "moment";
 import _ from "lodash";
@@ -9,9 +16,31 @@ export default class PatientSaisieActes extends React.Component {
   componentWillMount() {
     this.setState({
       fse: {},
-      msgSaveFSE: ""
+      msgSaveFSE: "",
+      acteToAdd: {}, // acte à ajouter dans une FSE
+      typeActe: "#FSE",
+      editable: true
     });
-    this.onPatientChange(this.props.idPatient);
+    if (!_.isNull(this.props.idActe) && !this.props.acteCopy) {
+      this.read(
+        this.props.idActe,
+        result => {
+          this.setState({
+            fse: result,
+            editable: result.code !== "#FSE",
+            typeActe: result.code
+          });
+        },
+        error => {
+          console.log(error);
+          this.setState({ fse: {} });
+        }
+      );
+    } else if (!_.isNull(this.props.idActe) && this.props.acteCopy) {
+      this.copyActe(this.props.idActe);
+    } else {
+      this.onPatientChange(this.props.idPatient, "#FSE", {});
+    }
   }
 
   // Can't perform a React state update on an unmounted component.
@@ -28,21 +57,50 @@ export default class PatientSaisieActes extends React.Component {
       fse: {},
       msgSaveFSE: ""
     });
-    this.onPatientChange(next.idPatient);
+    this.onPatientChange(next.idPatient, this.state.typeActe, {});
   }
 
-  createFSE = idPatient => {
-    let params = {
-      code: "#FSE",
-      etat: 1,
-      idPatient: idPatient,
-      description: "Nouvelle FSE du patient d'id " + idPatient
-    };
-    this.props.client.Actes.create(
-      params,
+  read = (idActe, onSuccess, onError) => {
+    this.props.client.Actes.read(
+      idActe,
+      {},
       result => {
-        //console.log(result);
-        this.setState({ fse: result, msgSaveFSE: "" });
+        onSuccess(result);
+      },
+      error => {
+        onError(error);
+      }
+    );
+  };
+
+  copyActe = idActe => {
+    this.read(
+      idActe,
+      result => {
+        this.create(
+          this.props.idPatient,
+          result.code,
+          res => {
+            let params = { ...result };
+            _.unset(params, "etat");
+            _.unset(params, "lockRevision");
+            this.update(
+              res.id,
+              params,
+              r => {
+                this.setState({ fse: r, editable: true });
+              },
+              e => {
+                console.log(e);
+                this.setState({ fse: {} });
+              }
+            );
+          },
+          err => {
+            console.log(err);
+            this.setState({ fse: {} });
+          }
+        );
       },
       error => {
         console.log(error);
@@ -51,10 +109,28 @@ export default class PatientSaisieActes extends React.Component {
     );
   };
 
-  onPatientChange = id => {
+  create = (idPatient, typeActe, onSuccess, onError) => {
+    let params = {
+      code: typeActe,
+      etat: 1,
+      idPatient: idPatient,
+      description: "Nouvel acte patient d'id " + idPatient
+    };
+    this.props.client.Actes.create(
+      params,
+      result => {
+        onSuccess(result);
+      },
+      error => {
+        onError(error);
+      }
+    );
+  };
+
+  onPatientChange = (id, typeActe, acteToAdd) => {
     if (id) {
       let params = {
-        _code: "#FSE",
+        _code: typeActe,
         _etat: 1,
         _idPatient: id
       };
@@ -64,12 +140,35 @@ export default class PatientSaisieActes extends React.Component {
           let actes = result.results;
           //console.log(actes);
           if (_.isEmpty(actes)) {
-            this.createFSE(id);
+            //this.createFSE(id, typeActe, acteToAdd);
+            this.create(
+              id,
+              typeActe,
+              res => {
+                this.setState({
+                  fse: res,
+                  acteToAdd: acteToAdd,
+                  editable: true
+                });
+              },
+              err => {
+                console.log(err);
+                this.setState({ fse: {} });
+              }
+            );
           } else if (actes.length > 1) {
             let recent = _.maxBy(actes, a => moment.max(moment(a.modifiedAt)));
-            this.setState({ fse: recent });
+            this.setState({
+              fse: recent,
+              acteToAdd: acteToAdd,
+              editable: true
+            });
           } else {
-            this.setState({ fse: actes[0] });
+            this.setState({
+              fse: actes[0],
+              acteToAdd: acteToAdd,
+              editable: true
+            });
           }
         },
         error => {
@@ -97,7 +196,7 @@ export default class PatientSaisieActes extends React.Component {
     this.props.client.Actes.create(
       params,
       result => {
-        console.log("création avec succès d'un acte");
+        //console.log("création avec succès d'un acte");
       },
       error => {
         console.log(error);
@@ -106,34 +205,52 @@ export default class PatientSaisieActes extends React.Component {
     );
   };
 
-  save = () => {
-    this.props.client.Actes.read(
-      this.state.fse.id,
-      {},
+  update = (idActe, params, onSuccess, onError) => {
+    this.props.client.Actes.update(
+      idActe,
+      params,
       result => {
-        let actes = _.get(result, "contentJO.actes", []);
+        onSuccess(result);
+      },
+      error => {
+        onError(error);
+      }
+    );
+  };
+
+  save = () => {
+    this.read(
+      this.state.fse.id,
+      result => {
+        let actes = _.filter(
+          _.get(result, "contentJO.actes", []),
+          a => !_.isEmpty(a.code)
+        );
         _.forEach(actes, acte => {
           this.createActe(acte, result.id, result.idPatient);
         });
-        this.props.client.Actes.update(
+        this.update(
           result.id,
           { etat: 0, doneAt: new Date().toISOString() },
-          result => {
+          res => {
             this.setState({
-              msgSaveFSE: "Cette FSE a été bien enregistrée !",
+              msgSaveFSE: `L'acte ${
+                this.state.typeActe
+              } a été bien enregistré !`,
               fse: {}
             });
-            this.onPatientChange(this.props.idPatient);
+            this.onPatientChange(this.props.idPatient, this.state.typeActe, {});
           },
-          error => {
+          err => {
             this.setState({ msgSaveFSE: "Erreur de sauvegarde de la FSE !" });
           }
         );
       },
       error => {
         this.setState({
-          msgSaveFSE:
-            "Erreur de sauvegarde de la FSE ! Lecture de cette acte impossible "
+          msgSaveFSE: `Erreur de sauvegarde de l'acte ${
+            this.state.typeActe
+          }! Lecture de cette acte impossible`
         });
       }
     );
@@ -144,7 +261,7 @@ export default class PatientSaisieActes extends React.Component {
       this.state.fse.id,
       result => {
         this.setState({ fse: {} });
-        this.onPatientChange(this.props.idPatient);
+        this.onPatientChange(this.props.idPatient, this.state.typeActe, {});
       },
       error => {
         console.log(error);
@@ -156,6 +273,11 @@ export default class PatientSaisieActes extends React.Component {
     this.setState({ fse: {} });
   };
 
+  handleChangeType = (type, acteToAdd) => {
+    this.setState({ typeActe: type });
+    this.onPatientChange(this.props.idPatient, type, acteToAdd);
+  };
+
   render() {
     if (!this.props.idPatient) {
       return <div style={{ minHeight: "400px" }} />;
@@ -165,15 +287,62 @@ export default class PatientSaisieActes extends React.Component {
           <Divider hidden={true} />
           {!_.isEmpty(this.state.fse) ? (
             <div>
-              <Actes.Saisie
-                client={this.props.client}
-                idActe={this.state.fse.id}
-                onError={this.onError}
-                lignes={10}
-              />
+              <Form>
+                <Form.Input label="Type de d'actes">
+                  <Radio
+                    label="FSE"
+                    value="#FSE"
+                    checked={this.state.typeActe === "#FSE"}
+                    onChange={(e, d) => {
+                      if (this.state.typeActe !== "#FSE") {
+                        this.handleChangeType(d.value, {});
+                      }
+                    }}
+                  />
+                  <Radio
+                    style={{ marginLeft: "20px" }}
+                    label="PROJET"
+                    value="#DEVIS"
+                    checked={this.state.typeActe === "#DEVIS"}
+                    onChange={(e, d) => {
+                      if (this.state.typeActe !== "#DEVIS") {
+                        this.handleChangeType(d.value, {});
+                      }
+                    }}
+                  />
+                </Form.Input>
+              </Form>
+              <div
+                style={{
+                  height: "500px",
+                  overflow: "auto",
+                  marginBottom: "15px",
+                  marginTop: "10px"
+                }}
+              >
+                <Actes.Saisie
+                  client={this.props.client}
+                  idActe={this.state.fse.id}
+                  editable={this.state.editable}
+                  onError={this.onError} // à voir - TODO
+                  lignes={20}
+                  //codGrille
+                  //executant
+                  //specialite
+                  acteToAdd={this.state.acteToAdd}
+                  addToFSE={acte => {
+                    this.handleChangeType("#FSE", acte);
+                  }}
+                />
+              </div>
               <span>
-                <Button content="Valider" onClick={this.save} />
                 <Button
+                  disabled={!this.state.editable}
+                  content="Valider"
+                  onClick={this.save}
+                />
+                <Button
+                  disabled={!this.state.editable}
                   content="Supprimer"
                   negative={true}
                   onClick={this.destroy}
@@ -195,9 +364,7 @@ export default class PatientSaisieActes extends React.Component {
             <Modal.Actions>
               <Button
                 content="OK"
-                onClick={() =>
-                  this.setState({ idPatient: null, msgSaveFSE: "" })
-                }
+                onClick={() => this.setState({ msgSaveFSE: "" })}
               />
             </Modal.Actions>
           </Modal>
