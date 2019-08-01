@@ -548,7 +548,6 @@ export default class ProfilsPatients extends React.Component {
             client={this.props.client}
             idPatient={patient.id ? patient.id : 0}
             onReedition={idActe => {
-              //console.log(idActe);
               this.setState({ activeItem: "SaisieActes", idActe: idActe });
             }}
             onCopy={idActe => {

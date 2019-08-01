@@ -3,14 +3,17 @@ import { Actes } from "rhapi-ui-react";
 import {
   Button,
   Divider,
-  Form,
+  Header,
+  Input,
+  Menu,
   Message,
-  Modal,
-  Radio
+  Modal
 } from "semantic-ui-react";
 
 import moment from "moment";
 import _ from "lodash";
+
+import site from "./SiteSettings";
 
 export default class PatientSaisieActes extends React.Component {
   componentWillMount() {
@@ -19,7 +22,9 @@ export default class PatientSaisieActes extends React.Component {
       msgSaveFSE: "",
       acteToAdd: {}, // acte à ajouter dans une FSE
       typeActe: "#FSE",
-      editable: true
+      editable: true,
+      acteTitre: "",
+      modalChangeActeTitre: false
     });
     if (!_.isNull(this.props.idActe) && !this.props.acteCopy) {
       this.read(
@@ -84,6 +89,7 @@ export default class PatientSaisieActes extends React.Component {
             let params = { ...result };
             _.unset(params, "etat");
             _.unset(params, "lockRevision");
+            _.set(params, "doneAt", moment().toISOString());
             this.update(
               res.id,
               params,
@@ -114,7 +120,12 @@ export default class PatientSaisieActes extends React.Component {
       code: typeActe,
       etat: 1,
       idPatient: idPatient,
-      description: "Nouvel acte patient d'id " + idPatient
+      description:
+        typeActe === "#FSE"
+          ? site.evolution.actes.fseTitre
+          : typeActe === "#DEVIS"
+          ? site.evolution.actes.devisTitre
+          : "Titre par défaut"
     };
     this.props.client.Actes.create(
       params,
@@ -140,7 +151,6 @@ export default class PatientSaisieActes extends React.Component {
           let actes = result.results;
           //console.log(actes);
           if (_.isEmpty(actes)) {
-            //this.createFSE(id, typeActe, acteToAdd);
             this.create(
               id,
               typeActe,
@@ -222,27 +232,39 @@ export default class PatientSaisieActes extends React.Component {
     this.read(
       this.state.fse.id,
       result => {
-        let actes = _.filter(
-          _.get(result, "contentJO.actes", []),
-          a => !_.isEmpty(a.code)
-        );
-        _.forEach(actes, acte => {
-          this.createActe(acte, result.id, result.idPatient);
-        });
+        if (this.state.fse.code === "#FSE") {
+          let actes = _.filter(
+            _.get(result, "contentJO.actes", []),
+            a => !_.isEmpty(a.code)
+          );
+          _.forEach(actes, acte => {
+            this.createActe(acte, result.id, result.idPatient);
+          });
+        }
         this.update(
           result.id,
-          { etat: 0, doneAt: new Date().toISOString() },
+          {
+            etat: 0,
+            doneAt: new Date().toISOString(),
+            description: this.state.acteTitre
+          },
           res => {
             this.setState({
               msgSaveFSE: `L'acte ${
                 this.state.typeActe
               } a été bien enregistré !`,
-              fse: {}
+              fse: {},
+              acteTitre: "",
+              modalChangeActeTitre: false
             });
             this.onPatientChange(this.props.idPatient, this.state.typeActe, {});
           },
           err => {
-            this.setState({ msgSaveFSE: "Erreur de sauvegarde de la FSE !" });
+            this.setState({
+              msgSaveFSE: "Erreur de sauvegarde de la FSE !",
+              acteTitre: "",
+              modalChangeActeTitre: false
+            });
           }
         );
       },
@@ -250,7 +272,9 @@ export default class PatientSaisieActes extends React.Component {
         this.setState({
           msgSaveFSE: `Erreur de sauvegarde de l'acte ${
             this.state.typeActe
-          }! Lecture de cette acte impossible`
+          }! Lecture de cette acte impossible`,
+          acteTitre: "",
+          modalChangeActeTitre: false
         });
       }
     );
@@ -287,31 +311,28 @@ export default class PatientSaisieActes extends React.Component {
           <Divider hidden={true} />
           {!_.isEmpty(this.state.fse) ? (
             <div>
-              <Form>
-                <Form.Input label="Type de d'actes">
-                  <Radio
-                    label="FSE"
-                    value="#FSE"
-                    checked={this.state.typeActe === "#FSE"}
-                    onChange={(e, d) => {
-                      if (this.state.typeActe !== "#FSE") {
-                        this.handleChangeType(d.value, {});
-                      }
-                    }}
-                  />
-                  <Radio
-                    style={{ marginLeft: "20px" }}
-                    label="PROJET"
-                    value="#DEVIS"
-                    checked={this.state.typeActe === "#DEVIS"}
-                    onChange={(e, d) => {
-                      if (this.state.typeActe !== "#DEVIS") {
-                        this.handleChangeType(d.value, {});
-                      }
-                    }}
-                  />
-                </Form.Input>
-              </Form>
+              <Menu pointing={true} secondary={true}>
+                <Menu.Item
+                  name="FSE"
+                  active={this.state.typeActe === "#FSE"}
+                  onClick={() => {
+                    if (this.state.typeActe !== "#FSE") {
+                      this.handleChangeType("#FSE", {});
+                    }
+                  }}
+                />
+                <Menu.Item
+                  name="PROJET"
+                  active={this.state.typeActe === "#DEVIS"}
+                  onClick={() => {
+                    if (this.state.typeActe !== "#DEVIS") {
+                      this.handleChangeType("#DEVIS", {});
+                    }
+                  }}
+                />
+              </Menu>
+
+              <Header as="h3">{this.state.fse.description}</Header>
               <div
                 style={{
                   height: "500px",
@@ -339,7 +360,17 @@ export default class PatientSaisieActes extends React.Component {
                 <Button
                   disabled={!this.state.editable}
                   content="Valider"
-                  onClick={this.save}
+                  onClick={() => {
+                    if (this.state.fse.code === "#FSE") {
+                      this.save();
+                    }
+                    if (this.state.fse.code === "#DEVIS") {
+                      this.setState({
+                        acteTitre: this.state.fse.description,
+                        modalChangeActeTitre: true
+                      });
+                    }
+                  }}
                 />
                 <Button
                   disabled={!this.state.editable}
@@ -357,7 +388,7 @@ export default class PatientSaisieActes extends React.Component {
             open={!_.isEmpty(this.state.msgSaveFSE)}
             onClose={() => this.setState({ msgSaveFSE: "" })}
           >
-            <Modal.Header>Résultat validation FSE</Modal.Header>
+            <Modal.Header>Résultat de la validation</Modal.Header>
             <Modal.Content>
               <Message>{this.state.msgSaveFSE}</Message>
             </Modal.Content>
@@ -365,6 +396,31 @@ export default class PatientSaisieActes extends React.Component {
               <Button
                 content="OK"
                 onClick={() => this.setState({ msgSaveFSE: "" })}
+              />
+            </Modal.Actions>
+          </Modal>
+
+          {/* Titre de l'acte */}
+          <Modal size="mini" open={this.state.modalChangeActeTitre}>
+            <Modal.Header>
+              {this.state.fse.code === "#DEVIS" ? "Titre du projet" : "Titre"}
+            </Modal.Header>
+            <Modal.Content>
+              <Input
+                placeholder="Titre"
+                fluid={true}
+                value={this.state.acteTitre}
+                onChange={(e, d) => this.setState({ acteTitre: d.value })}
+              />
+            </Modal.Content>
+            <Modal.Actions>
+              <Button
+                content="OK"
+                onClick={() => {
+                  if (!_.isEmpty(this.state.acteTitre)) {
+                    this.save();
+                  }
+                }}
               />
             </Modal.Actions>
           </Modal>

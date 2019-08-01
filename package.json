@@ -26,7 +26,7 @@
     "react-moment-proptypes": "^1.6.0",
     "react-simple-timefield": "^2.0.0",
     "rhapi-client": "^1.0.14",
-    "rhapi-ui-react": "^0.1.4",
+    "rhapi-ui-react": "^0.1.5",
     "semantic-ui-css": "2.2",
     "semantic-ui-react": "^0.80.0"
   },

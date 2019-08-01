@@ -1,6 +1,6 @@
 import React from "react";
 import { Actes } from "rhapi-ui-react";
-import { Button, Checkbox, Divider, Form, Modal } from "semantic-ui-react";
+import { Button, Divider, Modal } from "semantic-ui-react";
 
 import _ from "lodash";
 
@@ -9,13 +9,24 @@ export default class PatientHistorique extends React.Component {
     this.setState({
       //idPatient: 0
       acteEdition: null,
-      actionEdition: null
+      actionEdition: null,
+      fse: {}
     });
   }
 
-  /*onPatientChange = id => {
-    this.setState({ idPatient: id });
-  };*/
+  read = idActe => {
+    this.props.client.Actes.read(
+      idActe,
+      {},
+      result => {
+        this.setState({ fse: result });
+      },
+      error => {
+        console.log(error);
+        this.setState({ fse: {} });
+      }
+    );
+  };
 
   onActeClick = id => {
     // l'id de l'acte en paramètre
@@ -56,7 +67,10 @@ export default class PatientHistorique extends React.Component {
               idPatient={this.props.idPatient}
               onActeClick={this.onActeClick}
               onActeDoubleClick={this.onActeDoubleClick}
-              onEditActeClick={idActe => this.setState({ acteEdition: idActe })}
+              onEditActeClick={idActe => {
+                this.read(idActe);
+                this.setState({ acteEdition: idActe });
+              }}
               onSelectionChange={this.onSelectionChange}
               limit={20}
               actions={[
@@ -76,8 +90,61 @@ export default class PatientHistorique extends React.Component {
           </div>
 
           {/* Choix à faire Rééditer ou Reprendre comme nouveau */}
-          <Modal size="tiny" open={!_.isNull(this.state.acteEdition)}>
-            <Modal.Header>Edition d'un acte</Modal.Header>
+          <Modal
+            size="tiny"
+            open={
+              !_.isNull(this.state.acteEdition) && !_.isEmpty(this.state.fse)
+            }
+          >
+            <Modal.Header>
+              {this.state.fse.code === "#FSE"
+                ? "Édition d'une feuille de soins"
+                : this.state.fse.code === "#DEVIS"
+                ? "Édition d'un projet/devis"
+                : null}
+            </Modal.Header>
+            <Modal.Content>
+              <Button
+                fluid={true}
+                content={
+                  this.state.fse.code === "#FSE"
+                    ? "Afficher le duplicata"
+                    : this.state.fse.code === "#DEVIS"
+                    ? "Modifier ce projet/devis"
+                    : null
+                }
+                onClick={() => {
+                  this.props.onReedition(this.state.acteEdition);
+                }}
+              />
+              <Button
+                style={{ marginTop: "20px" }}
+                fluid={true}
+                content={
+                  this.state.fse.code === "#FSE"
+                    ? "Éditer comme une nouvelle FSE"
+                    : this.state.fse.code === "#DEVIS"
+                    ? "Éditer comme un nouveau projet"
+                    : null
+                }
+                onClick={() => {
+                  this.props.onCopy(this.state.acteEdition);
+                }}
+              />
+            </Modal.Content>
+            <Modal.Actions>
+              <Button
+                content="Annuler"
+                onClick={() =>
+                  this.setState({ acteEdition: null /*, actionEdition: null*/ })
+                }
+              />
+            </Modal.Actions>
+          </Modal>
+
+          {/* Choix à faire Rééditer ou Reprendre comme nouveau */}
+          {/*<Modal size="tiny" open={!_.isNull(this.state.acteEdition)}>
+            <Modal.Header>Edition</Modal.Header>
             <Modal.Content>
               <p>
                 Vous pouvez <strong>rééditer</strong> cet acte ou bien le{" "}
@@ -134,7 +201,7 @@ export default class PatientHistorique extends React.Component {
                 }}
               />
             </Modal.Actions>
-          </Modal>
+          </Modal>*/}
         </React.Fragment>
       );
   }
