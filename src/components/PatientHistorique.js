@@ -1,16 +1,24 @@
 import React from "react";
-import { Actes } from "rhapi-ui-react";
-import { Button, Divider, Modal } from "semantic-ui-react";
+import { Actes, Shared } from "rhapi-ui-react";
+import { Button, Divider, Form, Icon, Modal } from "semantic-ui-react";
 
 import _ from "lodash";
+
+import site from "./SiteSettings";
 
 export default class PatientHistorique extends React.Component {
   componentWillMount() {
     this.setState({
-      //idPatient: 0
+      idNoteTodo: 0,
       acteEdition: null,
       actionEdition: null,
-      fse: {}
+      fse: {},
+      startAt: "",
+      endAt: "",
+      localisation: "",
+      openLocalisations: false,
+      openNoteTodo: false,
+      typeNoteTodo: ""
     });
   }
 
@@ -61,10 +69,75 @@ export default class PatientHistorique extends React.Component {
       return (
         <React.Fragment>
           <Divider hidden={true} />
+          <Form>
+            <Form.Group>
+              <Shared.Periode
+                labelDate="Période"
+                labelYear="&nbsp;"
+                startYear={site.evolution.periode.startingYear}
+                onPeriodeChange={(startAt, endAt) => {
+                  if (startAt && endAt) {
+                    this.setState({
+                      startAt: startAt,
+                      endAt: endAt
+                    });
+                  } else {
+                    //console.log("Durée indéterminée");
+                    this.setState({
+                      startAt: "",
+                      endAt: ""
+                    });
+                  }
+                }}
+              />
+              <Form.Input
+                label="Localisation"
+                width={3}
+                placeholder="Localisation"
+                onClick={() => this.setState({ openLocalisations: true })}
+                value={this.state.localisation}
+              />
+              <Form.Input label="Note et TODO">
+                <span>
+                  <Button
+                    animated
+                    //size="large"
+                    color="yellow"
+                    onClick={() => {
+                      this.setState({
+                        idNoteTodo: 0,
+                        typeNoteTodo: "note",
+                        openNoteTodo: true
+                      });
+                    }}
+                  >
+                    <Button.Content visible={true}><Icon name="sticky note outline" /></Button.Content>
+                    <Button.Content hidden={true}>Note</Button.Content>
+                  </Button>
+                  <Button
+                    animated
+                    //size="large"
+                    color="red"
+                    onClick={() => {
+                      this.setState({
+                        idNoteTodo: 0,
+                        typeNoteTodo: "todo",
+                        openNoteTodo: true
+                      })
+                    }}
+                  >
+                    <Button.Content visible={true}><Icon name="list" /></Button.Content>
+                    <Button.Content hidden={true}>Todo</Button.Content>
+                  </Button>
+                </span>
+              </Form.Input>
+            </Form.Group>
+          </Form>
           <div style={{ height: "500px", overflow: "auto" }}>
             <Actes.Historique
               client={this.props.client}
               idPatient={this.props.idPatient}
+              id={this.state.idNoteTodo}
               onActeClick={this.onActeClick}
               onActeDoubleClick={this.onActeDoubleClick}
               onEditActeClick={idActe => {
@@ -86,6 +159,24 @@ export default class PatientHistorique extends React.Component {
                   icon: "code"
                 }
               ]}
+              localisation={this.state.localisation}
+              startAt={this.state.startAt}
+              endAt={this.state.endAt}
+              openNoteTodo={this.state.openNoteTodo}
+              typeNoteTodo={this.state.typeNoteTodo}
+              onOpenNoteTodo={(id, type) => {
+                this.setState({
+                  idNoteTodo: id,
+                  openNoteTodo: true,
+                  typeNoteTodo: type
+                });
+              }}
+              onCloseNoteTodo={() => {
+                this.setState({ 
+                  openNoteTodo: false,
+                  typeNoteTodo: ""
+                });
+              }}
             />
           </div>
 
@@ -142,66 +233,18 @@ export default class PatientHistorique extends React.Component {
             </Modal.Actions>
           </Modal>
 
-          {/* Choix à faire Rééditer ou Reprendre comme nouveau */}
-          {/*<Modal size="tiny" open={!_.isNull(this.state.acteEdition)}>
-            <Modal.Header>Edition</Modal.Header>
-            <Modal.Content>
-              <p>
-                Vous pouvez <strong>rééditer</strong> cet acte ou bien le{" "}
-                <strong>reprendre comme étant un nouveau</strong>.
-              </p>
-              <Form>
-                <Form.Field>
-                  <Checkbox
-                    label="Rééditer"
-                    value={1}
-                    checked={this.state.actionEdition === 1}
-                    onChange={(e, d) =>
-                      this.setState({
-                        actionEdition:
-                          d.value === this.state.actionEdition ? null : d.value
-                      })
-                    }
-                    toggle={true}
-                  />
-                </Form.Field>
-                <Form.Field>
-                  <Checkbox
-                    label="Reprendre comme nouveau"
-                    value={2}
-                    checked={this.state.actionEdition === 2}
-                    onChange={(e, d) =>
-                      this.setState({
-                        actionEdition:
-                          d.value === this.state.actionEdition ? null : d.value
-                      })
-                    }
-                    toggle={true}
-                  />
-                </Form.Field>
-              </Form>
-            </Modal.Content>
-            <Modal.Actions>
-              <Button
-                content="Annuler"
-                onClick={() =>
-                  this.setState({ acteEdition: null, actionEdition: null })
-                }
-              />
-              <Button
-                primary={!_.isNull(this.state.actionEdition)}
-                content="Valider"
-                onClick={() => {
-                  if (this.state.actionEdition === 1) {
-                    this.props.onReedition(this.state.acteEdition);
-                  }
-                  if (this.state.actionEdition === 2) {
-                    this.props.onCopy(this.state.acteEdition);
-                  }
-                }}
-              />
-            </Modal.Actions>
-          </Modal>*/}
+          {/* Grille des localisations */}
+          <Shared.Localisations 
+            localisation={this.state.localisation}
+            onSelection={localisation => {
+              this.setState({ localisation: localisation });
+            }}
+            modal={{
+              size: "large",
+              open: this.state.openLocalisations,
+              onClose: () => {this.setState({ openLocalisations: false })}
+            }}
+          />
         </React.Fragment>
       );
   }

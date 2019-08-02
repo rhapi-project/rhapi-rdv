@@ -246,7 +246,7 @@ export default class PatientSaisieActes extends React.Component {
           {
             etat: 0,
             doneAt: new Date().toISOString(),
-            description: this.state.acteTitre
+            description: result.code === "#FSE" ? result.description : this.state.acteTitre
           },
           res => {
             this.setState({
