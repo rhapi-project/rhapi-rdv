@@ -3,7 +3,7 @@ import { Actes } from "rhapi-ui-react";
 import {
   Button,
   Divider,
-  Header,
+  //Header,
   Input,
   Menu,
   Message,
@@ -24,7 +24,10 @@ export default class PatientSaisieActes extends React.Component {
       typeActe: "#FSE",
       editable: true,
       acteTitre: "",
-      modalChangeActeTitre: false
+      modalChangeActeTitre: false,
+      messageTitle: "",
+      messageContent: "",
+      messageColor: ""
     });
     if (!_.isNull(this.props.idActe) && !this.props.acteCopy) {
       this.read(
@@ -33,7 +36,13 @@ export default class PatientSaisieActes extends React.Component {
           this.setState({
             fse: result,
             editable: result.code !== "#FSE",
-            typeActe: result.code
+            typeActe: result.code,
+            //messageTitle: result.code === "#FSE" ? result.description : "Plan de traitement",
+            messageTitle: result.description,
+            messageContent: result.code === "#FSE"
+              ? "Duplicata d'une feuille de soins"
+              : "Modification d'une série d'actes",
+            messageColor: result.code === "#DEVIS" ? "warning" : ""
           });
         },
         error => {
@@ -94,7 +103,18 @@ export default class PatientSaisieActes extends React.Component {
               res.id,
               params,
               r => {
-                this.setState({ fse: r, editable: true });
+                this.setState({
+                  fse: r,
+                  editable: true,
+                  /*messageTitle: r.code === "#FSE"
+                    ? r.description
+                    : "Plan de traitement",*/
+                  messageTitle: r.description,
+                  messageContent: r.code === "#FSE"
+                    ? "Nouvelle feuille de soins"
+                    : "Nouvelle série d'actes",
+                  messageColor: r.code === "#DEVIS" ? "info" : ""
+                });
               },
               e => {
                 console.log(e);
@@ -158,7 +178,10 @@ export default class PatientSaisieActes extends React.Component {
                 this.setState({
                   fse: res,
                   acteToAdd: acteToAdd,
-                  editable: true
+                  editable: true,
+                  messageTitle: res.description,
+                  messageContent: "Nouvelle série d'actes",
+                  messageColor: res.code === "#DEVIS" ? "info" : ""
                 });
               },
               err => {
@@ -171,13 +194,21 @@ export default class PatientSaisieActes extends React.Component {
             this.setState({
               fse: recent,
               acteToAdd: acteToAdd,
-              editable: true
+              editable: true,
+              messageTitle: recent.description,
+              messageContent: "",
+              messageColor: ""
+              //messageColor: recent.code === "#DEVIS" ? "info" : ""
             });
           } else {
             this.setState({
               fse: actes[0],
               acteToAdd: acteToAdd,
-              editable: true
+              editable: true,
+              messageTitle: actes[0].description,
+              messageContent: "",
+              messageColor: ""
+              //messageColor: actes[0].code === "#DEVIS" ? "info"
             });
           }
         },
@@ -247,12 +278,15 @@ export default class PatientSaisieActes extends React.Component {
             etat: 0,
             doneAt: new Date().toISOString(),
             description: result.code === "#FSE" ? result.description : this.state.acteTitre
+            // **************************************************************************
+            // la description sera fournie par le module de télétransmission LambdaVitale
+            // **************************************************************************
           },
           res => {
             this.setState({
-              msgSaveFSE: `L'acte ${
+              /*msgSaveFSE: `L'acte ${
                 this.state.typeActe
-              } a été bien enregistré !`,
+            } a été bien enregistré !`,*/
               fse: {},
               acteTitre: "",
               modalChangeActeTitre: false
@@ -332,7 +366,19 @@ export default class PatientSaisieActes extends React.Component {
                 />
               </Menu>
 
-              <Header as="h3">{this.state.fse.description}</Header>
+              {/* <Header as="h3">{this.state.fse.description}</Header> */}
+              <Message
+                positive={this.state.fse.code === "#FSE"}
+                warning={this.state.messageColor === "warning"}
+                info={this.state.messageColor === "info"}
+              >
+                <Message.Header>
+                  {this.state.messageTitle}
+                </Message.Header>
+                <Message.Content>
+                  {this.state.messageContent}
+                </Message.Content>
+              </Message>
               <div
                 style={{
                   height: "500px",
