@@ -1,6 +1,6 @@
 import React from "react";
 import { Actes, Shared } from "rhapi-ui-react";
-import { Button, Divider, Form, Icon, Modal } from "semantic-ui-react";
+import { Button, Divider, Form, Icon, Message, Modal } from "semantic-ui-react";
 
 import _ from "lodash";
 
@@ -12,6 +12,7 @@ export default class PatientHistorique extends React.Component {
       idNoteTodo: 0,
       acteEdition: null,
       actionEdition: null,
+      acteCorrespondante: false,
       fse: {},
       startAt: "",
       endAt: "",
@@ -27,10 +28,24 @@ export default class PatientHistorique extends React.Component {
       idActe,
       {},
       result => {
-        this.setState({ 
-          fse: result,
-          acteEdition: _.startsWith(result.code, "#") ? idActe : null
-        });
+        if (_.startsWith(result.code, "#")) {
+          this.setState({
+            fse: result,
+            acteEdition: idActe
+          });
+        } else {
+          this.props.client.Actes.read(
+            result.idDocument,
+            {},
+            res => {
+              this.setState({
+                acteCorrespondante: true,
+                fse: res,
+                acteEdition: res.id
+              });
+            }
+          );
+        }
       },
       error => {
         console.log(error);
@@ -197,6 +212,14 @@ export default class PatientHistorique extends React.Component {
                 : null}
             </Modal.Header>
             <Modal.Content>
+              {this.state.acteCorrespondante
+                ? <Message>
+                    <Message.Content>
+                      FSE correspondante à cet acte
+                    </Message.Content>
+                  </Message>
+                : null
+              }
               <Button
                 fluid={true}
                 content={
@@ -229,7 +252,7 @@ export default class PatientHistorique extends React.Component {
               <Button
                 content="Annuler"
                 onClick={() =>
-                  this.setState({ acteEdition: null /*, actionEdition: null*/ })
+                  this.setState({ acteEdition: null, acteCorrespondante: false })
                 }
               />
             </Modal.Actions>
