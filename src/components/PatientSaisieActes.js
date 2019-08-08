@@ -113,7 +113,8 @@ export default class PatientSaisieActes extends React.Component {
                   messageContent: r.code === "#FSE"
                     ? "Nouvelle feuille de soins"
                     : "Nouvelle série d'actes",
-                  messageColor: r.code === "#DEVIS" ? "info" : ""
+                  messageColor: r.code === "#DEVIS" ? "info" : "",
+                  typeActe: r.code
                 });
               },
               e => {
@@ -366,7 +367,6 @@ export default class PatientSaisieActes extends React.Component {
                 />
               </Menu>
 
-              {/* <Header as="h3">{this.state.fse.description}</Header> */}
               <Message
                 positive={this.state.fse.code === "#FSE"}
                 warning={this.state.messageColor === "warning"}

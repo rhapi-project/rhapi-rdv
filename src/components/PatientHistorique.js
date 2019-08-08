@@ -27,7 +27,10 @@ export default class PatientHistorique extends React.Component {
       idActe,
       {},
       result => {
-        this.setState({ fse: result });
+        this.setState({ 
+          fse: result,
+          acteEdition: _.startsWith(result.code, "#") ? idActe : null
+        });
       },
       error => {
         console.log(error);
@@ -48,18 +51,18 @@ export default class PatientHistorique extends React.Component {
 
   onSelectionChange = ids => {
     // array des id des actes en paramètre
-    let actes = ids.join(",");
-    console.log(`onSelectionChange ${actes}`);
+    //let actes = ids.join(",");
+    //console.log(`onSelectionChange ${actes}`);
   };
 
   onActionTest1 = id => {
     // l'id de l'acte en paramètre
-    console.log(`onActionTest1 ${id}`);
+    //console.log(`onActionTest1 ${id}`);
   };
 
   onActionTest2 = id => {
     // l'id de l'acte en paramètre
-    console.log(`onActionTest2 ${id}`);
+    //console.log(`onActionTest2 ${id}`);
   };
 
   render() {
@@ -142,7 +145,6 @@ export default class PatientHistorique extends React.Component {
               onActeDoubleClick={this.onActeDoubleClick}
               onEditActeClick={idActe => {
                 this.read(idActe);
-                this.setState({ acteEdition: idActe });
               }}
               onSelectionChange={this.onSelectionChange}
               limit={20}
