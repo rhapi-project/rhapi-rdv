@@ -12,18 +12,19 @@ import { helpPopup } from "./Settings";
 import { print } from "../lib/Helpers";
 
 export default class Calendars extends React.Component {
-  componentWillMount() {
-    let hidePanel =
-      localStorage.getItem("calendarPanelHide") === "true" ? true : false;
-    this.setState({
-      plannings: [],
-      index: -1,
-      print: 0,
-      hidePanel: _.isNull(hidePanel) ? false : hidePanel
-    });
-  }
+  state = {
+    plannings: [],
+    index: -1,
+    print: 0,
+    hidePanel: false
+  };
 
   componentDidMount() {
+    let hidePanel = 
+      localStorage.getItem("calendarPanelHide") === "true" ? true : false;
+    this.setState({
+      hidePanel: _.isNull(hidePanel) ? false : hidePanel
+    });
     // ajust panel & calendar widths
     window.addEventListener("resize", () => this.setState({}));
 

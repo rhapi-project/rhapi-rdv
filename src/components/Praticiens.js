@@ -82,7 +82,7 @@ export default class Praticiens extends React.Component {
     client = new Client();
   };
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     let parts = window.location.hash.split("/");
     if (parts.length === 2) {
       parts = parts[1].split("?");

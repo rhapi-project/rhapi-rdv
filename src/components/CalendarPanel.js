@@ -27,33 +27,86 @@ import { helpPopup } from "./Settings";
 export default class CalendarPanel extends React.Component {
   rhapiMd5 = "";
 
-  componentWillMount() {
-    this.setState({
-      currentDate: moment(),
-      currentPatient: { id: 0, title: "", rdv: { liste: [], index: -1 } },
-      externalEventsDatas: [],
-      modalClearExternal: false,
-      modalRdvIsOpen: false,
-      eventToEdit: {},
-      patient: {},
-      rdvPassCard: false,
-      patientSearchModal: false
-    });
-  }
+  state = {
+    currentDate: moment(),
+    currentPatient: { id: 0, title: "", rdv: { liste: [], index: -1 } },
+    externalEventsDatas: [],
+    modalClearExternal: false,
+    modalRdvIsOpen: false,
+    eventToEdit: {},
+    patient: {},
+    rdvPassCard: false,
+    patientSearchModal: false
+  };
 
-  componentWillReceiveProps(next) {
-    this.rhapiMd5 = "";
-    this.setState({
+  static getDerivedStateFromProps(props, state) {
+    //console.log("Passage dans getDerivedStateFromProps");
+    return {
       externalEventsDatas: []
-    });
-    this.reloadExternalEvents(next.planning);
-    this.onPatientChange(-1, ""); // force reload rdv patient
-
-    if (next.todayClicked) {
-      document.getElementsByClassName("DayPicker-TodayButton")[0].click();
     }
-    this.setState({ currentDate: moment() });
-  }
+  };
+
+  componentDidUpdate(prevProps, prevState) {
+    //console.log("Passage dasn Component Did Update");
+    if (this.state.externalEventsDatas === []) {
+      //console.log("Je vais reload les 2 fonctions");
+      this.reloadExternalEvents(this.props.planning);
+      this.onPatientChange(-1, ""); // force reload rdv patient
+    }
+
+    if (this.props.todayClicked) {
+      document.getElementsByClassName("DayPicker-TodayButton")[0].click();
+      if (this.state.currentDate.date() !== moment().date()) {
+        //console.log("Changement de date ...");
+        this.setState({ currentDate: moment() });
+      }
+    }
+
+    $("#external-events .fc-event").each((i, event) => {
+      let datas = this.state.externalEventsDatas[i];
+      let jEvent = $(event);
+
+      jEvent.data("event", {
+        title: $.trim(jEvent.text()),
+        stick: true,
+        data: datas
+      });
+
+      let motifIndex = -1;
+      if (datas.planningJO.motif) {
+        motifIndex = Math.abs(datas.planningJO.motif) - 1;
+      }
+
+      let couleur = _.isEmpty(datas.couleur)
+        ? motifIndex >= 0
+          ? this.props.options.reservation.motifs[motifIndex].couleur
+          : this.props.couleur
+        : datas.couleur;
+
+      let r = parseInt(couleur.substr(1, 2), 16);
+      let g = parseInt(couleur.substr(3, 2), 16);
+      let b = parseInt(couleur.substr(5, 2), 16);
+
+      let lightness = (r + g + b) / 3;
+
+      let textColor = lightness > 110 ? "#000000" : "#ffffff";
+
+      jEvent.css("color", textColor);
+
+      jEvent.css("background", "rgba(" + r + "," + g + "," + b + ",0.75)"); // add transparency
+
+      // jQuery UI : ui-widget(options, element);
+      // make the event draggable using jQuery UI
+      draggable(
+        {
+          zIndex: 999,
+          revert: true, // will cause the event to go back to its
+          revertDuration: 0 //  original position after the drag
+        },
+        event
+      );
+    });
+  };
 
   componentDidMount() {
     let dropZone = $("#external-droppable");
@@ -123,54 +176,7 @@ export default class CalendarPanel extends React.Component {
 
   componentWillUnmount() {
     clearInterval(this.intervalId);
-  }
-
-  componentDidUpdate() {
-    $("#external-events .fc-event").each((i, event) => {
-      let datas = this.state.externalEventsDatas[i];
-      let jEvent = $(event);
-
-      jEvent.data("event", {
-        title: $.trim(jEvent.text()),
-        stick: true,
-        data: datas
-      });
-
-      let motifIndex = -1;
-      if (datas.planningJO.motif) {
-        motifIndex = Math.abs(datas.planningJO.motif) - 1;
-      }
-
-      let couleur = _.isEmpty(datas.couleur)
-        ? motifIndex >= 0
-          ? this.props.options.reservation.motifs[motifIndex].couleur
-          : this.props.couleur
-        : datas.couleur;
-
-      let r = parseInt(couleur.substr(1, 2), 16);
-      let g = parseInt(couleur.substr(3, 2), 16);
-      let b = parseInt(couleur.substr(5, 2), 16);
-
-      let lightness = (r + g + b) / 3;
-
-      let textColor = lightness > 110 ? "#000000" : "#ffffff";
-
-      jEvent.css("color", textColor);
-
-      jEvent.css("background", "rgba(" + r + "," + g + "," + b + ",0.75)"); // add transparency
-
-      // jQuery UI : ui-widget(options, element);
-      // make the event draggable using jQuery UI
-      draggable(
-        {
-          zIndex: 999,
-          revert: true, // will cause the event to go back to its
-          revertDuration: 0 //  original position after the drag
-        },
-        event
-      );
-    });
-  }
+  };
 
   onDateChange = date => {
     this.setState({ currentDate: moment(date) });

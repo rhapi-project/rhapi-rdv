@@ -47,13 +47,27 @@ class FromTo extends React.Component {
   titleText = ""; // texte en retour de SearchPatient > onTextChange
   // (repris comme titre si patient non identifié)
 
-  componentWillMount() {
-    this.setState({ hfrom: this.props.hfrom, hto: this.props.hto });
-  }
+  state = {
+    hfrom: "00:00:00",
+    hto: "00:00:00"
+  };
 
-  componentWillReceiveProps(next) {
-    this.setState({ hfrom: next.hfrom, hto: next.hto });
-  }
+  componentDidMount() {
+    this.setState({ hfrom: this.props.hfrom, hto: this.props.hto });
+  };
+
+  static getDerivedStateFromProps(props, state) {
+    if (!props.hfrom || !props.hto) {
+      return null;
+    }
+    if (props.hfrom !== state.hfrom || props.hto !== state.hto) {
+      return {
+        hfrom: props.hfrom,
+        hto: props.hto
+      }
+    }
+    return null; // nothing to change in the state
+  };
 
   handleChange = (value, name) => {
     let { hfrom, hto } = this.state;
@@ -70,7 +84,6 @@ class FromTo extends React.Component {
 
   render() {
     let { hfrom, hto } = this.state;
-
     return (
       <div>
         <Label size="large" style={{ marginTop: 5 }} content="De" />
@@ -99,18 +112,38 @@ class FromTo extends React.Component {
 export default class CalendarModalRdv extends React.Component {
   //plannings = [];
 
-  componentWillMount() {
-    this.setState({
-      rdvPassCard: false,
-      deleteRdv: false,
-      dateRdvFocused: false,
-      patientSearchModal: false,
-      dureeDefaut: false
-    });
-    this.reload(this.props);
-  }
+  state = {
+    rdvPassCard: false,
+    deleteRdv: false,
+    dateRdvFocused: false,
+    patientSearchModal: false,
+    dureeDefaut: false
+  };
 
-  componentWillReceiveProps(next) {
+  componentDidMount() {
+    this.reload(this.props);
+  };
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.props.open && (this.props.open !== prevProps.open)) {
+      this.reload(this.props);
+    }
+    if (this.state === prevState) {
+      let d = _.get(this.props, "options.plages.dureeMin", 0);
+      let s = _.get(this.props, "selectStart", _.get(this.props, "event.start", moment()));
+      let e = _.get(this.props, "selectEnd", _.get(this.props, "event.end", moment()));
+      let d2 = e.diff(s) / 60000;
+      let dureeDefaut = d === d2;
+      this.setState({
+        image: "",
+        accordionIndex: -1,
+        accordionIndex2: -1,
+        dureeDefaut: dureeDefaut
+      });
+    }
+  };
+
+  /*componentWillReceiveProps(next) {
     let d = _.get(next, "options.plages.dureeMin", 0);
     let s = _.get(next, "selectStart", _.get(next, "event.start", moment()));
     let e = _.get(next, "selectEnd", _.get(next, "event.end", moment()));
@@ -125,7 +158,7 @@ export default class CalendarModalRdv extends React.Component {
       accordionIndex2: -1,
       dureeDefaut: dureeDefaut
     });
-  }
+  }*/
 
   patientTodos = (idPatient, rdv) => {
     if (!window.qWebChannel || !this.state.isNewOne) {
@@ -877,7 +910,8 @@ export default class CalendarModalRdv extends React.Component {
                   <React.Fragment>
                     <Ref
                       innerRef={node => {
-                        node.firstChild.parentElement.focus();
+                        //console.log(node.firstChild.parentElement);
+                        //node.firstChild.parentElement.focus();
                       }}
                     >
                       <PatientSearch
@@ -1595,7 +1629,7 @@ export default class CalendarModalRdv extends React.Component {
             <Ref
               innerRef={node => {
                 if (!this.state.isNewOne) {
-                  node.focus();
+                  //node.focus();
                 }
               }}
             >

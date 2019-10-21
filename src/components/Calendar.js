@@ -19,7 +19,7 @@ var currentDate = moment();
 var currentView = "agendaWeek";
 
 export default class Calendar extends React.Component {
-  constructor(props) {
+  /*constructor(props) {
     super(props);
     this.rhapiMd5 = "";
     this.rhapiCache = [];
@@ -29,7 +29,16 @@ export default class Calendar extends React.Component {
       start: null,
       end: null
     };
-  }
+  }*/
+
+  rhapiMd5 = "";
+  rhapiCache = [];
+  state = {
+    modalRdvIsOpen: false,
+    eventToEdit: {},
+    start: null,
+    end: null
+  };
 
   componentDidMount() {
     this.intervalId = setInterval(

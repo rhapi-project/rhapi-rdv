@@ -27,7 +27,12 @@ import Praticiens from "./components/Praticiens";
 window.qWebChannel = false;
 
 class Main extends React.Component {
-  componentWillMount() {
+  state = {
+    visible: false,
+    help: false
+  };
+
+  reload = () => {
     let hash = window.location.hash;
     let subApp = hash.split("/")[0];
     this.setState({
@@ -39,9 +44,10 @@ class Main extends React.Component {
       ),
       help: false
     });
-  }
+  };
 
   componentDidMount() {
+    this.reload();
     // Qt Mixed App ?
     if (typeof QWebChannel !== "undefined") {
       window.QWebChannel(window.qt.webChannelTransport, channel => {
@@ -49,7 +55,7 @@ class Main extends React.Component {
         this.setState({}); // rerender (auto login)
       });
     }
-  }
+  };
 
   render() {
     let sidebar = "";
