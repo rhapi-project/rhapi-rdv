@@ -7,11 +7,16 @@ import _ from "lodash";
 import { Search } from "semantic-ui-react";
 
 export default class PatientSearch extends React.Component {
-  componentWillMount() {
+  state = {
+    isLoading: false,
+    results: [],
+    value: ""
+  };
+  /*componentWillMount() {
     this.setState({ isLoading: false, results: [], value: "" });
-  }
+  }*/
 
-  componentWillReceiveProps(next) {
+  /*componentWillReceiveProps(next) {
     if (next.clear) {
       this.setState({ isLoading: false, results: [], value: "" });
       ReactDOM.findDOMNode(this)
@@ -22,7 +27,7 @@ export default class PatientSearch extends React.Component {
         this.setState({ value: this.props.value ? this.props.value : "" });
       }
     }
-  }
+  }*/
 
   componentDidMount() {
     if (this.state.value === "") {
@@ -33,6 +38,19 @@ export default class PatientSearch extends React.Component {
       ReactDOM.findDOMNode(this)
         .getElementsByTagName("button")[0]
         .focus();
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps !== this.props) {
+      if (this.props.clear) {
+        this.setState({ isLoading: false, results: [], value: "" });
+        ReactDOM.findDOMNode(this)
+          .getElementsByTagName("input")[0]
+          .focus();
+      } else if (prevProps.value) {
+        this.setState({ value: prevProps.value ? prevProps.value : "" });
+      }
     }
   }
 

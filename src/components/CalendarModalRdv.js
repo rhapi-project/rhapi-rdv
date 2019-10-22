@@ -54,7 +54,7 @@ class FromTo extends React.Component {
 
   componentDidMount() {
     this.setState({ hfrom: this.props.hfrom, hto: this.props.hto });
-  };
+  }
 
   static getDerivedStateFromProps(props, state) {
     if (!props.hfrom || !props.hto) {
@@ -64,10 +64,10 @@ class FromTo extends React.Component {
       return {
         hfrom: props.hfrom,
         hto: props.hto
-      }
+      };
     }
     return null; // nothing to change in the state
-  };
+  }
 
   handleChange = (value, name) => {
     let { hfrom, hto } = this.state;
@@ -89,7 +89,7 @@ class FromTo extends React.Component {
         <Label size="large" style={{ marginTop: 5 }} content="De" />
         <TimeField
           value={hfrom} // {String}   required, format '00:00' or '00:00:00'
-          onChange={value => this.handleChange(value, "hfrom")}
+          onChange={(e, value) => this.handleChange(value, "hfrom")}
           input={<input type="text" />}
           //colon=":" // {String}   default: ":"
           //showSeconds={false} // {Boolean}  default: false
@@ -98,7 +98,7 @@ class FromTo extends React.Component {
         <Label size="large" style={{ marginTop: 5 }} content="à" />
         <TimeField
           value={hto} // {String}   required, format '00:00' or '00:00:00'
-          onChange={value => this.handleChange(value, "hto")}
+          onChange={(e, value) => this.handleChange(value, "hto")}
           //input={<input type="text" />}
           //colon=":" // {String}   default: ":"
           //showSeconds={false} // {Boolean}  default: false
@@ -122,16 +122,24 @@ export default class CalendarModalRdv extends React.Component {
 
   componentDidMount() {
     this.reload(this.props);
-  };
+  }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.props.open && (this.props.open !== prevProps.open)) {
+    if (this.props.open && this.props.open !== prevProps.open) {
       this.reload(this.props);
     }
     if (this.state === prevState) {
       let d = _.get(this.props, "options.plages.dureeMin", 0);
-      let s = _.get(this.props, "selectStart", _.get(this.props, "event.start", moment()));
-      let e = _.get(this.props, "selectEnd", _.get(this.props, "event.end", moment()));
+      let s = _.get(
+        this.props,
+        "selectStart",
+        _.get(this.props, "event.start", moment())
+      );
+      let e = _.get(
+        this.props,
+        "selectEnd",
+        _.get(this.props, "event.end", moment())
+      );
       let d2 = e.diff(s) / 60000;
       let dureeDefaut = d === d2;
       this.setState({
@@ -141,24 +149,7 @@ export default class CalendarModalRdv extends React.Component {
         dureeDefaut: dureeDefaut
       });
     }
-  };
-
-  /*componentWillReceiveProps(next) {
-    let d = _.get(next, "options.plages.dureeMin", 0);
-    let s = _.get(next, "selectStart", _.get(next, "event.start", moment()));
-    let e = _.get(next, "selectEnd", _.get(next, "event.end", moment()));
-    let d2 = e.diff(s) / 60000;
-    let dureeDefaut = d === d2;
-    if (next.open) {
-      this.reload(next);
-    }
-    this.setState({
-      image: "",
-      accordionIndex: -1,
-      accordionIndex2: -1,
-      dureeDefaut: dureeDefaut
-    });
-  }*/
+  }
 
   patientTodos = (idPatient, rdv) => {
     if (!window.qWebChannel || !this.state.isNewOne) {

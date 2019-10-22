@@ -9,12 +9,23 @@ import { maxWidth } from "./Settings";
 import _ from "lodash";
 
 class FromTo extends React.Component {
-  componentWillMount() {
+  state = {
+    hfrom: null,
+    hto: null
+  };
+
+  componentDidMount() {
     this.setState({ hfrom: this.props.hfrom, hto: this.props.hto });
   }
 
-  componentWillReceiveProps(next) {
-    this.setState({ hfrom: next.hfrom, hto: next.hto });
+  static getDerivedStateFromProps(props, state) {
+    if (props.hfrom !== state.hfrom || props.hto !== state.hto) {
+      return {
+        hfrom: props.hfrom,
+        hto: props.hto
+      };
+    }
+    return null;
   }
 
   handleChange = (value, name) => {
@@ -32,47 +43,57 @@ class FromTo extends React.Component {
 
   render() {
     let { hfrom, hto } = this.state;
-
-    return (
-      <div>
-        De&nbsp;
-        <TimeField
-          value={hfrom} // {String}   required, format '00:00' or '00:00:00'
-          onChange={value => this.handleChange(value, "hfrom")}
-          input={<input type="text" />}
-          //colon=":" // {String}   default: ":"
-          //showSeconds={false} // {Boolean}  default: false
-          style={{ minWidth: maxWidth / 5, maxWidth: maxWidth / 5 }}
-        />
-        &nbsp;à&nbsp;
-        <TimeField
-          value={hto} // {String}   required, format '00:00' or '00:00:00'
-          onChange={value => this.handleChange(value, "hto")}
-          //input={<input type="text" />}
-          //colon=":" // {String}   default: ":"
-          //showSeconds={false} // {Boolean}  default: false
-          style={{ minWidth: maxWidth / 5, maxWidth: maxWidth / 5 }}
-        />
-        &nbsp;
-        <Button
-          style={{ marginTop: 7 }}
-          size="tiny"
-          icon="minus"
-          circular={true}
-          onClick={() => this.props.supprimer(this.props.index)}
-        />
-      </div>
-    );
+    if (_.isNull(hfrom) || _.isNull(hto)) {
+      return null;
+    } else {
+      return (
+        <div>
+          De&nbsp;
+          <TimeField
+            value={hfrom} // {String}   required, format '00:00' or '00:00:00'
+            onChange={(e, value) => this.handleChange(value, "hfrom")}
+            input={<input type="text" />}
+            //colon=":" // {String}   default: ":"
+            //showSeconds={false} // {Boolean}  default: false
+            style={{ minWidth: maxWidth / 5, maxWidth: maxWidth / 5 }}
+          />
+          &nbsp;à&nbsp;
+          <TimeField
+            value={hto} // {String}   required, format '00:00' or '00:00:00'
+            onChange={(e, value) => this.handleChange(value, "hto")}
+            //input={<input type="text" />}
+            //colon=":" // {String}   default: ":"
+            //showSeconds={false} // {Boolean}  default: false
+            style={{ minWidth: maxWidth / 5, maxWidth: maxWidth / 5 }}
+          />
+          &nbsp;
+          <Button
+            style={{ marginTop: 7 }}
+            size="tiny"
+            icon="minus"
+            circular={true}
+            onClick={() => this.props.supprimer(this.props.index)}
+          />
+        </div>
+      );
+    }
   }
 }
 
 export default class FromToList extends React.Component {
-  componentWillMount() {
+  state = {
+    horaires: []
+  };
+
+  componentDidMount() {
     this.setState({ horaires: this.props.horaires });
   }
 
-  componentWillReceiveProps(next) {
-    this.setState({ horaires: next.horaires });
+  static getDerivedStateFromProps(props, state) {
+    if (props.horaires !== state.horaires) {
+      return { horaires: props.horaires };
+    }
+    return null;
   }
 
   ajouter = () => {

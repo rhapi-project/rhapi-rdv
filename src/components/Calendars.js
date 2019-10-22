@@ -20,7 +20,7 @@ export default class Calendars extends React.Component {
   };
 
   componentDidMount() {
-    let hidePanel = 
+    let hidePanel =
       localStorage.getItem("calendarPanelHide") === "true" ? true : false;
     this.setState({
       hidePanel: _.isNull(hidePanel) ? false : hidePanel

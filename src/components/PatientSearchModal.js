@@ -25,11 +25,17 @@ export default class PatientSearchModal extends React.Component {
     { text: "Recherche par numéro de sécurité sociale", value: 6 }
   ];
 
-  componentWillReceiveProps(next) {
-    this.setState({
-      open: next.open
-    });
-    this.reload();
+  static getDerivedStateFromProps(props, state) {
+    if (props.open !== state.open) {
+      return { open: props.open };
+    }
+    return null;
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.open !== this.state.open) {
+      this.reload();
+    }
   }
 
   reload = () => {

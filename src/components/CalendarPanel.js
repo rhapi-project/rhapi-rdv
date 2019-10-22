@@ -43,8 +43,8 @@ export default class CalendarPanel extends React.Component {
     //console.log("Passage dans getDerivedStateFromProps");
     return {
       externalEventsDatas: []
-    }
-  };
+    };
+  }
 
   componentDidUpdate(prevProps, prevState) {
     //console.log("Passage dasn Component Did Update");
@@ -106,7 +106,7 @@ export default class CalendarPanel extends React.Component {
         event
       );
     });
-  };
+  }
 
   componentDidMount() {
     let dropZone = $("#external-droppable");
@@ -176,7 +176,7 @@ export default class CalendarPanel extends React.Component {
 
   componentWillUnmount() {
     clearInterval(this.intervalId);
-  };
+  }
 
   onDateChange = date => {
     this.setState({ currentDate: moment(date) });

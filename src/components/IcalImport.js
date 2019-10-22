@@ -26,15 +26,25 @@ export default class IcalImport extends React.Component {
     fileReady: false // le fichier a été bien sélectionné et les rdv peuvent être chargés
   };
 
-  componentWillReceiveProps(next) {
-    this.setState({
-      clearRdv: false, // les rdv préexistants sur les plannings sélectionnés seront supprimés
-      fileLoaded: false, // fin du chargement du fichier de rdv
-      fileReady: false, // le fichier a été bien sélectionné et les rdv peuvent être chargés
-      open: next.open,
-      motifs: {},
-      selectedPlannings: this.initSelectedPlannings() // une valeur au début
-    });
+  static getDerivedStateFromProps(props, state) {
+    if (props.open !== state.open) {
+      return {
+        clearRdv: false, // les rdv préexistants sur les plannings sélectionnés seront supprimés
+        fileLoaded: false, // fin du chargement du fichier de rdv
+        fileReady: false, // le fichier a été bien sélectionné et les rdv peuvent être chargés
+        open: props.open,
+        motifs: {}
+      };
+    }
+    return null;
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.open !== this.state.open) {
+      this.setState({
+        selectedPlannings: this.initSelectedPlannings()
+      });
+    }
   }
 
   // le planning courant est sélectionné par défaut
@@ -139,7 +149,9 @@ export default class IcalImport extends React.Component {
   };
 
   render() {
-    if (!this.state.open) return "";
+    if (!this.state.open) {
+      return null;
+    }
     return (
       <React.Fragment>
         <Modal size="small" open={this.state.open}>

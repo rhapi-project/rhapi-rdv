@@ -30,20 +30,20 @@ import IcalExport from "./IcalExport";
 import IcalImport from "./IcalImport";
 
 export default class Configuration extends React.Component {
-  componentWillMount() {
-    this.setState({
-      plannings: [], // plannings administrés (plannings configurables)
-      planningsAccess: [], // plannings accessibles (plannings associés)
-      planningsAll: [], // tous les plannings (reprise de plages, de motifs, etc.)
-      index: -1,
-      reservationActiveIndex: -1,
-      saved: true, // current config saved
-      save: false, // modal save configs
-      load: false, // modal load configs
-      modalIcalExport: false,
-      modalIcalImport: false
-    });
+  state = {
+    plannings: [], // plannings administrés (plannings configurables)
+    planningsAccess: [], // plannings accessibles (plannings associés)
+    planningsAll: [], // tous les plannings (reprise de plages, de motifs, etc.)
+    index: -1,
+    reservationActiveIndex: -1,
+    saved: true, // current config saved
+    save: false, // modal save configs
+    load: false, // modal load configs
+    modalIcalExport: false,
+    modalIcalImport: false
+  };
 
+  componentDidMount() {
     this.reload(0);
   }
 

@@ -10,12 +10,19 @@ export default class IcalExport extends React.Component {
     error: false // modal d'erreur
   };
 
-  componentWillReceiveProps(next) {
-    this.setState({
-      open: next.open,
-      planningId: next.planningId,
-      planningTitre: next.planningTitre
-    });
+  static getDerivedStateFromProps(props, state) {
+    if (
+      props.open !== state.open ||
+      props.planningId !== state.planningId ||
+      props.planningTitre !== state.planningTitre
+    ) {
+      return {
+        open: props.open,
+        planningId: props.planningId,
+        planningTitre: props.planningTitre
+      };
+    }
+    return null;
   }
 
   close = () => {

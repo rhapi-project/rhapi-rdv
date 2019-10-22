@@ -38,21 +38,19 @@ import PatientHistorique from "./PatientHistorique";
 import site from "./SiteSettings";
 
 export default class ProfilsPatients extends React.Component {
-  componentWillMount() {
-    this.setState({
-      activeItem: "FichePatient",
-      npatients: 0,
-      praticien: "",
-      patient: {},
-      age: {},
-      saved: true,
-      errorOnSave: false,
-      modalDelete: false,
-      patientSearchModal: false,
-      idActe: null,
-      acteCopy: false
-    });
-  }
+  state = {
+    activeItem: "FichePatient",
+    npatients: 0,
+    praticien: "",
+    patient: {},
+    age: {},
+    saved: true,
+    errorOnSave: false,
+    modalDelete: false,
+    patientSearchModal: false,
+    idActe: null,
+    acteCopy: false
+  };
 
   componentDidMount() {
     this.reload();
@@ -548,7 +546,11 @@ export default class ProfilsPatients extends React.Component {
             client={this.props.client}
             idPatient={patient.id ? patient.id : 0}
             onReedition={idActe => {
-              this.setState({ activeItem: "SaisieActes", idActe: idActe, acteCopy: false });
+              this.setState({
+                activeItem: "SaisieActes",
+                idActe: idActe,
+                acteCopy: false
+              });
             }}
             onCopy={idActe => {
               this.setState({

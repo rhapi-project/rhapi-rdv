@@ -119,19 +119,22 @@ export default class FichePatient extends React.Component {
     }
   ];
 
-  componentWillMount() {
-    this.setState({ activeIndex: 0, rdvPassCard: false });
-  }
+  state = {
+    activeIndex: 0,
+    rdvPassCard: false
+  };
 
-  componentWillReceiveProps(next) {
-    this.setState({
-      patient: { ...next.patient },
-      saved: true,
-      naissanceDate: moment(next.patient.naissance),
-      //naissanceFocused: false,
-      modalPassword: false,
-      newPassword: ""
-    });
+  static getDerivedStateFromProps(props, state) {
+    if (props.patient !== state.patient) {
+      return {
+        patient: { ...props.patient },
+        saved: true,
+        naissanceDate: moment(props.patient.naissance),
+        modalPassword: false,
+        newPassword: ""
+      };
+    }
+    return null;
   }
 
   /*civilite = short => {

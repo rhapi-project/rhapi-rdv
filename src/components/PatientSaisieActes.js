@@ -39,9 +39,10 @@ export default class PatientSaisieActes extends React.Component {
             typeActe: result.code,
             //messageTitle: result.code === "#FSE" ? result.description : "Plan de traitement",
             messageTitle: result.description,
-            messageContent: result.code === "#FSE"
-              ? "Duplicata d'une feuille de soins"
-              : "Modification d'une série d'actes",
+            messageContent:
+              result.code === "#FSE"
+                ? "Duplicata d'une feuille de soins"
+                : "Modification d'une série d'actes",
             messageColor: result.code === "#DEVIS" ? "warning" : ""
           });
         },
@@ -110,9 +111,10 @@ export default class PatientSaisieActes extends React.Component {
                     ? r.description
                     : "Plan de traitement",*/
                   messageTitle: r.description,
-                  messageContent: r.code === "#FSE"
-                    ? "Nouvelle feuille de soins"
-                    : "Nouvelle série d'actes",
+                  messageContent:
+                    r.code === "#FSE"
+                      ? "Nouvelle feuille de soins"
+                      : "Nouvelle série d'actes",
                   messageColor: r.code === "#DEVIS" ? "info" : "",
                   typeActe: r.code
                 });
@@ -278,7 +280,8 @@ export default class PatientSaisieActes extends React.Component {
           {
             etat: 0,
             doneAt: new Date().toISOString(),
-            description: result.code === "#FSE" ? result.description : this.state.acteTitre
+            description:
+              result.code === "#FSE" ? result.description : this.state.acteTitre
             // **************************************************************************
             // la description sera fournie par le module de télétransmission LambdaVitale
             // **************************************************************************
@@ -305,9 +308,7 @@ export default class PatientSaisieActes extends React.Component {
       },
       error => {
         this.setState({
-          msgSaveFSE: `Erreur de sauvegarde de l'acte ${
-            this.state.typeActe
-          }! Lecture de cette acte impossible`,
+          msgSaveFSE: `Erreur de sauvegarde de l'acte ${this.state.typeActe}! Lecture de cette acte impossible`,
           acteTitre: "",
           modalChangeActeTitre: false
         });
@@ -372,12 +373,8 @@ export default class PatientSaisieActes extends React.Component {
                 warning={this.state.messageColor === "warning"}
                 info={this.state.messageColor === "info"}
               >
-                <Message.Header>
-                  {this.state.messageTitle}
-                </Message.Header>
-                <Message.Content>
-                  {this.state.messageContent}
-                </Message.Content>
+                <Message.Header>{this.state.messageTitle}</Message.Header>
+                <Message.Content>{this.state.messageContent}</Message.Content>
               </Message>
               <div
                 style={{

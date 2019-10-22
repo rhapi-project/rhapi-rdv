@@ -14,19 +14,22 @@ import {
 import _ from "lodash";
 
 export default class ImageReader extends React.Component {
-  componentWillMount() {
-    this.setState({
-      open: false,
-      errorPhoto: false,
-      image: this.props.image,
-      photoPreview: false
-    });
+  state = {
+    open: false,
+    errorPhoto: false,
+    image: null,
+    photoPreview: false
+  };
+
+  componentDidMount() {
+    this.setState({ image: this.props.image });
   }
 
-  componentWillReceiveProps(next) {
-    this.setState({
-      image: next.image
-    });
+  static getDerivedStateFromProps(props, state) {
+    if (props.image !== state.image) {
+      return { image: props.image };
+    }
+    return null;
   }
 
   base64Photo = (e, d) => {

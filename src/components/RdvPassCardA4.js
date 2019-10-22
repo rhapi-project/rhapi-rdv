@@ -39,12 +39,14 @@ export default class RdvPassCardA4 extends React.Component {
     print: false
   };
 
-  componentWillMount() {
+  componentDidMount() {
     this.loadPlanningsId(this.props.mesPlannings);
   }
 
-  componentWillReceiveProps() {
-    this.loadPlanningsId(this.props.mesPlannings);
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.mesPlannings !== this.props.mesPlannings) {
+      this.loadPlanningsId(this.props.mesPlannings);
+    }
   }
 
   /**
@@ -148,7 +150,8 @@ export default class RdvPassCardA4 extends React.Component {
                   </Grid.Column>
                   <Grid.Column width={4}>
                     <Ref
-                      innerRef={node => node.firstChild.parentElement.focus()}
+                      innerRef={node => {}}
+                      //innerRef={node => node.firstChild.parentElement.focus()}
                     >
                       <Button
                         primary={true}
@@ -306,18 +309,16 @@ class Preview extends React.Component {
     }
   };
 
-  componentWillMount() {
+  componentDidMount() {
     this.reload(this.props.dateRef);
   }
 
-  componentWillReceiveProps(next) {
-    if (this.props.dateRef !== next.dateRef) {
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.dateRef !== this.props.dateRef) {
       // si la date est modifiée, on recharge mesRdv
-      this.reload(next.dateRef);
-    } else {
-      if (next.print) {
-        this.print();
-      }
+      this.reload(this.props.dateRef);
+    } else if (this.props.print && prevProps.print !== this.props.print) {
+      this.print();
     }
   }
 

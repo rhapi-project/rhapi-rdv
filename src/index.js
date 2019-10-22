@@ -55,7 +55,7 @@ class Main extends React.Component {
         this.setState({}); // rerender (auto login)
       });
     }
-  };
+  }
 
   render() {
     let sidebar = "";

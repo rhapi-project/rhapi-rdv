@@ -11,13 +11,7 @@ import { Periode } from "./Conges";
 import moment from "moment";
 
 export default class Recurrents extends React.Component {
-  componentWillMount() {
-    this.setState({ index: -1 });
-  }
-
-  componentWillReceiveProps(next) {
-    this.setState({});
-  }
+  state = { index: -1 };
 
   supprimer = i => {
     this.props.recurrents.splice(i, 1);

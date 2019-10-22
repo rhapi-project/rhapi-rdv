@@ -34,17 +34,13 @@ export default class PatientHistorique extends React.Component {
             acteEdition: idActe
           });
         } else {
-          this.props.client.Actes.read(
-            result.idDocument,
-            {},
-            res => {
-              this.setState({
-                acteCorrespondante: true,
-                fse: res,
-                acteEdition: res.id
-              });
-            }
-          );
+          this.props.client.Actes.read(result.idDocument, {}, res => {
+            this.setState({
+              acteCorrespondante: true,
+              fse: res,
+              acteEdition: res.id
+            });
+          });
         }
       },
       error => {
@@ -129,7 +125,9 @@ export default class PatientHistorique extends React.Component {
                       });
                     }}
                   >
-                    <Button.Content visible={true}><Icon name="sticky note outline" /></Button.Content>
+                    <Button.Content visible={true}>
+                      <Icon name="sticky note outline" />
+                    </Button.Content>
                     <Button.Content hidden={true}>Note</Button.Content>
                   </Button>
                   <Button
@@ -141,10 +139,12 @@ export default class PatientHistorique extends React.Component {
                         idNoteTodo: 0,
                         typeNoteTodo: "todo",
                         openNoteTodo: true
-                      })
+                      });
                     }}
                   >
-                    <Button.Content visible={true}><Icon name="list" /></Button.Content>
+                    <Button.Content visible={true}>
+                      <Icon name="list" />
+                    </Button.Content>
                     <Button.Content hidden={true}>Todo</Button.Content>
                   </Button>
                 </span>
@@ -189,7 +189,7 @@ export default class PatientHistorique extends React.Component {
                 });
               }}
               onCloseNoteTodo={() => {
-                this.setState({ 
+                this.setState({
                   openNoteTodo: false,
                   typeNoteTodo: ""
                 });
@@ -212,14 +212,13 @@ export default class PatientHistorique extends React.Component {
                 : null}
             </Modal.Header>
             <Modal.Content>
-              {this.state.acteCorrespondante
-                ? <Message>
-                    <Message.Content>
-                      FSE correspondante à cet acte
-                    </Message.Content>
-                  </Message>
-                : null
-              }
+              {this.state.acteCorrespondante ? (
+                <Message>
+                  <Message.Content>
+                    FSE correspondante à cet acte
+                  </Message.Content>
+                </Message>
+              ) : null}
               <Button
                 fluid={true}
                 content={
@@ -252,14 +251,17 @@ export default class PatientHistorique extends React.Component {
               <Button
                 content="Annuler"
                 onClick={() =>
-                  this.setState({ acteEdition: null, acteCorrespondante: false })
+                  this.setState({
+                    acteEdition: null,
+                    acteCorrespondante: false
+                  })
                 }
               />
             </Modal.Actions>
           </Modal>
 
           {/* Grille des localisations */}
-          <Shared.Localisations 
+          <Shared.Localisations
             localisation={this.state.localisation}
             onSelection={localisation => {
               this.setState({ localisation: localisation });
@@ -267,7 +269,9 @@ export default class PatientHistorique extends React.Component {
             modal={{
               size: "large",
               open: this.state.openLocalisations,
-              onClose: () => {this.setState({ openLocalisations: false })}
+              onClose: () => {
+                this.setState({ openLocalisations: false });
+              }
             }}
           />
         </React.Fragment>
