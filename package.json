@@ -24,7 +24,7 @@
     "react-dom": "^16.10.2",
     "react-iframe": "^1.1.0",
     "react-moment-proptypes": "^1.6.0",
-    "react-simple-timefield": "^2.0.0",
+    "react-simple-timefield": "^3.0.0",
     "rhapi-client": "^1.0.14",
     "rhapi-ui-react": "^0.1.7",
     "semantic-ui-css": "^2.4.1",
