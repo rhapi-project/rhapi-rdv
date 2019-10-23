@@ -35,21 +35,26 @@ export default class SmsHistory extends React.Component {
     { text: "Trier par n° de téléphone", value: "tel" }
   ];
 
-  componentWillMount() {
-    this.setState({
-      loading: true,
-      mois: moment().month(),
-      currentYear: moment().year(),
-      years: this.years(5), // select année
-      allMonths: this.allMonths(), // select mois (les mois sont indicés à partir de 0)
-      messages: [],
-      sortBy: "date",
-      openedMessage: -1
-    });
-  }
+  state = {
+    loading: true,
+    mois: moment().month(),
+    currentYear: moment().year(),
+    years: [],
+    allMonths: [],
+    messages: [],
+    sortBy: "date",
+    openedMessage: -1
+  };
 
-  componentWillReceiveProps(next) {
-    if (next.sms) {
+  componentDidMount() {
+    this.setState({
+      years: this.years(5), // select année
+      allMonths: this.allMonths() // select mois (les mois sont indicés à partir de 0)
+    });
+  };
+
+  commponentDidUpdate(prevProps, prevState) {
+    if (this.props.sms && (prevProps.sms !== this.props.sms)) {
       // charger uniquement les SMS du mois en cours
       let fromStr = this.formatYearMonth(
         this.state.currentYear,

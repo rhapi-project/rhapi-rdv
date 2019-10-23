@@ -44,6 +44,72 @@ export default class Praticiens extends React.Component {
     errorMessage: ""
   };
 
+  /*componentWillMount() {
+    console.log("willmount");
+    let parts = window.location.hash.split("/");
+    if (parts.length === 2) {
+      parts = parts[1].split("?");
+      if (parts.length === 2) {
+        parts = parts[1].split("&");
+        let params = {};
+        _.forEach(parts, part => {
+          let kv = part.split("=");
+          if (kv.length === 2) {
+            params[kv[0]] = kv[1];
+          }
+        });
+        if (!_.isUndefined(params.user) && !_.isUndefined(params.password)) {
+          console.log("willmount gonne set state");
+          this.setState({
+            user: params.user,
+            password: params.password,
+            autoLog: true
+          });
+        }
+      }
+    }
+  }*/
+
+  componentDidMount() {
+    let parts = window.location.hash.split("/");
+    if (parts.length === 2) {
+      parts = parts[1].split("?");
+      if (parts.length === 2) {
+        parts = parts[1].split("&");
+        let params = {};
+        _.forEach(parts, part => {
+          let kv = part.split("=");
+          if (kv.length === 2) {
+            params[kv[0]] = kv[1];
+          }
+        });
+        if (!_.isUndefined(params.user) && !_.isUndefined(params.password)) {
+          this.setState({
+            user: params.user,
+            password: params.password,
+            autoLog: true
+          });
+        }
+      }
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.autoLog && (prevState.autoLog !== this.state.autoLog)) {
+      // auto login
+      this.accept();
+    }
+  };
+
+  /*componentDidMount() {
+    console.log("did mount");
+    if (this.state.autoLog) {
+      console.log("did mount gonna accept");
+      // auto login
+      this.accept();
+    }
+  }*/
+
   accept = () => {
     if (localdev) {
       this.setState({ validation: "success", errorMessage: "" });
@@ -81,37 +147,6 @@ export default class Praticiens extends React.Component {
     });
     client = new Client();
   };
-
-  UNSAFE_componentWillMount() {
-    let parts = window.location.hash.split("/");
-    if (parts.length === 2) {
-      parts = parts[1].split("?");
-      if (parts.length === 2) {
-        parts = parts[1].split("&");
-        let params = {};
-        _.forEach(parts, part => {
-          let kv = part.split("=");
-          if (kv.length === 2) {
-            params[kv[0]] = kv[1];
-          }
-        });
-        if (!_.isUndefined(params.user) && !_.isUndefined(params.password)) {
-          this.setState({
-            user: params.user,
-            password: params.password,
-            autoLog: true
-          });
-        }
-      }
-    }
-  }
-
-  componentDidMount() {
-    if (this.state.autoLog) {
-      // auto login
-      this.accept();
-    }
-  }
 
   /*
   componentDidUpdate() {

@@ -51,9 +51,11 @@ const defaultProfil = {
 };
 
 export default class Profil extends React.Component {
-  componentWillMount() {
-    this.setState({ saved: true, passwordConfirm: "", ...defaultProfil });
-  }
+  state = {
+    saved: true,
+    passwordConfirm: "",
+    ...defaultProfil
+  };
 
   componentDidMount() {
     this.reload();
@@ -206,21 +208,20 @@ export default class Profil extends React.Component {
   };
 
   render() {
-    //console.log(this.state);
+    let welcomeMsg = (
+      <Message>
+          <Message.Header>{"Bienvenue " + this.state.userName}</Message.Header>
+          <p>
+            Votre profil utilisateur ( <sup style={{ color: "red" }}><b>*</b></sup>données obligatoires)
+          </p>
+        </Message>
+    );
+
     return (
       <div id="profil" className={window.qWebChannel ? "qwebchannel" : ""}>
         {window.qWebChannel ? "" : <Header size={hsize}>Profil</Header>}
         {this.state.saved ? (
-          <Message
-            header={"Bienvenue " + this.state.userName}
-            content=<p>
-              Votre profil utilisateur ({" "}
-              <sup style={{ color: "red" }}>
-                <b>*</b>
-              </sup>
-              données obligatoires)
-            </p>
-          />
+          welcomeMsg
         ) : (
           <Message
             warning={true}
