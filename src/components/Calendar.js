@@ -19,18 +19,6 @@ var currentDate = moment();
 var currentView = "agendaWeek";
 
 export default class Calendar extends React.Component {
-  /*constructor(props) {
-    super(props);
-    this.rhapiMd5 = "";
-    this.rhapiCache = [];
-    this.state = {
-      modalRdvIsOpen: false,
-      eventToEdit: {},
-      start: null,
-      end: null
-    };
-  }*/
-
   rhapiMd5 = "";
   rhapiCache = [];
   state = {

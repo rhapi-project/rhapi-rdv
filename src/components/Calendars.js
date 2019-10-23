@@ -5,6 +5,7 @@ import React from "react";
 import { Dropdown, Button, Divider, Popup } from "semantic-ui-react";
 
 import Calendar from "./Calendar";
+import CalendarFullCalendarReact from "./CalendarFullCalendarReact";
 
 import CalendarPanel from "./CalendarPanel";
 
@@ -147,6 +148,26 @@ export default class Calendars extends React.Component {
       />
     );
 
+    let fullcalendar = (
+      <CalendarFullCalendarReact
+        client={this.props.client}
+        /*couleur={
+          this.state.index < 0
+            ? ""
+            : this.state.plannings[this.state.index].couleur
+        }*/
+        /*options={
+          this.state.index < 0
+            ? {}
+            : this.state.plannings[this.state.index].optionsJO
+        }*/
+      />
+    );
+
+    //let c = this.state.index < 0 ? {} : this.state.plannings[this.state.index].optionsJO
+    //console.log(c);
+    //console.log(this.state.externalRefetch);
+
     if (this.state.print) {
       return calendar;
     }
@@ -288,7 +309,10 @@ export default class Calendars extends React.Component {
           ) : (
             ""
           )}
-          {this.state.index < 0 ? "" : calendar}
+          {/*this.state.index < 0 ? "" : calendar*/}
+
+          {/* New React Full Calendar */}
+          { this.state.index < 0 ? "" : fullcalendar}
         </div>
       </React.Fragment>
     );
