@@ -151,19 +151,24 @@ export default class Calendars extends React.Component {
     let fullcalendar = (
       <CalendarFullCalendarReact
         client={this.props.client}
-        /*couleur={
+        couleur={
           this.state.index < 0
             ? ""
             : this.state.plannings[this.state.index].couleur
-        }*/
-        /*options={
+        }
+        planning={
+          this.state.index < 0 ? "0" : this.state.plannings[this.state.index].id
+        }
+        options={
           this.state.index < 0
             ? {}
             : this.state.plannings[this.state.index].optionsJO
-        }*/
+        }
       />
     );
 
+    //let p = this.state.index < 0 ? "0" : this.state.plannings[this.state.index].id;
+    //console.log(p);
     //let c = this.state.index < 0 ? {} : this.state.plannings[this.state.index].optionsJO
     //console.log(c);
     //console.log(this.state.externalRefetch);
