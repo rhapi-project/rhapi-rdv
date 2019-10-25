@@ -95,11 +95,11 @@ export default class Praticiens extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.state.autoLog && (prevState.autoLog !== this.state.autoLog)) {
+    if (this.state.autoLog && prevState.autoLog !== this.state.autoLog) {
       // auto login
       this.accept();
     }
-  };
+  }
 
   /*componentDidMount() {
     console.log("did mount");

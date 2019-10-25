@@ -51,10 +51,10 @@ export default class SmsHistory extends React.Component {
       years: this.years(5), // select année
       allMonths: this.allMonths() // select mois (les mois sont indicés à partir de 0)
     });
-  };
+  }
 
   commponentDidUpdate(prevProps, prevState) {
-    if (this.props.sms && (prevProps.sms !== this.props.sms)) {
+    if (this.props.sms && prevProps.sms !== this.props.sms) {
       // charger uniquement les SMS du mois en cours
       let fromStr = this.formatYearMonth(
         this.state.currentYear,

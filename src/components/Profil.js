@@ -210,11 +210,15 @@ export default class Profil extends React.Component {
   render() {
     let welcomeMsg = (
       <Message>
-          <Message.Header>{"Bienvenue " + this.state.userName}</Message.Header>
-          <p>
-            Votre profil utilisateur ( <sup style={{ color: "red" }}><b>*</b></sup>données obligatoires)
-          </p>
-        </Message>
+        <Message.Header>{"Bienvenue " + this.state.userName}</Message.Header>
+        <p>
+          Votre profil utilisateur ({" "}
+          <sup style={{ color: "red" }}>
+            <b>*</b>
+          </sup>
+          données obligatoires)
+        </p>
+      </Message>
     );
 
     return (
