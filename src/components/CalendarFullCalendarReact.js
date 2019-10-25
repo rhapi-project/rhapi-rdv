@@ -14,6 +14,8 @@ import "@fullcalendar/timegrid/main.css";
 import moment from "moment";
 import _ from "lodash";
 
+import CalendarModalRdv from "./CalendarModalRdv";
+
 import { rdvEtats } from "./Settings";
 
 const calendarDefaultView = "timeGridWeek";
@@ -21,36 +23,40 @@ const defaultDate = moment();
 
 export default class CalendarFullCalendarReact extends React.Component {
   fullCalendar = React.createRef();
+  refetchInterval = null;
+
   rhapiMd5 = "";
-  rhapiCache = [];
+  //rhapiCache = [];
   state = {
     hiddenDays: [],
     businessHours: [],
     minTime: "08:30",
     maxTime: "20:00",
-    //start: null,
-    //end: null,
     slotDuration: { minutes: 15 },
-    defaultTimedEventDuration: { minutes: 30 }
+    defaultTimedEventDuration: { minutes: 30 },
+    openModalRdv: false,
+    eventToEdit: {},
+    selectStart: null,
+    selectEnd: null
   };
 
   componentDidMount() {
-    //console.log("did mount");
     this.reload();
-    // Mise à jour des événements tous les 15 secondes
-    //setInterval(this.fullCalendar.events, 15000);
-    this.intervalId = setInterval(() => {
-      //let f = this.fullCalendar.current.props.events;
-      //console.log(f);
-    }, 3000);
-  };
+    // recharger les Events tous les 15 secondes
+    this.refetchInterval = setInterval(this.refetchEvents, 5000);
+  }
 
-  componentDidUpdate(prevProps, prevState) {
-    //console.log("did update");
-  };
+  /*static getDerivedStateFromProps(props, state) {
+    
+    return null;
+  };*/
+
+  /*componentDidUpdate(prevProps, prevState) {
+
+  };*/
 
   componentWillUnmount() {
-    clearInterval(this.intervalId, 15000);
+    clearInterval(this.refetchInterval);
   }
 
   reload = () => {
@@ -61,8 +67,12 @@ export default class CalendarFullCalendarReact extends React.Component {
     let minTime = this.state.minTime;
     let maxTime = this.state.maxTime;
     let plages = this.props.options.plages;
-    //console.log(plages);
-    if (!_.isUndefined(plages) && !_.isUndefined(plages.horaires) && (plages.horaires.length === 7)) {
+
+    if (
+      !_.isUndefined(plages) &&
+      !_.isUndefined(plages.horaires) &&
+      plages.horaires.length === 7
+    ) {
       duree = _.isNumber(plages.duree) ? plages.duree : 30;
       dureeMin = _.isNumber(plages.dureeMin) ? plages.dureeMin : 15;
       let minT = "23:59";
@@ -87,18 +97,14 @@ export default class CalendarFullCalendarReact extends React.Component {
         // début/fin arrondis à l'heure précédente/suivante
         minTime = moment(minT, "HH:mm")
           .subtract(
-            _.isUndefined(plages.margeDebut)
-              ? 60
-              : plages.margeDebut,
+            _.isUndefined(plages.margeDebut) ? 60 : plages.margeDebut,
             "minutes"
           )
           .minutes(0)
           .format("HH:mm");
         maxTime = moment(maxT, "HH:mm")
           .add(
-            _.isUndefined(plages.margeDebut)
-              ? 60
-              : plages.margeDebut,
+            _.isUndefined(plages.margeDebut) ? 60 : plages.margeDebut,
             "minutes"
           )
           .minutes(0)
@@ -114,7 +120,7 @@ export default class CalendarFullCalendarReact extends React.Component {
     calendarSlotHeight = _.isNull(calendarSlotHeight)
       ? 20
       : 0 + calendarSlotHeight;
-    
+
     if (calendarSlotHeight < 17) {
       calendarSlotHeight = 17;
     }
@@ -130,7 +136,6 @@ export default class CalendarFullCalendarReact extends React.Component {
   };
 
   fetchEvents = (fetchInfo, success, failure) => {
-    //console.log("fetch");
     if (_.isUndefined(this.props.planning) || this.props.planning <= 0) {
       success([]);
     } else {
@@ -162,8 +167,6 @@ export default class CalendarFullCalendarReact extends React.Component {
         params,
         result => {
           //that.rhapiMd5 = datas.informations.md5;
-          //console.log("success");
-          //console.log(result);
 
           // jours fériés légaux affichés comme des congés
           if (
@@ -191,7 +194,9 @@ export default class CalendarFullCalendarReact extends React.Component {
               color: recurrent.couleur,
               title: recurrent.titre,
               editable: false,
-              rendering: recurrent.background ? "background" : "inverse-background"
+              rendering: recurrent.background
+                ? "background"
+                : "inverse-background"
             });
           });
 
@@ -206,11 +211,11 @@ export default class CalendarFullCalendarReact extends React.Component {
             let couleur = _.isEmpty(data.couleur)
               ? motifIndex >= 0
                 ? options.reservation.motifs[motifIndex].couleur
-                : this.props.color
+                : this.props.couleur
               : data.couleur;
 
             if (_.isUndefined(couleur)) {
-              couleur = this.props.color;
+              couleur = this.props.couleur;
             }
 
             let etat = rdvEtats[data.idEtat];
@@ -252,30 +257,86 @@ export default class CalendarFullCalendarReact extends React.Component {
     }
   };
 
+  refetchEvents = () => {
+    this.fullCalendar.current.getApi().refetchEvents();
+  };
+
+  handleEventDrop = event => {
+    if (!event.event.end) {
+      this.refetchEvents();
+      return;
+    }
+
+    if (
+      this.props.options.reservation.confirmationDragAndDrop &&
+      !window.confirm("Vous confirmez le déplacement de ce RDV ?")
+    ) {
+      this.refetchEvents();
+      return;
+    }
+
+    let params = {
+      startAt: event.event.start.toISOString(),
+      endAt: event.event.end.toISOString()
+    };
+    this.props.client.RendezVous.update(
+      event.event.id,
+      params,
+      result => {
+        this.refetchEvents();
+      },
+      error => {}
+    );
+  };
+
+  handleEventResize = event => {
+    if (
+      this.props.options.reservation.confirmationDragAndDrop &&
+      !window.confirm("Vous confirmez la modification de la durée de ce RDV ?")
+    ) {
+      this.refetchEvents();
+      return;
+    }
+    let params = {
+      startAt: event.event.start.toISOString(),
+      endAt: event.event.end.toISOString()
+    };
+    this.props.client.RendezVous.update(
+      event.event.id,
+      params,
+      result => {
+        this.refetchEvents();
+      },
+      error => {}
+    );
+  };
+
+  handleZoneSelect = event => {
+    if (event.allDay) {
+      return;
+    }
+    this.setState({
+      openModalRdv: true,
+      eventToEdit: {},
+      selectStart: event.start, // TODO : vérifier l'authenticité de l'heure
+      selectEnd: event.end // TODO : vérifier l'authenticité de l'heure
+    });
+  };
+
   render() {
-    //console.log();
-    return(
+    return (
       <React.Fragment>
         <FullCalendar
           ref={this.fullCalendar}
           defaultView={calendarDefaultView}
           defaultDate={defaultDate.toDate()}
-          plugins={[ dayGridPlugin, timeGridPlugin, interactionPlugin ]}
+          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
           header={{
             left: "prev,next today",
             center: "title",
             right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek"
           }}
           locale={frLocale}
-          /*events={[
-            { 
-              title: "Paulin",
-              start: "2019-10-23T13:00:00",
-              end: "2019-10-23T14:00:00",
-              color: "black"
-            }
-          ]}*/
-          //events={this.state.events}
           height="auto"
           //aspectRatio={1.9}
           allDaySlot={true}
@@ -290,9 +351,52 @@ export default class CalendarFullCalendarReact extends React.Component {
           slotDuration={this.state.slotDuration}
           defaultTimedEventDuration={this.state.defaultTimedEventDuration}
           slotLabelInterval="01:00"
-          slotLabelFormat={{ hour: "2-digit", minute: "2-digit", omitZeroMinute: false, meridiem: "short" }}
-          //dayRender={} // c'est un callback
-          events={(fetchInfo, success, failure) => this.fetchEvents(fetchInfo, success, failure)}
+          slotLabelFormat={{
+            hour: "2-digit",
+            minute: "2-digit",
+            omitZeroMinute: false,
+            meridiem: "short"
+          }}
+          events={(fetchInfo, success, failure) =>
+            this.fetchEvents(fetchInfo, success, failure)
+          }
+          eventClick={event =>
+            this.setState({ openModalRdv: true, eventToEdit: event })
+          }
+          dateClick={date => {
+            // TODO : vérifier que la date/heure en argument correspond bien à la zone cliqué
+            if (date.allDay) {
+              return;
+            }
+            this.setState({
+              openModalRdv: true,
+              eventToEdit: {},
+              selectStart: moment(date.date),
+              selectEnd: moment(date.date).add(
+                this.state.slotDuration,
+                "minutes"
+              )
+            });
+          }}
+          eventDrop={event => this.handleEventDrop(event)}
+          eventResize={event => this.handleEventResize(event)}
+          select={event => this.handleZoneSelect(event)}
+        />
+
+        <CalendarModalRdv
+          open={this.state.openModalRdv}
+          close={() => this.setState({ openModalRdv: false })}
+          event={
+            _.isEmpty(this.state.eventToEdit)
+              ? {}
+              : this.state.eventToEdit.event
+          }
+          selectStart={this.state.selectStart}
+          selectEnd={this.state.selectEnd}
+          client={this.props.client}
+          planning={this.props.planning}
+          options={this.props.options}
+          denominationFormat={this.props.options.reservation.denominationFormat}
         />
       </React.Fragment>
     );

@@ -536,6 +536,8 @@ export default class Calendar extends React.Component {
   } // componentDidUpdate ends here
 
   render() {
+    console.log(this.state.selectStart);
+    console.log(this.state.selectEnd);
     return (
       <React.Fragment>
         <div id="calendar" />

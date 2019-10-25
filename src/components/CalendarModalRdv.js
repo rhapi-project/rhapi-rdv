@@ -130,16 +130,12 @@ export default class CalendarModalRdv extends React.Component {
     }
     if (this.state === prevState) {
       let d = _.get(this.props, "options.plages.dureeMin", 0);
-      let s = _.get(
-        this.props,
-        "selectStart",
-        _.get(this.props, "event.start", moment())
-      );
-      let e = _.get(
-        this.props,
-        "selectEnd",
-        _.get(this.props, "event.end", moment())
-      );
+      let s = _.isNull(this.props.selectStart)
+        ? moment(this.props.event.start)
+        : moment(this.props.selectStart);
+      let e = _.isNull(this.props.selectEnd)
+        ? moment(this.props.event.end)
+        : moment(this.props.selectEnd);
       let d2 = e.diff(s) / 60000;
       let dureeDefaut = d === d2;
       this.setState({
@@ -336,6 +332,7 @@ export default class CalendarModalRdv extends React.Component {
   };
 
   reload = next => {
+    //console.log(next);
     const event = next.event;
 
     const isNewOne = _.isUndefined(event.title);
@@ -396,10 +393,10 @@ export default class CalendarModalRdv extends React.Component {
         rdv.startAt = event.startAt;
         rdv.endAt = event.endAt;
       } else {
-        rdv.startAt = _.isUndefined(next.selectStart)
+        rdv.startAt = _.isNull(next.selectStart)
           ? ""
           : next.selectStart.toISOString();
-        rdv.endAt = _.isUndefined(next.selectEnd)
+        rdv.endAt = _.isNull(next.selectEnd)
           ? rdv.startAt
           : next.selectEnd.toISOString();
       }

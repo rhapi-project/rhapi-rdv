@@ -164,6 +164,7 @@ export default class Calendars extends React.Component {
             ? {}
             : this.state.plannings[this.state.index].optionsJO
         }
+        //externalRefetch={this.state.externalRefetch}
       />
     );
 
@@ -195,8 +196,6 @@ export default class Calendars extends React.Component {
     /*if (this.state.hidePanel) {
       panelStyle["display"] = "none";
     }*/
-
-    //console.log(this.state.plannings[this.state.index]);
     return (
       <React.Fragment>
         {!this.state.hidePanel ? (
@@ -276,9 +275,9 @@ export default class Calendars extends React.Component {
                   ? {}
                   : this.state.plannings[this.state.index].optionsJO
               }
-              handleExternalRefetch={externalRefetch =>
-                this.setState({ externalRefetch: externalRefetch })
-              }
+              handleExternalRefetch={externalRefetch => {
+                this.setState({ externalRefetch: externalRefetch });
+              }}
               todayClicked={this.state.todayClicked}
             />
           </div>
@@ -317,7 +316,7 @@ export default class Calendars extends React.Component {
           {/*this.state.index < 0 ? "" : calendar*/}
 
           {/* New React Full Calendar */}
-          { this.state.index < 0 ? "" : fullcalendar}
+          {this.state.index < 0 ? "" : fullcalendar}
         </div>
       </React.Fragment>
     );
