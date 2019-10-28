@@ -113,6 +113,9 @@ export default class CalendarModalRdv extends React.Component {
   //plannings = [];
 
   state = {
+    image: "",
+    accordionIndex: -1,
+    accordionIndex2: -1,
     rdvPassCard: false,
     deleteRdv: false,
     dateRdvFocused: false,
@@ -130,10 +133,10 @@ export default class CalendarModalRdv extends React.Component {
     }
     if (this.state === prevState) {
       let d = _.get(this.props, "options.plages.dureeMin", 0);
-      let s = _.isNull(this.props.selectStart)
+      let s = !this.props.selectStart
         ? moment(this.props.event.start)
         : moment(this.props.selectStart);
-      let e = _.isNull(this.props.selectEnd)
+      let e = !this.props.selectEnd
         ? moment(this.props.event.end)
         : moment(this.props.selectEnd);
       let d2 = e.diff(s) / 60000;
@@ -393,12 +396,12 @@ export default class CalendarModalRdv extends React.Component {
         rdv.startAt = event.startAt;
         rdv.endAt = event.endAt;
       } else {
-        rdv.startAt = _.isNull(next.selectStart)
+        rdv.startAt = !next.selectStart
           ? ""
-          : next.selectStart.toISOString();
-        rdv.endAt = _.isNull(next.selectEnd)
+          : next.selectStart.toISOString(true); // true : maintain the local timezone
+        rdv.endAt = !next.selectEnd
           ? rdv.startAt
-          : next.selectEnd.toISOString();
+          : next.selectEnd.toISOString(true);
       }
     } else {
       // (re)lire le rdv depuis le client

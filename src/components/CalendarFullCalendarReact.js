@@ -26,7 +26,7 @@ export default class CalendarFullCalendarReact extends React.Component {
   refetchInterval = null;
 
   rhapiMd5 = "";
-  //rhapiCache = [];
+  rhapiCache = [];
   state = {
     hiddenDays: [],
     businessHours: [],
@@ -44,20 +44,21 @@ export default class CalendarFullCalendarReact extends React.Component {
     this.reload();
     // recharger les Events tous les 15 secondes
     this.refetchInterval = setInterval(this.refetchEvents, 5000);
-  }
+  };
 
-  /*static getDerivedStateFromProps(props, state) {
-    
-    return null;
-  };*/
-
-  /*componentDidUpdate(prevProps, prevState) {
-
-  };*/
+  componentDidUpdate(prevProps, prevState) {
+    //console.log(this.props.planning);
+    if (this.props.planning !== prevProps.planning) {
+      this.reload();
+    }
+    if (this.props.currentDate !== prevProps.currentDate) {
+      this.fullCalendar.current.getApi().gotoDate(this.props.currentDate.toDate());
+    }
+  };
 
   componentWillUnmount() {
     clearInterval(this.refetchInterval);
-  }
+  };
 
   reload = () => {
     let hiddenDays = [];
@@ -142,7 +143,7 @@ export default class CalendarFullCalendarReact extends React.Component {
       let params = {
         from: fetchInfo.startStr,
         to: fetchInfo.endStr,
-        /*md5: that.rhapiMd5,*/
+        md5: this.rhapiMd5,
         recurrents: "true",
         planning: this.props.planning
       };
@@ -166,8 +167,7 @@ export default class CalendarFullCalendarReact extends React.Component {
       this.props.client.RendezVous.actualiser(
         params,
         result => {
-          //that.rhapiMd5 = datas.informations.md5;
-
+          this.rhapiMd5 = result.informations.md5;
           // jours fériés légaux affichés comme des congés
           if (
             options.reservation.congesVisibles &&
@@ -239,18 +239,17 @@ export default class CalendarFullCalendarReact extends React.Component {
               color: couleur,
               borderColor: couleurBordure,
               textColor: textColor
-              //...
             };
             events.push(event);
           }
-          //that.rhapiCache = events;
+          this.rhapiCache = events;
           success(events);
         },
         error => {
           //console.log(error);
           if (error.networkError === 304) {
             //console.log("not modified");
-            //callback(that.rhapiCache);
+            success(this.rhapiCache);
           }
         }
       );
@@ -318,9 +317,13 @@ export default class CalendarFullCalendarReact extends React.Component {
     this.setState({
       openModalRdv: true,
       eventToEdit: {},
-      selectStart: event.start, // TODO : vérifier l'authenticité de l'heure
-      selectEnd: event.end // TODO : vérifier l'authenticité de l'heure
+      selectStart: moment(event.start),
+      selectEnd: moment(event.end)
     });
+  };
+
+  handleTodayClick = () => {
+    this.props.onTodayClick();
   };
 
   render() {
@@ -332,9 +335,16 @@ export default class CalendarFullCalendarReact extends React.Component {
           defaultDate={defaultDate.toDate()}
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
           header={{
-            left: "prev,next today",
+            left: "prev,next todayCustom", // utilisation d'un bouton "today" customisé 
+            //left: "prev,next today",
             center: "title",
             right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek"
+          }}
+          customButtons={{
+            todayCustom: {
+              text: "Aujourd'hui",
+              click: this.handleTodayClick
+            }
           }}
           locale={frLocale}
           height="auto"
@@ -363,24 +373,9 @@ export default class CalendarFullCalendarReact extends React.Component {
           eventClick={event =>
             this.setState({ openModalRdv: true, eventToEdit: event })
           }
-          dateClick={date => {
-            // TODO : vérifier que la date/heure en argument correspond bien à la zone cliqué
-            if (date.allDay) {
-              return;
-            }
-            this.setState({
-              openModalRdv: true,
-              eventToEdit: {},
-              selectStart: moment(date.date),
-              selectEnd: moment(date.date).add(
-                this.state.slotDuration,
-                "minutes"
-              )
-            });
-          }}
           eventDrop={event => this.handleEventDrop(event)}
           eventResize={event => this.handleEventResize(event)}
-          select={event => this.handleZoneSelect(event)}
+          select={event => this.handleZoneSelect(event)} // gestion du clic ou selection plage horaire
         />
 
         <CalendarModalRdv

@@ -28,7 +28,6 @@ export default class CalendarPanel extends React.Component {
   rhapiMd5 = "";
 
   state = {
-    currentDate: moment(),
     currentPatient: { id: 0, title: "", rdv: { liste: [], index: -1 } },
     externalEventsDatas: [],
     modalClearExternal: false,
@@ -52,14 +51,6 @@ export default class CalendarPanel extends React.Component {
       //console.log("Je vais reload les 2 fonctions");
       this.reloadExternalEvents(this.props.planning);
       this.onPatientChange(-1, ""); // force reload rdv patient
-    }
-
-    if (this.props.todayClicked) {
-      document.getElementsByClassName("DayPicker-TodayButton")[0].click();
-      if (this.state.currentDate.date() !== moment().date()) {
-        //console.log("Changement de date ...");
-        this.setState({ currentDate: moment() });
-      }
     }
 
     $("#external-events .fc-event").each((i, event) => {
@@ -177,11 +168,6 @@ export default class CalendarPanel extends React.Component {
   componentWillUnmount() {
     clearInterval(this.intervalId);
   }
-
-  onDateChange = date => {
-    this.setState({ currentDate: moment(date) });
-    $("#calendar").fullCalendar("gotoDate", date);
-  };
 
   getPatient = (id, title) => {
     this.props.client.Patients.completion(
@@ -455,9 +441,9 @@ export default class CalendarPanel extends React.Component {
           localeUtils={MomentLocaleUtils}
           fixedWeeks={true}
           showOutsideDays={true}
-          selectedDays={this.state.currentDate.toDate()}
+          selectedDays={this.props.currentDate.toDate()}
           todayButton="Aujourd'hui" // click sur ce bouton au click sur 'Aujourd'hui' de fullcalendar
-          onDayClick={day => this.onDateChange(day)}
+          onDayClick={day => this.props.onDateChange(day)}
         />
         <Divider style={{ marginTop: "0px" }} />
         <Form.Input>

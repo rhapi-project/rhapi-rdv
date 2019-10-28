@@ -4,6 +4,8 @@ import React from "react";
 
 import { Dropdown, Button, Divider, Popup } from "semantic-ui-react";
 
+import moment from "moment";
+
 import Calendar from "./Calendar";
 import CalendarFullCalendarReact from "./CalendarFullCalendarReact";
 
@@ -17,7 +19,8 @@ export default class Calendars extends React.Component {
     plannings: [],
     index: -1,
     print: 0,
-    hidePanel: false
+    hidePanel: false,
+    currentDate: moment()
   };
 
   componentDidMount() {
@@ -27,7 +30,7 @@ export default class Calendars extends React.Component {
       hidePanel: _.isNull(hidePanel) ? false : hidePanel
     });
     // ajust panel & calendar widths
-    window.addEventListener("resize", () => this.setState({}));
+    window.addEventListener("resize", this.onResize);
 
     this.reload();
 
@@ -38,8 +41,13 @@ export default class Calendars extends React.Component {
   isPrinting = false;
 
   componentWillUnmount() {
+    window.removeEventListener("resize", this.onResize);
     document.removeEventListener("keydown", this.handleHiddingPanel); // ne marchera pas avec une fonction anonyme
   }
+
+  onResize = () => {
+    this.setState({});
+  };
 
   afterPrint = () => {
     this.setState({ print: false });
@@ -125,6 +133,7 @@ export default class Calendars extends React.Component {
   };
 
   render() {
+    //console.log(this.state.externalRefetch);
     let calendar = (
       <Calendar
         client={this.props.client}
@@ -151,6 +160,7 @@ export default class Calendars extends React.Component {
     let fullcalendar = (
       <CalendarFullCalendarReact
         client={this.props.client}
+        currentDate={this.state.currentDate}
         couleur={
           this.state.index < 0
             ? ""
@@ -164,6 +174,7 @@ export default class Calendars extends React.Component {
             ? {}
             : this.state.plannings[this.state.index].optionsJO
         }
+        onTodayClick={() => this.setState({ currentDate: moment() })}
         //externalRefetch={this.state.externalRefetch}
       />
     );
@@ -260,6 +271,7 @@ export default class Calendars extends React.Component {
             />
             <CalendarPanel
               client={this.props.client}
+              currentDate={this.state.currentDate} // new
               couleur={
                 this.state.index < 0
                   ? ""
@@ -275,7 +287,11 @@ export default class Calendars extends React.Component {
                   ? {}
                   : this.state.plannings[this.state.index].optionsJO
               }
+              onDateChange={date =>
+                this.setState({ currentDate: moment(date) })
+              } // new
               handleExternalRefetch={externalRefetch => {
+                //console.log(externalRefetch);
                 this.setState({ externalRefetch: externalRefetch });
               }}
               todayClicked={this.state.todayClicked}
