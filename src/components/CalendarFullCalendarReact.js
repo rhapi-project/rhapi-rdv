@@ -37,7 +37,8 @@ export default class CalendarFullCalendarReact extends React.Component {
     openModalRdv: false,
     eventToEdit: {},
     selectStart: null,
-    selectEnd: null
+    selectEnd: null,
+    //calendarSlotHeight: 20
   };
 
   componentDidMount() {
@@ -115,7 +116,7 @@ export default class CalendarFullCalendarReact extends React.Component {
 
     let duration = { minutes: duree };
     let slotDuration = { minutes: dureeMin };
-    let calendarSlotHeight = localStorage.getItem(
+    /*let calendarSlotHeight = localStorage.getItem(
       "calendarSlotHeight_" + this.props.planning
     );
     calendarSlotHeight = _.isNull(calendarSlotHeight)
@@ -124,7 +125,7 @@ export default class CalendarFullCalendarReact extends React.Component {
 
     if (calendarSlotHeight < 17) {
       calendarSlotHeight = 17;
-    }
+    }*/
 
     this.setState({
       hiddenDays: hiddenDays,
@@ -132,7 +133,8 @@ export default class CalendarFullCalendarReact extends React.Component {
       minTime: minTime,
       maxTime: maxTime,
       slotDuration: slotDuration,
-      defaultTimedEventDuration: duration
+      defaultTimedEventDuration: duration,
+      //calendarSlotHeight: calendarSlotHeight
     });
   };
 

@@ -54,7 +54,7 @@ class FromTo extends React.Component {
 
   componentDidMount() {
     this.setState({ hfrom: this.props.hfrom, hto: this.props.hto });
-  }
+  };
 
   static getDerivedStateFromProps(props, state) {
     if (!props.hfrom || !props.hto) {
@@ -67,7 +67,7 @@ class FromTo extends React.Component {
       };
     }
     return null; // nothing to change in the state
-  }
+  };
 
   handleChange = (value, name) => {
     let { hfrom, hto } = this.state;
@@ -129,9 +129,6 @@ export default class CalendarModalRdv extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (this.props.open && this.props.open !== prevProps.open) {
-      this.reload(this.props);
-    }
-    if (this.state === prevState) {
       let d = _.get(this.props, "options.plages.dureeMin", 0);
       let s = !this.props.selectStart
         ? moment(this.props.event.start)
@@ -147,6 +144,7 @@ export default class CalendarModalRdv extends React.Component {
         accordionIndex2: -1,
         dureeDefaut: dureeDefaut
       });
+      this.reload(this.props);
     }
   }
 

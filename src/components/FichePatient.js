@@ -137,26 +137,6 @@ export default class FichePatient extends React.Component {
     return null;
   }
 
-  /*civilite = short => {
-    if (_.isUndefined(this.state.patient.civilite)) {
-      return "";
-    }
-    let civiliteNum = 1 * this.state.patient.civilite;
-    let civiliteStr = "" + this.state.patient.civilite;
-    if (!isNaN(civiliteNum)) {
-      if (civiliteNum < this.civilites.length) {
-        civiliteStr = short
-          ? this.civilites[civiliteNum].shorttext
-          : civiliteNum === 3 // Mademoiselle (obsolète) est géré comme un texte libre (autre)
-            ? this.civilites[civiliteNum].text
-            : "";
-      } else {
-        civiliteStr = "";
-      }
-    }
-    return civiliteStr;
-  };*/
-
   telephoneValide = numero => {
     for (let i = 0; i < telRegex.length; i++) {
       if (telRegex[i].test(numero)) {
@@ -165,22 +145,6 @@ export default class FichePatient extends React.Component {
     }
     return false;
   };
-
-  /*camelDenomination = text => {
-    let result = "";
-    let prev = "";
-    for (let i = 0; i < text.length; i++) {
-      let c = text[i];
-      if (i === 0 || prev === " " || prev === "'" || prev === "-") {
-        c = _.toUpper(c);
-      } else {
-        c = _.toLower(c);
-      }
-      prev = c;
-      result += c;
-    }
-    return result;
-  };*/
 
   conversionDenominationFormat = (champ, value) => {
     if (champ !== "nom" && champ !== "prenom") {
@@ -204,49 +168,6 @@ export default class FichePatient extends React.Component {
       }
     }
   };
-
-  /*affichageDenomination = () => {
-    switch (denominationDefaultFormat) {
-      case "NP":
-        return (
-          _.toUpper(this.state.patient.nom) +
-          " " +
-          _.toUpper(this.state.patient.prenom)
-        );
-      case "Np":
-        return (
-          _.toUpper(this.state.patient.nom) +
-          " " +
-          this.camelDenomination(this.state.patient.prenom)
-        );
-      case "PN":
-        return (
-          _.toUpper(this.state.patient.prenom) +
-          " " +
-          _.toUpper(this.state.patient.nom)
-        );
-      case "pN":
-        return (
-          this.camelDenomination(this.state.patient.prenom) +
-          " " +
-          _.toUpper(this.state.patient.nom)
-        );
-      case "np":
-        return (
-          this.camelDenomination(this.state.patient.nom) +
-          " " +
-          this.camelDenomination(this.state.patient.prenom)
-        );
-      case "pn":
-        return (
-          this.camelDenomination(this.state.patient.prenom) +
-          " " +
-          this.camelDenomination(this.state.patient.nom)
-        );
-      default:
-        return this.state.patient.nom + " " + this.state.patient.prenom;
-    }
-  };*/
 
   handleClickAccordion = (e, i) => {
     if (this.state.activeIndex === i) {

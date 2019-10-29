@@ -671,7 +671,13 @@ export default class RdvPassCardHelp extends React.Component {
           )}
         </Modal.Content>
         <Modal.Actions>
-          <Ref innerRef={node => node.focus()}>
+          <Ref
+            innerRef={node => {
+              if (node && this.props.open) {
+                node.focus();
+              }
+            }}
+          >
             <Button
               primary={true}
               content="Fermer"

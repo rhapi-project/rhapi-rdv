@@ -232,7 +232,6 @@ export default class SmsHistory extends React.Component {
   render() {
     let infos = this.state.informations;
     // {timeElapsed: 2507, totalCredits: 55, totalEnvois: 32, totalSms: 55}
-
     return (
       <React.Fragment>
         <Modal size="small" open={this.props.sms}>

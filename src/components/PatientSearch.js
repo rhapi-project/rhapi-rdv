@@ -12,22 +12,6 @@ export default class PatientSearch extends React.Component {
     results: [],
     value: ""
   };
-  /*componentWillMount() {
-    this.setState({ isLoading: false, results: [], value: "" });
-  }*/
-
-  /*componentWillReceiveProps(next) {
-    if (next.clear) {
-      this.setState({ isLoading: false, results: [], value: "" });
-      ReactDOM.findDOMNode(this)
-        .getElementsByTagName("input")[0]
-        .focus();
-    } else {
-      if (this.props.value) {
-        this.setState({ value: this.props.value ? this.props.value : "" });
-      }
-    }
-  }*/
 
   componentDidMount() {
     if (this.state.value === "") {
@@ -41,16 +25,20 @@ export default class PatientSearch extends React.Component {
     }
   }
 
+  static getDerivedStateFromProps(props, state) {
+    if (props.clear) {
+      return {
+        isLoading: false,
+        results: [],
+        value: ""
+      };
+    }
+    return null;
+  }
+
   componentDidUpdate(prevProps, prevState) {
-    if (prevProps !== this.props) {
-      if (this.props.clear) {
-        this.setState({ isLoading: false, results: [], value: "" });
-        ReactDOM.findDOMNode(this)
-          .getElementsByTagName("input")[0]
-          .focus();
-      } else if (prevProps.value) {
-        this.setState({ value: prevProps.value ? prevProps.value : "" });
-      }
+    if (this.props.clear) {
+      ReactDOM.findDOMNode(this).getElementsByTagName("input")[0].focus();
     }
   }
 

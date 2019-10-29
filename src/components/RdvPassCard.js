@@ -64,7 +64,14 @@ export default class RdvPassCard extends React.Component {
     this.reload();
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  static getDerivedStateFromProps(props, state) {
+    if (props.open && !_.isUndefined(props.saved) && !props.saved) {
+      return { savingModal: true };
+    }
+    return null;
+  }
+
+  /*componentDidUpdate(prevProps, prevState) {
     if (this.props.open && prevProps !== this.props) {
       if (!_.isUndefined(this.props.saved) && !this.props.saved) {
         this.setState({ savingModal: true });
@@ -72,7 +79,7 @@ export default class RdvPassCard extends React.Component {
         this.reload(this.props.patient.id);
       }
     }
-  }
+  }*/
 
   reload = id => {
     this.props.client.RendezVous.mesRendezVous(
@@ -799,9 +806,7 @@ class Carte extends React.Component {
 
   // TODO : Bien tester les impressions sur tous les navigateurs
   componentDidUpdate(prevProps, prevState) {
-    if (prevState !== this.state) {
-      this.props.print();
-    }
+    this.props.print();
   }
 
   mesRdvLimitation = () => {

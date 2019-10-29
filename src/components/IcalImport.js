@@ -105,7 +105,7 @@ export default class IcalImport extends React.Component {
     if (this.state.clearRdv) {
       param += "-clear";
     }
-    console.log(param);
+    //console.log(param);
     return param;
   };
 
