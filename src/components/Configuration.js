@@ -34,8 +34,10 @@ export default class Configuration extends React.Component {
     plannings: [], // plannings administrés (plannings configurables)
     planningsAccess: [], // plannings accessibles (plannings associés)
     planningsAll: [], // tous les plannings (reprise de plages, de motifs, etc.)
-    index: -1,
-    reservationActiveIndex: -1,
+    index: -1, // associé au planning
+    rootPanelsActiveIndex: -1, // accordion principale
+    reservationsPanelsActiveIndex: -1,
+    reservationActiveIndex: -1, // accordion reservation
     saved: true, // current config saved
     save: false, // modal save configs
     load: false, // modal load configs
@@ -482,6 +484,22 @@ export default class Configuration extends React.Component {
 
   modalIcalImportOpen = bool => {
     this.setState({ modalIcalImport: bool });
+  };
+
+  handleChangeRootPanel = index => {
+    if (index === this.state.rootPanelsActiveIndex) {
+      this.setState({ rootPanelsActiveIndex: -1 });
+    } else {
+      this.setState({ rootPanelsActiveIndex: index });
+    }
+  };
+
+  handleChangeReservationPanel = index => {
+    if (index === this.state.reservationsPanelsActiveIndex) {
+      this.setState({ reservationsPanelsActiveIndex: -1 });
+    } else {
+      this.setState({ reservationsPanelsActiveIndex: index });
+    }
   };
 
   render() {
@@ -1147,106 +1165,122 @@ export default class Configuration extends React.Component {
         </React.Fragment>
       );
 
-      const reservationsPanels = [
-        {
-          title: "Congés",
-          content: {
-            content: (
-              <React.Fragment>
-                <Form.Input
-                  label="Les jours fériés légaux sont pris en compte automatiquement"
-                  style={{ maxWidth: maxWidth / 10 }}
-                >
-                  <Checkbox
-                    toggle={true}
-                    checked={options.reservation.congesFeries}
-                    onChange={(e, d) => {
-                      options.reservation.congesFeries = d.checked;
-                      plannings[index].optionsJO = options;
-                      this.setState({ /*plannings: plannings*/ saved: false });
-                    }}
-                  />
-                </Form.Input>
-                <Form.Group>
-                  <Form.Input
-                    label="Les périodes de congés sont affichées sur l'agenda"
-                    style={{ maxWidth: maxWidth / 10 }}
-                  >
-                    <Checkbox
-                      toggle={true}
-                      checked={options.reservation.congesVisibles}
-                      onChange={(e, d) => {
-                        options.reservation.congesVisibles = d.checked;
-                        plannings[index].optionsJO = options;
-                        this.setState({
-                          /*plannings: plannings*/ saved: false
-                        });
-                      }}
-                    />
-                  </Form.Input>
-                  <Form.Input label="avec la couleur">
-                    <ColorPicker
-                      color={options.reservation.congesCouleur}
-                      onChange={color => {
-                        options.reservation.congesCouleur = color;
-                        plannings[index].optionsJO = options;
-                        this.setState({
-                          /*plannings: plannings*/ saved: false
-                        });
-                      }}
-                    />
-                  </Form.Input>
-                </Form.Group>
-                <Form.Group>
-                  <Header size="tiny">
-                    Liste des congés (ces périodes seront exclues lors d'une
-                    prise de RDV en ligne) &nbsp;
-                  </Header>
-                  <Popup
-                    trigger={<Icon name="help circle" />}
-                    on={helpPopup.on}
-                    size={helpPopup.size}
-                    inverted={helpPopup.inverted}
-                  >
-                    Chaque période est définie par des dates de début et de fin
-                    (de manière inclusive).
-                    <br />
-                    L'intitulé de la période sera repris sur l'agenda, si
-                    l'option d'affichage ci-dessus est cochée.
-                    <br />
-                    Les périodes ainsi définies seront exclues lors d'une prise
-                    de rendez-vous en ligne.
-                    <br />
-                    Les jours fériés légaux, peuvent être pris en compte
-                    automatiquement (cocher ci-dessus l'option correspondante).
-                    <br />
-                    Les périodes passées les plus anciennes pourront être
-                    supprimées.
-                  </Popup>
-                </Form.Group>
+      const congesContent = (
+        <React.Fragment>
+          <Form.Input
+            label="Les jours fériés légaux sont pris en compte automatiquement"
+            style={{ maxWidth: maxWidth / 10 }}
+          >
+            <Checkbox
+              toggle={true}
+              checked={options.reservation.congesFeries}
+              onChange={(e, d) => {
+                options.reservation.congesFeries = d.checked;
+                plannings[index].optionsJO = options;
+                this.setState({ /*plannings: plannings*/ saved: false });
+              }}
+            />
+          </Form.Input>
+          <Form.Group>
+            <Form.Input
+              label="Les périodes de congés sont affichées sur l'agenda"
+              style={{ maxWidth: maxWidth / 10 }}
+            >
+              <Checkbox
+                toggle={true}
+                checked={options.reservation.congesVisibles}
+                onChange={(e, d) => {
+                  options.reservation.congesVisibles = d.checked;
+                  plannings[index].optionsJO = options;
+                  this.setState({
+                    /*plannings: plannings*/ saved: false
+                  });
+                }}
+              />
+            </Form.Input>
+            <Form.Input label="avec la couleur">
+              <ColorPicker
+                color={options.reservation.congesCouleur}
+                onChange={color => {
+                  options.reservation.congesCouleur = color;
+                  plannings[index].optionsJO = options;
+                  this.setState({
+                    /*plannings: plannings*/ saved: false
+                  });
+                }}
+              />
+            </Form.Input>
+          </Form.Group>
+          <Form.Group>
+            <Header size="tiny">
+              Liste des congés (ces périodes seront exclues lors d'une
+              prise de RDV en ligne) &nbsp;
+            </Header>
+            <Popup
+              trigger={<Icon name="help circle" />}
+              on={helpPopup.on}
+              size={helpPopup.size}
+              inverted={helpPopup.inverted}
+            >
+              Chaque période est définie par des dates de début et de fin
+              (de manière inclusive).
+              <br />
+              L'intitulé de la période sera repris sur l'agenda, si
+              l'option d'affichage ci-dessus est cochée.
+              <br />
+              Les périodes ainsi définies seront exclues lors d'une prise
+              de rendez-vous en ligne.
+              <br />
+              Les jours fériés légaux, peuvent être pris en compte
+              automatiquement (cocher ci-dessus l'option correspondante).
+              <br />
+              Les périodes passées les plus anciennes pourront être
+              supprimées.
+            </Popup>
+          </Form.Group>
 
-                <Conges
-                  plagesConges={congesPrevus}
-                  onChange={() => this.setState({ saved: false })}
-                />
-              </React.Fragment>
-            ),
-            key: "0"
-          }
-        },
-        {
-          title: "Niveaux d'autorisation",
-          content: { content: HorairesReserves, key: "1" }
-        },
-        {
-          title: "Motifs des rendez-vous",
-          content: { content: MotifsRDV, key: "2" }
-        },
-        {
-          title: "Plannings et motifs associés",
-          content: { content: PlanningsAssocies, key: "3" }
-        }
-      ];
+          <Conges
+            plagesConges={congesPrevus}
+            onChange={() => this.setState({ saved: false })}
+          />
+        </React.Fragment>
+      );
+
+      const reservationsPanels = (
+        <Accordion
+          fluid={true}
+          styled={true}
+        >
+          <Accordion.Panel 
+            title="Congés"
+            active={this.state.reservationsPanelsActiveIndex === 0}
+            content={{ content: congesContent }}
+            onTitleClick={(e, d) => this.handleChangeReservationPanel(d.index)}
+            index={0}
+          />
+          <Accordion.Panel 
+            title="Niveaux d'autorisation"
+            active={this.state.reservationsPanelsActiveIndex === 1}
+            content={{ content: HorairesReserves }}
+            onTitleClick={(e, d) => this.handleChangeReservationPanel(d.index)}
+            index={1}
+          />
+          <Accordion.Panel 
+            title="Motifs des rendez-vous"
+            active={this.state.reservationsPanelsActiveIndex === 2}
+            content={{ content: MotifsRDV }}
+            onTitleClick={(e, d) => this.handleChangeReservationPanel(d.index)}
+            index={2}
+          />
+          <Accordion.Panel 
+            title="Plannings et motifs associés"
+            active={this.state.reservationsPanelsActiveIndex === 3}
+            content={{ content: PlanningsAssocies }}
+            onTitleClick={(e, d) => this.handleChangeReservationPanel(d.index)}
+            index={3}
+          />
+        </Accordion>
+      );
 
       const Reservations = (
         <React.Fragment>
@@ -1354,7 +1388,9 @@ export default class Configuration extends React.Component {
               }}
             />
           </Form.Input>
-          <Accordion.Accordion panels={reservationsPanels} />
+
+          {/* Accordion */}
+          {reservationsPanels}
         </React.Fragment>
       );
 
@@ -1561,36 +1597,55 @@ export default class Configuration extends React.Component {
         </React.Fragment>
       );
 
-      const rootPanels = [
-        {
-          title: "Utilisateurs et droits d'accès",
-          content: { content: Acl, key: "1" }
-        },
-        {
-          title: "Plages horaires d'ouverture",
-          content: { content: Plages, key: "2" }
-        },
-        {
-          title: "Évènement récurrents",
-          content: {
-            content: (
-              <Recurrents
-                recurrents={options.recurrents}
-                onChange={() => this.setState({ saved: false })}
-              />
-            ),
-            key: "3"
-          }
-        },
-        {
-          title: "Prise de rendez-vous",
-          content: { content: Reservations, key: "4" }
-        },
-        {
-          title: "Rappels",
-          content: { content: SMS, key: "5" }
-        }
-      ];
+      const recurrents = (
+        <Recurrents
+          recurrents={options.recurrents}
+          onChange={() => this.setState({ saved: false })}
+        />
+      );
+
+      const rootAccordion = (
+        <Accordion
+          fluid={true}
+          styled={true}
+        >
+          <Accordion.Panel 
+            title="Utilisateurs et droits d'accès"
+            active={this.state.rootPanelsActiveIndex === 0}
+            content={{ content: Acl }}
+            index={0}
+            onTitleClick={(e, d) => this.handleChangeRootPanel(d.index)}
+          />
+          <Accordion.Panel 
+            title="Plages horaires d'ouverture"
+            active={this.state.rootPanelsActiveIndex === 1}
+            content={{ content: Plages }}
+            index={1}
+            onTitleClick={(e, d) => this.handleChangeRootPanel(d.index)}
+          />
+          <Accordion.Panel 
+            title="Évènement récurrents"
+            active={this.state.rootPanelsActiveIndex === 2}
+            content={{ content: recurrents }}
+            index={2}
+            onTitleClick={(e, d) => this.handleChangeRootPanel(d.index)}
+          />
+          <Accordion.Panel
+            title="Prise de rendez-vous"
+            active={this.state.rootPanelsActiveIndex === 3}
+            content={{ content: Reservations }}
+            index={3}
+            onTitleClick={(e, d) => this.handleChangeRootPanel(d.index)}
+          />
+          <Accordion.Panel
+            title="Rappels"
+            active={this.state.rootPanelsActiveIndex === 4}
+            content={{ content: SMS }}
+            index={4}
+            onTitleClick={(e, d) => this.handleChangeRootPanel(d.index)}
+          />
+        </Accordion>
+      );
 
       form = (
         <React.Fragment>
@@ -1631,12 +1686,7 @@ export default class Configuration extends React.Component {
             </Form.Group>
             <div style={{ paddingRight: "5px" }}>
               {/*Accordion right margin*/}
-              <Accordion
-                defaultActiveIndex={-1}
-                panels={rootPanels}
-                styled={true}
-                fluid={true}
-              />
+              {rootAccordion}
             </div>
             <Divider hidden={true} />
             <Button negative={true} onClick={this.supprimer}>
