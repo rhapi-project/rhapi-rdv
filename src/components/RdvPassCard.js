@@ -8,6 +8,7 @@ import { print } from "../lib/Helpers";
 import {
   Button,
   Divider,
+  Form,
   Icon,
   Ref,
   List,
@@ -55,6 +56,8 @@ export default class RdvPassCard extends React.Component {
       }
     },
     savingModal: false,
+    previsualisationSMS: false, // new
+    smsToSend: "", // new
     retourSMS: false,
     errorSMS: -1, // pas d'envoi effectué encore
     help: false
@@ -237,7 +240,114 @@ export default class RdvPassCard extends React.Component {
     this.props.rdvPassCardOpen(false);
   };
 
-  sendSms = () => {
+  extractSms = () => {
+    let pwd = "";
+    if (this.state.mesRdv.length === 0) {
+      this.setState({ retourSMS: true });
+      return;
+    }
+    if (this.props.patient.telMobile.length < 8) {
+      // check basique mais suffisant ici
+      this.setState({ retourSMS: true });
+      return;
+    }
+    if (!this.state.newPassword) {
+      pwd = this.makePasswd();
+      this.setState({ newPassword: pwd });
+      this.savePasswd();
+    } else {
+      pwd = this.state.newPassword;
+    }
+
+    // il faut prendre le premier planning autorisé à envoyer des SMS et possédant
+    // un template de texte de confirmation
+    let i = _.findIndex(this.state.mesPlannings, planning => {
+      return (
+        planning.optionsJO &&
+        planning.optionsJO.sms &&
+        planning.optionsJO.sms.confirmationTexte &&
+        planning.optionsJO.sms.confirmationTexte !== "" &&
+        (planning.optionsJO.sms.rappel12 ||
+          planning.optionsJO.sms.rappel24 ||
+          planning.optionsJO.sms.rappel48)
+      );
+    });
+
+    if (i === -1) {
+      // pas de planning autorisé à envoyer un SMS !
+      // erreur (1)
+      this.setState({ retourSMS: true, errorSMS: 1 });
+      return;
+    }
+
+    let message = this.state.mesPlannings[i].optionsJO.sms.confirmationTexte;
+    // tester la validité du template et placer les bonnes valeur {date-heure} et {infos-annulations} !!
+    // TODO mettre un checkbox rouge (ou autre visualisation retour négatif) si non valide et return
+    // erreur (2)
+    message = _.replace(
+      message,
+      "{date-heure}",
+      rdvDateTime(this.state.mesRdv[0].startAt)
+    );
+    let infos =
+      "Infos et annulation : " +
+      window.location.origin +
+      window.location.pathname
+        .split("/")
+        .slice(0, -1)
+        .join("/") +
+      "/#Patients/";
+    infos += this.props.patient.id;
+    //infos += ":" + this.state.newPassword;
+    infos += ":" + pwd;
+    infos += "@" + this.state.praticien.organisation.split("@")[0];
+    // split("@") si une forme master@master => master
+    message = _.replace(message, "{infos-annulation}", infos);
+
+    this.setState({ smsToSend: message, previsualisationSMS: true });
+  };
+
+  sendSms = sms => {
+    let receivers = [this.props.patient.telMobile]; // la normalisation du n° est assuré en backend
+    // attention le nombre de SMS disponibles pour les tests est volontairement limité !
+
+    this.props.client.Sms.create(
+      { message: sms, receivers: receivers },
+      datas => {
+        //console.log(datas);
+        // TODO mettre un checkbox rouge (ou autre visualisation retour négatif) si le SMS n'est pas conforme
+        // => tester les champ ad hoc pour savoir si le SMS a bien été envoyé !
+        if (!_.isEmpty(datas.validReceivers)) {
+          // le SMS a été envoyé
+          this.setState({
+            retourSMS: true,
+            errorSMS: 0,
+            previsualisationSMS: false, // new
+            smsToSend: "" // new
+          });
+        } else if (!_.isEmpty(datas.invalidReceivers)) {
+          // numéro invalide
+          this.setState({
+            retourSMS: true,
+            errorSMS: 4,
+            previsualisationSMS: false, // new
+            smsToSend: "" // new
+          });
+        }
+      },
+      errors => {
+        console.log(errors);
+        this.setState({
+          retourSMS: true,
+          errorSMS: 3,
+          previsualisationSMS: false, // new
+          smsToSend: sms // new
+        });
+      }
+    );
+  };
+
+  /*sendSms = () => {
     let pwd = "";
     if (this.state.mesRdv.length === 0) {
       this.setState({ retourSMS: true });
@@ -334,7 +444,7 @@ export default class RdvPassCard extends React.Component {
         });
       }
     );
-  };
+  };*/
 
   openHelp = bool => {
     this.setState({ help: bool });
@@ -418,7 +528,8 @@ export default class RdvPassCard extends React.Component {
             <Button
               icon="mobile"
               content="Confirmation SMS"
-              onClick={this.sendSms}
+              //onClick={this.sendSms}
+              onClick={() => this.extractSms()}
             />
             <Button
               icon="print"
@@ -560,6 +671,18 @@ export default class RdvPassCard extends React.Component {
           </Modal.Actions>
         </Modal>
 
+        {/* Prévisualisation SMS */}
+        {this.state.previsualisationSMS ? (
+          <SMSPrevisualisation
+            open={this.state.previsualisationSMS}
+            sms={this.state.smsToSend}
+            onCancel={() =>
+              this.setState({ previsualisationSMS: false, smsToSend: "" })
+            }
+            onSend={sms => this.sendSms(sms)}
+          />
+        ) : null}
+
         {/* Retours SMS */}
 
         <Modal size="small" open={this.state.retourSMS}>
@@ -637,10 +760,12 @@ export default class RdvPassCard extends React.Component {
               <Ref
                 innerRef={node => {
                   if (
-                    this.state.mesRdv.length === 0 ||
-                    this.props.patient.telMobile.length < 8
-                  )
+                    node &&
+                    (this.state.mesRdv.length === 0 ||
+                      this.props.patient.telMobile.length < 8)
+                  ) {
                     node.firstChild.parentElement.focus();
+                  }
                 }}
               >
                 <Button
@@ -669,7 +794,13 @@ export default class RdvPassCard extends React.Component {
             </Modal.Actions>
           ) : this.state.errorSMS === 3 ? (
             <Modal.Actions>
-              <Ref innerRef={node => node.firstChild.parentElement.focus()}>
+              <Ref
+                innerRef={node => {
+                  if (node) {
+                    node.firstChild.parentElement.focus();
+                  }
+                }}
+              >
                 <Button
                   content="Réessayer"
                   primary={true}
@@ -678,7 +809,7 @@ export default class RdvPassCard extends React.Component {
                       errorSMS: -1,
                       retourSMS: false
                     });
-                    this.sendSms();
+                    this.sendSms(this.state.smsToSend);
                   }}
                 />
               </Ref>
@@ -687,7 +818,8 @@ export default class RdvPassCard extends React.Component {
                 onClick={() =>
                   this.setState({
                     errorSMS: -1,
-                    retourSMS: false
+                    retourSMS: false,
+                    smsToSend: "" // new
                   })
                 }
               />
@@ -948,6 +1080,64 @@ class Carte extends React.Component {
           </span>
         </div>
       </div>
+    );
+  }
+}
+
+class SMSPrevisualisation extends React.Component {
+  state = {
+    sms: "",
+    open: false
+  };
+
+  static getDerivedStateFromProps(props, state) {
+    if (props.open !== state.open && props.sms !== state.sms) {
+      return {
+        open: props.open,
+        sms: props.sms
+      };
+    }
+    return null;
+  }
+
+  // TODO : fonction à mettre dans les Helpers
+  smsCounter = () => {
+    let length = this.state.sms.length;
+    if (length === 0) {
+      return 1;
+    }
+    if (length % 160 === 0) {
+      return length / 160;
+    }
+    return parseInt(length / 160 + 1);
+  };
+
+  render() {
+    return (
+      <Modal size="tiny" open={this.state.open}>
+        <Modal.Header>
+          Contenu du SMS (Taille: {this.state.sms.length}, SMS:{" "}
+          {this.smsCounter()})
+        </Modal.Header>
+        <Modal.Content>
+          <Form>
+            <Form.TextArea
+              placeholder="Contenu du message vide"
+              rows={4}
+              value={this.state.sms}
+              onChange={(e, d) => this.setState({ sms: d.value })}
+            />
+          </Form>
+        </Modal.Content>
+        <Modal.Actions>
+          <Button content="Annuler" onClick={() => this.props.onCancel()} />
+          <Button
+            content="Envoyer"
+            primary={true}
+            onClick={() => this.props.onSend(this.props.sms)}
+          />
+        </Modal.Actions>
+      </Modal>
     );
   }
 }

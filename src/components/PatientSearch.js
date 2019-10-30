@@ -25,6 +25,9 @@ export default class PatientSearch extends React.Component {
     }
   }
 
+  // TODO : Corriger le bug d'après la suppression
+  // Après la suppression il est impossible de re-saisir quelque chose dans l'input
+  // Tester ça dans ProfilsPatients
   static getDerivedStateFromProps(props, state) {
     if (props.clear) {
       return {
@@ -38,7 +41,9 @@ export default class PatientSearch extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (this.props.clear) {
-      ReactDOM.findDOMNode(this).getElementsByTagName("input")[0].focus();
+      ReactDOM.findDOMNode(this)
+        .getElementsByTagName("input")[0]
+        .focus();
     }
   }
 

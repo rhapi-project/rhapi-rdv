@@ -37,7 +37,7 @@ export default class CalendarFullCalendarReact extends React.Component {
     openModalRdv: false,
     eventToEdit: {},
     selectStart: null,
-    selectEnd: null,
+    selectEnd: null
     //calendarSlotHeight: 20
   };
 
@@ -45,7 +45,7 @@ export default class CalendarFullCalendarReact extends React.Component {
     this.reload();
     // recharger les Events tous les 15 secondes
     this.refetchInterval = setInterval(this.refetchEvents, 5000);
-  };
+  }
 
   componentDidUpdate(prevProps, prevState) {
     //console.log(this.props.planning);
@@ -53,13 +53,15 @@ export default class CalendarFullCalendarReact extends React.Component {
       this.reload();
     }
     if (this.props.currentDate !== prevProps.currentDate) {
-      this.fullCalendar.current.getApi().gotoDate(this.props.currentDate.toDate());
+      this.fullCalendar.current
+        .getApi()
+        .gotoDate(this.props.currentDate.toDate());
     }
-  };
+  }
 
   componentWillUnmount() {
     clearInterval(this.refetchInterval);
-  };
+  }
 
   reload = () => {
     let hiddenDays = [];
@@ -133,7 +135,7 @@ export default class CalendarFullCalendarReact extends React.Component {
       minTime: minTime,
       maxTime: maxTime,
       slotDuration: slotDuration,
-      defaultTimedEventDuration: duration,
+      defaultTimedEventDuration: duration
       //calendarSlotHeight: calendarSlotHeight
     });
   };
@@ -337,7 +339,7 @@ export default class CalendarFullCalendarReact extends React.Component {
           defaultDate={defaultDate.toDate()}
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
           header={{
-            left: "prev,next todayCustom", // utilisation d'un bouton "today" customisé 
+            left: "prev,next todayCustom", // utilisation d'un bouton "today" customisé
             //left: "prev,next today",
             center: "title",
             right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek"

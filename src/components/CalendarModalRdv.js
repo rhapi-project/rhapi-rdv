@@ -54,7 +54,7 @@ class FromTo extends React.Component {
 
   componentDidMount() {
     this.setState({ hfrom: this.props.hfrom, hto: this.props.hto });
-  };
+  }
 
   static getDerivedStateFromProps(props, state) {
     if (!props.hfrom || !props.hto) {
@@ -67,7 +67,7 @@ class FromTo extends React.Component {
       };
     }
     return null; // nothing to change in the state
-  };
+  }
 
   handleChange = (value, name) => {
     let { hfrom, hto } = this.state;

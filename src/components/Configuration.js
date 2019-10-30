@@ -1213,8 +1213,8 @@ export default class Configuration extends React.Component {
           </Form.Group>
           <Form.Group>
             <Header size="tiny">
-              Liste des congés (ces périodes seront exclues lors d'une
-              prise de RDV en ligne) &nbsp;
+              Liste des congés (ces périodes seront exclues lors d'une prise de
+              RDV en ligne) &nbsp;
             </Header>
             <Popup
               trigger={<Icon name="help circle" />}
@@ -1222,20 +1222,19 @@ export default class Configuration extends React.Component {
               size={helpPopup.size}
               inverted={helpPopup.inverted}
             >
-              Chaque période est définie par des dates de début et de fin
-              (de manière inclusive).
+              Chaque période est définie par des dates de début et de fin (de
+              manière inclusive).
               <br />
-              L'intitulé de la période sera repris sur l'agenda, si
-              l'option d'affichage ci-dessus est cochée.
+              L'intitulé de la période sera repris sur l'agenda, si l'option
+              d'affichage ci-dessus est cochée.
               <br />
-              Les périodes ainsi définies seront exclues lors d'une prise
-              de rendez-vous en ligne.
+              Les périodes ainsi définies seront exclues lors d'une prise de
+              rendez-vous en ligne.
               <br />
               Les jours fériés légaux, peuvent être pris en compte
               automatiquement (cocher ci-dessus l'option correspondante).
               <br />
-              Les périodes passées les plus anciennes pourront être
-              supprimées.
+              Les périodes passées les plus anciennes pourront être supprimées.
             </Popup>
           </Form.Group>
 
@@ -1247,32 +1246,29 @@ export default class Configuration extends React.Component {
       );
 
       const reservationsPanels = (
-        <Accordion
-          fluid={true}
-          styled={true}
-        >
-          <Accordion.Panel 
+        <Accordion fluid={true} styled={true}>
+          <Accordion.Panel
             title="Congés"
             active={this.state.reservationsPanelsActiveIndex === 0}
             content={{ content: congesContent }}
             onTitleClick={(e, d) => this.handleChangeReservationPanel(d.index)}
             index={0}
           />
-          <Accordion.Panel 
+          <Accordion.Panel
             title="Niveaux d'autorisation"
             active={this.state.reservationsPanelsActiveIndex === 1}
             content={{ content: HorairesReserves }}
             onTitleClick={(e, d) => this.handleChangeReservationPanel(d.index)}
             index={1}
           />
-          <Accordion.Panel 
+          <Accordion.Panel
             title="Motifs des rendez-vous"
             active={this.state.reservationsPanelsActiveIndex === 2}
             content={{ content: MotifsRDV }}
             onTitleClick={(e, d) => this.handleChangeReservationPanel(d.index)}
             index={2}
           />
-          <Accordion.Panel 
+          <Accordion.Panel
             title="Plannings et motifs associés"
             active={this.state.reservationsPanelsActiveIndex === 3}
             content={{ content: PlanningsAssocies }}
@@ -1605,25 +1601,22 @@ export default class Configuration extends React.Component {
       );
 
       const rootAccordion = (
-        <Accordion
-          fluid={true}
-          styled={true}
-        >
-          <Accordion.Panel 
+        <Accordion fluid={true} styled={true}>
+          <Accordion.Panel
             title="Utilisateurs et droits d'accès"
             active={this.state.rootPanelsActiveIndex === 0}
             content={{ content: Acl }}
             index={0}
             onTitleClick={(e, d) => this.handleChangeRootPanel(d.index)}
           />
-          <Accordion.Panel 
+          <Accordion.Panel
             title="Plages horaires d'ouverture"
             active={this.state.rootPanelsActiveIndex === 1}
             content={{ content: Plages }}
             index={1}
             onTitleClick={(e, d) => this.handleChangeRootPanel(d.index)}
           />
-          <Accordion.Panel 
+          <Accordion.Panel
             title="Évènement récurrents"
             active={this.state.rootPanelsActiveIndex === 2}
             content={{ content: recurrents }}
