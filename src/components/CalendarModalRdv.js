@@ -120,7 +120,9 @@ export default class CalendarModalRdv extends React.Component {
     deleteRdv: false,
     dateRdvFocused: false,
     patientSearchModal: false,
-    dureeDefaut: false
+    dureeDefaut: false,
+    rdv: {},
+    plannings: []
   };
 
   componentDidMount() {
@@ -796,7 +798,7 @@ export default class CalendarModalRdv extends React.Component {
 
   render() {
     if (!this.props.open) {
-      return "";
+      return null;
     }
 
     let accordionIndex = this.state.accordionIndex;
@@ -804,8 +806,8 @@ export default class CalendarModalRdv extends React.Component {
 
     let rdv = this.state.rdv;
 
-    if (_.isUndefined(rdv.planningJO)) {
-      return "";
+    if (!rdv.planningJO) {
+      return null;
     }
 
     /*
@@ -821,8 +823,8 @@ export default class CalendarModalRdv extends React.Component {
     }
     */
 
-    if (!this.props.isExternal && _.isUndefined(rdv.startAt)) {
-      return "";
+    if (!this.props.isExternal && !rdv.startAt) {
+      return null;
     }
 
     // plannings et motifs
@@ -1213,12 +1215,13 @@ export default class CalendarModalRdv extends React.Component {
                           onDayChange={day => {
                             let rdv = this.state.rdv;
                             if (day) {
+                              console.log(moment(day).toISOString(true));
                               let startAt =
-                                _.split(moment(day).toISOString(), "T")[0] +
+                                _.split(moment(day).toISOString(true), "T")[0] +
                                 "T" +
                                 _.split(rdv.startAt, "T")[1];
                               let endAt =
-                                _.split(moment(day).toISOString(), "T")[0] +
+                                _.split(moment(day).toISOString(true), "T")[0] +
                                 "T" +
                                 _.split(rdv.endAt, "T")[1];
                               rdv.startAt = startAt;

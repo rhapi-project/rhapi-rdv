@@ -125,6 +125,8 @@ export default class ProfilsPatients extends React.Component {
       patient: {},
       saved: true
     });
+    let finishClear = () => this.setState({ clearSearch: false });
+    setTimeout(finishClear, 900);
   };
 
   telephoneValide = numero => {

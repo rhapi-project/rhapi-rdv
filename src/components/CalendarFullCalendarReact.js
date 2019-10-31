@@ -371,6 +371,11 @@ export default class CalendarFullCalendarReact extends React.Component {
             omitZeroMinute: false,
             meridiem: "short"
           }}
+          titleFormat={{
+            year: "numeric",
+            month: "long",
+            day: "numeric"
+          }}
           events={(fetchInfo, success, failure) =>
             this.fetchEvents(fetchInfo, success, failure)
           }

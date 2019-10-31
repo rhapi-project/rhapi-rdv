@@ -820,6 +820,7 @@ export default class CalendarPanel extends React.Component {
           </div>
           <Divider />
         </div>
+
         <CalendarModalRdv
           isExternal={true}
           denominationFormat={

@@ -57,7 +57,8 @@ export default class PatientSearch extends React.Component {
       this.setState({
         isLoading: false,
         results: [],
-        value
+        value,
+        edited: false // new
       });
       this.props.patientChange(0, "");
       return;
@@ -67,7 +68,7 @@ export default class PatientSearch extends React.Component {
       this.props.onTextChange(value);
     }
 
-    this.setState({ isLoading: true, value });
+    this.setState({ isLoading: true, value, edited: true });
 
     this.props.client.Patients.completion(
       {
@@ -112,7 +113,6 @@ export default class PatientSearch extends React.Component {
 
   render() {
     const { isLoading, value, results } = this.state;
-
     return (
       <Search
         size="small"

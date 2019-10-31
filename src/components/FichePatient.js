@@ -378,11 +378,11 @@ export default class FichePatient extends React.Component {
                           if (day) {
                             patient.naissance = moment(day).format();
                             this.props.onChange(patient);
+                            this.setState({
+                              naissanceDate: moment(day),
+                              saved: saved
+                            });
                           }
-                          this.setState({
-                            naissanceDate: moment(day),
-                            saved: saved
-                          });
                         }}
                       />
                     </Form.Input>
