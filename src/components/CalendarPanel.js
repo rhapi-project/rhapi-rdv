@@ -4,6 +4,8 @@ import $ from "jquery";
 import draggable from "jquery-ui/ui/widgets/draggable";
 import droppable from "jquery-ui/ui/widgets/droppable";
 
+import { Draggable } from "@fullcalendar/interaction";
+
 import moment from "moment";
 
 import React from "react";
@@ -38,20 +40,8 @@ export default class CalendarPanel extends React.Component {
     patientSearchModal: false
   };
 
-  static getDerivedStateFromProps(props, state) {
-    //console.log("Passage dans getDerivedStateFromProps");
-    return {
-      externalEventsDatas: []
-    };
-  }
-
   componentDidUpdate(prevProps, prevState) {
-    //console.log("Passage dasn Component Did Update");
-    if (this.state.externalEventsDatas === []) {
-      //console.log("Je vais reload les 2 fonctions");
-      this.reloadExternalEvents(this.props.planning);
-      this.onPatientChange(-1, ""); // force reload rdv patient
-    }
+    this.reloadExternalEvents(this.props.planning);
 
     $("#external-events .fc-event").each((i, event) => {
       let datas = this.state.externalEventsDatas[i];
@@ -87,7 +77,7 @@ export default class CalendarPanel extends React.Component {
       jEvent.css("background", "rgba(" + r + "," + g + "," + b + ",0.75)"); // add transparency
 
       // jQuery UI : ui-widget(options, element);
-      // make the event draggable using jQuery UI
+      // make the event draggable here using jQuery UI
       draggable(
         {
           zIndex: 999,
@@ -96,7 +86,20 @@ export default class CalendarPanel extends React.Component {
         },
         event
       );
+
+      // make the event draggable on FullCalendar React
+      new Draggable(event, {
+        eventData: {
+          title: $.trim(jEvent.text()),
+          stick: true,
+          data: datas
+        }
+      });
     });
+
+    if (this.props.todayClicked) {
+      document.getElementsByClassName("DayPicker-TodayButton")[0].click();
+    }
   }
 
   componentDidMount() {
@@ -161,8 +164,6 @@ export default class CalendarPanel extends React.Component {
     );
 
     this.props.handleExternalRefetch(this.reloadExternalEvents);
-
-    this.componentDidUpdate();
   }
 
   componentWillUnmount() {
@@ -456,7 +457,7 @@ export default class CalendarPanel extends React.Component {
                 : this.props.options.reservation.denominationFormat
             }
             clear={this.state.clearSearch}
-            value={!_.isEmpty(patient) ? patient.titre : ""}
+            value={patient && patient.titre ? patient.titre : ""}
           />
           {window.qWebChannel ? (
             <React.Fragment>
@@ -595,6 +596,11 @@ export default class CalendarPanel extends React.Component {
                           rdv: { liste: [], index: -1 }
                         }
                       });
+                      setTimeout(() => {
+                        this.setState({
+                          clearSearch: false
+                        });
+                      }, 0);
                     }}
                     name="remove user"
                     disabled={this.state.currentPatient.id === 0}
@@ -723,10 +729,7 @@ export default class CalendarPanel extends React.Component {
                   this.onPatientChange(-1);
                   let index = patient.rdv.index;
                   if (index >= 0) {
-                    $("#calendar").fullCalendar(
-                      "gotoDate",
-                      patient.rdv.liste[index].startAt
-                    );
+                    this.props.onDateChange(patient.rdv.liste[index].startAt);
                   }
                 }}
                 style={{ width: "70%", fontSize: "0.7rem" }}
@@ -820,7 +823,6 @@ export default class CalendarPanel extends React.Component {
           </div>
           <Divider />
         </div>
-
         <CalendarModalRdv
           isExternal={true}
           denominationFormat={

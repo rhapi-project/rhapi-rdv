@@ -19,12 +19,16 @@ export default class Calendars extends React.Component {
     plannings: [],
     index: -1,
     print: 0,
-    hidePanel:
-      localStorage.getItem("calendarPanelHide") === "true" ? true : false,
+    hidePanel: false,
     currentDate: moment()
   };
 
   componentDidMount() {
+    let hidePanel =
+      localStorage.getItem("calendarPanelHide") === "true" ? true : false;
+    this.setState({
+      hidePanel: _.isNull(hidePanel) ? false : hidePanel
+    });
     // ajust panel & calendar widths
     window.addEventListener("resize", this.onResize);
 
@@ -129,7 +133,6 @@ export default class Calendars extends React.Component {
   };
 
   render() {
-    //console.log(this.state.externalRefetch);
     let calendar = (
       <Calendar
         client={this.props.client}
@@ -170,8 +173,10 @@ export default class Calendars extends React.Component {
             ? {}
             : this.state.plannings[this.state.index].optionsJO
         }
-        onTodayClick={() => this.setState({ currentDate: moment() })}
-        //externalRefetch={this.state.externalRefetch}
+        todayClick={() => {
+          this.setState({ todayClicked: true, currentDate: moment() });
+        }}
+        externalRefetch={this.state.externalRefetch}
       />
     );
 
@@ -287,13 +292,14 @@ export default class Calendars extends React.Component {
                 this.setState({ currentDate: moment(date) })
               } // new
               handleExternalRefetch={externalRefetch => {
-                //console.log(externalRefetch);
                 this.setState({ externalRefetch: externalRefetch });
               }}
               todayClicked={this.state.todayClicked}
             />
           </div>
-        ) : null}
+        ) : (
+          ""
+        )}
         <div
           style={{
             width: this.state.hidePanel ? "98%" : calendarWidth,
@@ -320,7 +326,9 @@ export default class Calendars extends React.Component {
                 inverted={helpPopup.inverted}
               />
             </div>
-          ) : null}
+          ) : (
+            ""
+          )}
           {/*this.state.index < 0 ? "" : calendar*/}
 
           {/* New React Full Calendar */}

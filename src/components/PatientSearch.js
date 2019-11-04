@@ -14,25 +14,25 @@ export default class PatientSearch extends React.Component {
   };
 
   componentDidMount() {
+    let elt;
     if (this.state.value === "") {
-      ReactDOM.findDOMNode(this)
-        .getElementsByTagName("input")[0]
-        .focus();
+      elt = ReactDOM.findDOMNode(this).getElementsByTagName("input")[0];
     } else {
-      ReactDOM.findDOMNode(this)
-        .getElementsByTagName("button")[0]
-        .focus();
+      elt = ReactDOM.findDOMNode(this).getElementsByTagName("button")[0];
+    }
+    if (elt) {
+      elt.focus();
     }
   }
 
-  // TODO : Corriger le bug d'après la suppression
-  // Après la suppression il est impossible de re-saisir quelque chose dans l'input
-  // Tester ça dans ProfilsPatients
   static getDerivedStateFromProps(props, state) {
+    if (!_.isEmpty(props.value)) {
+      return {
+        value: props.value
+      };
+    }
     if (props.clear) {
       return {
-        isLoading: false,
-        results: [],
         value: ""
       };
     }
@@ -41,9 +41,10 @@ export default class PatientSearch extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (this.props.clear) {
-      ReactDOM.findDOMNode(this)
-        .getElementsByTagName("input")[0]
-        .focus();
+      let elt = ReactDOM.findDOMNode(this).getElementsByTagName("input")[0];
+      if (elt) {
+        elt.focus();
+      }
     }
   }
 
@@ -57,8 +58,7 @@ export default class PatientSearch extends React.Component {
       this.setState({
         isLoading: false,
         results: [],
-        value,
-        edited: false // new
+        value
       });
       this.props.patientChange(0, "");
       return;
@@ -68,7 +68,7 @@ export default class PatientSearch extends React.Component {
       this.props.onTextChange(value);
     }
 
-    this.setState({ isLoading: true, value, edited: true });
+    this.setState({ isLoading: true, value });
 
     this.props.client.Patients.completion(
       {
@@ -113,6 +113,7 @@ export default class PatientSearch extends React.Component {
 
   render() {
     const { isLoading, value, results } = this.state;
+
     return (
       <Search
         size="small"

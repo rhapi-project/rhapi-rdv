@@ -2,7 +2,7 @@ import React from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
-import interactionPlugin from "@fullcalendar/interaction"; // nécessaire pour le clic sur un jour
+import interactionPlugin from "@fullcalendar/interaction";
 
 import frLocale from "@fullcalendar/core/locales/fr";
 
@@ -13,6 +13,7 @@ import "@fullcalendar/timegrid/main.css";
 
 import moment from "moment";
 import _ from "lodash";
+import $ from "jquery";
 
 import CalendarModalRdv from "./CalendarModalRdv";
 
@@ -38,12 +39,11 @@ export default class CalendarFullCalendarReact extends React.Component {
     eventToEdit: {},
     selectStart: null,
     selectEnd: null
-    //calendarSlotHeight: 20
   };
 
   componentDidMount() {
     this.reload();
-    // recharger les Events tous les 15 secondes
+    // recharger les Events toutes les 15 secondes
     this.refetchInterval = setInterval(this.refetchEvents, 5000);
   }
 
@@ -57,6 +57,27 @@ export default class CalendarFullCalendarReact extends React.Component {
         .getApi()
         .gotoDate(this.props.currentDate.toDate());
     }
+
+    // class="fc-todayCustom-button fc-button fc-button-primary"
+    $(".fc-todayCustom-button").click(() => {
+      this.props.todayClick();
+    });
+
+    /*
+    // ajustement CSS fullcalendar
+    $(".fc-button").css("background", "white");
+    $(".fc-button").css("color", "grey");
+    // prev & next buttons padding-top
+    // all but Safari ("Safari" is returned as userAgent on Chrome) && QWebEngine
+    if (
+      (navigator.userAgent.indexOf("Safari") === -1 ||
+        navigator.userAgent.indexOf("Chrome") !== -1) &&
+      !window.qWebChannel
+    ) {
+      $(".fc-prev-button").css("padding-top", "5px");
+      $(".fc-next-button").css("padding-top", "5px");
+    }
+    */
   }
 
   componentWillUnmount() {
@@ -118,16 +139,6 @@ export default class CalendarFullCalendarReact extends React.Component {
 
     let duration = { minutes: duree };
     let slotDuration = { minutes: dureeMin };
-    /*let calendarSlotHeight = localStorage.getItem(
-      "calendarSlotHeight_" + this.props.planning
-    );
-    calendarSlotHeight = _.isNull(calendarSlotHeight)
-      ? 20
-      : 0 + calendarSlotHeight;
-
-    if (calendarSlotHeight < 17) {
-      calendarSlotHeight = 17;
-    }*/
 
     this.setState({
       hiddenDays: hiddenDays,
@@ -136,7 +147,6 @@ export default class CalendarFullCalendarReact extends React.Component {
       maxTime: maxTime,
       slotDuration: slotDuration,
       defaultTimedEventDuration: duration
-      //calendarSlotHeight: calendarSlotHeight
     });
   };
 
@@ -200,7 +210,7 @@ export default class CalendarFullCalendarReact extends React.Component {
               editable: false,
               rendering: recurrent.background
                 ? "background"
-                : "inverse-background"
+                : "" /*"inverse-background" ne fonctionne plus sur fc 4*/
             });
           });
 
@@ -326,14 +336,81 @@ export default class CalendarFullCalendarReact extends React.Component {
     });
   };
 
-  handleTodayClick = () => {
-    this.props.onTodayClick();
+  // Plusieurs appels successifs à eventReceive peuvent
+  // avoir lieu sur un même drop depuis la liste d'attente.
+  // Correctif (fonctionnel mais un peu lourd) avec blockage des
+  // appels réentrants et des appels pour un event id déjà traité.
+  prevEvents = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  block = false;
+  eventReceive = info => {
+    let event = info.event;
+    if (this.block) {
+      event.remove();
+      return;
+    }
+    let data = event.extendedProps.data;
+    if (this.prevEvents.indexOf(data.id) > -1) {
+      event.remove();
+      return;
+    }
+    this.block = true;
+    // On maintient la liste des dix derniers event id
+    this.prevEvents.shift();
+    this.prevEvents.push(data.id);
+    let duration = this.state.defaultTimedEventDuration;
+    let start = event.start;
+    let end = moment(start);
+    let start0 = moment(data.startAt);
+    let end0 = moment(data.endAt);
+    if (!start0.isValid() || !end0.isValid()) {
+      end.add(duration, "minutes");
+    } else {
+      // rétablit la durée initiale
+      let laps = end0.diff(start0, "minutes");
+      if (laps < 0) {
+        laps = duration;
+      }
+      end.add(laps, "minutes");
+    }
+    var params = {
+      startAt: start.toISOString(),
+      endAt: end.toISOString()
+    };
+
+    event.remove();
+
+    this.props.client.RendezVous.update(
+      data.id,
+      params,
+      () => {
+        this.props.client.RendezVous.listeAction(
+          data.id,
+          {
+            action: "remove",
+            planning: 0, // supprime de toutes les listes de tous les plannings du RDV
+            liste: 1
+          },
+          () => {
+            this.refetchEvents();
+            this.props.externalRefetch(this.props.planning);
+            this.block = false;
+          },
+          () => {
+            this.block = false;
+          }
+        );
+      },
+      () => {
+        this.block = false;
+      }
+    );
   };
 
   render() {
     return (
       <React.Fragment>
         <FullCalendar
+          style={{ maxWidth: "900 px", maxHeight: 400, margin: "40px auto;" }}
           ref={this.fullCalendar}
           defaultView={calendarDefaultView}
           defaultDate={defaultDate.toDate()}
@@ -342,7 +419,34 @@ export default class CalendarFullCalendarReact extends React.Component {
             left: "prev,next todayCustom", // utilisation d'un bouton "today" customisé
             //left: "prev,next today",
             center: "title",
-            right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek"
+            right: "dayGridMonth,timeGridWeek,timeGridDay"
+          }}
+          views={{
+            dayGridMonth: {
+              titleFormat: {
+                year: "numeric",
+                month: "long",
+                day: "numeric"
+              },
+              columnHeaderFormat: { weekday: "long" }
+            },
+            timeGridWeek: {
+              // titleFormat: "D MMMM YYYY [(semaine] W[)]" => cette option n'est plus disponible sur fc 4
+              // => voir datesRender ci-dessous
+              titleFormat: {
+                year: "numeric",
+                month: "short", // si "long" : risque de dépassement en largeur
+                day: "numeric"
+              },
+              columnHeaderFormat: {
+                month: "2-digit",
+                day: "2-digit",
+                weekday: "long"
+              }
+            },
+            timeGridDay: {
+              titleFormat: { year: "numeric", month: "long", day: "numeric" }
+            }
           }}
           customButtons={{
             todayCustom: {
@@ -350,10 +454,38 @@ export default class CalendarFullCalendarReact extends React.Component {
               click: this.handleTodayClick
             }
           }}
+          dayRender={(info, cell) => {
+            this.lastDayRender = info.date;
+            let calendarSlotHeight = localStorage.getItem(
+              "calendarSlotHeight_" + this.props.planning
+            );
+            calendarSlotHeight = _.isNull(calendarSlotHeight)
+              ? 20
+              : 0 + calendarSlotHeight;
+
+            if (calendarSlotHeight < 17) {
+              calendarSlotHeight = 17;
+            }
+            $("td.fc-widget-content").css("height", calendarSlotHeight);
+          }}
+          datesRender={info => {
+            // Afficher le numéro de semaine (option non disponible depuis fc 4)
+            if (info.view.type === "timeGridWeek") {
+              $("div.fc-center").html(
+                "<h2>" +
+                  info.view.title +
+                  " (semaine " +
+                  moment(this.lastDayRender).week() +
+                  ")</h2>"
+              );
+            }
+            // Masquer "Aujourd'hui" (l'option allDayText="" ne fonctionne pas sur fc 4)
+            $("div.fc-day-grid").css("color", "white");
+          }}
           locale={frLocale}
-          height="auto"
-          //aspectRatio={1.9}
+          height={window.innerHeight - 20} // à ajuster (il ne doit jamais y avoir 2 scrollbars verticales)
           allDaySlot={true}
+          allDayText="" // ne fonctionne pas
           editable={true}
           droppable={true}
           selectable={true}
@@ -371,22 +503,18 @@ export default class CalendarFullCalendarReact extends React.Component {
             omitZeroMinute: false,
             meridiem: "short"
           }}
-          titleFormat={{
-            year: "numeric",
-            month: "long",
-            day: "numeric"
-          }}
           events={(fetchInfo, success, failure) =>
             this.fetchEvents(fetchInfo, success, failure)
           }
           eventClick={event =>
             this.setState({ openModalRdv: true, eventToEdit: event })
           }
-          eventDrop={event => this.handleEventDrop(event)}
-          eventResize={event => this.handleEventResize(event)}
-          select={event => this.handleZoneSelect(event)} // gestion du clic ou selection plage horaire
+          eventDrop={this.handleEventDrop}
+          eventResize={this.handleEventResize}
+          select={this.handleZoneSelect} // gestion du clic ou selection plage horaire
+          dropAccept=".fc-event"
+          eventReceive={this.eventReceive}
         />
-
         <CalendarModalRdv
           open={this.state.openModalRdv}
           close={() => this.setState({ openModalRdv: false })}
