@@ -347,105 +347,6 @@ export default class RdvPassCard extends React.Component {
     );
   };
 
-  /*sendSms = () => {
-    let pwd = "";
-    if (this.state.mesRdv.length === 0) {
-      this.setState({ retourSMS: true });
-      return;
-    }
-    if (this.props.patient.telMobile.length < 8) {
-      // check basique mais suffisant ici
-      this.setState({ retourSMS: true });
-      return;
-    }
-    if (
-      _.isUndefined(this.state.newPassword) ||
-      _.isEmpty(this.state.newPassword)
-    ) {
-      pwd = this.makePasswd();
-      this.setState({ newPassword: pwd });
-      this.savePasswd();
-    } else {
-      pwd = this.state.newPassword;
-    }
-
-    // il faut prendre le premier planning autorisé à envoyer des SMS et possédant
-    // un template de texte de confirmation
-    let i = _.findIndex(this.state.mesPlannings, planning => {
-      return (
-        planning.optionsJO &&
-        planning.optionsJO.sms &&
-        planning.optionsJO.sms.confirmationTexte &&
-        planning.optionsJO.sms.confirmationTexte !== "" &&
-        (planning.optionsJO.sms.rappel12 ||
-          planning.optionsJO.sms.rappel24 ||
-          planning.optionsJO.sms.rappel48)
-      );
-    });
-    if (i === -1) {
-      // pas de planning autorisé à envoyer un SMS !
-      // erreur (1)
-      this.setState({ retourSMS: true, errorSMS: 1 });
-      return;
-    }
-    let message = this.state.mesPlannings[i].optionsJO.sms.confirmationTexte;
-    // tester la validité du template et placer les bonnes valeur {date-heure} et {infos-annulations} !!
-    // TODO mettre un checkbox rouge (ou autre visualisation retour négatif) si non valide et return
-    // erreur (2)
-
-    message = _.replace(
-      message,
-      "{date-heure}",
-      rdvDateTime(this.state.mesRdv[0].startAt)
-    );
-    let infos =
-      "Infos et annulation : " +
-      window.location.origin +
-      window.location.pathname
-        .split("/")
-        .slice(0, -1)
-        .join("/") +
-      "/#Patients/";
-    infos += this.props.patient.id;
-    //infos += ":" + this.state.newPassword;
-    infos += ":" + pwd;
-    infos += "@" + this.state.praticien.organisation.split("@")[0];
-    // split("@") si une forme master@master => master
-    message = _.replace(message, "{infos-annulation}", infos);
-
-    let receivers = [this.props.patient.telMobile]; // la normalisation du n° est assuré en backend
-    // attention le nombre de SMS disponibles pour les tests est volontairement limité !
-
-    this.props.client.Sms.create(
-      { message: message, receivers: receivers },
-      datas => {
-        //console.log(datas);
-        // TODO mettre un checkbox rouge (ou autre visualisation retour négatif) si le SMS n'est pas conforme
-        // => tester les champ ad hoc pour savoir si le SMS a bien été envoyé !
-        if (!_.isEmpty(datas.validReceivers)) {
-          // le SMS a été envoyé
-          this.setState({
-            retourSMS: true,
-            errorSMS: 0
-          });
-        } else if (!_.isEmpty(datas.invalidReceivers)) {
-          // numéro invalide
-          this.setState({
-            retourSMS: true,
-            errorSMS: 4
-          });
-        }
-      },
-      errors => {
-        console.log(errors);
-        this.setState({
-          retourSMS: true,
-          errorSMS: 3
-        });
-      }
-    );
-  };*/
-
   openHelp = bool => {
     this.setState({ help: bool });
   };
@@ -1134,7 +1035,7 @@ class SMSPrevisualisation extends React.Component {
           <Button
             content="Envoyer"
             primary={true}
-            onClick={() => this.props.onSend(this.props.sms)}
+            onClick={() => this.props.onSend(this.state.sms)}
           />
         </Modal.Actions>
       </Modal>

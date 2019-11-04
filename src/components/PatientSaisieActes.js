@@ -308,9 +308,7 @@ export default class PatientSaisieActes extends React.Component {
       },
       error => {
         this.setState({
-          msgSaveFSE: `Erreur de sauvegarde de l'acte ${
-            this.state.typeActe
-          }! Lecture de cette acte impossible`,
+          msgSaveFSE: `Erreur de sauvegarde de l'acte ${this.state.typeActe}! Lecture de cette acte impossible`,
           acteTitre: "",
           modalChangeActeTitre: false
         });

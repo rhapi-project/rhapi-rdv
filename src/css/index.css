@@ -94,7 +94,7 @@
     Calendar event
 */
 
-.fc-event {
+.fc-event-container .fc-event {
   border-radius: 0px;
   border-width: 1px;
   border-left-width: 10px;
@@ -108,29 +108,12 @@
   #menu-icon {
     display: none;
   }
-
-  /*!
- * FullCalendar v3.9.0
- * Docs & License: https://fullcalendar.io/
- * (c) 2018 Adam Shaw
- */
-  /*!
- * FullCalendar v3.9.0 Print Stylesheet
- * Docs & License: https://fullcalendar.io/
- * (c) 2018 Adam Shaw
- */
-  /*
- * Include this stylesheet on your page to get a more printer-friendly calendar.
- * When including this stylesheet, use the media='print' attribute of the <link> tag.
- * Make sure to include this stylesheet IN ADDITION to the regular fullcalendar.css.
- */
-
   .fc {
     max-width: 100% !important;
   }
 
   /* Global Event Restyling
---------------------------------------------------------------------------------------------------*/
+  --------------------------------------------------------------------------------------------------*/
   .fc-event {
     background: #fff !important;
     color: #000 !important;
@@ -142,7 +125,7 @@
   }
 
   /* Table & Day-Row Restyling
---------------------------------------------------------------------------------------------------*/
+  --------------------------------------------------------------------------------------------------*/
   .fc th,
   .fc td,
   .fc hr,
@@ -158,11 +141,11 @@
   .fc-bg,
   .fc-bgevent-skeleton,
   .fc-highlight-skeleton,
-  .fc-helper-skeleton,
+  .fc-mirror-skeleton,
   .fc-bgevent-container,
   .fc-business-container,
   .fc-highlight-container,
-  .fc-helper-container {
+  .fc-mirror-container {
     display: none;
   }
 
@@ -189,12 +172,12 @@
 
   .fc tbody .fc-row .fc-content-skeleton table {
     /* provides a min-height for the row, but only effective for IE, which exaggerates this value,
-     making it look more like 3em. for other browers, it will already be this tall */
+       making it look more like 3em. for other browers, it will already be this tall */
     height: 1em;
   }
 
   /* Undo month-view event limiting. Display all events and hide the "more" links
---------------------------------------------------------------------------------------------------*/
+  --------------------------------------------------------------------------------------------------*/
   .fc-more-cell,
   .fc-more {
     display: none !important;
@@ -214,14 +197,14 @@
   }
 
   /* TimeGrid Restyling
---------------------------------------------------------------------------------------------------*/
+  --------------------------------------------------------------------------------------------------*/
   /* undo the min-height 100% trick used to fill the container's height */
   .fc-time-grid {
     min-height: 0 !important;
   }
 
   /* don't display the side axis at all ("all-day" and time cells) */
-  .fc-agenda-view .fc-axis {
+  .fc-timeGrid-view .fc-axis {
     display: none;
   }
 
@@ -249,7 +232,7 @@
   }
 
   /* TimeGrid *Event* Restyling
---------------------------------------------------------------------------------------------------*/
+  --------------------------------------------------------------------------------------------------*/
   /* naturally position events, vertically stacking them */
   .fc-time-grid .fc-event {
     position: static !important;
@@ -293,7 +276,7 @@
   }
 
   /* Vertical Scroller & Containers
---------------------------------------------------------------------------------------------------*/
+  --------------------------------------------------------------------------------------------------*/
   /* kill the scrollbars and allow natural height */
   .fc-scroller,
   .fc-day-grid-container,
@@ -310,10 +293,10 @@
   }
 
   /* Button Controls
---------------------------------------------------------------------------------------------------*/
+  --------------------------------------------------------------------------------------------------*/
   .fc-button-group,
   .fc button {
-    display: none;
+    display: block;
     /* don't display any button-related controls */
   }
 }

@@ -121,7 +121,12 @@ export default class FichePatient extends React.Component {
 
   state = {
     activeIndex: 0,
-    rdvPassCard: false
+    rdvPassCard: false,
+    patient: {},
+    saved: true,
+    naissanceDate: null,
+    modalPassword: false,
+    newPassword: ""
   };
 
   static getDerivedStateFromProps(props, state) {

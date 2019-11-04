@@ -6,10 +6,7 @@ import interactionPlugin from "@fullcalendar/interaction";
 
 import frLocale from "@fullcalendar/core/locales/fr";
 
-// must manually import the stylesheets for each plugin
-import "@fullcalendar/core/main.css";
-import "@fullcalendar/daygrid/main.css";
-import "@fullcalendar/timegrid/main.css";
+// les CSS fullcalendar sont importés dans index.js
 
 import moment from "moment";
 import _ from "lodash";
@@ -484,7 +481,6 @@ export default class CalendarFullCalendarReact extends React.Component {
           locale={frLocale}
           height={window.innerHeight - 20} // à ajuster (il ne doit jamais y avoir 2 scrollbars verticales)
           allDaySlot={true}
-          allDayText="" // ne fonctionne pas
           editable={true}
           droppable={true}
           selectable={true}

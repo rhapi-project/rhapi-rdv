@@ -9,6 +9,11 @@ import "fullcalendar/dist/fullcalendar.css";
 
 import "semantic-ui-css/semantic.css";
 
+// CSS fullcalendar v4
+import "@fullcalendar/core/main.css";
+import "@fullcalendar/daygrid/main.css";
+import "@fullcalendar/timegrid/main.css";
+
 import "./css/index.css";
 
 // Iframe
