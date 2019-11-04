@@ -410,7 +410,6 @@ export default class CalendarFullCalendarReact extends React.Component {
     return (
       <React.Fragment>
         <FullCalendar
-          style={{ maxWidth: "900 px", maxHeight: 400, margin: "40px auto;" }}
           ref={this.fullCalendar}
           defaultView={calendarDefaultView}
           defaultDate={defaultDate.toDate()}
