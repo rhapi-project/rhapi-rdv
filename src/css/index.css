@@ -97,7 +97,7 @@
 .fc-event-container .fc-event {
   border-radius: 0px;
   border-width: 1px;
-  border-left-width: 10px;
+  border-left-width: 10px; /* élargir le côté gauche de la bordure d'un événement */
 }
 
 /*
@@ -296,7 +296,7 @@
   --------------------------------------------------------------------------------------------------*/
   .fc-button-group,
   .fc button {
-    display: block;
+    display: none;
     /* don't display any button-related controls */
   }
 }

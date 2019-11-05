@@ -6,7 +6,7 @@ import { Dropdown, Button, Divider, Popup } from "semantic-ui-react";
 
 import moment from "moment";
 
-import Calendar from "./Calendar";
+//import Calendar from "./Calendar";
 import CalendarFullCalendarReact from "./CalendarFullCalendarReact";
 
 import CalendarPanel from "./CalendarPanel";
@@ -133,7 +133,7 @@ export default class Calendars extends React.Component {
   };
 
   render() {
-    let calendar = (
+    /*let calendar = (
       <Calendar
         client={this.props.client}
         couleur={
@@ -154,7 +154,7 @@ export default class Calendars extends React.Component {
           this.setState({ todayClicked: true });
         }}
       />
-    );
+    );*/
 
     let fullcalendar = (
       <CalendarFullCalendarReact
@@ -180,14 +180,9 @@ export default class Calendars extends React.Component {
       />
     );
 
-    //let p = this.state.index < 0 ? "0" : this.state.plannings[this.state.index].id;
-    //console.log(p);
-    //let c = this.state.index < 0 ? {} : this.state.plannings[this.state.index].optionsJO
-    //console.log(c);
-    //console.log(this.state.externalRefetch);
-
     if (this.state.print) {
-      return calendar;
+      return fullcalendar;
+      //return calendar;
     }
 
     // panel & calendar widths
