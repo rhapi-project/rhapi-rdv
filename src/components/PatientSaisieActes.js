@@ -16,19 +16,20 @@ import _ from "lodash";
 import site from "./SiteSettings";
 
 export default class PatientSaisieActes extends React.Component {
-  componentWillMount() {
-    this.setState({
-      fse: {},
-      msgSaveFSE: "",
-      acteToAdd: {}, // acte à ajouter dans une FSE
-      typeActe: "#FSE",
-      editable: true,
-      acteTitre: "",
-      modalChangeActeTitre: false,
-      messageTitle: "",
-      messageContent: "",
-      messageColor: ""
-    });
+  state = {
+    fse: {},
+    msgSaveFSE: "",
+    acteToAdd: {}, // acte à ajouter dans une FSE
+    typeActe: "#FSE",
+    editable: true,
+    acteTitre: "",
+    modalChangeActeTitre: false,
+    messageTitle: "",
+    messageContent: "",
+    messageColor: ""
+  };
+
+  componentDidMount() {
     if (!_.isNull(this.props.idActe) && !this.props.acteCopy) {
       this.read(
         this.props.idActe,
@@ -67,6 +68,7 @@ export default class PatientSaisieActes extends React.Component {
     });
   }
 
+  // TODO : à changer
   componentWillReceiveProps(next) {
     this.setState({
       fse: {},
