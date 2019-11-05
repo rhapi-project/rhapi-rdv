@@ -120,7 +120,9 @@ export default class CalendarModalRdv extends React.Component {
     deleteRdv: false,
     dateRdvFocused: false,
     patientSearchModal: false,
-    dureeDefaut: false
+    dureeDefaut: false,
+    patient: {},
+    rdv: {}
   };
 
   componentDidMount() {
@@ -430,6 +432,7 @@ export default class CalendarModalRdv extends React.Component {
   };
 
   close = () => {
+    this.setState({ patient: {}, rdv: {} });
     this.props.close();
   };
 
@@ -1216,11 +1219,11 @@ export default class CalendarModalRdv extends React.Component {
                             let rdv = this.state.rdv;
                             if (day) {
                               let startAt =
-                                _.split(moment(day).toISOString(), "T")[0] +
+                                _.split(moment(day).toISOString(true), "T")[0] +
                                 "T" +
                                 _.split(rdv.startAt, "T")[1];
                               let endAt =
-                                _.split(moment(day).toISOString(), "T")[0] +
+                                _.split(moment(day).toISOString(true), "T")[0] +
                                 "T" +
                                 _.split(rdv.endAt, "T")[1];
                               rdv.startAt = startAt;
@@ -1581,7 +1584,7 @@ export default class CalendarModalRdv extends React.Component {
           */}
             {!this.state.isNewOne &&
             !_.isEmpty(this.state.patient) &&
-            this.state.patient.id ? (
+            !_.isUndefined(this.state.patient.id) ? (
               <RdvPassCard
                 open={this.state.rdvPassCard}
                 client={this.props.client}
@@ -1592,30 +1595,27 @@ export default class CalendarModalRdv extends React.Component {
                 //saved
                 //save
               />
-            ) : (
-              ""
-            )}
+            ) : null}
           </Modal.Content>
           <Modal.Actions>
             {!this.state.isNewOne &&
             !_.isEmpty(this.state.patient) &&
             this.state.patient.id ? (
-              <Button onClick={() => this.setState({ rdvPassCard: true })}>
-                Tous les rendez-vous
-              </Button>
-            ) : (
-              ""
-            )}
-            {/*<Button negative={!this.state.isNewOne} onClick={this.handleRemove}>
-            {this.state.isNewOne ? "Annuler" : "Supprimer"}
-          </Button>*/}
+              <Button
+                content="Tous les rendez-vous"
+                onClick={() => this.setState({ rdvPassCard: true })}
+              />
+            ) : null}
             {this.state.isNewOne ? (
               <Button content="Annuler" onClick={this.handleRemove} />
             ) : (
-              <Button
-                content="Supprimer"
-                onClick={() => this.setState({ deleteRdv: true })}
-              />
+              <React.Fragment>
+                <Button
+                  content="Supprimer"
+                  onClick={() => this.setState({ deleteRdv: true })}
+                />
+                <Button content="Annuler" onClick={() => this.close()} />
+              </React.Fragment>
             )}
             <Ref
               innerRef={node => {
