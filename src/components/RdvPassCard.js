@@ -7,6 +7,7 @@ import { print } from "../lib/Helpers";
 
 import {
   Button,
+  Checkbox,
   Divider,
   Form,
   Icon,
@@ -38,10 +39,12 @@ export default class RdvPassCard extends React.Component {
     oldPassword: "",
     modalPassword: false,
     printWithPassword: false,
+    confirmPrintWithPassword: true, // new
     //pwdGeneration: false, // proposition de génération de mot de passe (modal)
     carte: false,
     onlineRdv: false, // prise de rendez-vous en ligne désactivé par défaut
     mesRdv: [],
+    rdvToPrint: [], // new
     mesPlannings: [],
     praticien: {
       currentName: "",
@@ -74,15 +77,15 @@ export default class RdvPassCard extends React.Component {
     return null;
   }
 
-  /*componentDidUpdate(prevProps, prevState) {
-    if (this.props.open && prevProps !== this.props) {
-      if (!_.isUndefined(this.props.saved) && !this.props.saved) {
-        this.setState({ savingModal: true });
-      } else {
-        this.reload(this.props.patient.id);
-      }
+  componentDidUpdate(prevProps, prevState) {
+    if (
+      this.props.open &&
+      prevProps.open !== this.props.open &&
+      this.props.saved
+    ) {
+      this.reload(this.props.patient.id);
     }
-  }*/
+  }
 
   reload = id => {
     this.props.client.RendezVous.mesRendezVous(
@@ -93,7 +96,11 @@ export default class RdvPassCard extends React.Component {
         let mesRdv = _.filter(result.results, function(o) {
           return o.idEtat !== 7;
         });
-        this.setState({ mesRdv: mesRdv });
+        this.setState({
+          mesRdv: mesRdv,
+          rdvToPrint: mesRdv, // new
+          confirmPrintWithPassword: true // new
+        });
       },
       () => {
         // error
@@ -351,6 +358,17 @@ export default class RdvPassCard extends React.Component {
     this.setState({ help: bool });
   };
 
+  handleCheckRdv = myRdv => {
+    let index = _.findIndex(this.state.rdvToPrint, rdv => myRdv.id === rdv.id);
+    if (index !== -1) {
+      // l'enlever
+      console.log("TODO : enlever");
+    } else {
+      // l'ajouter
+      console.log("TODO : ajouter");
+    }
+  };
+
   render() {
     let infos = "";
     if (this.state.printWithPassword) {
@@ -377,22 +395,46 @@ export default class RdvPassCard extends React.Component {
             {"Prochains rendez-vous de " + this.props.denomination}
           </Modal.Header>
           <Modal.Content scrolling={true}>
-            {this.state.mesRdv.length === 0 ? (
-              <span>Aucun rendez-vous n'est programmé</span>
+            {_.isEmpty(this.state.mesRdv) ? (
+              <React.Fragment>
+                <span style={{ marginBottom: "7px" }}>
+                  Aucun rendez-vous n'est programmé
+                </span>
+                <br />
+              </React.Fragment>
             ) : (
-              <List bulleted={true}>
+              <List>
                 {_.map(this.state.mesRdv, (item, i) => {
                   return (
-                    <List.Item
-                      key={i}
-                      content={_.upperFirst(rdvDateTime(item.startAt))}
-                    />
+                    <List.Item key={i}>
+                      <List.Content>
+                        <Checkbox
+                          checked={
+                            _.findIndex(
+                              this.state.rdvToPrint,
+                              rdv => item.id === rdv.id
+                            ) !== -1
+                          }
+                          onChange={(e, d) => this.handleCheckRdv(item)}
+                          label={_.upperFirst(rdvDateTime(item.startAt))}
+                        />
+                      </List.Content>
+                    </List.Item>
                   );
                 })}
               </List>
             )}
+
+            <Checkbox
+              checked={this.state.confirmPrintWithPassword}
+              onChange={(e, d) =>
+                this.setState({ confirmPrintWithPassword: d.checked })
+              }
+              label="Imprimer les coordonnées du patient sur la carte"
+            />
+
             {this.state.printWithPassword && this.state.onlineRdv ? (
-              <div>
+              <div style={{ marginTop: "7x" }}>
                 Nouveau mot de passe : <b>{this.state.newPassword}</b>
                 <br />
                 Lien direct : <b>{infos}</b>
@@ -421,9 +463,7 @@ export default class RdvPassCard extends React.Component {
                   inverted={helpPopup.inverted}
                 />
               </div>
-            ) : (
-              ""
-            )}
+            ) : null}
           </Modal.Content>
           <Modal.Actions>
             <Button
@@ -500,8 +540,7 @@ export default class RdvPassCard extends React.Component {
             <Ref
               innerRef={node => {
                 if (this.props.open) {
-                  //console.log(node);
-                  //node.focus();
+                  node.focus();
                 }
               }}
             >
@@ -519,11 +558,9 @@ export default class RdvPassCard extends React.Component {
         <Modal size="small" open={this.state.modalPassword}>
           <Modal.Header>Nouveau mot de passe</Modal.Header>
           <Modal.Content scrolling={true}>
-            {this.state.mesRdv.length === 0 ? (
+            {_.isEmpty(this.state.mesRdv) ? (
               <span>Aucun nouveau rendez-vous n'est actuellement fixé</span>
-            ) : (
-              ""
-            )}
+            ) : null}
 
             <Message warning={true}>
               <Message.Header>
@@ -589,7 +626,7 @@ export default class RdvPassCard extends React.Component {
         <Modal size="small" open={this.state.retourSMS}>
           <Modal.Header>Confirmation SMS</Modal.Header>
           <Modal.Content>
-            {this.state.mesRdv.length === 0 ||
+            {_.isEmpty(this.state.mesRdv) ||
             this.props.patient.telMobile.length < 8 ? (
               <Message icon={true} info={true}>
                 <Icon name="info" />
@@ -597,7 +634,7 @@ export default class RdvPassCard extends React.Component {
                   <Message.Header>
                     Impossible d'envoyer un SMS de confirmation
                   </Message.Header>
-                  {this.state.mesRdv.length === 0 ? (
+                  {_.isEmpty(this.state.mesRdv) ? (
                     <p>Aucun nouveau RDV n'est actuellement fixé !</p>
                   ) : (
                     <p>Le téléphone mobile du patient n'est pas renseigné !</p>
@@ -655,14 +692,14 @@ export default class RdvPassCard extends React.Component {
             )}
           </Modal.Content>
 
-          {this.state.mesRdv.length === 0 ||
+          {_.isEmpty(this.state.mesRdv) ||
           this.props.patient.telMobile.length < 8 ? (
             <Modal.Actions>
               <Ref
                 innerRef={node => {
                   if (
                     node &&
-                    (this.state.mesRdv.length === 0 ||
+                    (_.isEmpty(this.state.mesRdv) ||
                       this.props.patient.telMobile.length < 8)
                   ) {
                     node.firstChild.parentElement.focus();
@@ -680,7 +717,17 @@ export default class RdvPassCard extends React.Component {
             this.state.errorSMS === 1 ||
             this.state.errorSMS === 4 ? (
             <Modal.Actions>
-              <Ref innerRef={node => node.firstChild.parentElement.focus()}>
+              <Ref
+                innerRef={node => {
+                  if (
+                    this.state.errorSMS === 0 ||
+                    this.state.errorSMS === 1 ||
+                    this.state.errorSMS === 4
+                  ) {
+                    node.focus();
+                  }
+                }}
+              >
                 <Button
                   primary={true}
                   content="OK"
@@ -812,8 +859,12 @@ export default class RdvPassCard extends React.Component {
             <Carte
               id="carte"
               praticien={this.state.praticien}
-              mesRdv={this.state.mesRdv}
-              printWithPassword={this.state.printWithPassword}
+              //mesRdv={this.state.mesRdv}
+              mesRdv={this.state.rdvToPrint}
+              printWithPassword={
+                this.state.printWithPassword &&
+                this.state.confirmPrintWithPassword
+              }
               newPassword={this.state.newPassword}
               print={this.print}
               patient={this.props.patient}
@@ -897,49 +948,61 @@ class Carte extends React.Component {
       <div id={this.props.id} className="carte" hidden={true}>
         <div className="coordonnees-praticien">
           <p>
-            <span className="praticien-currentName">
-              <strong>{this.props.praticien.currentName}</strong>
-            </span>
-            <br />
-            <span>{this.props.praticien.account.adresse1}</span>
-            <br />
-
-            {this.props.praticien.account.adresse2 !== "" ||
-            this.props.praticien.account.adresse3 !== "" ? (
-              <span>
-                {this.props.praticien.account.adresse2 +
-                  " " +
-                  this.props.praticien.account.adresse3}
+            {this.props.praticien.currentName ? (
+              <React.Fragment>
+                <span className="praticien-currentName">
+                  <strong>{this.props.praticien.currentName}</strong>
+                </span>
                 <br />
-              </span>
-            ) : (
-              ""
-            )}
-            <span>
-              {this.props.praticien.account.codePostal +
-                " " +
-                this.props.praticien.account.ville}
-            </span>
-            <br />
-            <span>
-              {this.props.praticien.account.telBureau === ""
-                ? ""
-                : "Tél. : " + this.props.praticien.account.telBureau}
-            </span>
+              </React.Fragment>
+            ) : null}
+            {this.props.praticien.account.adresse1 ? (
+              <React.Fragment>
+                <span>{this.props.praticien.account.adresse1}</span>
+                <br />
+              </React.Fragment>
+            ) : null}
+            {this.props.praticien.account.adresse2 ||
+            this.props.praticien.account.adresse3 ? (
+              <React.Fragment>
+                <span>
+                  {this.props.praticien.account.adresse2
+                    ? this.props.praticien.account.adresse2 + " "
+                    : ""}
+                  {this.props.praticien.account.adresse3
+                    ? this.props.praticien.account.adresse3
+                    : ""}
+                </span>
+                <br />
+              </React.Fragment>
+            ) : null}
+            {this.props.praticien.account.codePostal ||
+            this.props.praticien.account.ville ? (
+              <React.Fragment>
+                <span>
+                  {this.props.praticien.account.codePostal
+                    ? this.props.praticien.account.codePostal + " "
+                    : ""}
+                  {this.props.praticien.account.ville
+                    ? this.props.praticien.account.ville
+                    : ""}
+                </span>
+                <br />
+              </React.Fragment>
+            ) : null}
+            {this.props.praticien.account.telBureau ? (
+              <span>{"Tél. : " + this.props.praticien.account.telBureau}</span>
+            ) : null}
           </p>
         </div>
-        <div className="titre-principal">
-          <strong>
-            {this.state.mesRdv.length === 0
-              ? ""
-              : this.state.mesRdv.length === 1
-              ? "Votre prochain rendez-vous"
-              : "Vos prochains rendez-vous"}
-          </strong>
-        </div>
-        {this.state.mesRdv.length === 0 ? (
-          ""
-        ) : (
+
+        {!_.isEmpty(this.state.mesRdv) ? (
+          <div className="titre-principal">
+            <strong>Vos prochains rendez-vous</strong>
+          </div>
+        ) : null}
+
+        {_.isEmpty(this.state.mesRdv) ? null : (
           <div>
             <List>
               {_.map(this.state.mesRdv, (item, i) => {
@@ -964,13 +1027,9 @@ class Carte extends React.Component {
                 Identifiant : <b>{identifiant}</b>
                 &nbsp;&nbsp; Mot de passe : <b>{this.props.newPassword}</b>
               </p>
-            ) : (
-              ""
-            )}
+            ) : null}
           </div>
-        ) : (
-          ""
-        )}
+        ) : null}
         <div className="bottom-message">
           <Divider className="separator" />
           <span>
