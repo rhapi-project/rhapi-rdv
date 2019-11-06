@@ -889,7 +889,6 @@ export default class CalendarModalRdv extends React.Component {
         firstIsMobile = true;
       }
     }
-
     return (
       <React.Fragment>
         <Modal open={this.props.open}>
@@ -1089,7 +1088,7 @@ export default class CalendarModalRdv extends React.Component {
                   })}
                 </span>
               ) : (
-                ""
+                <span>&nbsp;</span>
               )}
             </Header>
             <Header
@@ -1173,14 +1172,15 @@ export default class CalendarModalRdv extends React.Component {
           </Segment>
           <Modal.Content>
             <Grid>
-              <Grid.Column width={3}>
+              <Grid.Column width={3} textAlign="center">
                 {_.isEmpty(this.state.image) ? (
                   <Icon name="user" size="massive" />
                 ) : (
                   <Image
-                    size="massive"
+                    style={{ height: 150, width: "auto" }}
                     src={this.state.image}
-                    alt="Photo de profil"
+                    alt="photo de profil"
+                    centered={true}
                   />
                 )}
               </Grid.Column>
