@@ -360,13 +360,13 @@ export default class RdvPassCard extends React.Component {
 
   handleCheckRdv = myRdv => {
     let index = _.findIndex(this.state.rdvToPrint, rdv => myRdv.id === rdv.id);
+    let res = _.cloneDeep(this.state.rdvToPrint);
     if (index !== -1) {
-      // l'enlever
-      console.log("TODO : enlever");
+      res.splice(index, 1);
     } else {
-      // l'ajouter
-      console.log("TODO : ajouter");
+      res.push(myRdv);
     }
+    this.setState({ rdvToPrint: res });
   };
 
   render() {
@@ -869,6 +869,7 @@ export default class RdvPassCard extends React.Component {
               print={this.print}
               patient={this.props.patient}
               onlineRdv={this.state.onlineRdv}
+              limit={7}
               //idPatient={this.props.patient.id}
               //denomination={this.props.denomination}
             />
@@ -894,36 +895,23 @@ class Carte extends React.Component {
   }
 
   mesRdvLimitation = () => {
-    // Par défaut on affiche 4 rdv sur la carte
-    // si un nouveau mot de passe a été généré, on en affichera 2 avec le nouveau mot de passe
-    if (this.props.printWithPassword) {
-      if (this.props.mesRdv.length <= 2) {
-        this.setState({
-          mesRdv: this.props.mesRdv
-        });
-      } else {
-        let mesRdv = [];
-        for (let i = 0; i < 2; i++) {
+    // Par défaut on affiche 7 rdv sur la carte
+    // si un nouveau mot de passe a été généré, on en affichera 5 avec le nouveau mot de passe
+    if (this.props.mesRdv.length <= this.props.limit - 2) {
+      this.setState({ mesRdv: this.props.mesRdv });
+    }
+    if (this.props.mesRdv.length > this.props.limit) {
+      let mesRdv = [];
+      if (this.props.printWithPassword) {
+        for (let i = 0; i < this.props.limit - 2; i++) {
           mesRdv.push(this.props.mesRdv[i]);
         }
-        this.setState({
-          mesRdv: mesRdv
-        });
-      }
-    } else {
-      if (this.props.mesRdv.length <= 4) {
-        this.setState({
-          mesRdv: this.props.mesRdv
-        });
       } else {
-        let mesRdv = [];
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < this.props.limit; i++) {
           mesRdv.push(this.props.mesRdv[i]);
         }
-        this.setState({
-          mesRdv: mesRdv
-        });
       }
+      this.setState({ mesRdv: mesRdv });
     }
   };
 
