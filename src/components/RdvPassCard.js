@@ -329,16 +329,16 @@ export default class RdvPassCard extends React.Component {
           this.setState({
             retourSMS: true,
             errorSMS: 0,
-            previsualisationSMS: false, // new
-            smsToSend: "" // new
+            previsualisationSMS: false,
+            smsToSend: ""
           });
         } else if (!_.isEmpty(datas.invalidReceivers)) {
           // numéro invalide
           this.setState({
             retourSMS: true,
             errorSMS: 4,
-            previsualisationSMS: false, // new
-            smsToSend: "" // new
+            previsualisationSMS: false,
+            smsToSend: ""
           });
         }
       },
@@ -347,8 +347,8 @@ export default class RdvPassCard extends React.Component {
         this.setState({
           retourSMS: true,
           errorSMS: 3,
-          previsualisationSMS: false, // new
-          smsToSend: sms // new
+          previsualisationSMS: false,
+          smsToSend: sms
         });
       }
     );
@@ -702,7 +702,7 @@ export default class RdvPassCard extends React.Component {
                     (_.isEmpty(this.state.mesRdv) ||
                       this.props.patient.telMobile.length < 8)
                   ) {
-                    node.firstChild.parentElement.focus();
+                    node.focus();
                   }
                 }}
               >
@@ -744,8 +744,8 @@ export default class RdvPassCard extends React.Component {
             <Modal.Actions>
               <Ref
                 innerRef={node => {
-                  if (node) {
-                    node.firstChild.parentElement.focus();
+                  if (node && this.state.errorSMS === 3) {
+                    node.focus();
                   }
                 }}
               >
@@ -804,7 +804,7 @@ export default class RdvPassCard extends React.Component {
             <Ref
               innerRef={node => {
                 if (this.state.savingModal) {
-                  node.firstChild.parentElement.focus();
+                  node.focus();
                 }
               }}
             >

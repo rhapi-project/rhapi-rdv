@@ -526,7 +526,13 @@ export default class ProfilsPatients extends React.Component {
                 <Button negative={true} onClick={this.destroy}>
                   Oui
                 </Button>
-                <Ref innerRef={node => node.firstChild.parentElement.focus()}>
+                <Ref
+                  innerRef={node => {
+                    if (!_.isNull(node)) {
+                      node.focus();
+                    }
+                  }}
+                >
                   <Button
                     primary={true}
                     onClick={() => {

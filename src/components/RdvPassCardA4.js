@@ -150,8 +150,11 @@ export default class RdvPassCardA4 extends React.Component {
                   </Grid.Column>
                   <Grid.Column width={4}>
                     <Ref
-                      innerRef={node => {}}
-                      //innerRef={node => node.firstChild.parentElement.focus()}
+                      innerRef={node => {
+                        if (!_.isNull(node)) {
+                          node.focus();
+                        }
+                      }}
                     >
                       <Button
                         primary={true}

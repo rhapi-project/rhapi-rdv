@@ -186,7 +186,13 @@ export default class ImageReader extends React.Component {
             >
               Annuler
             </Button>
-            <Ref innerRef={node => node.firstChild.parentElement.focus()}>
+            <Ref
+              innerRef={node => {
+                if (!_.isNull(node)) {
+                  node.focus();
+                }
+              }}
+            >
               <Button
                 primary={true}
                 onClick={() => {

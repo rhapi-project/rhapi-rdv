@@ -1619,8 +1619,8 @@ export default class CalendarModalRdv extends React.Component {
             )}
             <Ref
               innerRef={node => {
-                if (!this.state.isNewOne) {
-                  //node.focus();
+                if (!this.state.isNewOne && !_.isNull(node)) {
+                  node.focus();
                 }
               }}
             >
