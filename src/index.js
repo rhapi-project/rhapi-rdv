@@ -2,6 +2,9 @@
 import React from "react";
 import { render } from "react-dom";
 
+// moment locale fr
+import "moment/locale/fr";
+
 //CSS
 
 //import "fullcalendar/dist/fullcalendar.print.css";
