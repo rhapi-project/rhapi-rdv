@@ -338,6 +338,7 @@ const telFormat = telephone => {
       }
     }
   }
+  return telephone;
 };
 
 /*

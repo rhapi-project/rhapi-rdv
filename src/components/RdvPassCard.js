@@ -22,6 +22,8 @@ import RdvPassCardA4 from "./RdvPassCardA4";
 
 import RdvPassCardHelp from "./RdvPassCardHelp";
 
+const maxRdvToPrint = 5;
+
 export default class RdvPassCard extends React.Component {
   /*
       errorSMSType
@@ -96,10 +98,13 @@ export default class RdvPassCard extends React.Component {
         let mesRdv = _.filter(result.results, function(o) {
           return o.idEtat !== 7;
         });
+        let bool = JSON.parse(localStorage.getItem("printPatientAccess")); // null si 'printPatientAccess' n'est pas défini
+        let printPatientAccess = _.isNull(bool) ? true : bool;
+        let rdvToPrint = this.getRdvToPrint(mesRdv);
         this.setState({
           mesRdv: mesRdv,
-          rdvToPrint: mesRdv, // new
-          confirmPrintWithPassword: true // new
+          rdvToPrint: rdvToPrint,
+          confirmPrintWithPassword: printPatientAccess
         });
       },
       () => {
@@ -147,6 +152,19 @@ export default class RdvPassCard extends React.Component {
         console.log(data);
       }
     );
+  };
+
+  getRdvToPrint = mesRdv => {
+    if (mesRdv.length <= maxRdvToPrint) {
+      return mesRdv;
+    }
+    let arrayRdv = [];
+    if (mesRdv.length > maxRdvToPrint) {
+      for (let i = 0; i < maxRdvToPrint; i++) {
+        arrayRdv.push(mesRdv[i]);
+      }
+    }
+    return arrayRdv;
   };
 
   makePasswd = () => {
@@ -364,7 +382,11 @@ export default class RdvPassCard extends React.Component {
     if (index !== -1) {
       res.splice(index, 1);
     } else {
-      res.push(myRdv);
+      if (res.length < maxRdvToPrint) {
+        res.push(myRdv);
+      } else {
+        return;
+      }
     }
     this.setState({ rdvToPrint: res });
   };
@@ -387,7 +409,6 @@ export default class RdvPassCard extends React.Component {
         infos += this.state.praticien.organisation.split("@")[0];
       }
     }
-
     return (
       <React.Fragment>
         <Modal size="small" open={this.props.open}>
@@ -403,34 +424,45 @@ export default class RdvPassCard extends React.Component {
                 <br />
               </React.Fragment>
             ) : (
-              <List>
-                {_.map(this.state.mesRdv, (item, i) => {
-                  return (
-                    <List.Item key={i}>
-                      <List.Content>
-                        <Checkbox
-                          checked={
-                            _.findIndex(
-                              this.state.rdvToPrint,
-                              rdv => item.id === rdv.id
-                            ) !== -1
-                          }
-                          onChange={(e, d) => this.handleCheckRdv(item)}
-                          label={_.upperFirst(rdvDateTime(item.startAt))}
-                        />
-                      </List.Content>
-                    </List.Item>
-                  );
-                })}
-              </List>
+              <React.Fragment>
+                <Message>
+                  <Message.Header>
+                    Les RDV sélectionnés apparaîtront sur la carte de RDV.
+                  </Message.Header>
+                  <Message.Content>
+                    <i>Vous pouvez sélectionner jusqu'à 5 RDV.</i>
+                  </Message.Content>
+                </Message>
+                <List>
+                  {_.map(this.state.mesRdv, (item, i) => {
+                    return (
+                      <List.Item key={i}>
+                        <List.Content>
+                          <Checkbox
+                            checked={
+                              _.findIndex(
+                                this.state.rdvToPrint,
+                                rdv => item.id === rdv.id
+                              ) !== -1
+                            }
+                            onChange={(e, d) => this.handleCheckRdv(item)}
+                            label={_.upperFirst(rdvDateTime(item.startAt))}
+                          />
+                        </List.Content>
+                      </List.Item>
+                    );
+                  })}
+                </List>
+              </React.Fragment>
             )}
 
             <Checkbox
               checked={this.state.confirmPrintWithPassword}
-              onChange={(e, d) =>
-                this.setState({ confirmPrintWithPassword: d.checked })
-              }
-              label="Imprimer les coordonnées du patient sur la carte"
+              onChange={(e, d) => {
+                this.setState({ confirmPrintWithPassword: d.checked });
+                localStorage.setItem("printPatientAccess", d.checked);
+              }}
+              label="Imprimer les accès en ligne du patient sur la carte"
             />
 
             {this.state.printWithPassword && this.state.onlineRdv ? (
@@ -539,7 +571,7 @@ export default class RdvPassCard extends React.Component {
             )}
             <Ref
               innerRef={node => {
-                if (this.props.open) {
+                if (this.props.open && !_.isNull(node)) {
                   node.focus();
                 }
               }}
@@ -859,7 +891,6 @@ export default class RdvPassCard extends React.Component {
             <Carte
               id="carte"
               praticien={this.state.praticien}
-              //mesRdv={this.state.mesRdv}
               mesRdv={this.state.rdvToPrint}
               printWithPassword={
                 this.state.printWithPassword &&
@@ -869,7 +900,6 @@ export default class RdvPassCard extends React.Component {
               print={this.print}
               patient={this.props.patient}
               onlineRdv={this.state.onlineRdv}
-              limit={7}
               //idPatient={this.props.patient.id}
               //denomination={this.props.denomination}
             />
@@ -886,34 +916,13 @@ class Carte extends React.Component {
   };
 
   componentDidMount() {
-    this.mesRdvLimitation();
+    this.setState({ mesRdv: this.props.mesRdv });
   }
 
   // TODO : Bien tester les impressions sur tous les navigateurs
   componentDidUpdate(prevProps, prevState) {
     this.props.print();
   }
-
-  mesRdvLimitation = () => {
-    // Par défaut on affiche 7 rdv sur la carte
-    // si un nouveau mot de passe a été généré, on en affichera 5 avec le nouveau mot de passe
-    if (this.props.mesRdv.length <= this.props.limit - 2) {
-      this.setState({ mesRdv: this.props.mesRdv });
-    }
-    if (this.props.mesRdv.length > this.props.limit) {
-      let mesRdv = [];
-      if (this.props.printWithPassword) {
-        for (let i = 0; i < this.props.limit - 2; i++) {
-          mesRdv.push(this.props.mesRdv[i]);
-        }
-      } else {
-        for (let i = 0; i < this.props.limit; i++) {
-          mesRdv.push(this.props.mesRdv[i]);
-        }
-      }
-      this.setState({ mesRdv: mesRdv });
-    }
-  };
 
   render() {
     let siteUrl = "";

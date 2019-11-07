@@ -96,7 +96,8 @@ export default class RdvPassCardA4 extends React.Component {
       return (
         <React.Fragment>
           <Modal
-            size="fullscreen"
+            //size="fullscreen"
+            size="large"
             open={this.state.open}
             closeIcon={true}
             onClose={() => {

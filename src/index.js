@@ -5,11 +5,7 @@ import { render } from "react-dom";
 // moment locale fr
 import "moment/locale/fr";
 
-//CSS
-
-//import "fullcalendar/dist/fullcalendar.print.css";
-import "fullcalendar/dist/fullcalendar.css";
-
+// CSS
 import "semantic-ui-css/semantic.css";
 
 // CSS fullcalendar v4

@@ -91,7 +91,8 @@
 @import url("site.css"); /*intégration*/
 
 /*
-    Calendar event
+  *********************************************************
+    Calendar event + CSS des boutons
 */
 
 .fc-event-container .fc-event {
@@ -99,6 +100,26 @@
   border-width: 1px;
   border-left-width: 10px; /* élargir le côté gauche de la bordure d'un événement */
 }
+
+.fc-button-group,
+.fc button {
+  background-color: #2185d0;
+  border-color: #2185d0;
+}
+
+.fc-button-group,
+.fc button:hover {
+  background-color: #51a0fa;
+  border-color: #51a0fa;
+}
+
+.fc-button-primary:not(:disabled):active,
+.fc-button-primary:not(:disabled).fc-button-active {
+  color: #fff;
+  background-color: #51a0fa;
+  border-color: #51a0fa;
+}
+/************************************************************/
 
 /*
     Calendar printing

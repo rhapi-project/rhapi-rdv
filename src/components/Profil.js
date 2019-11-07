@@ -51,10 +51,32 @@ const defaultProfil = {
 };
 
 export default class Profil extends React.Component {
-  state = {
+  /*state = {
     saved: true,
     passwordConfirm: "",
     ...defaultProfil
+  };*/
+
+  state = {
+    currentName: "",
+    userName: "",
+    userPassword: "",
+    passwordConfirm: "",
+    sms: false, // modal historique SMS
+    account: {
+      nom: "",
+      prenom: "",
+      adresse1: "",
+      adresse2: "",
+      adresse3: "",
+      codePostal: "",
+      ville: "",
+      pays: "",
+      telMobile: "",
+      telBureau: "",
+      email: ""
+    },
+    saved: true
   };
 
   componentDidMount() {
@@ -105,9 +127,9 @@ export default class Profil extends React.Component {
       let obj = this.state.account;
       let key = d.name;
       if (key === "telBureau" || key === "telMobile") {
-        obj[key] = telFormat(e.target.value);
+        obj[key] = telFormat(d.value);
       } else {
-        obj[key] = e.target.value;
+        obj[key] = d.value;
       }
       this.setState({ account: obj, saved: false });
     }
@@ -220,7 +242,6 @@ export default class Profil extends React.Component {
         </p>
       </Message>
     );
-
     return (
       <div id="profil" className={window.qWebChannel ? "qwebchannel" : ""}>
         {window.qWebChannel ? "" : <Header size={hsize}>Profil</Header>}
