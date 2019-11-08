@@ -125,11 +125,16 @@ export default class CalendarModalRdv extends React.Component {
     rdv: {}
   };
 
+  idCopiedRdv = null;
+
   componentDidMount() {
     this.reload(this.props);
   }
 
   componentDidUpdate(prevProps, prevState) {
+    if (prevProps.planning !== this.props.planning) {
+      this.idCopiedRdv = null;
+    }
     if (this.props.open && this.props.open !== prevProps.open) {
       let d = _.get(this.props, "options.plages.dureeMin", 0);
       let s = !this.props.selectStart
@@ -797,7 +802,7 @@ export default class CalendarModalRdv extends React.Component {
 
   render() {
     if (!this.props.open) {
-      return "";
+      return null;
     }
 
     let accordionIndex = this.state.accordionIndex;
@@ -806,7 +811,7 @@ export default class CalendarModalRdv extends React.Component {
     let rdv = this.state.rdv;
 
     if (_.isUndefined(rdv.planningJO)) {
-      return "";
+      return null;
     }
 
     /*
@@ -823,7 +828,7 @@ export default class CalendarModalRdv extends React.Component {
     */
 
     if (!this.props.isExternal && _.isUndefined(rdv.startAt)) {
-      return "";
+      return null;
     }
 
     // plannings et motifs
@@ -1598,13 +1603,51 @@ export default class CalendarModalRdv extends React.Component {
             ) : null}
           </Modal.Content>
           <Modal.Actions>
+            {this.state.isNewOne &&
+            !_.isNull(this.idCopiedRdv) &&
+            rdv.id !== this.idCopiedRdv ? (
+              <Button
+                style={{ float: "left" }}
+                content="Coller un RDV"
+                onClick={() => {
+                  this.props.client.RendezVous.read(
+                    this.idCopiedRdv,
+                    { planning: this.props.planning },
+                    myRdv => {
+                      let s = moment(myRdv.startAt);
+                      let e = moment(myRdv.endAt);
+                      let duration = moment.duration(e.diff(s));
+                      myRdv.startAt = rdv.startAt;
+                      myRdv.endAt = moment(rdv.startAt)
+                        .add(duration)
+                        .toISOString(true);
+                      this.patientLoad(myRdv.idPatient, myRdv);
+                      this.setState({ myRdv: myRdv });
+                    },
+                    () => {}
+                  );
+                }}
+              />
+            ) : null}
+
             {!this.state.isNewOne &&
             !_.isEmpty(this.state.patient) &&
             this.state.patient.id ? (
-              <Button
-                content="Tous les rendez-vous"
-                onClick={() => this.setState({ rdvPassCard: true })}
-              />
+              <React.Fragment>
+                <Button
+                  style={{ float: "left" }}
+                  content="Copier le RDV"
+                  disabled={this.idCopiedRdv === rdv.id}
+                  onClick={() => {
+                    this.idCopiedRdv = rdv.id;
+                    this.setState({}); // forcer le render
+                  }}
+                />
+                <Button
+                  content="Tous les rendez-vous"
+                  onClick={() => this.setState({ rdvPassCard: true })}
+                />
+              </React.Fragment>
             ) : null}
             {this.state.isNewOne ? (
               <Button content="Annuler" onClick={this.handleRemove} />
@@ -1619,9 +1662,9 @@ export default class CalendarModalRdv extends React.Component {
             )}
             <Ref
               innerRef={node => {
-                if (!this.state.isNewOne && !_.isNull(node)) {
+                /*if (!this.state.isNewOne && !_.isNull(node)) {
                   node.focus();
-                }
+                }*/
               }}
             >
               <Button primary={true} onClick={this.handleOk}>

@@ -309,24 +309,36 @@ export default class RdvPassCard extends React.Component {
     // tester la validité du template et placer les bonnes valeur {date-heure} et {infos-annulations} !!
     // TODO mettre un checkbox rouge (ou autre visualisation retour négatif) si non valide et return
     // erreur (2)
+
+    let mrdv = "";
+    for (let i = 0; i < this.state.rdvToPrint.length; i++) {
+      mrdv += rdvDateTime(this.state.rdvToPrint[i].startAt) + "\n";
+    }
     message = _.replace(
       message,
       "{date-heure}",
-      rdvDateTime(this.state.mesRdv[0].startAt)
+      //rdvDateTime(this.state.mesRdv[0].startAt)
+      mrdv
     );
-    let infos =
-      "Infos et annulation : " +
-      window.location.origin +
-      window.location.pathname
-        .split("/")
-        .slice(0, -1)
-        .join("/") +
-      "/#Patients/";
-    infos += this.props.patient.id;
-    //infos += ":" + this.state.newPassword;
-    infos += ":" + pwd;
-    infos += "@" + this.state.praticien.organisation.split("@")[0];
-    // split("@") si une forme master@master => master
+    let infos = "";
+    if (this.state.confirmPrintWithPassword) {
+      infos =
+        "Infos et annulation : " +
+        window.location.origin +
+        window.location.pathname
+          .split("/")
+          .slice(0, -1)
+          .join("/") +
+        "/#Patients/";
+      infos += this.props.patient.id;
+      //infos += ":" + this.state.newPassword;
+      infos += ":" + pwd;
+      infos += "@" + this.state.praticien.organisation.split("@")[0];
+      // split("@") si une forme master@master => master
+    } else {
+      infos = "";
+    }
+
     message = _.replace(message, "{infos-annulation}", infos);
 
     this.setState({ smsToSend: message, previsualisationSMS: true });
@@ -427,7 +439,8 @@ export default class RdvPassCard extends React.Component {
               <React.Fragment>
                 <Message>
                   <Message.Header>
-                    Les RDV sélectionnés apparaîtront sur la carte de RDV.
+                    Les RDV sélectionnés apparaîtront sur la carte de RDV et sur
+                    les SMS de confirmation.
                   </Message.Header>
                   <Message.Content>
                     <i>Vous pouvez sélectionner jusqu'à 5 RDV.</i>
@@ -462,7 +475,7 @@ export default class RdvPassCard extends React.Component {
                 this.setState({ confirmPrintWithPassword: d.checked });
                 localStorage.setItem("printPatientAccess", d.checked);
               }}
-              label="Imprimer les accès en ligne du patient sur la carte"
+              label="Envoyer les accès en ligne par SMS / Imprimer les accès en ligne du patient sur la carte"
             />
 
             {this.state.printWithPassword && this.state.onlineRdv ? (

@@ -327,13 +327,15 @@ class Main extends React.Component {
           }}
         >
           <Modal.Header>Aide</Modal.Header>
-          <Iframe
-            url="docs/Agendas.html"
-            height={wHeight * 0.8 + "px"}
-            display="initial"
-            position="relative"
-            allowFullScreen={true}
-          />
+          <Modal.Content>
+            <Iframe
+              url="docs/Agendas.html"
+              height={wHeight * 0.8 + "px"}
+              display="initial"
+              position="relative"
+              allowFullScreen={true}
+            />
+          </Modal.Content>
         </Modal>
       </React.Fragment>
     );
