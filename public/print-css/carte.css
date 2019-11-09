@@ -4,26 +4,26 @@
   }
 
   .coordonnees-praticien {
-    font-size: 9px;
+    font-size: 12px;
   }
 
   .praticien-currentName {
-    font-size: 10px;
+    font-size: 12px;
   }
   .titre-principal {
     margin-top: 1px;
     margin-bottom: 3px;
     text-align: center;
-    font-size: 10px
+    font-size: 12px
   }
 
   .item-rdv {
-    font-size: 9px;
+    font-size: 12px;
   }
 
   .new-password {
     margin-top: 6px;
-    font-size: 9px;
+    font-size: 10px;
   }
 
   .separator {
@@ -34,9 +34,9 @@
   .bottom-message {
     width: 100%;
     text-align: center;
-    font-size: 6px;
+    font-size: 7px;
     position: absolute;
-    bottom: 0;
+    bottom: 0px;
   }
 }
 
