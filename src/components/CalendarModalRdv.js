@@ -175,7 +175,6 @@ export default class CalendarModalRdv extends React.Component {
             : "\n" + localisation + todo;
         }
       });
-
       rdv.description = description;
       this.setState({ rdv: rdv });
     });
@@ -1622,7 +1621,7 @@ export default class CalendarModalRdv extends React.Component {
                         .add(duration)
                         .toISOString(true);
                       this.patientLoad(myRdv.idPatient, myRdv);
-                      this.setState({ myRdv: myRdv });
+                      this.setState({ rdv: myRdv });
                     },
                     () => {}
                   );

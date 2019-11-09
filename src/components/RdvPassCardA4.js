@@ -96,7 +96,6 @@ export default class RdvPassCardA4 extends React.Component {
       return (
         <React.Fragment>
           <Modal
-            //size="fullscreen"
             size="large"
             open={this.state.open}
             closeIcon={true}
@@ -162,7 +161,12 @@ export default class RdvPassCardA4 extends React.Component {
                         icon="print"
                         content="Imprimer"
                         onClick={() => {
-                          this.setState({ print: true });
+                          if (this.state.print) {
+                            this.setState({ print: false });
+                            _.delay(() => this.setState({ print: true }), 0);
+                          } else {
+                            this.setState({ print: !this.state.print });
+                          }
                         }}
                       />
                     </Ref>
@@ -387,14 +391,11 @@ class Preview extends React.Component {
   };
 
   print = () => {
-    if (_.isEmpty(this.state.mesRdv) && !this.state.printWithPassword) {
-      return;
-    }
-
     let content = document.getElementById("details");
 
     let win = window.open("", "Impression", "height=600,width=800");
 
+    win.document.open();
     win.document.write("<html><head>");
     win.document.write(
       '<link rel="stylesheet" type="text/css" href="print-css/semantic-ui-css/semantic.min.css" />'
@@ -405,7 +406,6 @@ class Preview extends React.Component {
     win.document.write("</head><body>");
     win.document.write(content.innerHTML);
     win.document.write("</body></html>");
-
     win.document.close();
     win.focus();
 
