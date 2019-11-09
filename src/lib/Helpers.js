@@ -16,13 +16,13 @@ const print = (
   isPrinting,
   printStatus
 ) => {
-  if (!_.isUndefined(isPrinting) && !isPrinting) {
+  if (isPrinting !== true) {
     setTimeout(() => {
       if (window.qWebChannel) {
         printStatus(true);
+        afterPrint();
         window.qWebChannel.webEnginePagePrint(() => {
           setTimeout(() => {
-            afterPrint();
             printStatus(false);
           }, 1000);
         });
