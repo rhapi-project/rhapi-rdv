@@ -14,20 +14,25 @@
     }
   ],
   "dependencies": {
-    "fullcalendar": "^3.9.0",
+    "@fullcalendar/core": "^4.3.1",
+    "@fullcalendar/daygrid": "^4.3.0",
+    "@fullcalendar/interaction": "^4.3.0",
+    "@fullcalendar/react": "^4.3.0",
+    "@fullcalendar/timegrid": "^4.3.0",
     "jquery-ui": "^1.12.1",
-    "lodash": "^4.17.10",
+    "lodash": "^4.17.15",
     "moment": "^2.24.0",
-    "react": "^16.3.2",
-    "react-color": "^2.14.1",
+    "react": "^16.10.2",
+    "react-color": "^2.17.3",
     "react-day-picker": "^7.3.0",
-    "react-dom": "^16.3.2",
+    "react-dom": "^16.10.2",
     "react-iframe": "^1.1.0",
     "react-moment-proptypes": "^1.6.0",
-    "react-simple-timefield": "^2.0.0",
+    "react-simple-timefield": "^3.0.0",
     "rhapi-client": "^1.0.14",
-    "semantic-ui-css": "2.2",
-    "semantic-ui-react": "^0.80.0"
+    "rhapi-ui-react": "^0.1.7",
+    "semantic-ui-css": "^2.4.1",
+    "semantic-ui-react": "^0.88.1"
   },
   "scripts": {
     "start": "npm run docs && npm run print-css && react-scripts start",
@@ -38,16 +43,25 @@
     "docs": "markdown-folder-to-html && node ./scripts/docs.js",
     "print-css": "node ./scripts/print-css.js"
   },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
   "devDependencies": {
     "markdown-folder-to-html": "^1.6.0",
     "prettier": "^1.12.1",
-    "react-scripts": "^3.0.1",
+    "react-scripts": "^3.2.0",
     "shelljs": "^0.8.2"
   },
-  "browserslist": [
-    ">0.2%",
-    "not dead",
-    "not ie <= 11",
-    "not op_mini all"
-  ]
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
 }

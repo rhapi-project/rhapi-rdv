@@ -7,17 +7,24 @@ import _ from "lodash";
 import FromToList from "./FromToList";
 
 class HorairesJour extends React.Component {
-  componentWillMount() {
+  state = {
+    horaires: []
+  };
+
+  componentDidMount() {
     this.setState({ horaires: this.props.horaires });
   }
 
-  componentWillReceiveProps(next) {
-    this.setState({ horaires: next.horaires });
+  static getDerivedStateFromProps(props, state) {
+    if (props.horaires !== state.horaires) {
+      return { horaires: props.horaires };
+    }
+    return null;
   }
 
   render() {
     if (!this.state) {
-      return "";
+      return null;
     }
 
     let horaires = this.state.horaires;
@@ -72,15 +79,7 @@ class HorairesJour extends React.Component {
 }
 
 export default class HorairesSemaine extends React.Component {
-  componentWillMount() {
-    this.setState({ indexHoraires: -1 });
-  }
-
-  componentWillReceiveProps(next) {
-    this.setState({
-      /*horaires: next.horaires*/
-    });
-  }
+  state = { indexHoraires: -1 };
 
   render() {
     const days = [

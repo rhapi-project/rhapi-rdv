@@ -7,32 +7,44 @@ import _ from "lodash";
 import { Search } from "semantic-ui-react";
 
 export default class PatientSearch extends React.Component {
-  componentWillMount() {
-    this.setState({ isLoading: false, results: [], value: "" });
-  }
+  state = {
+    isLoading: false,
+    results: [],
+    value: ""
+  };
 
-  componentWillReceiveProps(next) {
-    if (next.clear) {
-      this.setState({ isLoading: false, results: [], value: "" });
-      ReactDOM.findDOMNode(this)
-        .getElementsByTagName("input")[0]
-        .focus();
+  componentDidMount() {
+    let elt;
+    if (this.state.value === "") {
+      elt = ReactDOM.findDOMNode(this).getElementsByTagName("input")[0];
     } else {
-      if (this.props.value) {
-        this.setState({ value: this.props.value ? this.props.value : "" });
-      }
+      elt = ReactDOM.findDOMNode(this).getElementsByTagName("button")[0];
+    }
+    if (elt) {
+      elt.focus();
     }
   }
 
-  componentDidMount() {
-    if (this.state.value === "") {
-      ReactDOM.findDOMNode(this)
-        .getElementsByTagName("input")[0]
-        .focus();
-    } else {
-      ReactDOM.findDOMNode(this)
-        .getElementsByTagName("button")[0]
-        .focus();
+  static getDerivedStateFromProps(props, state) {
+    if (!_.isEmpty(props.value)) {
+      return {
+        value: props.value
+      };
+    }
+    if (props.clear) {
+      return {
+        value: ""
+      };
+    }
+    return null;
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.props.clear) {
+      let elt = ReactDOM.findDOMNode(this).getElementsByTagName("input")[0];
+      if (elt) {
+        elt.focus();
+      }
     }
   }
 

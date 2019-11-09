@@ -266,7 +266,7 @@ const telRegex = [
 
 // Formatage du numéro de téléphone pour l'affichage seulement
 const telFormat = telephone => {
-  if (telephone === "") {
+  if (!telephone) {
     return "";
   }
   let result = "";
@@ -338,6 +338,7 @@ const telFormat = telephone => {
       }
     }
   }
+  return telephone;
 };
 
 /*

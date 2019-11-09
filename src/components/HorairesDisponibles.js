@@ -12,15 +12,15 @@ export default class HorairesDisponibles extends React.Component {
     maxHoraires: 4
   };
 
-  componentWillMount() {
+  componentDidMount() {
     if (this.props.planningId > 0) {
       this.loadNext(this.props);
     }
   }
 
-  componentWillReceiveProps(next) {
-    if (next.motifId !== this.props.motifId) {
-      this.loadNext(next, true);
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.motifId !== this.props.motifId) {
+      this.loadNext(this.props.motifId, true);
     }
   }
 

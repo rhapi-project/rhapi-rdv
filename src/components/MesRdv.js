@@ -184,7 +184,7 @@ class MonRdv extends React.Component {
                   size="tiny"
                   open={this.state.openModif}
                   onClose={this.close}
-                  dimmer={false}
+                  //dimmer={false}
                   closeOnDocumentClick={true}
                 >
                   <Modal.Content scrolling={true}>
@@ -207,7 +207,7 @@ class MonRdv extends React.Component {
                   size="tiny"
                   open={this.state.openConfirmModif}
                   onClose={this.close}
-                  dimmer={false}
+                  //dimmer={false}
                   closeOnDocumentClick={true}
                 >
                   <Modal.Header
@@ -246,7 +246,7 @@ class MonRdv extends React.Component {
                   size="tiny"
                   open={this.state.openSupp}
                   onClose={this.close}
-                  dimmer={false}
+                  //dimmer={false}
                   closeOnDocumentClick={true}
                 >
                   <Modal.Header icon="archive" content="Annulation" />
@@ -297,13 +297,50 @@ class MonRdv extends React.Component {
 }
 
 export default class MesRdv extends React.Component {
-  componentWillMount() {
+  state = {
+    nouveauRdv: false,
+    mesRdv: [],
+    edited: false,
+    totalOnline: 0,
+    plannings: {},
+    autorisationPatient: 0
+  };
+
+  componentDidMount() {
+    this.props.client.Reservation.mesPlannings(
+      { ipp: this.props.patient.ipp, password: this.props.patient.password },
+      result => {
+        let planningsMap = {};
+        _.forEach(result.results, planning => {
+          planningsMap[planning.id] = {
+            titre: planning.titre,
+            description: planning.description,
+            prevenance: planning.prevenance,
+            motifs: planning.motifs
+          };
+        });
+        this.setState({ plannings: planningsMap });
+      },
+      datas => {
+        // ? erreur d'auth
+        // TODO : Afficher le message en utilisant un Component semantic à la place de 'alert'
+        console.log(datas);
+        //alert(datas.internalMessage + " : " + datas.userMessage);
+        window.history.back();
+      }
+    );
+    this.updateMesRdv();
+  }
+
+  /*componentWillMount() {
     this.setState({
       nouveauRdv: false,
       mesRdv: [],
       edited: false,
       totalOnline: 0
     }); // default state
+
+    
 
     this.props.client.Reservation.mesPlannings(
       {
@@ -332,7 +369,7 @@ export default class MesRdv extends React.Component {
     );
 
     this.updateMesRdv();
-  }
+  }*/
 
   updateMesRdv = () => {
     // Le RDV unique d'un patient non authentifié

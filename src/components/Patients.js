@@ -32,7 +32,17 @@ var client = localdev
     });
 
 export default class Patients extends React.Component {
-  componentWillMount() {
+  state = {
+    identifiant: "",
+    etablissement: "",
+    identified: false,
+    gestionRDV: false,
+    clientOk: false,
+    patient: {},
+    rdv: {}
+  };
+
+  componentDidMount() {
     /*
       3 accès possibles :
       - /#Patients : l'établissement est inconnu => formulaire identification complète du patient

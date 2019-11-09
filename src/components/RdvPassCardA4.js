@@ -39,12 +39,14 @@ export default class RdvPassCardA4 extends React.Component {
     print: false
   };
 
-  componentWillMount() {
+  componentDidMount() {
     this.loadPlanningsId(this.props.mesPlannings);
   }
 
-  componentWillReceiveProps() {
-    this.loadPlanningsId(this.props.mesPlannings);
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.mesPlannings !== this.props.mesPlannings) {
+      this.loadPlanningsId(this.props.mesPlannings);
+    }
   }
 
   /**
@@ -94,7 +96,7 @@ export default class RdvPassCardA4 extends React.Component {
       return (
         <React.Fragment>
           <Modal
-            size="fullscreen"
+            size="large"
             open={this.state.open}
             closeIcon={true}
             onClose={() => {
@@ -148,14 +150,23 @@ export default class RdvPassCardA4 extends React.Component {
                   </Grid.Column>
                   <Grid.Column width={4}>
                     <Ref
-                      innerRef={node => node.firstChild.parentElement.focus()}
+                      innerRef={node => {
+                        if (!_.isNull(node)) {
+                          node.focus();
+                        }
+                      }}
                     >
                       <Button
                         primary={true}
                         icon="print"
                         content="Imprimer"
                         onClick={() => {
-                          this.setState({ print: true });
+                          if (this.state.print) {
+                            this.setState({ print: false });
+                            _.delay(() => this.setState({ print: true }), 0);
+                          } else {
+                            this.setState({ print: !this.state.print });
+                          }
                         }}
                       />
                     </Ref>
@@ -306,18 +317,16 @@ class Preview extends React.Component {
     }
   };
 
-  componentWillMount() {
+  componentDidMount() {
     this.reload(this.props.dateRef);
   }
 
-  componentWillReceiveProps(next) {
-    if (this.props.dateRef !== next.dateRef) {
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.dateRef !== this.props.dateRef) {
       // si la date est modifiée, on recharge mesRdv
-      this.reload(next.dateRef);
-    } else {
-      if (next.print) {
-        this.print();
-      }
+      this.reload(this.props.dateRef);
+    } else if (this.props.print && prevProps.print !== this.props.print) {
+      this.print();
     }
   }
 
@@ -382,14 +391,11 @@ class Preview extends React.Component {
   };
 
   print = () => {
-    if (_.isEmpty(this.state.mesRdv) && !this.state.printWithPassword) {
-      return;
-    }
-
     let content = document.getElementById("details");
 
     let win = window.open("", "Impression", "height=600,width=800");
 
+    win.document.open();
     win.document.write("<html><head>");
     win.document.write(
       '<link rel="stylesheet" type="text/css" href="print-css/semantic-ui-css/semantic.min.css" />'
@@ -400,7 +406,6 @@ class Preview extends React.Component {
     win.document.write("</head><body>");
     win.document.write(content.innerHTML);
     win.document.write("</body></html>");
-
     win.document.close();
     win.focus();
 

@@ -47,12 +47,26 @@ class FromTo extends React.Component {
   titleText = ""; // texte en retour de SearchPatient > onTextChange
   // (repris comme titre si patient non identifié)
 
-  componentWillMount() {
+  state = {
+    hfrom: "00:00:00",
+    hto: "00:00:00"
+  };
+
+  componentDidMount() {
     this.setState({ hfrom: this.props.hfrom, hto: this.props.hto });
   }
 
-  componentWillReceiveProps(next) {
-    this.setState({ hfrom: next.hfrom, hto: next.hto });
+  static getDerivedStateFromProps(props, state) {
+    if (!props.hfrom || !props.hto) {
+      return null;
+    }
+    if (props.hfrom !== state.hfrom || props.hto !== state.hto) {
+      return {
+        hfrom: props.hfrom,
+        hto: props.hto
+      };
+    }
+    return null; // nothing to change in the state
   }
 
   handleChange = (value, name) => {
@@ -70,13 +84,12 @@ class FromTo extends React.Component {
 
   render() {
     let { hfrom, hto } = this.state;
-
     return (
       <div>
         <Label size="large" style={{ marginTop: 5 }} content="De" />
         <TimeField
           value={hfrom} // {String}   required, format '00:00' or '00:00:00'
-          onChange={value => this.handleChange(value, "hfrom")}
+          onChange={(e, value) => this.handleChange(value, "hfrom")}
           input={<input type="text" />}
           //colon=":" // {String}   default: ":"
           //showSeconds={false} // {Boolean}  default: false
@@ -85,7 +98,7 @@ class FromTo extends React.Component {
         <Label size="large" style={{ marginTop: 5 }} content="à" />
         <TimeField
           value={hto} // {String}   required, format '00:00' or '00:00:00'
-          onChange={value => this.handleChange(value, "hto")}
+          onChange={(e, value) => this.handleChange(value, "hto")}
           //input={<input type="text" />}
           //colon=":" // {String}   default: ":"
           //showSeconds={false} // {Boolean}  default: false
@@ -99,32 +112,47 @@ class FromTo extends React.Component {
 export default class CalendarModalRdv extends React.Component {
   //plannings = [];
 
-  componentWillMount() {
-    this.setState({
-      rdvPassCard: false,
-      deleteRdv: false,
-      dateRdvFocused: false,
-      patientSearchModal: false,
-      dureeDefaut: false
-    });
+  state = {
+    image: "",
+    accordionIndex: -1,
+    accordionIndex2: -1,
+    rdvPassCard: false,
+    deleteRdv: false,
+    dateRdvFocused: false,
+    patientSearchModal: false,
+    dureeDefaut: false,
+    patient: {},
+    rdv: {}
+  };
+
+  idCopiedRdv = null;
+
+  componentDidMount() {
     this.reload(this.props);
   }
 
-  componentWillReceiveProps(next) {
-    let d = _.get(next, "options.plages.dureeMin", 0);
-    let s = _.get(next, "selectStart", _.get(next, "event.start", moment()));
-    let e = _.get(next, "selectEnd", _.get(next, "event.end", moment()));
-    let d2 = e.diff(s) / 60000;
-    let dureeDefaut = d === d2;
-    if (next.open) {
-      this.reload(next);
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.planning !== this.props.planning) {
+      this.idCopiedRdv = null;
     }
-    this.setState({
-      image: "",
-      accordionIndex: -1,
-      accordionIndex2: -1,
-      dureeDefaut: dureeDefaut
-    });
+    if (this.props.open && this.props.open !== prevProps.open) {
+      let d = _.get(this.props, "options.plages.dureeMin", 0);
+      let s = !this.props.selectStart
+        ? moment(this.props.event.start)
+        : moment(this.props.selectStart);
+      let e = !this.props.selectEnd
+        ? moment(this.props.event.end)
+        : moment(this.props.selectEnd);
+      let d2 = e.diff(s) / 60000;
+      let dureeDefaut = d === d2;
+      this.setState({
+        image: "",
+        accordionIndex: -1,
+        accordionIndex2: -1,
+        dureeDefaut: dureeDefaut
+      });
+      this.reload(this.props);
+    }
   }
 
   patientTodos = (idPatient, rdv) => {
@@ -147,11 +175,8 @@ export default class CalendarModalRdv extends React.Component {
             : "\n" + localisation + todo;
         }
       });
-
-      if (!_.isEmpty(description)) {
-        rdv.description = description;
-        this.setState({ rdv: rdv });
-      }
+      rdv.description = description;
+      this.setState({ rdv: rdv });
     });
   };
 
@@ -312,6 +337,7 @@ export default class CalendarModalRdv extends React.Component {
   };
 
   reload = next => {
+    //console.log(next);
     const event = next.event;
 
     const isNewOne = _.isUndefined(event.title);
@@ -372,12 +398,12 @@ export default class CalendarModalRdv extends React.Component {
         rdv.startAt = event.startAt;
         rdv.endAt = event.endAt;
       } else {
-        rdv.startAt = _.isUndefined(next.selectStart)
+        rdv.startAt = !next.selectStart
           ? ""
-          : next.selectStart.toISOString();
-        rdv.endAt = _.isUndefined(next.selectEnd)
+          : next.selectStart.toISOString(true); // true : maintain the local timezone
+        rdv.endAt = !next.selectEnd
           ? rdv.startAt
-          : next.selectEnd.toISOString();
+          : next.selectEnd.toISOString(true);
       }
     } else {
       // (re)lire le rdv depuis le client
@@ -410,6 +436,7 @@ export default class CalendarModalRdv extends React.Component {
   };
 
   close = () => {
+    this.setState({ patient: {}, rdv: {} });
     this.props.close();
   };
 
@@ -774,7 +801,7 @@ export default class CalendarModalRdv extends React.Component {
 
   render() {
     if (!this.props.open) {
-      return "";
+      return null;
     }
 
     let accordionIndex = this.state.accordionIndex;
@@ -783,7 +810,7 @@ export default class CalendarModalRdv extends React.Component {
     let rdv = this.state.rdv;
 
     if (_.isUndefined(rdv.planningJO)) {
-      return "";
+      return null;
     }
 
     /*
@@ -800,7 +827,7 @@ export default class CalendarModalRdv extends React.Component {
     */
 
     if (!this.props.isExternal && _.isUndefined(rdv.startAt)) {
-      return "";
+      return null;
     }
 
     // plannings et motifs
@@ -866,7 +893,6 @@ export default class CalendarModalRdv extends React.Component {
         firstIsMobile = true;
       }
     }
-
     return (
       <React.Fragment>
         <Modal open={this.props.open}>
@@ -877,7 +903,8 @@ export default class CalendarModalRdv extends React.Component {
                   <React.Fragment>
                     <Ref
                       innerRef={node => {
-                        node.firstChild.parentElement.focus();
+                        //console.log(node.firstChild.parentElement);
+                        //node.firstChild.parentElement.focus();
                       }}
                     >
                       <PatientSearch
@@ -885,7 +912,11 @@ export default class CalendarModalRdv extends React.Component {
                         patientChange={this.patientChange}
                         onTextChange={text => (this.titleText = text)}
                         format={this.props.denominationFormat}
-                        value={this.state.rdv ? this.state.rdv.titre : ""}
+                        value={
+                          this.state.rdv && this.state.rdv.titre
+                            ? this.state.rdv.titre
+                            : ""
+                        }
                         minWidth={215}
                       />
                     </Ref>
@@ -1061,7 +1092,7 @@ export default class CalendarModalRdv extends React.Component {
                   })}
                 </span>
               ) : (
-                ""
+                <span>&nbsp;</span>
               )}
             </Header>
             <Header
@@ -1145,14 +1176,15 @@ export default class CalendarModalRdv extends React.Component {
           </Segment>
           <Modal.Content>
             <Grid>
-              <Grid.Column width={3}>
+              <Grid.Column width={3} textAlign="center">
                 {_.isEmpty(this.state.image) ? (
                   <Icon name="user" size="massive" />
                 ) : (
                   <Image
-                    size="massive"
+                    style={{ height: 150, width: "auto" }}
                     src={this.state.image}
-                    alt="Photo de profil"
+                    alt="photo de profil"
+                    centered={true}
                   />
                 )}
               </Grid.Column>
@@ -1191,11 +1223,11 @@ export default class CalendarModalRdv extends React.Component {
                             let rdv = this.state.rdv;
                             if (day) {
                               let startAt =
-                                _.split(moment(day).toISOString(), "T")[0] +
+                                _.split(moment(day).toISOString(true), "T")[0] +
                                 "T" +
                                 _.split(rdv.startAt, "T")[1];
                               let endAt =
-                                _.split(moment(day).toISOString(), "T")[0] +
+                                _.split(moment(day).toISOString(true), "T")[0] +
                                 "T" +
                                 _.split(rdv.endAt, "T")[1];
                               rdv.startAt = startAt;
@@ -1556,7 +1588,7 @@ export default class CalendarModalRdv extends React.Component {
           */}
             {!this.state.isNewOne &&
             !_.isEmpty(this.state.patient) &&
-            this.state.patient.id ? (
+            !_.isUndefined(this.state.patient.id) ? (
               <RdvPassCard
                 open={this.state.rdvPassCard}
                 client={this.props.client}
@@ -1567,36 +1599,71 @@ export default class CalendarModalRdv extends React.Component {
                 //saved
                 //save
               />
-            ) : (
-              ""
-            )}
+            ) : null}
           </Modal.Content>
           <Modal.Actions>
+            {this.state.isNewOne &&
+            !_.isNull(this.idCopiedRdv) &&
+            rdv.id !== this.idCopiedRdv ? (
+              <Button
+                style={{ float: "left" }}
+                content="Coller un RDV"
+                onClick={() => {
+                  this.props.client.RendezVous.read(
+                    this.idCopiedRdv,
+                    { planning: this.props.planning },
+                    myRdv => {
+                      let s = moment(myRdv.startAt);
+                      let e = moment(myRdv.endAt);
+                      let duration = moment.duration(e.diff(s));
+                      myRdv.startAt = rdv.startAt;
+                      myRdv.endAt = moment(rdv.startAt)
+                        .add(duration)
+                        .toISOString(true);
+                      this.patientLoad(myRdv.idPatient, myRdv);
+                      this.setState({ rdv: myRdv });
+                    },
+                    () => {}
+                  );
+                }}
+              />
+            ) : null}
+
             {!this.state.isNewOne &&
             !_.isEmpty(this.state.patient) &&
             this.state.patient.id ? (
-              <Button onClick={() => this.setState({ rdvPassCard: true })}>
-                Tous les rendez-vous
-              </Button>
-            ) : (
-              ""
-            )}
-            {/*<Button negative={!this.state.isNewOne} onClick={this.handleRemove}>
-            {this.state.isNewOne ? "Annuler" : "Supprimer"}
-          </Button>*/}
+              <React.Fragment>
+                <Button
+                  style={{ float: "left" }}
+                  content="Copier le RDV"
+                  disabled={this.idCopiedRdv === rdv.id}
+                  onClick={() => {
+                    this.idCopiedRdv = rdv.id;
+                    this.setState({}); // forcer le render
+                  }}
+                />
+                <Button
+                  content="Tous les rendez-vous"
+                  onClick={() => this.setState({ rdvPassCard: true })}
+                />
+              </React.Fragment>
+            ) : null}
             {this.state.isNewOne ? (
               <Button content="Annuler" onClick={this.handleRemove} />
             ) : (
-              <Button
-                content="Supprimer"
-                onClick={() => this.setState({ deleteRdv: true })}
-              />
+              <React.Fragment>
+                <Button
+                  content="Supprimer"
+                  onClick={() => this.setState({ deleteRdv: true })}
+                />
+                <Button content="Annuler" onClick={() => this.close()} />
+              </React.Fragment>
             )}
             <Ref
               innerRef={node => {
-                if (!this.state.isNewOne) {
+                /*if (!this.state.isNewOne && !_.isNull(node)) {
                   node.focus();
-                }
+                }*/
               }}
             >
               <Button primary={true} onClick={this.handleOk}>

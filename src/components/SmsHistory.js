@@ -21,46 +21,36 @@ import {
 
 import { telFormat, rdvDateTime } from "./Settings";
 
-/*
-  reload avec des paramètres
-
-  Forcer le reload à charger les SMS avec les bonnes valeurs "fromStr" et "toStr"
-  sinon, il arrive que le reload charge avec les valeurs du state qui ne sont pas
-  à jour !
-*/
-
 export default class SmsHistory extends React.Component {
   tri = [
     { text: "Trier par date", value: "date" },
     { text: "Trier par n° de téléphone", value: "tel" }
   ];
 
-  componentWillMount() {
-    this.setState({
+  constructor(props) {
+    super(props);
+    this.state = {
       loading: true,
       mois: moment().month(),
       currentYear: moment().year(),
       years: this.years(5), // select année
-      allMonths: this.allMonths(), // select mois (les mois sont indicés à partir de 0)
+      allMonths: this.allMonths(),
       messages: [],
       sortBy: "date",
       openedMessage: -1
-    });
+    };
   }
 
-  componentWillReceiveProps(next) {
-    if (next.sms) {
-      // charger uniquement les SMS du mois en cours
-      let fromStr = this.formatYearMonth(
-        this.state.currentYear,
-        this.state.mois + 1
-      );
-      let toStr = this.formatYearMonth(
-        this.state.currentYear,
-        this.state.mois + 2
-      );
-      this.reload(fromStr, toStr, this.state.sortBy);
-    }
+  componentDidMount() {
+    let fromStr = this.formatYearMonth(
+      this.state.currentYear,
+      this.state.mois + 1
+    );
+    let toStr = this.formatYearMonth(
+      this.state.currentYear,
+      this.state.mois + 2
+    );
+    this.reload(fromStr, toStr, this.state.sortBy);
   }
 
   reload = (fromStr, toStr, sortBy) => {
@@ -227,7 +217,6 @@ export default class SmsHistory extends React.Component {
   render() {
     let infos = this.state.informations;
     // {timeElapsed: 2507, totalCredits: 55, totalEnvois: 32, totalSms: 55}
-
     return (
       <React.Fragment>
         <Modal size="small" open={this.props.sms}>

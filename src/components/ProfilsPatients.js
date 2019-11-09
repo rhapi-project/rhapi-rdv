@@ -11,7 +11,8 @@ import {
   Button,
   Modal,
   Popup,
-  Ref
+  Ref,
+  Menu
 } from "semantic-ui-react";
 
 import {
@@ -20,7 +21,8 @@ import {
   helpPopup,
   denominationDefaultFormat,
   emailRegex,
-  telRegex
+  telRegex,
+  affichageDenomination
 } from "./Settings";
 
 import PatientSearch from "./PatientSearch";
@@ -29,21 +31,26 @@ import PatientSearchModal from "./PatientSearchModal";
 
 import FichePatient from "./FichePatient";
 
+import PatientSaisieActes from "./PatientSaisieActes";
+
+import PatientHistorique from "./PatientHistorique";
+
 import site from "./SiteSettings";
 
 export default class ProfilsPatients extends React.Component {
-  componentWillMount() {
-    this.setState({
-      npatients: 0,
-      praticien: "",
-      patient: {},
-      age: {},
-      saved: true,
-      errorOnSave: false,
-      modalDelete: false,
-      patientSearchModal: false
-    });
-  }
+  state = {
+    activeItem: "FichePatient",
+    npatients: 0,
+    praticien: "",
+    patient: {},
+    age: {},
+    saved: true,
+    errorOnSave: false,
+    modalDelete: false,
+    patientSearchModal: false,
+    idActe: null,
+    acteCopy: false
+  };
 
   componentDidMount() {
     this.reload();
@@ -118,6 +125,11 @@ export default class ProfilsPatients extends React.Component {
       patient: {},
       saved: true
     });
+    setTimeout(() => {
+      this.setState({
+        clearSearch: false
+      });
+    }, 0);
   };
 
   telephoneValide = numero => {
@@ -245,14 +257,140 @@ export default class ProfilsPatients extends React.Component {
   };
 
   render() {
+    let { activeItem, patient, age } = this.state;
     return (
       <div id="profil-patients">
-        <Header size={hsize}>Patients</Header>
-        {this.state.errorOnSave ? (
+        <Header size={hsize}>
+          {!site.evolution || !patient || !patient.id
+            ? "Patients"
+            : "IPP " +
+              patient.id +
+              " - " +
+              affichageDenomination("pN", patient.nom, patient.prenom) +
+              "  " +
+              (_.isNull(patient.naissance) || _.isNull(this.state.naissanceDate)
+                ? ""
+                : " - " +
+                  (patient.genre === 2 ? "née" : "né") +
+                  " le " +
+                  _.split(age.naissanceSmall, " ")[0] +
+                  " (" +
+                  age.texte +
+                  ")")}
+        </Header>
+        {site.evolution ? (
+          <Menu attached="top" secondary>
+            <Menu.Item
+              name="FichePatient"
+              active={activeItem === "FichePatient"}
+              onClick={() => {
+                this.onPatientChange(patient.id);
+                this.setState({ activeItem: "FichePatient" });
+              }}
+            >
+              Patient
+            </Menu.Item>
+            <Menu.Item
+              name="SaisieActes"
+              active={activeItem === "SaisieActes"}
+              onClick={() =>
+                this.setState({
+                  activeItem: "SaisieActes",
+                  idActe: null,
+                  acteCopy: false
+                })
+              }
+            >
+              Saisie des actes
+            </Menu.Item>
+            <Menu.Item
+              name="HistoriqueActes"
+              active={activeItem === "HistoriqueActes"}
+              onClick={() => this.setState({ activeItem: "HistoriqueActes" })}
+            >
+              Historique
+            </Menu.Item>
+            <Menu.Item
+              name="Documents"
+              active={activeItem === "Documents"}
+              onClick={() => this.setState({ activeItem: "Documents" })}
+            >
+              Documents
+            </Menu.Item>
+            <Menu.Item
+              name="Imagerie"
+              active={activeItem === "Imagerie"}
+              onClick={() => this.setState({ activeItem: "Imagerie" })}
+            >
+              Imagerie
+            </Menu.Item>
+            <Menu.Menu position="right">
+              <Menu.Item>
+                <PatientSearch
+                  client={this.props.client}
+                  patientChange={this.onPatientChange}
+                  format={denominationDefaultFormat} //TODO récupérer le format en configuration
+                  clear={this.state.clearSearch}
+                />
+
+                <Popup
+                  trigger={
+                    <Icon
+                      style={{
+                        cursor: "pointer",
+                        marginTop: 10,
+                        marginLeft: 10
+                      }}
+                      onClick={this.newSearch}
+                      size="large"
+                      name="remove user"
+                    />
+                  }
+                  content="Nouvelle recherche"
+                  on={helpPopup.on}
+                  size={helpPopup.size}
+                  inverted={helpPopup.inverted}
+                />
+                {/*<Icon
+            style={{ cursor: "pointer", marginTop: 10, marginLeft: 10 }}
+            onClick={this.newSearch}
+            size="large"
+            name="remove user"
+          />*/}
+
+                <Popup
+                  trigger={
+                    <Icon
+                      style={{
+                        cursor: "pointer",
+                        marginTop: 10,
+                        marginLeft: 10
+                      }}
+                      disabled={this.state.patientSearchModal}
+                      onClick={() => this.patientSearchModalOpen(true)}
+                      size="large"
+                      name="search"
+                    />
+                  }
+                  content="Recherche élargie"
+                  on={helpPopup.on}
+                  size={helpPopup.size}
+                  inverted={helpPopup.inverted}
+                />
+              </Menu.Item>
+            </Menu.Menu>
+          </Menu>
+        ) : (
+          ""
+        )}
+
+        {this.state.activeItem !== "FichePatient" ? (
+          ""
+        ) : this.state.errorOnSave ? (
           <Message negative={true} icon={true}>
             <Icon name="warning" size="small" />
             <Message.Content>
-              <Message.Header>Erreur les sauvegarde</Message.Header>
+              <Message.Header>Erreur lors d'une sauvegarde</Message.Header>
               Les données ont probablement été modifiées depuis un autre poste.
               Merci de bien vouloir annuler pour actualiser la fiche.
             </Message.Content>
@@ -262,7 +400,7 @@ export default class ProfilsPatients extends React.Component {
             <Icon name="doctor" size="small" />
             <Message.Content>
               <Message.Header>{this.state.praticien}</Message.Header>
-              Nombre de patients : {this.state.npatients}
+              Nombre total de patients : {this.state.npatients}
             </Message.Content>
           </Message>
         ) : (
@@ -277,64 +415,175 @@ export default class ProfilsPatients extends React.Component {
           </Message>
         )}
 
-        <Form.Input>
-          <PatientSearch
-            client={this.props.client}
-            patientChange={this.onPatientChange}
-            format={denominationDefaultFormat} //TODO récupérer le format en configuration
-            clear={this.state.clearSearch}
-          />
+        {site.evolution ? (
+          ""
+        ) : (
+          <Form.Input>
+            <PatientSearch
+              client={this.props.client}
+              patientChange={this.onPatientChange}
+              format={denominationDefaultFormat} //TODO récupérer le format en configuration
+              clear={this.state.clearSearch}
+            />
 
-          <Popup
-            trigger={
-              <Icon
-                style={{ cursor: "pointer", marginTop: 10, marginLeft: 10 }}
-                onClick={this.newSearch}
-                size="large"
-                name="remove user"
-              />
-            }
-            content="Nouvelle recherche"
-            on={helpPopup.on}
-            size={helpPopup.size}
-            inverted={helpPopup.inverted}
-          />
-          {/*<Icon
+            <Popup
+              trigger={
+                <Icon
+                  style={{ cursor: "pointer", marginTop: 10, marginLeft: 10 }}
+                  onClick={this.newSearch}
+                  size="large"
+                  name="remove user"
+                />
+              }
+              content="Nouvelle recherche"
+              on={helpPopup.on}
+              size={helpPopup.size}
+              inverted={helpPopup.inverted}
+            />
+            {/*<Icon
             style={{ cursor: "pointer", marginTop: 10, marginLeft: 10 }}
             onClick={this.newSearch}
             size="large"
             name="remove user"
           />*/}
 
-          <Popup
-            trigger={
-              <Icon
-                style={{ cursor: "pointer", marginTop: 10, marginLeft: 10 }}
-                disabled={this.state.patientSearchModal}
-                onClick={() => this.patientSearchModalOpen(true)}
-                size="large"
-                name="search"
-              />
-            }
-            content="Recherche élargie"
-            on={helpPopup.on}
-            size={helpPopup.size}
-            inverted={helpPopup.inverted}
+            <Popup
+              trigger={
+                <Icon
+                  style={{ cursor: "pointer", marginTop: 10, marginLeft: 10 }}
+                  disabled={this.state.patientSearchModal}
+                  onClick={() => this.patientSearchModalOpen(true)}
+                  size="large"
+                  name="search"
+                />
+              }
+              content="Recherche élargie"
+              on={helpPopup.on}
+              size={helpPopup.size}
+              inverted={helpPopup.inverted}
+            />
+          </Form.Input>
+        )}
+
+        <Divider hidden={true} />
+
+        {this.state.activeItem === "FichePatient" ? (
+          <React.Fragment>
+            <FichePatient
+              patient={patient}
+              age={this.state.age}
+              onChange={this.onChange}
+              client={this.props.client}
+              saved={this.state.saved} // new
+              save={this.save} // new
+              onPatientChange={this.onPatientChange} // new
+            />
+
+            <Divider hidden={true} />
+
+            {this.state.patient.id && !site.hideDeletePatientButton ? (
+              <Button
+                negative={true}
+                onClick={() => {
+                  this.setState({ modalDelete: true });
+                }}
+              >
+                Supprimer
+              </Button>
+            ) : (
+              ""
+            )}
+            {site.hideCreatePatientButton ? (
+              ""
+            ) : (
+              <Button onClick={this.create}>Nouveau patient</Button>
+            )}
+            {this.state.patient.id ? (
+              <React.Fragment>
+                <Button
+                  onClick={() =>
+                    this.onPatientChange(this.state.patient.id, "")
+                  }
+                >
+                  Annuler / Actualiser
+                </Button>
+                <Button primary={!this.state.saved} onClick={this.save}>
+                  Sauvegarder
+                </Button>
+              </React.Fragment>
+            ) : (
+              <div style={{ minHeight: "400px" }} />
+            )}
+            <Divider hidden={true} />
+
+            {/*Modal Delete*/}
+            <Modal size="tiny" open={this.state.modalDelete}>
+              <Modal.Header>Supprimer la fiche</Modal.Header>
+              <Modal.Content>
+                <p>Voulez-vous supprimer cette fiche ?</p>
+              </Modal.Content>
+              <Modal.Actions>
+                <Button negative={true} onClick={this.destroy}>
+                  Oui
+                </Button>
+                <Ref
+                  innerRef={node => {
+                    if (!_.isNull(node)) {
+                      node.focus();
+                    }
+                  }}
+                >
+                  <Button
+                    primary={true}
+                    onClick={() => {
+                      this.setState({ modalDelete: false });
+                    }}
+                  >
+                    Non
+                  </Button>
+                </Ref>
+              </Modal.Actions>
+            </Modal>
+          </React.Fragment>
+        ) : this.state.activeItem === "SaisieActes" ? (
+          <PatientSaisieActes
+            client={this.props.client}
+            idPatient={patient.id ? patient.id : 0}
+            idActe={this.state.idActe}
+            acteCopy={this.state.acteCopy}
           />
-        </Form.Input>
-        <Divider hidden={true} />
-
-        <FichePatient
-          patient={this.state.patient}
-          age={this.state.age}
-          onChange={this.onChange}
-          client={this.props.client}
-          saved={this.state.saved} // new
-          save={this.save} // new
-          onPatientChange={this.onPatientChange} // new
-        />
-
-        <Divider hidden={true} />
+        ) : this.state.activeItem === "HistoriqueActes" ? (
+          <PatientHistorique
+            client={this.props.client}
+            idPatient={patient.id ? patient.id : 0}
+            onReedition={idActe => {
+              this.setState({
+                activeItem: "SaisieActes",
+                idActe: idActe,
+                acteCopy: false
+              });
+            }}
+            onCopy={idActe => {
+              this.setState({
+                activeItem: "SaisieActes",
+                idActe: idActe,
+                acteCopy: true
+              });
+            }}
+          />
+        ) : this.state.activeItem === "Documents" ? (
+          <Header color="blue">
+            &lt;PatientDocuments idPatient=
+            {this.state.patient.id ? patient.id : 0}/&gt;
+          </Header>
+        ) : this.state.activeItem === "Imagerie" ? (
+          <Header color="pink">
+            &lt;PatientImagerie idPatient=
+            {this.state.patient.id ? patient.id : 0}/&gt;
+          </Header>
+        ) : (
+          ""
+        )}
 
         {/* Recherche élargie d'un patient */}
         <PatientSearchModal
@@ -343,62 +592,6 @@ export default class ProfilsPatients extends React.Component {
           patientChange={this.onPatientChange}
           patientSearchModalOpen={this.patientSearchModalOpen}
         />
-
-        {this.state.patient.id && !site.hideDeletePatientButton ? (
-          <Button
-            negative={true}
-            onClick={() => {
-              this.setState({ modalDelete: true });
-            }}
-          >
-            Supprimer
-          </Button>
-        ) : (
-          ""
-        )}
-        {site.hideCreatePatientButton ? (
-          ""
-        ) : (
-          <Button onClick={this.create}>Nouveau patient</Button>
-        )}
-        {this.state.patient.id ? (
-          <React.Fragment>
-            <Button
-              onClick={() => this.onPatientChange(this.state.patient.id, "")}
-            >
-              Annuler / Actualiser
-            </Button>
-            <Button primary={!this.state.saved} onClick={this.save}>
-              Sauvegarder
-            </Button>
-          </React.Fragment>
-        ) : (
-          <div style={{ minHeight: "400px" }} />
-        )}
-        <Divider hidden={true} />
-
-        {/*Modal Delete*/}
-        <Modal size="tiny" open={this.state.modalDelete}>
-          <Modal.Header>Supprimer la fiche</Modal.Header>
-          <Modal.Content>
-            <p>Voulez-vous supprimer cette fiche ?</p>
-          </Modal.Content>
-          <Modal.Actions>
-            <Button negative={true} onClick={this.destroy}>
-              Oui
-            </Button>
-            <Ref innerRef={node => node.firstChild.parentElement.focus()}>
-              <Button
-                primary={true}
-                onClick={() => {
-                  this.setState({ modalDelete: false });
-                }}
-              >
-                Non
-              </Button>
-            </Ref>
-          </Modal.Actions>
-        </Modal>
       </div>
     );
   }

@@ -2,12 +2,16 @@
 import React from "react";
 import { render } from "react-dom";
 
-//CSS
+// moment locale fr
+import "moment/locale/fr";
 
-//import "fullcalendar/dist/fullcalendar.print.css";
-import "fullcalendar/dist/fullcalendar.css";
-
+// CSS
 import "semantic-ui-css/semantic.css";
+
+// CSS fullcalendar v4
+import "@fullcalendar/core/main.css";
+import "@fullcalendar/daygrid/main.css";
+import "@fullcalendar/timegrid/main.css";
 
 import "./css/index.css";
 
@@ -27,7 +31,12 @@ import Praticiens from "./components/Praticiens";
 window.qWebChannel = false;
 
 class Main extends React.Component {
-  componentWillMount() {
+  state = {
+    visible: false,
+    help: false
+  };
+
+  reload = () => {
     let hash = window.location.hash;
     let subApp = hash.split("/")[0];
     this.setState({
@@ -39,9 +48,10 @@ class Main extends React.Component {
       ),
       help: false
     });
-  }
+  };
 
   componentDidMount() {
+    this.reload();
     // Qt Mixed App ?
     if (typeof QWebChannel !== "undefined") {
       window.QWebChannel(window.qt.webChannelTransport, channel => {
@@ -118,7 +128,7 @@ class Main extends React.Component {
             </Menu.Item>
             <Menu.Item header={true}>
               <Icon name="doctor" />
-              Praticien
+              Accès praticien
               <Menu.Menu>
                 <Menu.Item
                   name="Agendas"
@@ -144,6 +154,32 @@ class Main extends React.Component {
                     this.setState({ visible: false });
                   }}
                 />
+                {site.evolution ? (
+                  <React.Fragment>
+                    <Menu.Item
+                      name="Comptabilite"
+                      onClick={() => {
+                        window.location =
+                          originPath + "#Praticiens/Comptabilite";
+                        this.setState({ visible: false });
+                      }}
+                    >
+                      <Icon name="calculator" />
+                      Comptabilité
+                    </Menu.Item>
+                    <Menu.Item
+                      name="Statistiques"
+                      icon="chart line"
+                      onClick={() => {
+                        window.location =
+                          originPath + "#Praticiens/Statistiques";
+                        this.setState({ visible: false });
+                      }}
+                    />
+                  </React.Fragment>
+                ) : (
+                  ""
+                )}
                 <Menu.Item
                   name="Profil"
                   icon="address card"
@@ -175,7 +211,7 @@ class Main extends React.Component {
               }}
             >
               <Icon name="user" />
-              Patient
+              Accès patient
             </Menu.Item>
           </Sidebar>
           <Sidebar.Pusher>
@@ -291,13 +327,15 @@ class Main extends React.Component {
           }}
         >
           <Modal.Header>Aide</Modal.Header>
-          <Iframe
-            url="docs/Agendas.html"
-            height={wHeight * 0.8 + "px"}
-            display="initial"
-            position="relative"
-            allowFullScreen={true}
-          />
+          <Modal.Content>
+            <Iframe
+              url="docs/Agendas.html"
+              height={wHeight * 0.8 + "px"}
+              display="initial"
+              position="relative"
+              allowFullScreen={true}
+            />
+          </Modal.Content>
         </Modal>
       </React.Fragment>
     );

@@ -4,6 +4,8 @@ import React from "react";
 
 import { Dropdown, Button, Divider, Popup } from "semantic-ui-react";
 
+import moment from "moment";
+
 import Calendar from "./Calendar";
 
 import CalendarPanel from "./CalendarPanel";
@@ -12,20 +14,22 @@ import { helpPopup } from "./Settings";
 import { print } from "../lib/Helpers";
 
 export default class Calendars extends React.Component {
-  componentWillMount() {
+  state = {
+    plannings: [],
+    index: -1,
+    print: 0,
+    hidePanel: false,
+    currentDate: moment()
+  };
+
+  componentDidMount() {
     let hidePanel =
       localStorage.getItem("calendarPanelHide") === "true" ? true : false;
     this.setState({
-      plannings: [],
-      index: -1,
-      print: 0,
       hidePanel: _.isNull(hidePanel) ? false : hidePanel
     });
-  }
-
-  componentDidMount() {
     // ajust panel & calendar widths
-    window.addEventListener("resize", () => this.setState({}));
+    window.addEventListener("resize", this.onResize);
 
     this.reload();
 
@@ -36,8 +40,13 @@ export default class Calendars extends React.Component {
   isPrinting = false;
 
   componentWillUnmount() {
+    window.removeEventListener("resize", this.onResize);
     document.removeEventListener("keydown", this.handleHiddingPanel); // ne marchera pas avec une fonction anonyme
   }
+
+  onResize = () => {
+    this.setState({});
+  };
 
   afterPrint = () => {
     this.setState({ print: false });
@@ -126,23 +135,24 @@ export default class Calendars extends React.Component {
     let calendar = (
       <Calendar
         client={this.props.client}
+        currentDate={this.state.currentDate}
         couleur={
           this.state.index < 0
             ? ""
             : this.state.plannings[this.state.index].couleur
+        }
+        planning={
+          this.state.index < 0 ? "0" : this.state.plannings[this.state.index].id
         }
         options={
           this.state.index < 0
             ? {}
             : this.state.plannings[this.state.index].optionsJO
         }
-        planning={
-          this.state.index < 0 ? "0" : this.state.plannings[this.state.index].id
-        }
-        externalRefetch={this.state.externalRefetch}
         todayClick={() => {
-          this.setState({ todayClicked: true });
+          this.setState({ todayClicked: true, currentDate: moment() });
         }}
+        externalRefetch={this.state.externalRefetch}
       />
     );
 
@@ -168,8 +178,6 @@ export default class Calendars extends React.Component {
     /*if (this.state.hidePanel) {
       panelStyle["display"] = "none";
     }*/
-
-    //console.log(this.state.plannings[this.state.index]);
     return (
       <React.Fragment>
         {!this.state.hidePanel ? (
@@ -234,6 +242,7 @@ export default class Calendars extends React.Component {
             />
             <CalendarPanel
               client={this.props.client}
+              currentDate={this.state.currentDate} // new
               couleur={
                 this.state.index < 0
                   ? ""
@@ -249,9 +258,12 @@ export default class Calendars extends React.Component {
                   ? {}
                   : this.state.plannings[this.state.index].optionsJO
               }
-              handleExternalRefetch={externalRefetch =>
-                this.setState({ externalRefetch: externalRefetch })
-              }
+              onDateChange={date =>
+                this.setState({ currentDate: moment(date) })
+              } // new
+              handleExternalRefetch={externalRefetch => {
+                this.setState({ externalRefetch: externalRefetch });
+              }}
               todayClicked={this.state.todayClicked}
             />
           </div>
@@ -287,6 +299,7 @@ export default class Calendars extends React.Component {
           ) : (
             ""
           )}
+
           {this.state.index < 0 ? "" : calendar}
         </div>
       </React.Fragment>

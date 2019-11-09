@@ -4,6 +4,8 @@ import $ from "jquery";
 import draggable from "jquery-ui/ui/widgets/draggable";
 import droppable from "jquery-ui/ui/widgets/droppable";
 
+import { Draggable } from "@fullcalendar/interaction";
+
 import moment from "moment";
 
 import React from "react";
@@ -27,32 +29,77 @@ import { helpPopup } from "./Settings";
 export default class CalendarPanel extends React.Component {
   rhapiMd5 = "";
 
-  componentWillMount() {
-    this.setState({
-      currentDate: moment(),
-      currentPatient: { id: 0, title: "", rdv: { liste: [], index: -1 } },
-      externalEventsDatas: [],
-      modalClearExternal: false,
-      modalRdvIsOpen: false,
-      eventToEdit: {},
-      patient: {},
-      rdvPassCard: false,
-      patientSearchModal: false
-    });
-  }
+  state = {
+    currentPatient: { id: 0, title: "", rdv: { liste: [], index: -1 } },
+    externalEventsDatas: [],
+    modalClearExternal: false,
+    modalRdvIsOpen: false,
+    eventToEdit: {},
+    patient: {},
+    rdvPassCard: false,
+    patientSearchModal: false
+  };
 
-  componentWillReceiveProps(next) {
-    this.rhapiMd5 = "";
-    this.setState({
-      externalEventsDatas: []
-    });
-    this.reloadExternalEvents(next.planning);
-    this.onPatientChange(-1, ""); // force reload rdv patient
+  componentDidUpdate(prevProps, prevState) {
+    this.reloadExternalEvents(this.props.planning);
 
-    if (next.todayClicked) {
+    $("#external-events .fc-event").each((i, event) => {
+      let datas = this.state.externalEventsDatas[i];
+      let jEvent = $(event);
+
+      jEvent.data("event", {
+        title: $.trim(jEvent.text()),
+        stick: true,
+        data: datas
+      });
+
+      let motifIndex = -1;
+      if (datas.planningJO.motif) {
+        motifIndex = Math.abs(datas.planningJO.motif) - 1;
+      }
+
+      let couleur = _.isEmpty(datas.couleur)
+        ? motifIndex >= 0
+          ? this.props.options.reservation.motifs[motifIndex].couleur
+          : this.props.couleur
+        : datas.couleur;
+
+      let r = parseInt(couleur.substr(1, 2), 16);
+      let g = parseInt(couleur.substr(3, 2), 16);
+      let b = parseInt(couleur.substr(5, 2), 16);
+
+      let lightness = (r + g + b) / 3;
+
+      let textColor = lightness > 110 ? "#000000" : "#ffffff";
+
+      jEvent.css("color", textColor);
+
+      jEvent.css("background", "rgba(" + r + "," + g + "," + b + ",0.75)"); // add transparency
+
+      // jQuery UI : ui-widget(options, element);
+      // make the event draggable here using jQuery UI
+      draggable(
+        {
+          zIndex: 999,
+          revert: true, // will cause the event to go back to its
+          revertDuration: 0 //  original position after the drag
+        },
+        event
+      );
+
+      // make the event draggable on FullCalendar React
+      new Draggable(event, {
+        eventData: {
+          title: $.trim(jEvent.text()),
+          stick: true,
+          data: datas
+        }
+      });
+    });
+
+    if (this.props.todayClicked) {
       document.getElementsByClassName("DayPicker-TodayButton")[0].click();
     }
-    this.setState({ currentDate: moment() });
   }
 
   componentDidMount() {
@@ -117,65 +164,11 @@ export default class CalendarPanel extends React.Component {
     );
 
     this.props.handleExternalRefetch(this.reloadExternalEvents);
-
-    this.componentDidUpdate();
   }
 
   componentWillUnmount() {
     clearInterval(this.intervalId);
   }
-
-  componentDidUpdate() {
-    $("#external-events .fc-event").each((i, event) => {
-      let datas = this.state.externalEventsDatas[i];
-      let jEvent = $(event);
-
-      jEvent.data("event", {
-        title: $.trim(jEvent.text()),
-        stick: true,
-        data: datas
-      });
-
-      let motifIndex = -1;
-      if (datas.planningJO.motif) {
-        motifIndex = Math.abs(datas.planningJO.motif) - 1;
-      }
-
-      let couleur = _.isEmpty(datas.couleur)
-        ? motifIndex >= 0
-          ? this.props.options.reservation.motifs[motifIndex].couleur
-          : this.props.couleur
-        : datas.couleur;
-
-      let r = parseInt(couleur.substr(1, 2), 16);
-      let g = parseInt(couleur.substr(3, 2), 16);
-      let b = parseInt(couleur.substr(5, 2), 16);
-
-      let lightness = (r + g + b) / 3;
-
-      let textColor = lightness > 110 ? "#000000" : "#ffffff";
-
-      jEvent.css("color", textColor);
-
-      jEvent.css("background", "rgba(" + r + "," + g + "," + b + ",0.75)"); // add transparency
-
-      // jQuery UI : ui-widget(options, element);
-      // make the event draggable using jQuery UI
-      draggable(
-        {
-          zIndex: 999,
-          revert: true, // will cause the event to go back to its
-          revertDuration: 0 //  original position after the drag
-        },
-        event
-      );
-    });
-  }
-
-  onDateChange = date => {
-    this.setState({ currentDate: moment(date) });
-    $("#calendar").fullCalendar("gotoDate", date);
-  };
 
   getPatient = (id, title) => {
     this.props.client.Patients.completion(
@@ -449,9 +442,9 @@ export default class CalendarPanel extends React.Component {
           localeUtils={MomentLocaleUtils}
           fixedWeeks={true}
           showOutsideDays={true}
-          selectedDays={this.state.currentDate.toDate()}
+          selectedDays={this.props.currentDate.toDate()}
           todayButton="Aujourd'hui" // click sur ce bouton au click sur 'Aujourd'hui' de fullcalendar
-          onDayClick={day => this.onDateChange(day)}
+          onDayClick={day => this.props.onDateChange(day)}
         />
         <Divider style={{ marginTop: "0px" }} />
         <Form.Input>
@@ -464,7 +457,7 @@ export default class CalendarPanel extends React.Component {
                 : this.props.options.reservation.denominationFormat
             }
             clear={this.state.clearSearch}
-            value={!_.isEmpty(patient) ? patient.titre : ""}
+            value={patient && patient.titre ? patient.titre : ""}
           />
           {window.qWebChannel ? (
             <React.Fragment>
@@ -603,6 +596,11 @@ export default class CalendarPanel extends React.Component {
                           rdv: { liste: [], index: -1 }
                         }
                       });
+                      setTimeout(() => {
+                        this.setState({
+                          clearSearch: false
+                        });
+                      }, 0);
                     }}
                     name="remove user"
                     disabled={this.state.currentPatient.id === 0}
@@ -731,10 +729,7 @@ export default class CalendarPanel extends React.Component {
                   this.onPatientChange(-1);
                   let index = patient.rdv.index;
                   if (index >= 0) {
-                    $("#calendar").fullCalendar(
-                      "gotoDate",
-                      patient.rdv.liste[index].startAt
-                    );
+                    this.props.onDateChange(patient.rdv.liste[index].startAt);
                   }
                 }}
                 style={{ width: "70%", fontSize: "0.7rem" }}
