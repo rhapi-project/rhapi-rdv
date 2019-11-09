@@ -119,6 +119,17 @@
   background-color: #51a0fa;
   border-color: #51a0fa;
 }
+
+.fc-button {
+  height: 29px;
+  padding-top: 3px;
+}
+
+.fc-prev-button,
+.fc-next-button {
+  padding-top: 2px;
+}
+
 /************************************************************/
 
 /*
