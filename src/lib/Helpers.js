@@ -16,14 +16,14 @@ const print = (
   isPrinting,
   printStatus
 ) => {
-  if (isPrinting !== true) {
+  if (!isPrinting) {
     setTimeout(() => {
       if (window.qWebChannel) {
         printStatus(true);
-        afterPrint();
         window.qWebChannel.webEnginePagePrint(() => {
           setTimeout(() => {
             printStatus(false);
+            afterPrint();
           }, 1000);
         });
       } else {
