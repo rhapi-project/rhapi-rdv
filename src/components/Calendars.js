@@ -281,11 +281,18 @@ export default class Calendars extends React.Component {
         >
           {this.state.hidePanel ? (
             <div>
+              &nbsp;&nbsp;&nbsp;&nbsp;
               <Popup
                 trigger={
                   <Button
-                    basic={true}
-                    size="mini"
+                    style={{
+                      position: "fixed",
+                      top: 80,
+                      left: 1
+                    }}
+                    color="blue"
+                    size="tiny"
+                    compact={true}
                     icon="caret right"
                     onClick={() => this.hidePanel(!this.state.hidePanel)}
                   />
