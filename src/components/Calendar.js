@@ -462,6 +462,9 @@ export default class Calendar extends React.Component {
             }
             // Masquer "Aujourd'hui" (l'option allDayText="" ne fonctionne pas sur fc 4)
             $("div.fc-day-grid").css("color", "white");
+            // Remove Chrome focus border (outline) 
+            //$(".fc-button").css("outline", "none");
+            $(".fc-button").css("box-shadow", "none");
           }}
           locale={frLocale}
           height={window.innerHeight - 20} // à ajuster (il ne doit jamais y avoir 2 scrollbars verticales)
