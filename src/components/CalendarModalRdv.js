@@ -1180,7 +1180,7 @@ export default class CalendarModalRdv extends React.Component {
                   <Icon name="user" size="massive" />
                 ) : (
                   <Image
-                    style={{ height: 150, width: "auto" }}
+                    /*style={{ height: 150, width: "auto" }}*/
                     src={this.state.image}
                     alt="photo de profil"
                     centered={true}

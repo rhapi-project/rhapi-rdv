@@ -3,12 +3,12 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-
 import frLocale from "@fullcalendar/core/locales/fr";
 
 // les CSS fullcalendar sont importés dans index.js
 
-import moment from "moment";
+import moment from "moment-timezone"; // pour tzParis(dateTime)
+
 import _ from "lodash";
 import $ from "jquery";
 
@@ -255,6 +255,12 @@ export default class Calendar extends React.Component {
     this.fullCalendar.current.getApi().refetchEvents();
   };
 
+  tzParis = dateTime => {
+    // option non documentée : moment(date).tz(zone, keepTime)
+    // met la TZ Europe/Paris sans changer l'heure
+    return moment(dateTime).tz("Europe/Paris", true);
+  };
+
   handleEventDrop = event => {
     if (!event.event.end) {
       this.refetchEvents();
@@ -270,8 +276,8 @@ export default class Calendar extends React.Component {
     }
 
     let params = {
-      startAt: event.event.start.toISOString(),
-      endAt: event.event.end.toISOString()
+      startAt: this.tzParis(event.event.start).toISOString(),
+      endAt: this.tzParis(event.event.end).toISOString()
     };
     this.props.client.RendezVous.update(
       event.event.id,
@@ -292,8 +298,8 @@ export default class Calendar extends React.Component {
       return;
     }
     let params = {
-      startAt: event.event.start.toISOString(),
-      endAt: event.event.end.toISOString()
+      startAt: this.tzParis(event.event.start).toISOString(),
+      endAt: this.tzParis(event.event.end).toISOString()
     };
     this.props.client.RendezVous.update(
       event.event.id,
@@ -312,8 +318,8 @@ export default class Calendar extends React.Component {
     this.setState({
       openModalRdv: true,
       eventToEdit: {},
-      selectStart: moment(event.start),
-      selectEnd: moment(event.end)
+      selectStart: this.tzParis(event.start),
+      selectEnd: this.tzParis(event.end)
     });
   };
 
@@ -354,8 +360,8 @@ export default class Calendar extends React.Component {
       end.add(laps, "minutes");
     }
     var params = {
-      startAt: start.toISOString(),
-      endAt: end.toISOString()
+      startAt: this.tzParis(start).toISOString(),
+      endAt: this.tzParis(end).toISOString()
     };
 
     event.remove();
@@ -462,7 +468,7 @@ export default class Calendar extends React.Component {
             }
             // Masquer "Aujourd'hui" (l'option allDayText="" ne fonctionne pas sur fc 4)
             $("div.fc-day-grid").css("color", "white");
-            // Remove Chrome focus border (outline) 
+            // Remove Chrome focus border (outline)
             //$(".fc-button").css("outline", "none");
             $(".fc-button").css("box-shadow", "none");
           }}
