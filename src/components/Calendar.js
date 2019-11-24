@@ -323,32 +323,58 @@ export default class Calendar extends React.Component {
     });
   };
 
-  // Plusieurs appels successifs à eventReceive peuvent
-  // avoir lieu sur un même drop depuis la liste d'attente.
-  // Correctif (fonctionnel mais un peu lourd) avec blockage des
-  // appels réentrants et des appels pour un event id déjà traité.
-  prevEvents = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-  block = false;
-  eventReceive = info => {
+  // drag to external
+  handleEventDragStop = info => {
     let event = info.event;
-    if (this.block) {
-      event.remove();
+    let jsEvent = info.jsEvent;
+
+    if (_.isUndefined(jsEvent)) {
       return;
     }
-    let data = event.extendedProps.data;
-    if (this.prevEvents.indexOf(data.id) > -1) {
-      event.remove();
+
+    let externalEvents = $("#external-events");
+    let offset = externalEvents.offset();
+
+    let x = jsEvent.clientX;
+    let y = jsEvent.clientY;
+    offset.top -= $(document).scrollTop();
+    offset.right = externalEvents.width() + offset.left;
+    offset.bottom = externalEvents.height() + offset.top;
+    if (
+      !(
+        x >= offset.left &&
+        y >= offset.top - 100 &&
+        x <= offset.right &&
+        y <= offset.bottom + 100
+      )
+    ) {
+      // out the external div
       return;
     }
-    this.block = true;
-    // On maintient la liste des dix derniers event id
-    this.prevEvents.shift();
-    this.prevEvents.push(data.id);
+
+    this.props.client.RendezVous.listeAction(
+      event.id,
+      {
+        action: "push",
+        planning: 0, // push sur les listes de tous les plannings du RDV
+        liste: 1
+      },
+      () => {
+        this.props.externalRefetch(this.props.planning);
+        event.remove();
+      }
+    );
+  };
+
+  handlEventReceive = info => {
+    let event = info.event;
+    let datas = event.extendedProps.datas;
+
     let duration = this.state.defaultTimedEventDuration;
     let start = event.start;
     let end = moment(start);
-    let start0 = moment(data.startAt);
-    let end0 = moment(data.endAt);
+    let start0 = moment(datas.startAt);
+    let end0 = moment(datas.endAt);
     if (!start0.isValid() || !end0.isValid()) {
       end.add(duration, "minutes");
     } else {
@@ -367,11 +393,11 @@ export default class Calendar extends React.Component {
     event.remove();
 
     this.props.client.RendezVous.update(
-      data.id,
+      datas.id,
       params,
       () => {
         this.props.client.RendezVous.listeAction(
-          data.id,
+          datas.id,
           {
             action: "remove",
             planning: 0, // supprime de toutes les listes de tous les plannings du RDV
@@ -380,16 +406,11 @@ export default class Calendar extends React.Component {
           () => {
             this.refetchEvents();
             this.props.externalRefetch(this.props.planning);
-            this.block = false;
           },
-          () => {
-            this.block = false;
-          }
+          () => {}
         );
       },
-      () => {
-        this.block = false;
-      }
+      () => {}
     );
   };
 
@@ -498,11 +519,13 @@ export default class Calendar extends React.Component {
           eventClick={event =>
             this.setState({ openModalRdv: true, eventToEdit: event })
           }
+          dragRevertDuration={0}
           eventDrop={this.handleEventDrop}
+          eventDragStop={this.handleEventDragStop}
           eventResize={this.handleEventResize}
           select={this.handleZoneSelect} // gestion du clic ou selection plage horaire
           dropAccept=".fc-event"
-          eventReceive={this.eventReceive}
+          eventReceive={this.handlEventReceive}
         />
         <CalendarModalRdv
           open={this.state.openModalRdv}
