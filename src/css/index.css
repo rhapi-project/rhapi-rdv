@@ -97,7 +97,7 @@
 
 .fc-event-container .fc-event {
   border-radius: 0px;
-  border-width: 1px;
+  border-width: 0px;
   border-left-width: 10px; /* élargir le côté gauche de la bordure d'un événement */
 }
 

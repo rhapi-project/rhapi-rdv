@@ -1,13 +1,11 @@
 import _ from "lodash";
 
-/**
- * @param component composant à partir duquel on fait l'impression (this)
- * @param window fenêtre à imprimer (Module window de javascript)
- * @param afterPrint callback après impression
- * @param windowClose callback de fermeture de fenêtre après impression (peut être undefined)
- * @param isPrinting état de l'impression (peut être undefined)
- * @param printStatus callback de changement d'état de l'impression (peut être undefined)
- */
+// @param component composant à partir duquel on fait l'impression (this)
+// @param window fenêtre à imprimer (window de javascript)
+// @param afterPrint callback après impression
+// @param windowClose callback de fermeture de fenêtre après impression (peut être undefined)
+// @param isPrinting état de l'impression (peut être undefined)
+// @param printStatus callback de changement d'état de l'impression (peut être undefined)
 const print = (
   component,
   window,

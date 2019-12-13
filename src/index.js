@@ -319,7 +319,7 @@ class Main extends React.Component {
         )}
         {sidebar}
         <Modal
-          size="fullscreen"
+          size="large"
           open={this.state.help}
           closeIcon={true}
           onClose={() => {
@@ -327,15 +327,12 @@ class Main extends React.Component {
           }}
         >
           <Modal.Header>Aide</Modal.Header>
-          <Modal.Content>
-            <Iframe
-              url="docs/Agendas.html"
-              height={wHeight * 0.8 + "px"}
-              display="initial"
-              position="relative"
-              allowFullScreen={true}
-            />
-          </Modal.Content>
+          <Iframe
+            url="docs/Agendas.html"
+            height={wHeight * 0.8 + "px"}
+            width={"100%"}
+            allowFullScreen={true}
+          />
         </Modal>
       </React.Fragment>
     );

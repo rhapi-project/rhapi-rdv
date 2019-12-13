@@ -44,9 +44,6 @@ import MomentLocaleUtils, {
 import "react-day-picker/lib/style.css";
 
 class FromTo extends React.Component {
-  titleText = ""; // texte en retour de SearchPatient > onTextChange
-  // (repris comme titre si patient non identifié)
-
   state = {
     hfrom: "00:00:00",
     hto: "00:00:00"
@@ -186,7 +183,6 @@ export default class CalendarModalRdv extends React.Component {
     if (!idPatient) {
       // patient non encore défini (RDV pris en ligne ou RDV saisi sans identification)
       // rappelsJO déjà en rdv
-      this.titleText = rdv.titre;
 
       if (_.isUndefined(rdv.rappelsJO)) {
         rdv.rappelsJO = {};
@@ -485,8 +481,6 @@ export default class CalendarModalRdv extends React.Component {
       _.isUndefined(this.state.patient) ||
       _.isUndefined(this.state.patient.id)
     ) {
-      // permet de saisir un texte libre comme titre (nouveau patient)
-      rdv.titre = this.titleText;
       _.unset(rdv, "ipp2");
     }
 
@@ -517,13 +511,9 @@ export default class CalendarModalRdv extends React.Component {
         () => this.close()
       );
     }
-
-    this.titleText = ""; // reset
   };
 
   handleRemove = () => {
-    this.titleText = ""; // reset
-
     if (this.state.isNewOne) {
       this.close();
       return;
@@ -873,7 +863,7 @@ export default class CalendarModalRdv extends React.Component {
     // téléphones
     let tels = [];
     let firstIsMobile = false;
-    if (!this.state.isNewOne) {
+    if (this.state.rdv.idPatient > 0) {
       if (!_.isEmpty(this.state.patient)) {
         if (!_.isEmpty(this.state.patient.telMobile)) {
           tels.push(telFormat(this.state.patient.telMobile));
@@ -910,7 +900,16 @@ export default class CalendarModalRdv extends React.Component {
                       <PatientSearch
                         client={this.props.client}
                         patientChange={this.patientChange}
-                        onTextChange={text => (this.titleText = text)}
+                        onTextChange={text => {
+                          if (text.length === 1) {
+                            text = "";
+                          }
+                          let rdv = this.state.rdv;
+                          rdv.idPatient = 0;
+                          rdv.description = "";
+                          rdv.titre = text;
+                          this.setState({ rdv: rdv });
+                        }}
                         format={this.props.denominationFormat}
                         value={
                           this.state.rdv && this.state.rdv.titre
@@ -1181,7 +1180,7 @@ export default class CalendarModalRdv extends React.Component {
                   <Icon name="user" size="massive" />
                 ) : (
                   <Image
-                    style={{ height: 150, width: "auto" }}
+                    /*style={{ height: 150, width: "auto" }}*/
                     src={this.state.image}
                     alt="photo de profil"
                     centered={true}
@@ -1621,7 +1620,6 @@ export default class CalendarModalRdv extends React.Component {
                         .add(duration)
                         .toISOString(true);
                       this.patientLoad(myRdv.idPatient, myRdv);
-                      this.setState({ rdv: myRdv });
                     },
                     () => {}
                   );
@@ -1635,7 +1633,9 @@ export default class CalendarModalRdv extends React.Component {
               <React.Fragment>
                 <Button
                   style={{ float: "left" }}
-                  content="Copier le RDV"
+                  content={
+                    this.idCopiedRdv === rdv.id ? "RDV copié" : "Copier le RDV"
+                  }
                   disabled={this.idCopiedRdv === rdv.id}
                   onClick={() => {
                     this.idCopiedRdv = rdv.id;

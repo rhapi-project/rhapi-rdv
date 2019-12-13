@@ -156,10 +156,6 @@ export default class Calendars extends React.Component {
       />
     );
 
-    if (this.state.print) {
-      return calendar;
-    }
-
     // panel & calendar widths
     let width =
       window.innerWidth ||
@@ -175,12 +171,10 @@ export default class Calendars extends React.Component {
       marginLeft: 10,
       marginTop: 5
     };
-    /*if (this.state.hidePanel) {
-      panelStyle["display"] = "none";
-    }*/
+    let hidePanel = this.state.hidePanel || this.state.print;
     return (
       <React.Fragment>
-        {!this.state.hidePanel ? (
+        {!hidePanel ? (
           <div style={panelStyle}>
             <div style={{ textAlign: "right" }}>
               <Button.Group basic={true} size="mini">
@@ -272,22 +266,32 @@ export default class Calendars extends React.Component {
         )}
         <div
           style={{
-            width: this.state.hidePanel ? "98%" : calendarWidth,
+            width: hidePanel ? "98%" : calendarWidth,
             float: "right",
             marginRight: 10,
             marginTop: 5,
             display: "flex"
           }}
         >
-          {this.state.hidePanel ? (
+          {hidePanel ? (
             <div>
+              &nbsp;&nbsp;&nbsp;&nbsp;
               <Popup
                 trigger={
                   <Button
-                    basic={true}
-                    size="mini"
+                    style={{
+                      position: "fixed",
+                      top: 80,
+                      left: 1
+                    }}
+                    color="blue"
+                    size="tiny"
+                    compact={true}
                     icon="caret right"
-                    onClick={() => this.hidePanel(!this.state.hidePanel)}
+                    onClick={() => {
+                      this.hidePanel(false);
+                      this.setState({ print: false });
+                    }}
                   />
                 }
                 content="Afficher le panneau latéral gauche (Ctrl + Espace)"

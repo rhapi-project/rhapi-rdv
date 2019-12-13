@@ -77,7 +77,7 @@ export default class CalendarPanel extends React.Component {
       jEvent.css("background", "rgba(" + r + "," + g + "," + b + ",0.75)"); // add transparency
 
       // jQuery UI : ui-widget(options, element);
-      // make the event draggable here using jQuery UI
+      // make the event draggable (on external zone) using jQuery UI
       draggable(
         {
           zIndex: 999,
@@ -86,15 +86,6 @@ export default class CalendarPanel extends React.Component {
         },
         event
       );
-
-      // make the event draggable on FullCalendar React
-      new Draggable(event, {
-        eventData: {
-          title: $.trim(jEvent.text()),
-          stick: true,
-          data: datas
-        }
-      });
     });
 
     if (this.props.todayClicked) {
@@ -154,6 +145,22 @@ export default class CalendarPanel extends React.Component {
         },
         zone
       );
+    });
+
+    //  Make event draggable to React FullCalendar (Calendar eventReceive handlEventReceive)
+    // https://codesandbox.io/s/vm45zwmo07?from-embed
+    let draggableEl = document.getElementById("external-events");
+    new Draggable(draggableEl, {
+      itemSelector: ".fc-event",
+      eventData: eventEl => {
+        let datas = this.state.externalEventsDatas[
+          _.toNumber(eventEl.getAttribute("datas"))
+        ];
+        return {
+          title: datas.titre,
+          datas: datas
+        };
+      }
     });
 
     this.intervalId = setInterval(
@@ -800,6 +807,7 @@ export default class CalendarPanel extends React.Component {
                   <Divider fitted={true} hidden={true} />
                   <div
                     className="fc-event"
+                    datas={i}
                     onClick={() => {
                       this.setState({
                         modalRdvIsOpen: true,

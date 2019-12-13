@@ -2,7 +2,7 @@
 
 ![Menu agenda](images/menu-agenda.png)
 
-Permet au praticien de visualiser ses rendez-vous sur un mois, une semaine ou un jour. Les rendez-vous peuvent avoir été créés à partir de l'agenda ou bien en ligne.
+Permet au praticien de visualiser ses rendez-vous sur un mois, une semaine ou un jour. Les rendez-vous peuvent avoir été créés depuis l'agenda ou par le patient depuis la prise de rendez-vous en ligne.
 
 ![Visuel des rendez-vous sur l'agenda](images/agenda-calendar.png)
 
@@ -50,7 +50,7 @@ A la fin de la création d'un rendez-vous, le click sur le bouton "**OK**" corre
 
 Ces deux actions sont faites à partir de l'interface de la visualisation du détail d'un rendez-vous. C'est l'interface qui s'ouvre quand on clique sur un rendez-vous dans l'agenda. 
 
-Le clique sur le bouton "**Supprimer**" ouvrira une fenêtre de dialogue avec trois options : **Retour**, **Marquer annulé** et **Supprimer**.
+Le clic sur le bouton "**Supprimer**" ouvrira une fenêtre de dialogue avec trois options : **Retour**, **Marquer annulé** et **Supprimer**.
 
 * **Retour** correspond à l'annulation de l'action
 
