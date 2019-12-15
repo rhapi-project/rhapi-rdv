@@ -882,7 +882,14 @@ export default class CalendarModalRdv extends React.Component {
         tels.push(telFormat(this.state.rdv.patientJO.telMobile));
         firstIsMobile = true;
       }
+    } else if (
+      !_.isUndefined(this.state.rdv.patientJO) &&
+      !_.isEmpty(this.state.rdv.patientJO.telMobile)
+    ) {
+      tels.push(telFormat(this.state.rdv.patientJO.telMobile));
+      firstIsMobile = true;
     }
+
     return (
       <React.Fragment>
         <Modal open={this.props.open}>
@@ -1673,12 +1680,15 @@ export default class CalendarModalRdv extends React.Component {
           </Modal.Actions>
         </Modal>
 
-        {/* Modal suppression d'un rendez-vous */}
+        {/* Modal suppression d'un rendez-vous de l'agenda */}
 
-        <Modal size="small" open={this.state.deleteRdv}>
+        <Modal
+          size="small"
+          open={this.state.deleteRdv && !this.state.isExternal}
+        >
           <Modal.Header>Suppression du rendez-vous</Modal.Header>
           <Modal.Content>
-            Voulez-vous supprimer le rendez-vous ou le marquer comme{" "}
+            Souhaitez-vous supprimer le rendez-vous ou le marquer comme{" "}
             <strong>annulé</strong> ?
           </Modal.Content>
           <Modal.Actions>
@@ -1694,6 +1704,32 @@ export default class CalendarModalRdv extends React.Component {
                 this.setState({ rdv: rdv, deleteRdv: false });
                 this.handleOk();
               }}
+            />
+            <Button
+              negative={true}
+              content="Supprimer"
+              onClick={() => {
+                this.setState({ deleteRdv: false });
+                this.handleRemove();
+              }}
+            />
+          </Modal.Actions>
+        </Modal>
+
+        {/* Modal suppression d'un rendez-vous d'une liste d'attente  */}
+
+        <Modal
+          size="small"
+          open={this.state.deleteRdv && this.state.isExternal}
+        >
+          <Modal.Header>Supprimer un rendez-vous</Modal.Header>
+          <Modal.Content>
+            Vous confirmez la suppression du rendez-vous ?
+          </Modal.Content>
+          <Modal.Actions>
+            <Button
+              content="Annuler"
+              onClick={() => this.setState({ deleteRdv: false })}
             />
             <Button
               negative={true}

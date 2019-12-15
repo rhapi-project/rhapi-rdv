@@ -308,11 +308,7 @@ export default class CalendarPanel extends React.Component {
   };
 
   clearExternal = () => {
-    //_.forEach(this.state.externalEventsDatas, (external, i) => {
-    //  this.props.client.RendezVous.destroy(external.id, () => {});
-    //  if (i === this.state.externalEventsDatas.length - 1) {
-    // clean the list (remove all... if any)
-
+    /*
     let destroy = idRdv => {
       this.props.client.RendezVous.destroy(
         idRdv,
@@ -331,9 +327,10 @@ export default class CalendarPanel extends React.Component {
       // external est du type : { title: "LANGLOIS Frank", id: 305 }
       destroy(external.id);
     });
+    */
 
-    /*this.props.client.RendezVous.listeAction(
-      0,
+    this.props.client.RendezVous.listeAction(
+      0, // 0 => remove all
       {
         action: "remove",
         planning: this.props.planning,
@@ -341,12 +338,9 @@ export default class CalendarPanel extends React.Component {
       },
       () => {},
       () => {}
-    ); */
+    );
 
     this.setState({ externalEventsDatas: [] });
-
-    //  }
-    //});
   };
 
   addExternal = () => {
