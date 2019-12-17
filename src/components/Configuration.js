@@ -1447,7 +1447,6 @@ export default class Configuration extends React.Component {
         </React.Fragment>
       );
 
-      console.log(options.sms);
       const SMS = (
         <React.Fragment>
           <Form.Group>
