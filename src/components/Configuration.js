@@ -1447,6 +1447,7 @@ export default class Configuration extends React.Component {
         </React.Fragment>
       );
 
+      console.log(options.sms);
       const SMS = (
         <React.Fragment>
           <Form.Group>
@@ -1467,6 +1468,20 @@ export default class Configuration extends React.Component {
                   options.sms.rappel48 = d.checked;
                   plannings[index].optionsJO = options;
                   this.setState({ /*plannings: plannings*/ saved: false });
+                }}
+              />
+            </Form.Input>
+            <Form.Input
+              label="72 heures avant le RDV"
+              style={{ maxWidth: maxWidth / 10 }}
+            >
+              <Checkbox
+                toggle={true}
+                checked={options.sms.rappel72}
+                onChange={(e, d) => {
+                  options.sms.rappel72 = d.checked;
+                  plannings[index].optionsJO = options;
+                  this.setState({ saved: false });
                 }}
               />
             </Form.Input>

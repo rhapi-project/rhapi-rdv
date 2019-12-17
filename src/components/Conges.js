@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Button, Input, List } from "semantic-ui-react";
+import { Button, Form, Input, List } from "semantic-ui-react";
 
 import _ from "lodash";
 
@@ -61,6 +61,18 @@ export class Periode extends React.Component {
 
   handleFromChange(from) {
     if (!from) {
+      this.setState({ from: null });
+    } else {
+      this.setState({ from: moment(from) });
+      // moments to ISO Dates (onPeriodeChange accepts ISO Dates Strings only)
+      //if (from && this.state.to) {
+      this.props.onPeriodeChange(
+        moment(from).format("YYYY-MM-DD"),
+        _.isNull(this.state.to) ? null : this.state.to.format("YYYY-MM-DD")
+      );
+      //}
+    }
+    /*if (!from) {
       return;
     }
     this.setState({ from: moment(from) });
@@ -70,11 +82,22 @@ export class Periode extends React.Component {
         moment(from).format("YYYY-MM-DD"),
         this.state.to.format("YYYY-MM-DD")
       );
-    }
+    }*/
   }
 
   handleToChange(to) {
     if (!to) {
+      this.setState({ to: null });
+    } else {
+      this.setState({ to: moment(to) });
+      //if (this.state.from && to) {
+      this.props.onPeriodeChange(
+        _.isNull(this.state.from) ? null : this.state.from.format("YYYY-MM-DD"),
+        moment(to).format("YYYY-MM-DD")
+      );
+      //}
+    }
+    /*if (!to) {
       return;
     }
     this.setState({ to: moment(to) });
@@ -83,10 +106,64 @@ export class Periode extends React.Component {
         this.state.from.format("YYYY-MM-DD"),
         moment(to).format("YYYY-MM-DD")
       );
-    }
+    }*/
   }
 
   render() {
+    const from = _.isEmpty(this.state.from) ? null : this.state.from.toDate();
+    const to = _.isEmpty(this.state.to) ? null : this.state.to.toDate();
+    const modifiers = { start: from, end: to };
+    return (
+      <React.Fragment>
+        <Form.Group widths="equal" className="InputFromTo">
+          <Form.Input label="Du" style={{ width: "100%" }}>
+            <DayPickerInput
+              dayPickerProps={{
+                locale: "fr",
+                localeUtils: MomentLocaleUtils,
+                selectedDays: [from, { from, to }],
+                disabledDays: { after: to },
+                toMonth: to,
+                modifiers,
+                numberOfMonths: 1
+              }}
+              format="L"
+              formatDate={formatDate}
+              onDayChange={day => this.handleFromChange(day)}
+              parseDate={parseDate}
+              placeholder="Date de début"
+              value={from}
+            />
+          </Form.Input>
+          <Form.Input>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          </Form.Input>
+          <Form.Input label="au" className="InputFromTo-to">
+            <DayPickerInput
+              dayPickerProps={{
+                locale: "fr",
+                localeUtils: MomentLocaleUtils,
+                selectedDays: [from, { from, to }],
+                disabledDays: { before: from },
+                modifiers,
+                month: from,
+                fromMonth: from,
+                numberOfMonths: 1
+              }}
+              format="L"
+              formatDate={formatDate}
+              onDayChange={day => this.handleToChange(day)}
+              parseDate={parseDate}
+              placeholder="Date de fin"
+              value={to}
+            />
+          </Form.Input>
+        </Form.Group>
+      </React.Fragment>
+    );
+  }
+
+  /*render() {
     if (_.isNull(this.state.from) || _.isNull(this.state.to)) {
       return null;
     } else {
@@ -138,7 +215,7 @@ export class Periode extends React.Component {
         </div>
       );
     }
-  }
+  }*/
 }
 
 Periode.propTypes = propTypes;
