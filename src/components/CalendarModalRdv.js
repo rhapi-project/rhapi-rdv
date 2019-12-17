@@ -106,6 +106,29 @@ class FromTo extends React.Component {
   }
 }
 
+const rappelsNames = [
+  {
+    rappelName: "rappel72",
+    rappelDoneName: "rappel72Done",
+    label: "Rappel à 72 h"
+  },
+  {
+    rappelName: "rappel48",
+    rappelDoneName: "rappel48Done",
+    label: "Rappel à 48 h"
+  },
+  {
+    rappelName: "rappel24",
+    rappelDoneName: "rappel24Done",
+    label: "Rappel à 24 h"
+  },
+  {
+    rappelName: "rappel1",
+    rappelDoneName: "rappel1Done",
+    label: "Rappel à 1 h"
+  }
+];
+
 export default class CalendarModalRdv extends React.Component {
   //plannings = [];
 
@@ -235,7 +258,8 @@ export default class CalendarModalRdv extends React.Component {
               planning.sms.confirmationTexte !== "" &&
               (planning.sms.rappel1 ||
                 planning.sms.rappel24 ||
-                planning.sms.rappel48)
+                planning.sms.rappel48 ||
+                planning.sms.rappel72)
             ) {
               /*if (_.isUndefined(this.state)) {
                 return false;
@@ -251,9 +275,13 @@ export default class CalendarModalRdv extends React.Component {
               sms.rappel48 = iniState
                 ? planning.sms.rappel48
                 : rdv.rappelsJO.sms.rappel48;
+              sms.rappel72 = iniState
+                ? planning.sms.rappel72
+                : rdv.rappelsJO.sms.rappel72;
               sms.rappel1Done = iniState ? "" : rdv.rappelsJO.sms.rappel1Done;
               sms.rappel24Done = iniState ? "" : rdv.rappelsJO.sms.rappel24Done;
               sms.rappel48Done = iniState ? "" : rdv.rappelsJO.sms.rappel48Done;
+              sms.rappel72Done = iniState ? "" : rdv.rappelsJO.sms.rappel72Done;
 
               if (_.isEmpty(rdv.rappelsJO)) {
                 let rappelsJO = {};
@@ -277,9 +305,11 @@ export default class CalendarModalRdv extends React.Component {
               sms.rappel1 = iniState ? false : rdv.rappelsJO.sms.rappel1;
               sms.rappel24 = iniState ? false : rdv.rappelsJO.sms.rappel24;
               sms.rappel48 = iniState ? false : rdv.rappelsJO.sms.rappel48;
+              sms.rappel72 = iniState ? false : rdv.rappelsJO.sms.rappel72;
               sms.rappel1Done = iniState ? "" : rdv.rappelsJO.sms.rappel1Done;
               sms.rappel24Done = iniState ? "" : rdv.rappelsJO.sms.rappel24Done;
               sms.rappel48Done = iniState ? "" : rdv.rappelsJO.sms.rappel48Done;
+              sms.rappel72Done = iniState ? "" : rdv.rappelsJO.sms.rappel72Done;
 
               if (_.isEmpty(rdv.rappelsJO)) {
                 let rappelsJO = {};
@@ -306,9 +336,11 @@ export default class CalendarModalRdv extends React.Component {
           sms.rappel1 = iniState ? false : rdv.rappelsJO.sms.rappel1;
           sms.rappel24 = iniState ? false : rdv.rappelsJO.sms.rappel24;
           sms.rappel48 = iniState ? false : rdv.rappelsJO.sms.rappel48;
+          sms.rappel72 = iniState ? false : rdv.rappelsJO.sms.rappel72;
           sms.rappel1Done = iniState ? "" : rdv.rappelsJO.sms.rappel1Done;
           sms.rappel24Done = iniState ? "" : rdv.rappelsJO.sms.rappel24Done;
           sms.rappel48Done = iniState ? "" : rdv.rappelsJO.sms.rappel48Done;
+          sms.rappel72Done = iniState ? "" : rdv.rappelsJO.sms.rappel72Done;
 
           if (_.isEmpty(rdv.rappelsJO)) {
             let rappelsJO = {};
@@ -857,8 +889,8 @@ export default class CalendarModalRdv extends React.Component {
     let showRappels =
       !_.isUndefined(this.state.rdv.idPatient) &&
       !_.isUndefined(this.state.rdv.rappelsJO) &&
-      (!_.isEmpty(this.state.patient) &&
-        !_.isEmpty(this.state.patient.telMobile));
+      !_.isEmpty(this.state.patient) &&
+        !_.isEmpty(this.state.patient.telMobile);
 
     // téléphones
     let tels = [];
@@ -1429,144 +1461,68 @@ export default class CalendarModalRdv extends React.Component {
                       <strong>Rappel du rendez-vous par SMS</strong>
                     </div>
                     <Form>
-                      <Form.Group widths="equal">
-                        <Form.Input label="Rappel à 48h">
-                          <Checkbox
-                            name="rappel48"
-                            toggle={true}
-                            checked={this.state.rdv.rappelsJO.sms.rappel48}
-                            onChange={(e, d) => this.rappelSMSChange(e, d)}
-                          />
-                        </Form.Input>
+                      {_.map(rappelsNames, (rappel, index) => (
+                        <Form.Group widths="equal" key={index}>
+                          <Form.Input label={rappel.label}>
+                            <Checkbox
+                              name={rappel.rappelName}
+                              toggle={true}
+                              checked={
+                                this.state.rdv.rappelsJO.sms[rappel.rappelName]
+                              }
+                              onChange={(e, d) => this.rappelSMSChange(e, d)}
+                            />
+                          </Form.Input>
 
-                        <Form.Input
-                          label="Statut"
-                          disabled={!this.state.rdv.rappelsJO.sms.rappel48}
-                        >
-                          {this.state.rdv.rappelsJO.sms.rappel48 ? (
-                            !_.isEmpty(
-                              this.state.rdv.rappelsJO.sms.rappel48Done
-                            ) ? (
-                              <Icon name="checkmark" color="green" />
+                          <Form.Input
+                            label="Statut"
+                            disabled={
+                              !this.state.rdv.rappelsJO.sms[rappel.rappelName]
+                            }
+                          >
+                            {this.state.rdv.rappelsJO.sms[rappel.rappelName] ? (
+                              _.isEmpty(
+                                this.state.rdv.rappelsJO.sms[
+                                  rappel.rappelDoneName
+                                ]
+                              ) ? (
+                                <Icon name="checkmark" color="green" />
+                              ) : (
+                                <Icon name="minus" color="grey" />
+                              )
                             ) : (
-                              <Icon name="minus" color="grey" />
-                            )
-                          ) : (
-                            ""
-                          )}
-                        </Form.Input>
+                              ""
+                            )}
+                          </Form.Input>
 
-                        <Form.Input
-                          label="Date d'envoi"
-                          disabled={!this.state.rdv.rappelsJO.sms.rappel48}
-                        >
-                          {this.state.rdv.rappelsJO.sms.rappel48 ? (
-                            !_.isEmpty(
-                              this.state.rdv.rappelsJO.sms.rappel48Done
-                            ) ? (
-                              moment(
-                                this.state.rdv.rappelsJO.sms.rappel48Done
-                              ).format("LLLL")
+                          <Form.Input
+                            label="Date d'envoi"
+                            disabled={
+                              !this.state.rdv.rappelsJO.sms[rappel.rappelName]
+                            }
+                          >
+                            {this.state.rdv.rappelsJO.sms[rappel.rappelName] ? (
+                              !_.isEmpty(
+                                this.state.rdv.rappelsJO.sms[
+                                  rappel.rappelDoneName
+                                ]
+                              ) ? (
+                                moment(
+                                  this.state.rdv.rappelsJO.sms[
+                                    rappel.rappelDoneName
+                                  ]
+                                ).format("LLLL")
+                              ) : (
+                                <Icon name="minus" color="grey" />
+                              )
                             ) : (
-                              <Icon name="minus" color="grey" />
-                            )
-                          ) : (
-                            ""
-                          )}
-                        </Form.Input>
-                      </Form.Group>
-                      <Form.Group widths="equal">
-                        <Form.Input label="Rappel à 24h">
-                          <Checkbox
-                            name="rappel24"
-                            toggle={true}
-                            checked={this.state.rdv.rappelsJO.sms.rappel24}
-                            onChange={(e, d) => this.rappelSMSChange(e, d)}
-                          />
-                        </Form.Input>
-                        <Form.Input
-                          label="Statut"
-                          disabled={!this.state.rdv.rappelsJO.sms.rappel24}
-                        >
-                          {this.state.rdv.rappelsJO.sms.rappel24 ? (
-                            !_.isEmpty(
-                              this.state.rdv.rappelsJO.sms.rappel24Done
-                            ) ? (
-                              <Icon name="checkmark" color="green" />
-                            ) : (
-                              <Icon name="minus" color="grey" />
-                            )
-                          ) : (
-                            ""
-                          )}
-                        </Form.Input>
-
-                        <Form.Input
-                          label="Date d'envoi"
-                          disabled={!this.state.rdv.rappelsJO.sms.rappel24}
-                        >
-                          {this.state.rdv.rappelsJO.sms.rappel24 ? (
-                            !_.isEmpty(
-                              this.state.rdv.rappelsJO.sms.rappel24Done
-                            ) ? (
-                              moment(
-                                this.state.rdv.rappelsJO.sms.rappel24Done
-                              ).format("LLLL")
-                            ) : (
-                              <Icon name="minus" color="grey" />
-                            )
-                          ) : (
-                            ""
-                          )}
-                        </Form.Input>
-                      </Form.Group>
-
-                      <Form.Group widths="equal">
-                        <Form.Input label="Rappel à 1h">
-                          <Checkbox
-                            name="rappel1"
-                            toggle={true}
-                            checked={this.state.rdv.rappelsJO.sms.rappel1}
-                            onChange={(e, d) => this.rappelSMSChange(e, d)}
-                          />
-                        </Form.Input>
-                        <Form.Input
-                          label="Statut"
-                          disabled={!this.state.rdv.rappelsJO.sms.rappel1}
-                        >
-                          {this.state.rdv.rappelsJO.sms.rappel1 ? (
-                            !_.isEmpty(
-                              this.state.rdv.rappelsJO.sms.rappel1Done
-                            ) ? (
-                              <Icon name="checkmark" color="green" />
-                            ) : (
-                              <Icon name="minus" color="grey" />
-                            )
-                          ) : (
-                            ""
-                          )}
-                        </Form.Input>
-
-                        <Form.Input
-                          label="Date d'envoi"
-                          disabled={!this.state.rdv.rappelsJO.sms.rappel1}
-                        >
-                          {this.state.rdv.rappelsJO.sms.rappel1 ? (
-                            !_.isEmpty(
-                              this.state.rdv.rappelsJO.sms.rappel1Done
-                            ) ? (
-                              moment(
-                                this.state.rdv.rappelsJO.sms.rappel1Done
-                              ).format("LLLL")
-                            ) : (
-                              <Icon name="minus" color="grey" />
-                            )
-                          ) : (
-                            ""
-                          )}
-                        </Form.Input>
-                      </Form.Group>
+                              ""
+                            )}
+                          </Form.Input>
+                        </Form.Group>
+                      ))}
                     </Form>
+
                     {this.state.rdv.rappelsJO.modified &&
                     !_.isUndefined(this.state.patient) &&
                     !this.state.patient.gestionRdvJO.autoriseSMS ? (
