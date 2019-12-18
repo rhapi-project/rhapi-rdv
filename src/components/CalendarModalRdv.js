@@ -890,7 +890,7 @@ export default class CalendarModalRdv extends React.Component {
       !_.isUndefined(this.state.rdv.idPatient) &&
       !_.isUndefined(this.state.rdv.rappelsJO) &&
       !_.isEmpty(this.state.patient) &&
-        !_.isEmpty(this.state.patient.telMobile);
+      !_.isEmpty(this.state.patient.telMobile);
 
     // téléphones
     let tels = [];
