@@ -40,13 +40,16 @@ export default class UpdateRappels extends React.Component {
   };
 
   update = () => {
-    let now = moment().toISOString(true);
+    let now = moment();
     this.props.client.RendezVous.actualiser(
-      { planning: this.props.planningId, from: now, to: "2050-12-31" },
+      {
+        planning: this.props.planningId,
+        from: now.toISOString(true),
+        to: now.add(3, "years").toISOString(true)
+      },
       result => {
         this.setState({ totalRDV: result.results.length });
         _.forEach(result.results, rdv => {
-          this.setState({ traitedRDV: this.state.traitedRDV + 1 });
           this.props.client.Patients.read(
             rdv.idPatient,
             {},
@@ -74,8 +77,11 @@ export default class UpdateRappels extends React.Component {
                   this.updateRDV(rdv.id, rappelsJO);
                 }
               }
+              this.setState({ traitedRDV: this.state.traitedRDV + 1 });
             },
-            error => {}
+            error => {
+              this.setState({ traitedRDV: this.state.traitedRDV + 1 });
+            }
           );
         });
       },
@@ -124,9 +130,17 @@ export default class UpdateRappels extends React.Component {
                 "Aucun rendez-vous à venir."
               ) : (
                 <React.Fragment>
+                  <Message info={finished}>
+                    <Message.Content>
+                      {finished
+                        ? "Mise à jour des rappels de rendez-vous terminée."
+                        : "Mise à jour des rappels de rendez-vous en cours..."}
+                    </Message.Content>
+                  </Message>
                   <Progress
+                    active={finished ? false : true}
                     color="blue"
-                    size="medium"
+                    size="small"
                     total={this.state.totalRDV}
                     value={this.state.traitedRDV}
                   >

@@ -1,5 +1,12 @@
 import React from "react";
-import { Accordion, Button, Form, Divider, Checkbox } from "semantic-ui-react";
+import {
+  Accordion,
+  Button,
+  Form,
+  Divider,
+  Checkbox,
+  Popup
+} from "semantic-ui-react";
 import _ from "lodash";
 
 import ColorPicker from "./ColorPicker";
@@ -9,6 +16,7 @@ import HorairesSemaine from "./HorairesSemaine";
 import { Periode } from "./Conges";
 
 import moment from "moment";
+import { helpPopup } from "./Settings";
 
 export default class Recurrents extends React.Component {
   state = { index: -1 };
@@ -125,7 +133,6 @@ export default class Recurrents extends React.Component {
                           this.props.onChange();
                         }}
                       />
-
                       {recurrent.recurrence === 1 ? (
                         <React.Fragment>
                           <Form.Select
@@ -150,34 +157,20 @@ export default class Recurrents extends React.Component {
                           />
                         </React.Fragment>
                       ) : null}
-                      <Form.Input label="Période">
-                        <Button
-                          icon="close"
-                          onClick={() => {
-                            recurrent.start = "";
-                            recurrent.end = "";
-                            this.props.onChange();
-                          }}
-                        />
-                      </Form.Input>
                       <Form.Input>
                         <Periode
-                          /*initialStartDate={moment(
-                            _.isEmpty(recurrent.start)
-                              ? Date()
-                              : recurrent.start
-                          )}
-                          initialEndDate={moment(
-                            _.isEmpty(recurrent.end) ? Date() : recurrent.end
-                          )}*/
                           initialStartDate={
                             _.isEmpty(recurrent.start)
-                              ? null
+                              ? recurrent.recurrence === 2 // tous les ans durant la période
+                                ? moment()
+                                : null
                               : moment(recurrent.start)
                           }
                           initialEndDate={
                             _.isEmpty(recurrent.end)
-                              ? null
+                              ? recurrent.recurrence === 2
+                                ? moment()
+                                : null
                               : moment(recurrent.end)
                           }
                           clearFocus={this.state.clearFocus}
@@ -186,6 +179,26 @@ export default class Recurrents extends React.Component {
                             recurrent.end = _.isNull(end) ? "" : end;
                             this.props.onChange();
                           }}
+                        />
+                      </Form.Input>
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      <Form.Input label="Période">
+                        <Popup
+                          trigger={
+                            <Button
+                              icon="close"
+                              onClick={() => {
+                                recurrent.start = "";
+                                recurrent.end = "";
+                                this.props.onChange();
+                              }}
+                            />
+                          }
+                          content="Les champs de la période peuvent être laissés à vide sauf dans le cas de 'Tous les ans durant la période...'"
+                          on={helpPopup.on}
+                          size={helpPopup.size}
+                          inverted={helpPopup.inverted}
                         />
                       </Form.Input>
                     </Form.Group>
