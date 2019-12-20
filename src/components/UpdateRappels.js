@@ -26,19 +26,6 @@ export default class UpdateRappels extends React.Component {
     }
   }
 
-  updateRDV = (id, rappelsJO) => {
-    this.props.client.RendezVous.update(
-      id,
-      { rappelsJO: rappelsJO },
-      result => {
-        this.setState({ modifiedRDV: this.state.modifiedRDV + 1 });
-      },
-      error => {
-        console.log(error);
-      }
-    );
-  };
-
   update = () => {
     let now = moment();
     this.props.client.RendezVous.actualiser(
@@ -49,7 +36,8 @@ export default class UpdateRappels extends React.Component {
       },
       result => {
         this.setState({ totalRDV: result.results.length });
-        _.forEach(result.results, rdv => {
+        let updateFunc = arrayRDV => {
+          let rdv = arrayRDV[0];
           this.props.client.Patients.read(
             rdv.idPatient,
             {},
@@ -74,16 +62,57 @@ export default class UpdateRappels extends React.Component {
                     ? false
                     : this.props.rappels.rappel72;
                   rappelsJO.sms = sms;
-                  this.updateRDV(rdv.id, rappelsJO);
+
+                  // mise à jour du RDV
+                  this.props.client.RendezVous.update(
+                    rdv.id,
+                    { rappelsJO: rappelsJO },
+                    result => {
+                      arrayRDV.shift();
+                      this.setState({
+                        modifiedRDV: this.state.modifiedRDV + 1,
+                        traitedRDV: this.state.traitedRDV + 1
+                      });
+                      if (!_.isEmpty(arrayRDV)) {
+                        updateFunc(arrayRDV); // appel récursif
+                      }
+                    },
+                    error => {
+                      console.log(error);
+                      arrayRDV.shift();
+                      this.setState({ traitedRDV: this.state.traitedRDV + 1 });
+                      if (!_.isEmpty(arrayRDV)) {
+                        updateFunc(arrayRDV); // appel récursif
+                      }
+                    }
+                  );
+                } else {
+                  // smsIsAllowed === false
+                  arrayRDV.shift();
+                  this.setState({ traitedRDV: this.state.traitedRDV + 1 });
+                  if (!_.isEmpty(arrayRDV)) {
+                    updateFunc(arrayRDV); // appel récursif
+                  }
+                }
+              } else {
+                arrayRDV.shift();
+                this.setState({ traitedRDV: this.state.traitedRDV + 1 });
+                if (!_.isEmpty(arrayRDV)) {
+                  updateFunc(arrayRDV); // appel récursif
                 }
               }
-              this.setState({ traitedRDV: this.state.traitedRDV + 1 });
             },
             error => {
+              arrayRDV.shift();
               this.setState({ traitedRDV: this.state.traitedRDV + 1 });
+              if (!_.isEmpty(arrayRDV)) {
+                updateFunc(arrayRDV); // appel récursif
+              }
             }
           );
-        });
+        };
+
+        updateFunc(result.results);
       },
       error => {
         console.log(error);
