@@ -37,7 +37,10 @@ export default class UpdateRappels extends React.Component {
       result => {
         this.setState({ totalRDV: result.results.length });
         let updateFunc = arrayRDV => {
-          let rdv = arrayRDV[0];
+          let rdv = arrayRDV.shift();
+          if (_.isUndefined(rdv)) {
+            return;
+          }
           this.props.client.Patients.read(
             rdv.idPatient,
             {},
@@ -68,46 +71,31 @@ export default class UpdateRappels extends React.Component {
                     rdv.id,
                     { rappelsJO: rappelsJO },
                     result => {
-                      arrayRDV.shift();
                       this.setState({
                         modifiedRDV: this.state.modifiedRDV + 1,
                         traitedRDV: this.state.traitedRDV + 1
                       });
-                      if (!_.isEmpty(arrayRDV)) {
-                        updateFunc(arrayRDV); // appel récursif
-                      }
+                      updateFunc(arrayRDV);
                     },
                     error => {
                       console.log(error);
-                      arrayRDV.shift();
                       this.setState({ traitedRDV: this.state.traitedRDV + 1 });
-                      if (!_.isEmpty(arrayRDV)) {
-                        updateFunc(arrayRDV); // appel récursif
-                      }
+                      updateFunc(arrayRDV);
                     }
                   );
                 } else {
                   // smsIsAllowed === false
-                  arrayRDV.shift();
                   this.setState({ traitedRDV: this.state.traitedRDV + 1 });
-                  if (!_.isEmpty(arrayRDV)) {
-                    updateFunc(arrayRDV); // appel récursif
-                  }
+                  updateFunc(arrayRDV);
                 }
               } else {
-                arrayRDV.shift();
                 this.setState({ traitedRDV: this.state.traitedRDV + 1 });
-                if (!_.isEmpty(arrayRDV)) {
-                  updateFunc(arrayRDV); // appel récursif
-                }
+                updateFunc(arrayRDV);
               }
             },
             error => {
-              arrayRDV.shift();
               this.setState({ traitedRDV: this.state.traitedRDV + 1 });
-              if (!_.isEmpty(arrayRDV)) {
-                updateFunc(arrayRDV); // appel récursif
-              }
+              updateFunc(arrayRDV);
             }
           );
         };
