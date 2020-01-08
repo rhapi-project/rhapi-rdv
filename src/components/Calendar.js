@@ -109,10 +109,7 @@ export default class Calendar extends React.Component {
           .minutes(0)
           .format("HH:mm");
         maxTime = moment(maxT, "HH:mm")
-          .add(
-            _.isUndefined(plages.margeDebut) ? 60 : plages.margeDebut,
-            "minutes"
-          )
+          .add(_.isUndefined(plages.margeFin) ? 60 : plages.margeFin, "minutes")
           .minutes(0)
           .format("HH:mm");
       });

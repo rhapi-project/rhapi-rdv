@@ -296,14 +296,21 @@ export default class RdvPassCard extends React.Component {
       return;
     }
 
-    let message = this.state.mesPlannings[i].optionsJO.sms.confirmationTexte;
+    let mrdv = "";
+    for (let i = 0; i < this.state.rdvToPrint.length; i++) {
+      mrdv += rdvDateTime(this.state.rdvToPrint[i].startAt) + "\n";
+    }
+
+    //let message = this.state.mesPlannings[i].optionsJO.sms.confirmationTexte;
+    let message = this.state.mesPlannings[i].optionsJO.sms.rappelTexte;
     // tester la validité du template et placer les bonnes valeur {date-heure} et {infos-annulations} !!
     // TODO mettre un checkbox rouge (ou autre visualisation retour négatif) si non valide et return
     // erreur (2)
     message = _.replace(
       message,
       "{date-heure}",
-      rdvDateTime(this.state.mesRdv[0].startAt)
+      //rdvDateTime(this.state.mesRdv[0].startAt)
+      mrdv
     );
     let infos =
       "Infos et annulation : " +

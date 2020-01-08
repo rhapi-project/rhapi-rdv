@@ -1,5 +1,12 @@
 import React from "react";
-import { Accordion, Form, Divider, Checkbox } from "semantic-ui-react";
+import {
+  Accordion,
+  Button,
+  Form,
+  Divider,
+  Checkbox,
+  Popup
+} from "semantic-ui-react";
 import _ from "lodash";
 
 import ColorPicker from "./ColorPicker";
@@ -9,6 +16,7 @@ import HorairesSemaine from "./HorairesSemaine";
 import { Periode } from "./Conges";
 
 import moment from "moment";
+import { helpPopup } from "./Settings";
 
 export default class Recurrents extends React.Component {
   state = { index: -1 };
@@ -101,6 +109,7 @@ export default class Recurrents extends React.Component {
                         />
                       </Form.Input>
                     </Form.Group>
+
                     <Form.Group>
                       <Form.Select
                         label="Récurrence"
@@ -136,12 +145,8 @@ export default class Recurrents extends React.Component {
                               this.props.onChange();
                             }}
                           />
-                          <span>
-                            <br />
-                            <br />à partir de la semaine...
-                          </span>
                           <Form.Select
-                            label="&nbsp;"
+                            label="à partir de la semaine..."
                             scrolling={true}
                             options={semainesOptions}
                             value={recurrent.from}
@@ -151,39 +156,61 @@ export default class Recurrents extends React.Component {
                             }}
                           />
                         </React.Fragment>
-                      ) : recurrent.recurrence === 2 ? (
-                        <Form.Input label="&nbsp;">
-                          <Periode
-                            initialStartDate={moment(
-                              _.isEmpty(recurrent.start)
-                                ? Date()
-                                : recurrent.start
-                            )}
-                            initialEndDate={moment(
-                              _.isEmpty(recurrent.end) ? Date() : recurrent.end
-                            )}
-                            clearFocus={this.state.clearFocus}
-                            onPeriodeChange={(start, end) => {
-                              recurrent.start = start;
-                              recurrent.end = end;
-                              this.props.onChange();
-                            }}
-                          />
-                        </Form.Input>
-                      ) : (
-                        ""
-                      )}
+                      ) : null}
+                      <Form.Input>
+                        <Periode
+                          initialStartDate={
+                            _.isEmpty(recurrent.start)
+                              ? recurrent.recurrence === 2 // tous les ans durant la période
+                                ? moment()
+                                : null
+                              : moment(recurrent.start)
+                          }
+                          initialEndDate={
+                            _.isEmpty(recurrent.end)
+                              ? recurrent.recurrence === 2
+                                ? moment()
+                                : null
+                              : moment(recurrent.end)
+                          }
+                          clearFocus={this.state.clearFocus}
+                          onPeriodeChange={(start, end) => {
+                            recurrent.start = _.isNull(start) ? "" : start;
+                            recurrent.end = _.isNull(end) ? "" : end;
+                            this.props.onChange();
+                          }}
+                        />
+                      </Form.Input>
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      <Form.Input label="Période">
+                        <Popup
+                          trigger={
+                            <Button
+                              icon="close"
+                              onClick={() => {
+                                recurrent.start = "";
+                                recurrent.end = "";
+                                this.props.onChange();
+                              }}
+                            />
+                          }
+                          content="Les champs de la période peuvent être laissés à vide sauf dans le cas de 'Tous les ans durant la période...'"
+                          on={helpPopup.on}
+                          size={helpPopup.size}
+                          inverted={helpPopup.inverted}
+                        />
+                      </Form.Input>
                     </Form.Group>
-                    {recurrent.recurrence === 2 ? (
-                      ""
-                    ) : (
+
+                    {recurrent.recurrence !== 2 ? (
                       <HorairesSemaine
                         style={{ padding: "20px" }}
                         horaires={recurrent.horaires}
                         onHorairesChange={this.props.onChange}
                         allday={true}
                       />
-                    )}
+                    ) : null}
                   </Accordion.Content>
                 </Accordion.Content>
               </React.Fragment>

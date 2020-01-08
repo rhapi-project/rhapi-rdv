@@ -19,7 +19,7 @@ import MesRdv from "./MesRdv";
 import HorairesDisponibles from "./HorairesDisponibles";
 
 export default class PriseRdv extends React.Component {
-  componentWillMount() {
+  componentDidMount() {
     let patient = {};
     if (this.props.identified) {
       patient.ipp = this.props.patient.ipp;
@@ -129,6 +129,10 @@ export default class PriseRdv extends React.Component {
   };
 
   render() {
+    if (!this.state) {
+      return "";
+    }
+
     if (this.state.voirMesRdv) {
       return (
         <MesRdv

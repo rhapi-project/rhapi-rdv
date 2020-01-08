@@ -28,6 +28,7 @@ import Recurrents from "./Recurrents";
 import ColorPicker from "./ColorPicker";
 import IcalExport from "./IcalExport";
 import IcalImport from "./IcalImport";
+import UpdateRappels from "./UpdateRappels";
 
 export default class Configuration extends React.Component {
   state = {
@@ -42,7 +43,8 @@ export default class Configuration extends React.Component {
     save: false, // modal save configs
     load: false, // modal load configs
     modalIcalExport: false,
-    modalIcalImport: false
+    modalIcalImport: false,
+    updateRappels: false
   };
 
   componentDidMount() {
@@ -547,6 +549,8 @@ export default class Configuration extends React.Component {
             .join("/") +
           "/";
       }
+
+      //console.log(planning);
 
       const Plages = (
         <React.Fragment>
@@ -1459,19 +1463,35 @@ export default class Configuration extends React.Component {
                 checked={
                   options.sms.rappel1 ||
                   options.sms.rappel24 ||
-                  options.sms.rappel48
+                  options.sms.rappel48 ||
+                  options.sms.rappel72
                 }
                 onChange={(e, d) => {
                   options.sms.rappel1 = d.checked;
                   options.sms.rappel24 = d.checked;
                   options.sms.rappel48 = d.checked;
+                  options.sms.rappel72 = d.checked;
                   plannings[index].optionsJO = options;
                   this.setState({ /*plannings: plannings*/ saved: false });
                 }}
               />
             </Form.Input>
             <Form.Input
-              label="48 heures avant le RDV"
+              label="72 h avant le RDV"
+              style={{ maxWidth: maxWidth / 10 }}
+            >
+              <Checkbox
+                toggle={true}
+                checked={options.sms.rappel72}
+                onChange={(e, d) => {
+                  options.sms.rappel72 = d.checked;
+                  plannings[index].optionsJO = options;
+                  this.setState({ saved: false });
+                }}
+              />
+            </Form.Input>
+            <Form.Input
+              label="48 h avant le RDV"
               style={{ maxWidth: maxWidth / 10 }}
             >
               <Checkbox
@@ -1487,7 +1507,7 @@ export default class Configuration extends React.Component {
               />
             </Form.Input>
             <Form.Input
-              label="24 heures avant le RDV"
+              label="24 h avant le RDV"
               style={{ maxWidth: maxWidth / 10 }}
             >
               <Checkbox
@@ -1503,7 +1523,7 @@ export default class Configuration extends React.Component {
               />
             </Form.Input>
             <Form.Input
-              label="1 heure avant le RDV"
+              label="1 h avant le RDV"
               style={{ maxWidth: maxWidth / 10 }}
             >
               <Checkbox
@@ -1516,6 +1536,13 @@ export default class Configuration extends React.Component {
                     /*plannings: plannings*/ saved: false
                   });
                 }}
+              />
+            </Form.Input>
+
+            <Form.Input label="Appliquer les modifications aux RDV déjà existants">
+              <Button
+                content="Appliquer"
+                onClick={() => this.setState({ updateRappels: true })}
               />
             </Form.Input>
           </Form.Group>
@@ -1590,6 +1617,20 @@ export default class Configuration extends React.Component {
             doivent être supprimés si la gestion/prise de RDV par les patients
             n'est pas activée
           </Label>
+
+          {/* Modal UpdateRappels */}
+          <UpdateRappels
+            client={this.props.client}
+            open={this.state.updateRappels}
+            onClose={() => this.setState({ updateRappels: false })}
+            planningId={planning.id}
+            rappels={{
+              rappel1: options.sms.rappel1,
+              rappel24: options.sms.rappel24,
+              rappel48: options.sms.rappel48,
+              rappel72: options.sms.rappel72
+            }}
+          />
         </React.Fragment>
       );
 
