@@ -28,6 +28,9 @@ import App from "./components/App";
 import Patients from "./components/Patients";
 import Praticiens from "./components/Praticiens";
 
+// package
+import globalPackage from "../package.json";
+
 window.qWebChannel = false;
 
 class Main extends React.Component {
@@ -213,6 +216,20 @@ class Main extends React.Component {
               <Icon name="user" />
               Accès patient
             </Menu.Item>
+
+            {/* affichage de la version */}
+            <Menu.Item
+              header={true}
+              name="about"
+            >
+              <Icon name="info" />
+              À propos
+              <Menu.Menu>
+                <Menu.Item>
+                  Version {globalPackage.version}
+                </Menu.Item>
+              </Menu.Menu>
+            </Menu.Item>
           </Sidebar>
           <Sidebar.Pusher>
             <Divider fitted={true} hidden={true} />
@@ -293,7 +310,6 @@ class Main extends React.Component {
         </Sidebar.Pushable>
       );
     }
-
     return (
       <React.Fragment>
         {this.state.visible ? (
