@@ -24,14 +24,14 @@
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.27",
     "react": "^16.10.2",
-    "react-color": "^2.17.3",
-    "react-day-picker": "^7.3.0",
+    "react-color": "^2.18.0",
+    "react-day-picker": "^7.4.0",
     "react-dom": "^16.10.2",
     "react-iframe": "^1.1.0",
-    "react-moment-proptypes": "^1.6.0",
+    "react-moment-proptypes": "^1.7.0",
     "react-simple-timefield": "^3.0.0",
-    "rhapi-client": "^1.0.14",
-    "rhapi-ui-react": "^0.1.7",
+    "rhapi-client": "^1.0.19",
+    "rhapi-ui-react": "^0.1.8",
     "semantic-ui-css": "^2.4.1",
     "semantic-ui-react": "^0.88.1"
   },
@@ -49,7 +49,7 @@
   },
   "devDependencies": {
     "markdown-folder-to-html": "^1.6.0",
-    "prettier": "^1.12.1",
+    "prettier": "^1.19.1",
     "react-scripts": "^3.2.0",
     "shelljs": "^0.8.2"
   },
