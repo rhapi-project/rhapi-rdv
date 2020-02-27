@@ -2,7 +2,7 @@ import React from "react";
 import { Actes } from "rhapi-ui-react";
 import {
   Button,
-  Divider,
+  //Divider,
   //Header,
   Input,
   Menu,
@@ -346,7 +346,6 @@ export default class PatientSaisieActes extends React.Component {
     } else
       return (
         <React.Fragment>
-          <Divider hidden={true} />
           {!_.isEmpty(this.state.fse) ? (
             <div>
               <Menu pointing={true} secondary={true}>
