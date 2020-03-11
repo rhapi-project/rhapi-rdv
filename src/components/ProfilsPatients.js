@@ -35,6 +35,8 @@ import PatientSaisieActes from "./PatientSaisieActes";
 
 import PatientHistorique from "./PatientHistorique";
 
+import PatientDocuments from "./PatientDocuments";
+
 import site from "./SiteSettings";
 
 export default class ProfilsPatients extends React.Component {
@@ -572,10 +574,10 @@ export default class ProfilsPatients extends React.Component {
             }}
           />
         ) : this.state.activeItem === "Documents" ? (
-          <Header color="blue">
-            &lt;PatientDocuments idPatient=
-            {this.state.patient.id ? patient.id : 0}/&gt;
-          </Header>
+          <PatientDocuments
+            client={this.props.client}
+            idPatient={patient.id ? patient.id : 0}
+          />
         ) : this.state.activeItem === "Imagerie" ? (
           <Header color="pink">
             &lt;PatientImagerie idPatient=

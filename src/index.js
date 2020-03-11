@@ -218,16 +218,10 @@ class Main extends React.Component {
             </Menu.Item>
 
             {/* affichage de la version */}
-            <Menu.Item
-              header={true}
-              name="about"
-            >
-              <Icon name="info" />
-              À propos
+            <Menu.Item header={true} name="about">
+              <Icon name="info" />À propos
               <Menu.Menu>
-                <Menu.Item>
-                  Version {globalPackage.version}
-                </Menu.Item>
+                <Menu.Item>Version {globalPackage.version}</Menu.Item>
               </Menu.Menu>
             </Menu.Item>
           </Sidebar>
