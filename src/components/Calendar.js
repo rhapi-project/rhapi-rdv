@@ -65,6 +65,15 @@ export default class Calendar extends React.Component {
     clearInterval(this.refetchInterval);
   }
 
+  setTextColor = backgroundColor => {
+    let lightness =
+      (parseInt(backgroundColor.substr(1, 2), 16) +
+        parseInt(backgroundColor.substr(3, 2), 16) +
+        parseInt(backgroundColor.substr(5, 2), 16)) /
+      3;
+    return lightness > 110 ? "#000000" : "#ffffff";
+  };
+
   reload = () => {
     let hiddenDays = [];
     let businessHours = [];
@@ -215,13 +224,7 @@ export default class Calendar extends React.Component {
               ? etat.color
               : rdvEtats[0].color;
 
-            let lightness =
-              (parseInt(couleur.substr(1, 2), 16) +
-                parseInt(couleur.substr(3, 2), 16) +
-                parseInt(couleur.substr(5, 2), 16)) /
-              3;
-
-            let textColor = lightness > 110 ? "#000000" : "#ffffff";
+            let textColor = this.setTextColor(couleur);
 
             let event = {
               id: data.id,
@@ -513,9 +516,21 @@ export default class Calendar extends React.Component {
           events={(fetchInfo, success, failure) =>
             this.fetchEvents(fetchInfo, success, failure)
           }
-          eventClick={event =>
-            this.setState({ openModalRdv: true, eventToEdit: event })
-          }
+          eventClick={event => {
+            this.setState({ openModalRdv: true, eventToEdit: event });
+          }}
+          eventRender={event => {
+            // surcharge du render d'un event pour forcer l'affichage
+            // du titre d'un event en arrière plan
+            if (event.event._def.rendering === "background") {
+              let s = document.createElement("strong");
+              s.style.color = this.setTextColor(
+                event.event._def.ui.backgroundColor
+              );
+              s.append(event.event._def.title);
+              event.el.appendChild(s);
+            }
+          }}
           dragRevertDuration={0}
           eventDrop={this.handleEventDrop}
           eventDragStop={this.handleEventDragStop}
