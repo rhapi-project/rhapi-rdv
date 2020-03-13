@@ -125,7 +125,8 @@ export default class ProfilsPatients extends React.Component {
     this.setState({
       clearSearch: true,
       patient: {},
-      saved: true
+      saved: true,
+      activeItem: "FichePatient"
     });
     setTimeout(() => {
       this.setState({
@@ -294,6 +295,7 @@ export default class ProfilsPatients extends React.Component {
             </Menu.Item>
             <Menu.Item
               name="SaisieActes"
+              disabled={_.isEmpty(patient)}
               active={activeItem === "SaisieActes"}
               onClick={() =>
                 this.setState({
@@ -307,6 +309,7 @@ export default class ProfilsPatients extends React.Component {
             </Menu.Item>
             <Menu.Item
               name="HistoriqueActes"
+              disabled={_.isEmpty(patient)}
               active={activeItem === "HistoriqueActes"}
               onClick={() => this.setState({ activeItem: "HistoriqueActes" })}
             >
@@ -314,6 +317,7 @@ export default class ProfilsPatients extends React.Component {
             </Menu.Item>
             <Menu.Item
               name="Documents"
+              disabled={_.isEmpty(patient)}
               active={activeItem === "Documents"}
               onClick={() => this.setState({ activeItem: "Documents" })}
             >
@@ -321,6 +325,7 @@ export default class ProfilsPatients extends React.Component {
             </Menu.Item>
             <Menu.Item
               name="Imagerie"
+              disabled={_.isEmpty(patient)}
               active={activeItem === "Imagerie"}
               onClick={() => this.setState({ activeItem: "Imagerie" })}
             >
