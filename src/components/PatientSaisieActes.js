@@ -59,6 +59,16 @@ export default class PatientSaisieActes extends React.Component {
     }
   }
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.idPatient !== this.props.idPatient) {
+      this.setState({
+        fse: {},
+        msgSaveFSE: ""
+      });
+      this.onPatientChange(this.props.idPatient, this.state.typeActe, {});
+    }
+  }
+
   // Can't perform a React state update on an unmounted component.
   // This is a no-op, but it indicates a memory leak in your application.
   // To fix, cancel all subscriptions and asynchronous tasks in the componentWillUnmount method
@@ -66,15 +76,6 @@ export default class PatientSaisieActes extends React.Component {
     this.setState({
       fse: {} // No render if fse is empty
     });
-  }
-
-  // TODO : à changer
-  componentWillReceiveProps(next) {
-    this.setState({
-      fse: {},
-      msgSaveFSE: ""
-    });
-    this.onPatientChange(next.idPatient, this.state.typeActe, {});
   }
 
   read = (idActe, onSuccess, onError) => {

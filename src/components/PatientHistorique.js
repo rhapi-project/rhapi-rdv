@@ -7,21 +7,19 @@ import _ from "lodash";
 import site from "./SiteSettings";
 
 export default class PatientHistorique extends React.Component {
-  componentWillMount() {
-    this.setState({
-      idNoteTodo: 0,
-      acteEdition: null,
-      actionEdition: null,
-      acteCorrespondante: false,
-      fse: {},
-      startAt: "",
-      endAt: "",
-      localisation: "",
-      openLocalisations: false,
-      openNoteTodo: false,
-      typeNoteTodo: ""
-    });
-  }
+  state = {
+    idNoteTodo: 0,
+    acteEdition: null,
+    actionEdition: null,
+    acteCorrespondante: false,
+    fse: {},
+    startAt: "",
+    endAt: "",
+    localisation: "",
+    openLocalisations: false,
+    openNoteTodo: false,
+    typeNoteTodo: ""
+  };
 
   read = idActe => {
     this.props.client.Actes.read(
