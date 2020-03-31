@@ -15,7 +15,8 @@ import {
   List,
   Message,
   Modal,
-  Popup
+  Popup,
+  Table
 } from "semantic-ui-react";
 
 import RdvPassCardA4 from "./RdvPassCardA4";
@@ -25,9 +26,7 @@ import RdvPassCardHelp from "./RdvPassCardHelp";
 export default class RdvPassCard extends React.Component {
   /*
       errorSMSType
-
       0 : pas d'erreur
-      1 : Pas de planning autorisé à envoyer un SMS
       2 : validité du message
           (SMS conforme ? Comment savoir ?)
       3 : erreur réseau
@@ -63,7 +62,8 @@ export default class RdvPassCard extends React.Component {
     smsToSend: "", // new
     retourSMS: false,
     errorSMS: -1, // pas d'envoi effectué encore
-    help: false
+    help: false,
+    modalSMSPlannings: false
   };
 
   componentDidMount() {
@@ -254,7 +254,7 @@ export default class RdvPassCard extends React.Component {
     this.props.rdvPassCardOpen(false);
   };
 
-  extractSms = () => {
+  onClickConfirmationSMS = () => {
     let pwd = "";
     if (this.state.mesRdv.length === 0) {
       this.setState({ retourSMS: true });
@@ -269,65 +269,9 @@ export default class RdvPassCard extends React.Component {
       pwd = this.makePasswd();
       this.setState({ newPassword: pwd });
       this.savePasswd();
-    } else {
-      pwd = this.state.newPassword;
     }
 
-    // il faut prendre le premier planning (autorisé à envoyer des SMS => supprimé) et possédant
-    // un template de texte de confirmation
-    let i = _.findIndex(this.state.mesPlannings, planning => {
-      return (
-        planning.optionsJO &&
-        planning.optionsJO.sms &&
-        planning.optionsJO.sms.confirmationTexte &&
-        planning.optionsJO.sms.confirmationTexte !==
-          "" /*&&
-        (planning.optionsJO.sms.rappel12 ||
-          planning.optionsJO.sms.rappel24 ||
-          planning.optionsJO.sms.rappel48)
-        */
-      );
-    });
-
-    if (i === -1) {
-      // pas de planning autorisé à envoyer un SMS !
-      // erreur (1)
-      this.setState({ retourSMS: true, errorSMS: 1 });
-      return;
-    }
-
-    let mrdv = "";
-    for (let i = 0; i < this.state.rdvToPrint.length; i++) {
-      mrdv += rdvDateTime(this.state.rdvToPrint[i].startAt) + "\n";
-    }
-
-    //let message = this.state.mesPlannings[i].optionsJO.sms.confirmationTexte;
-    let message = this.state.mesPlannings[i].optionsJO.sms.rappelTexte;
-    // tester la validité du template et placer les bonnes valeur {date-heure} et {infos-annulations} !!
-    // TODO mettre un checkbox rouge (ou autre visualisation retour négatif) si non valide et return
-    // erreur (2)
-    message = _.replace(
-      message,
-      "{date-heure}",
-      //rdvDateTime(this.state.mesRdv[0].startAt)
-      mrdv
-    );
-    let infos =
-      "Infos et annulation : " +
-      window.location.origin +
-      window.location.pathname
-        .split("/")
-        .slice(0, -1)
-        .join("/") +
-      "/#Patients/";
-    infos += this.props.patient.id;
-    //infos += ":" + this.state.newPassword;
-    infos += ":" + pwd;
-    infos += "@" + this.state.praticien.organisation.split("@")[0];
-    // split("@") si une forme master@master => master
-    message = _.replace(message, "{infos-annulation}", infos);
-
-    this.setState({ smsToSend: message, previsualisationSMS: true });
+    this.setState({ modalSMSPlannings: true });
   };
 
   sendSms = sms => {
@@ -486,7 +430,10 @@ export default class RdvPassCard extends React.Component {
               icon="mobile"
               content="Confirmation SMS"
               //onClick={this.sendSms}
-              onClick={() => this.extractSms()}
+              onClick={this.onClickConfirmationSMS}
+              /*onClick={() => {
+                this.setState({ modalSMSPlannings: true });
+              }}*/
             />
             <Button
               icon="print"
@@ -625,13 +572,31 @@ export default class RdvPassCard extends React.Component {
           </Modal.Actions>
         </Modal>
 
+        {/* Choix du template SMS à utiliser (en fonction du planning) */}
+        <SMSPlannings
+          open={this.state.modalSMSPlannings}
+          mesPlannings={this.state.mesPlannings}
+          mesRdv={this.state.rdvToPrint}
+          password={this.state.newPassword}
+          patient={this.props.patient}
+          praticien={this.state.praticien}
+          onConfirmation={message =>
+            this.setState({ smsToSend: message, previsualisationSMS: true })
+          }
+          onClose={() => this.setState({ modalSMSPlannings: false })}
+        />
+
         {/* Prévisualisation SMS */}
         {this.state.previsualisationSMS ? (
           <SMSPrevisualisation
             open={this.state.previsualisationSMS}
             sms={this.state.smsToSend}
             onCancel={() =>
-              this.setState({ previsualisationSMS: false, smsToSend: "" })
+              this.setState({
+                previsualisationSMS: false,
+                smsToSend: "",
+                modalSMSPlannings: false
+              })
             }
             onSend={sms => this.sendSms(sms)}
           />
@@ -660,9 +625,7 @@ export default class RdvPassCard extends React.Component {
             ) : this.state.errorSMS !== -1 && this.state.errorSMS !== 0 ? (
               <div>
                 <Message icon={true} negative={true}>
-                  {this.state.errorSMS === 1 ? (
-                    <Icon name="warning" />
-                  ) : this.state.errorSMS === 3 ? (
+                  {this.state.errorSMS === 3 ? (
                     <Icon name="signal" />
                   ) : this.state.errorSMS === 4 ? (
                     <Icon name="remove" />
@@ -673,12 +636,7 @@ export default class RdvPassCard extends React.Component {
                   }
                   <Message.Content>
                     <Message.Header>Erreur d'envoi SMS</Message.Header>
-                    {this.state.errorSMS === 1 ? (
-                      <p>
-                        L'envoi du SMS a échoué. <br />
-                        Vous n'avez pas de planning autorisé à envoyer un SMS !
-                      </p>
-                    ) : this.state.errorSMS === 3 ? (
+                    {this.state.errorSMS === 3 ? (
                       <p>
                         Le SMS n'a pas pu être envoyé. <br />
                         Vérifiez si votre poste est connecté à internet et
@@ -750,7 +708,8 @@ export default class RdvPassCard extends React.Component {
                   onClick={() =>
                     this.setState({
                       errorSMS: -1,
-                      retourSMS: false
+                      retourSMS: false,
+                      modalSMSPlannings: false
                     })
                   }
                 />
@@ -783,7 +742,7 @@ export default class RdvPassCard extends React.Component {
                   this.setState({
                     errorSMS: -1,
                     retourSMS: false,
-                    smsToSend: "" // new
+                    smsToSend: ""
                   })
                 }
               />
@@ -1094,7 +1053,7 @@ class SMSPrevisualisation extends React.Component {
           </Form>
         </Modal.Content>
         <Modal.Actions>
-          <Button content="Annuler" onClick={() => this.props.onCancel()} />
+          <Button content="Annuler" onClick={this.props.onCancel} />
           <Button
             content="Envoyer"
             primary={true}
@@ -1102,6 +1061,125 @@ class SMSPrevisualisation extends React.Component {
           />
         </Modal.Actions>
       </Modal>
+    );
+  }
+}
+
+class SMSPlannings extends React.Component {
+  state = {
+    plannings: [],
+    selectedPlanning: {}
+  };
+
+  componentDidUpdate(prevProps) {
+    if (this.props.open && this.props.open !== prevProps.open) {
+      this.setState({ selectedPlanning: {} });
+      // rdv -> pour chaque planning du rdv,
+      // vérifier que celui-ci autorise les SMS
+      _.forEach(this.props.mesRdv, rdv => {
+        _.forEach(rdv.planningsJA, pl => {
+          let planningObj = this.props.mesPlannings[
+            _.findIndex(
+              this.props.mesPlannings,
+              planning => planning.id === pl.id
+            )
+          ];
+          if (planningObj) {
+            if (
+              _.findIndex(
+                this.state.plannings,
+                planning => planning.id === planningObj.id
+              ) === -1
+            ) {
+              if (this.isPlanningAuthorizeSMS(planningObj)) {
+                let p = this.state.plannings;
+                p.push(planningObj);
+                this.setState({ plannings: p });
+              }
+            }
+          }
+        });
+      });
+    }
+  }
+
+  isPlanningAuthorizeSMS = planning => {
+    return !_.isEmpty(_.get(planning.optionsJO.sms, "confirmationTexte", ""));
+  };
+
+  onConfirmation = () => {
+    let mrdv = "";
+    for (let i = 0; i < this.props.mesRdv.length; i++) {
+      mrdv += rdvDateTime(this.props.mesRdv[i].startAt) + "\n";
+    }
+    let message = this.state.selectedPlanning.optionsJO.sms.rappelTexte;
+    // tester la validité du template et placer les bonnes valeur {date-heure} et {infos-annulations} !!
+    message = _.replace(message, "{date-heure}", mrdv);
+    let infos =
+      "Infos et annulation : " +
+      window.location.origin +
+      window.location.pathname
+        .split("/")
+        .slice(0, -1)
+        .join("/") +
+      "/#Patients/";
+    infos += this.props.patient.id;
+    //infos += ":" + this.state.newPassword;
+    infos += ":" + this.props.password;
+    infos += "@" + this.props.praticien.organisation.split("@")[0];
+    // split("@") si une forme master@master => master
+    message = _.replace(message, "{infos-annulation}", infos);
+    this.props.onConfirmation(message);
+  };
+
+  render() {
+    return (
+      <React.Fragment>
+        <Modal size="tiny" open={this.props.open}>
+          <Modal.Header>Choix du modèle SMS</Modal.Header>
+          <Modal.Content>
+            {_.isEmpty(this.state.plannings) ? (
+              <Message
+                icon="warning"
+                negative={true}
+                content="Vous n'avez pas de planning autorisé à envoyer un SMS !"
+              />
+            ) : (
+              <Table size="small" selectable={true}>
+                <Table.Body>
+                  {_.map(this.state.plannings, (planning, index) => (
+                    <Popup
+                      key={index}
+                      content={planning.optionsJO.sms.confirmationTexte}
+                      position="top right"
+                      trigger={
+                        <Table.Row
+                          active={
+                            planning.id === this.state.selectedPlanning.id
+                          }
+                          onClick={() =>
+                            this.setState({ selectedPlanning: planning })
+                          }
+                        >
+                          <Table.Cell>{planning.titre}</Table.Cell>
+                        </Table.Row>
+                      }
+                    />
+                  ))}
+                </Table.Body>
+              </Table>
+            )}
+          </Modal.Content>
+          <Modal.Actions>
+            <Button content="Annuler" onClick={this.props.onClose} />
+            <Button
+              disabled={_.isEmpty(this.state.selectedPlanning)}
+              content="Confirmation SMS"
+              onClick={this.onConfirmation}
+            />
+          </Modal.Actions>
+        </Modal>
+      </React.Fragment>
     );
   }
 }
