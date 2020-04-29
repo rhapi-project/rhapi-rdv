@@ -1,15 +1,10 @@
 import _ from "lodash";
-
 import React from "react";
-
 import { Dropdown, Button, Divider, Popup } from "semantic-ui-react";
-
 import moment from "moment";
-
 import Calendar from "./Calendar";
-
 import CalendarPanel from "./CalendarPanel";
-
+import SmsGroupes from "./SmsGroupes";
 import { helpPopup } from "./Settings";
 import { print } from "../lib/Helpers";
 
@@ -19,7 +14,8 @@ export default class Calendars extends React.Component {
     index: -1,
     print: 0,
     hidePanel: false,
-    currentDate: moment()
+    currentDate: moment(),
+    modalSMSGroupes: false
   };
 
   componentDidMount() {
@@ -179,6 +175,21 @@ export default class Calendars extends React.Component {
             <div style={{ textAlign: "right" }}>
               <Button.Group basic={true} size="mini">
                 <Popup
+                  trigger={
+                    <Button
+                      icon="send"
+                      onClick={() => this.setState({ modalSMSGroupes: true })}
+                    />
+                  }
+                  content="Envoi de SMS groupés"
+                  on={helpPopup.on}
+                  size={helpPopup.size}
+                  inverted={helpPopup.inverted}
+                />
+              </Button.Group>
+              &nbsp;
+              <Button.Group basic={true} size="mini">
+                <Popup
                   trigger={<Button icon="print" onClick={this.print} />}
                   content="Imprimer l'agenda"
                   on={helpPopup.on}
@@ -306,6 +317,20 @@ export default class Calendars extends React.Component {
 
           {this.state.index < 0 ? "" : calendar}
         </div>
+
+        {/* modal SMS groupés */}
+        <SmsGroupes
+          client={this.props.client}
+          idPlanning={
+            this.state.index < 0
+              ? null
+              : this.state.plannings[this.state.index].id
+          }
+          open={this.state.modalSMSGroupes}
+          onClose={() => {
+            this.setState({ modalSMSGroupes: false });
+          }}
+        />
       </React.Fragment>
     );
   }

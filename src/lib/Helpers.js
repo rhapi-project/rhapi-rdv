@@ -103,4 +103,15 @@ const print = (
   }
 };
 
-export { print };
+const smsCounter = textSms => {
+  let length = textSms.length;
+  if (length === 0) {
+    return 1;
+  }
+  if (length % 160 === 0) {
+    return length / 160;
+  }
+  return parseInt(length / 160 + 1);
+};
+
+export { print, smsCounter };

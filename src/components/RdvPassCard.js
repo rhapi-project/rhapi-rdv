@@ -3,7 +3,7 @@ import React from "react";
 import _ from "lodash";
 
 import { rdvDateTime, site, helpPopup } from "./Settings";
-import { print } from "../lib/Helpers";
+import { print, smsCounter } from "../lib/Helpers";
 
 import {
   Button,
@@ -1023,24 +1023,12 @@ class SMSPrevisualisation extends React.Component {
     return null;
   }
 
-  // TODO : fonction à mettre dans les Helpers
-  smsCounter = () => {
-    let length = this.state.sms.length;
-    if (length === 0) {
-      return 1;
-    }
-    if (length % 160 === 0) {
-      return length / 160;
-    }
-    return parseInt(length / 160 + 1);
-  };
-
   render() {
     return (
       <Modal size="tiny" open={this.state.open}>
         <Modal.Header>
           Contenu du SMS (Taille: {this.state.sms.length}, SMS:{" "}
-          {this.smsCounter()})
+          {smsCounter(this.state.sms)})
         </Modal.Header>
         <Modal.Content>
           <Form>
