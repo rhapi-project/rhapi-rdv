@@ -15,11 +15,28 @@ import _ from "lodash";
 import PatientSearchModal from "./PatientSearchModal";
 import SmsPeriodeSelection from "./SmsPeriodeSelection";
 import { smsCounter } from "../lib/Helpers";
+import { telRegex } from "./Settings";
+
+const optionsTextType = [
+  {
+    text: "Texte pour la confirmation initiale de RDV",
+    value: "CONFIRMATION"
+  },
+  {
+    text: "Texte pour les rappels de RDV",
+    value: "RAPPEL"
+  },
+  {
+    text: "Effacer le texte",
+    value: "EFFACER"
+  }
+];
 
 export default class SmsGroupes extends React.Component {
   state = {
     loading: false,
     smsContent: "",
+    textType: null,
     momentFrom: null,
     momentTo: null,
     selectableNumeros: [],
@@ -34,6 +51,7 @@ export default class SmsGroupes extends React.Component {
     if (this.props.open && this.props.open !== prevProps.open) {
       this.setState({
         smsContent: "",
+        textType: null,
         momentFrom: null,
         momentTo: null,
         selectableNumeros: [],
@@ -106,6 +124,33 @@ export default class SmsGroupes extends React.Component {
         console.log(error);
       }
     );
+  };
+
+  onChangeTextType = textType => {
+    if (textType === "EFFACER") {
+      this.setState({ smsContent: "", textType: textType });
+    } else {
+      this.props.client.Plannings.read(
+        this.props.idPlanning,
+        {},
+        result => {
+          //console.log(result);
+          let text = _.get(
+            result,
+            `optionsJO.sms.${
+              textType === "CONFIRMATION" ? "confirmationTexte" : "rappelTexte"
+            }`,
+            ""
+          );
+          text = _.replace(text, "{date-heure}", "");
+          text = _.replace(text, "{infos-annulation}", "");
+          this.setState({ textType: textType, smsContent: text });
+        },
+        error => {
+          console.log(error);
+        }
+      );
+    }
   };
 
   findIndexSelectable = (arraySelectables, selectableObj) => {
@@ -194,10 +239,28 @@ export default class SmsGroupes extends React.Component {
       <React.Fragment>
         <Modal open={this.props.open} size="small">
           <Modal.Header>
-            Envoi de SMS groupés (Taille: {this.state.smsContent.length}, SMS:{" "}
+            Envoi groupé de SMS (Taille: {this.state.smsContent.length}, SMS:{" "}
             {smsCounter(this.state.smsContent)})
           </Modal.Header>
           <Modal.Content>
+            <Form style={{ marginBottom: "5px" }}>
+              <Form.Dropdown
+                placeholder="Texte à utiliser"
+                selection={true}
+                value={this.state.textType}
+                options={optionsTextType}
+                onChange={(e, d) => this.onChangeTextType(d.value)}
+              />
+            </Form>
+            {this.state.textType === "CONFIRMATION" ||
+            this.state.textType === "RAPPEL" ? (
+              <Message info={true} size="mini">
+                <Message.Content>
+                  Les champs dynamiques ne sont pas supportés sur les envois
+                  groupés de SMS.
+                </Message.Content>
+              </Message>
+            ) : null}
             <Form>
               <Form.TextArea
                 placeholder="Rédiger un message"
@@ -284,7 +347,7 @@ export default class SmsGroupes extends React.Component {
                 />
               </span>
               <span style={{ float: "right" }}>
-                Sélectionner tout &nbsp;
+                Tout sélectionner &nbsp;
                 <Button
                   circular={true}
                   icon="check"
@@ -462,11 +525,35 @@ class ModalAddNumero extends React.Component {
     numero: ""
   };
 
+  componentDidMount() {
+    document.addEventListener("keydown", this.addNumeroListener);
+  }
+
   componentDidUpdate(prevProps) {
     if (this.props.open && this.props.open !== prevProps.open) {
       this.setState({ numero: "" });
     }
   }
+
+  componentWillUnmount() {
+    document.removeEventListener("keydown", this.addNumeroListener);
+  }
+
+  telephoneValide = numero => {
+    for (let i = 0; i < telRegex.length; i++) {
+      if (telRegex[i].test(numero)) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  addNumeroListener = event => {
+    // au clic sur ENTER
+    if (this.telephoneValide(this.state.numero) && event.keyCode === 13) {
+      this.props.onAddNumero(this.state.numero);
+    }
+  };
 
   render() {
     return (
@@ -484,11 +571,13 @@ class ModalAddNumero extends React.Component {
           <Modal.Actions>
             <Button content="Annuler" onClick={this.props.onClose} />
             <Button
-              disabled={_.isEmpty(this.state.numero)}
+              primary={true}
+              disabled={
+                _.isEmpty(this.state.numero) ||
+                !this.telephoneValide(this.state.numero)
+              }
               content="Ajouter"
               onClick={() => {
-                // TODO Rajouter une vérification de la validité
-                // d'un numéro de téléphone
                 this.props.onAddNumero(this.state.numero);
               }}
             />

@@ -181,7 +181,7 @@ export default class Calendars extends React.Component {
                       onClick={() => this.setState({ modalSMSGroupes: true })}
                     />
                   }
-                  content="Envoi de SMS groupés"
+                  content="Envoi groupé de SMS"
                   on={helpPopup.on}
                   size={helpPopup.size}
                   inverted={helpPopup.inverted}
