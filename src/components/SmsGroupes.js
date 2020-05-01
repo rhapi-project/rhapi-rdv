@@ -19,15 +19,15 @@ import { telRegex } from "./Settings";
 
 const optionsTextType = [
   {
-    text: "Texte pour la confirmation initiale de RDV",
+    text: "Confirmation de RDV",
     value: "CONFIRMATION"
   },
   {
-    text: "Texte pour les rappels de RDV",
+    text: "Rappel de RDV",
     value: "RAPPEL"
   },
   {
-    text: "Effacer le texte",
+    text: "Nouveau message",
     value: "EFFACER"
   }
 ];
@@ -243,24 +243,20 @@ export default class SmsGroupes extends React.Component {
             {smsCounter(this.state.smsContent)})
           </Modal.Header>
           <Modal.Content>
-            <Form style={{ marginBottom: "5px" }}>
-              <Form.Dropdown
-                placeholder="Texte à utiliser"
-                selection={true}
-                value={this.state.textType}
-                options={optionsTextType}
-                onChange={(e, d) => this.onChangeTextType(d.value)}
-              />
-            </Form>
-            {this.state.textType === "CONFIRMATION" ||
-            this.state.textType === "RAPPEL" ? (
-              <Message info={true} size="mini">
+            <Message info={true} size="mini" color="white">
+              {this.state.textType === "CONFIRMATION" ||
+              this.state.textType === "RAPPEL" ? (
                 <Message.Content>
-                  Les champs dynamiques ne sont pas supportés sur les envois
-                  groupés de SMS.
+                  Vous pouvez modifier le texte (commun à tous les
+                  destinataires). Les champs dynamiques ne sont pas utilisables
+                  en envoi groupé.
                 </Message.Content>
-              </Message>
-            ) : null}
+              ) : (
+                <Message.Content>
+                  Le texte du SMS est commun à tous les destinataires.
+                </Message.Content>
+              )}
+            </Message>
             <Form>
               <Form.TextArea
                 placeholder="Rédiger un message"
@@ -269,7 +265,15 @@ export default class SmsGroupes extends React.Component {
                 onChange={(e, d) => this.setState({ smsContent: d.value })}
               />
             </Form>
-
+            <Form style={{ marginTop: "10px" }}>
+              <Form.Dropdown
+                placeholder="Reprendre le texte du message..."
+                selection={true}
+                value={this.state.textType}
+                options={optionsTextType}
+                onChange={(e, d) => this.onChangeTextType(d.value)}
+              />
+            </Form>
             <Divider horizontal={true}>
               <Header as="h5">
                 <Icon name="users" />
