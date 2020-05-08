@@ -225,7 +225,7 @@ export default class PriseRdv extends React.Component {
                 <Step.Description>
                   {this.state.completed
                     ? this.props.identified || this.state.codeValide
-                      ? "Mon nouveau RDV a bien été enregistré. Un mail de confirmation vient de m'être envoyé."
+                      ? "Mon nouveau RDV a bien été enregistré."
                       : "Un code vient de m'être envoyé par SMS. " +
                         "Je saisis ce code " +
                         "pour valider définivement le RDV."
