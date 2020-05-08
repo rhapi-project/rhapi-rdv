@@ -225,7 +225,7 @@ class MonRdv extends React.Component {
                         rdvDateTime(this.props.rdv.startAt) +
                         " au " +
                         rdvDateTime(this.state.nouvelHoraire) +
-                        " ? Un mail de confirmation me sera adressé."}
+                        " ?"}
                   </Modal.Content>
                   <Modal.Actions>
                     {maxModifs ? (
