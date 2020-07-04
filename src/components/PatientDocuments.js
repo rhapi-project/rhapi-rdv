@@ -44,7 +44,10 @@ export default class PatientDocuments extends React.Component {
               idPatient={this.props.idPatient}
             />
           ) : (
-            <Documents.DocumentModeles client={this.props.client} />
+            <Documents.DocumentModeles
+              client={this.props.client}
+              idPatient={this.props.idPatient}
+            />
           )}
         </React.Fragment>
       );
