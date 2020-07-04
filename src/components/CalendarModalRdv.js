@@ -1249,7 +1249,7 @@ export default class CalendarModalRdv extends React.Component {
                           dayPickerProps={{
                             locale: "fr",
                             localeUtils: MomentLocaleUtils,
-                            disabledDays: [{ daysOfWeek: [0, 6] }],
+                            //disabledDays: [{ daysOfWeek: [0, 6] }],
                             showOutsideDays: true
                           }}
                           format="L"
