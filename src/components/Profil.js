@@ -51,12 +51,6 @@ const defaultProfil = {
 };
 
 export default class Profil extends React.Component {
-  /*state = {
-    saved: true,
-    passwordConfirm: "",
-    ...defaultProfil
-  };*/
-
   state = {
     currentName: "",
     userName: "",

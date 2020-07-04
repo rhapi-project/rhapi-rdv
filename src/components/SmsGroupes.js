@@ -243,7 +243,7 @@ export default class SmsGroupes extends React.Component {
             {smsCounter(this.state.smsContent)})
           </Modal.Header>
           <Modal.Content>
-            <Message info={true} size="mini" color="white">
+            <Message info={true} size="mini" /*color="white"*/>
               {this.state.textType === "CONFIRMATION" ||
               this.state.textType === "RAPPEL" ? (
                 <Message.Content>
