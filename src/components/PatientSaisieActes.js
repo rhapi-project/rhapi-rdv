@@ -36,12 +36,18 @@ export default class PatientSaisieActes extends React.Component {
           <Menu.Item
             name="FSE"
             active={this.state.typeActe === "#FSE"}
-            onClick={() => this.setState({ typeActe: "#FSE" })}
+            onClick={() => {
+              this.setState({ typeActe: "#FSE" });
+              this.props.onChangeTypeActe();
+            }}
           />
           <Menu.Item
             name="PROJET"
             active={this.state.typeActe === "#DEVIS"}
-            onClick={() => this.setState({ typeActe: "#DEVIS" })}
+            onClick={() => {
+              this.setState({ typeActe: "#DEVIS" });
+              this.props.onChangeTypeActe();
+            }}
           />
         </Menu>
 

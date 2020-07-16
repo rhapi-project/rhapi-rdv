@@ -358,12 +358,6 @@ export default class ProfilsPatients extends React.Component {
                   size={helpPopup.size}
                   inverted={helpPopup.inverted}
                 />
-                {/*<Icon
-            style={{ cursor: "pointer", marginTop: 10, marginLeft: 10 }}
-            onClick={this.newSearch}
-            size="large"
-            name="remove user"
-          />*/}
 
                 <Popup
                   trigger={
@@ -447,12 +441,6 @@ export default class ProfilsPatients extends React.Component {
               size={helpPopup.size}
               inverted={helpPopup.inverted}
             />
-            {/*<Icon
-            style={{ cursor: "pointer", marginTop: 10, marginLeft: 10 }}
-            onClick={this.newSearch}
-            size="large"
-            name="remove user"
-          />*/}
 
             <Popup
               trigger={
@@ -481,9 +469,9 @@ export default class ProfilsPatients extends React.Component {
               age={this.state.age}
               onChange={this.onChange}
               client={this.props.client}
-              saved={this.state.saved} // new
-              save={this.save} // new
-              onPatientChange={this.onPatientChange} // new
+              saved={this.state.saved}
+              save={this.save}
+              onPatientChange={this.onPatientChange}
             />
 
             <Divider hidden={true} />
@@ -558,6 +546,9 @@ export default class ProfilsPatients extends React.Component {
             idPatient={patient.id ? patient.id : 0}
             idActe={this.state.idActe}
             acteCopy={this.state.acteCopy}
+            onChangeTypeActe={() =>
+              this.setState({ idActe: null, acteCopy: false })
+            }
           />
         ) : this.state.activeItem === "HistoriqueActes" ? (
           <PatientHistorique
