@@ -1,7 +1,5 @@
 import React from "react";
-
 import _ from "lodash";
-
 import {
   Header,
   Message,
@@ -14,7 +12,6 @@ import {
   Ref,
   Menu
 } from "semantic-ui-react";
-
 import {
   hsize,
   codePostalRegex,
@@ -24,19 +21,13 @@ import {
   telRegex,
   affichageDenomination
 } from "./Settings";
-
 import PatientSearch from "./PatientSearch";
-
 import PatientSearchModal from "./PatientSearchModal";
-
 import FichePatient from "./FichePatient";
-
 import PatientSaisieActes from "./PatientSaisieActes";
-
 import PatientHistorique from "./PatientHistorique";
-
 import PatientDocuments from "./PatientDocuments";
-
+import { Images } from "rhapi-ui-react";
 import site from "./SiteSettings";
 
 export default class ProfilsPatients extends React.Component {
@@ -575,10 +566,7 @@ export default class ProfilsPatients extends React.Component {
             idPatient={patient.id ? patient.id : 0}
           />
         ) : this.state.activeItem === "Imagerie" ? (
-          <Header color="pink">
-            &lt;PatientImagerie idPatient=
-            {this.state.patient.id ? patient.id : 0}/&gt;
-          </Header>
+          <Images.Galerie client={this.props.client} idPatient={patient.id} />
         ) : (
           ""
         )}
