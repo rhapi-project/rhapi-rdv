@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Button, Form, Input, List } from "semantic-ui-react";
+import { Button, Form, List } from "semantic-ui-react";
 
 import _ from "lodash";
 
@@ -228,17 +228,24 @@ export default class Conges extends React.Component {
   };
 
   componentDidMount() {
+    //console.log(this.props.plagesConges);
     this.setState({ plagesConges: this.props.plagesConges });
   }
 
-  static getDerivedStateFromProps(props, state) {
-    if (props.plagesConges !== state.plagesConges) {
-      return {
-        plagesConges: propTypes.plagesConges,
-        clearFocus: false
-      };
+  componentDidUpdate(prevProps) {
+    let customCheckEquality = (plage1, plage2) => {
+      if (
+        plage1.start !== plage2.start ||
+        plage1.end !== plage2.end ||
+        plage1.titre !== plage2.titre
+      ) {
+        return false;
+      }
+      return true;
     }
-    return null;
+    if (!customCheckEquality(prevProps.plagesConges, this.props.plagesConges)) {
+      this.setState({ plagesConges: this.props.plagesConges, clearFocus: false });
+    }
   }
 
   ajouter = () => {
@@ -300,15 +307,15 @@ export default class Conges extends React.Component {
                     this.onPeriodeChange(i, start, end)
                   }
                 />
-                <div style={{ paddingLeft: "5px" }}>
-                  <span>Intitulé : </span>
-                  <Input
+                <div style={{ marginLeft: "80px" }}>
+                  <Form.Input
+                    label="Intitulé"
                     placeholder="Intitulé de la période"
                     value={plageConges.titre}
                     onChange={(e, d) => this.onTitreChange(i, d.value)}
                   />
                 </div>
-                <div style={{ paddingLeft: "5px", paddingTop: "5px" }}>
+                <div style={{ paddingLeft: "5px", marginTop: "25px" }}>
                   <Button
                     size="tiny"
                     icon="minus"
