@@ -1,7 +1,5 @@
 import React from "react";
-
 import _ from "lodash";
-
 import {
   Header,
   Message,
@@ -14,7 +12,6 @@ import {
   Ref,
   Menu
 } from "semantic-ui-react";
-
 import {
   hsize,
   codePostalRegex,
@@ -24,19 +21,13 @@ import {
   telRegex,
   affichageDenomination
 } from "./Settings";
-
 import PatientSearch from "./PatientSearch";
-
 import PatientSearchModal from "./PatientSearchModal";
-
 import FichePatient from "./FichePatient";
-
 import PatientSaisieActes from "./PatientSaisieActes";
-
 import PatientHistorique from "./PatientHistorique";
-
 import PatientDocuments from "./PatientDocuments";
-
+import { Images } from "rhapi-ui-react";
 import site from "./SiteSettings";
 
 export default class ProfilsPatients extends React.Component {
@@ -358,12 +349,6 @@ export default class ProfilsPatients extends React.Component {
                   size={helpPopup.size}
                   inverted={helpPopup.inverted}
                 />
-                {/*<Icon
-            style={{ cursor: "pointer", marginTop: 10, marginLeft: 10 }}
-            onClick={this.newSearch}
-            size="large"
-            name="remove user"
-          />*/}
 
                 <Popup
                   trigger={
@@ -447,12 +432,6 @@ export default class ProfilsPatients extends React.Component {
               size={helpPopup.size}
               inverted={helpPopup.inverted}
             />
-            {/*<Icon
-            style={{ cursor: "pointer", marginTop: 10, marginLeft: 10 }}
-            onClick={this.newSearch}
-            size="large"
-            name="remove user"
-          />*/}
 
             <Popup
               trigger={
@@ -481,9 +460,9 @@ export default class ProfilsPatients extends React.Component {
               age={this.state.age}
               onChange={this.onChange}
               client={this.props.client}
-              saved={this.state.saved} // new
-              save={this.save} // new
-              onPatientChange={this.onPatientChange} // new
+              saved={this.state.saved}
+              save={this.save}
+              onPatientChange={this.onPatientChange}
             />
 
             <Divider hidden={true} />
@@ -558,6 +537,9 @@ export default class ProfilsPatients extends React.Component {
             idPatient={patient.id ? patient.id : 0}
             idActe={this.state.idActe}
             acteCopy={this.state.acteCopy}
+            onChangeTypeActe={() =>
+              this.setState({ idActe: null, acteCopy: false })
+            }
           />
         ) : this.state.activeItem === "HistoriqueActes" ? (
           <PatientHistorique
@@ -584,10 +566,7 @@ export default class ProfilsPatients extends React.Component {
             idPatient={patient.id ? patient.id : 0}
           />
         ) : this.state.activeItem === "Imagerie" ? (
-          <Header color="pink">
-            &lt;PatientImagerie idPatient=
-            {this.state.patient.id ? patient.id : 0}/&gt;
-          </Header>
+          <Images.Galerie client={this.props.client} idPatient={patient.id} />
         ) : (
           ""
         )}

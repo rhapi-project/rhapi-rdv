@@ -149,7 +149,7 @@ export default class PatientHistorique extends React.Component {
               </Form.Input>
             </Form.Group>
           </Form>
-          <div style={{ height: "500px", overflow: "auto" }}>
+          <div style={{ height: "550px", overflow: "auto" }}>
             <Actes.Historique
               client={this.props.client}
               idPatient={this.props.idPatient}
