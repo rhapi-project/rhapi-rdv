@@ -59,7 +59,8 @@ export default class CalendarPanel extends React.Component {
       }
 
       let couleur = _.isEmpty(datas.couleur)
-        ? motifIndex >= 0
+        ? motifIndex >= 0 &&
+          motifIndex < this.props.options.reservation.motifs.length
           ? this.props.options.reservation.motifs[motifIndex].couleur
           : this.props.couleur
         : datas.couleur;

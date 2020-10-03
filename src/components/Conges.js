@@ -242,9 +242,12 @@ export default class Conges extends React.Component {
         return false;
       }
       return true;
-    }
+    };
     if (!customCheckEquality(prevProps.plagesConges, this.props.plagesConges)) {
-      this.setState({ plagesConges: this.props.plagesConges, clearFocus: false });
+      this.setState({
+        plagesConges: this.props.plagesConges,
+        clearFocus: false
+      });
     }
   }
 
@@ -307,22 +310,23 @@ export default class Conges extends React.Component {
                     this.onPeriodeChange(i, start, end)
                   }
                 />
-                <div style={{ marginLeft: "80px" }}>
+                <span style={{ width: "56px" }} />
+                <span style={{ marginLeft: "56px" }}>
                   <Form.Input
                     label="Intitulé"
                     placeholder="Intitulé de la période"
                     value={plageConges.titre}
                     onChange={(e, d) => this.onTitreChange(i, d.value)}
                   />
-                </div>
-                <div style={{ paddingLeft: "5px", marginTop: "25px" }}>
+                </span>
+                <span style={{ paddingLeft: "5px", marginTop: "25px" }}>
                   <Button
                     size="tiny"
                     icon="minus"
                     circular={true}
                     onClick={() => this.supprimer(i)}
                   />
-                </div>
+                </span>
               </List.Item>
             );
           })}
