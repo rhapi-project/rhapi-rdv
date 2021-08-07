@@ -80,7 +80,7 @@ export default class Praticiens extends React.Component {
         _.forEach(parts, part => {
           let kv = part.split("=");
           if (kv.length === 2) {
-            params[kv[0]] = kv[1];
+            params[kv[0]] = decodeURIComponent(kv[1]);
           }
         });
         if (!_.isUndefined(params.user) && !_.isUndefined(params.password)) {
