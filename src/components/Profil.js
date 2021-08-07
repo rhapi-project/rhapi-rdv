@@ -83,20 +83,28 @@ export default class Profil extends React.Component {
         if (!_.isEmpty(monProfil.account)) {
           //monProfil.account.telBureau = telFormat(monProfil.account.telBureau);
           //monProfil.account.telMobile = telFormat(monProfil.account.telMobile);
-          this.setState({
-            ...monProfil,
-            changePassword: false,
-            saved: true
-          });
+          this.setState(
+            Object.assign(
+              {
+                changePassword: false,
+                saved: true
+              },
+              monProfil
+            )
+          );
         } else {
           let account = defaultProfil.account;
 
-          this.setState({
-            ...monProfil,
-            changePassword: false,
-            saved: true,
-            account
-          });
+          this.setState(
+            Object.assign(
+              {
+                changePassword: false,
+                saved: true,
+                account
+              },
+              monProfil
+            )
+          );
         }
       },
       data => {
@@ -115,7 +123,7 @@ export default class Profil extends React.Component {
       obj[d.name] = e.target.value;
       //this.setState({ obj }); -- cette ligne une erreur car elle met dans le state tout l'objet en créant un champ
       //erreur corrigée à la ligne suivante
-      this.setState({ ...obj, saved: false });
+      this.setState(Object.assign({ saved: false }, obj));
     } else {
       //Modification dans l'objet account
       let obj = this.state.account;
@@ -196,10 +204,14 @@ export default class Profil extends React.Component {
       this.props.client.MonCompte.update(
         obj,
         monProfil => {
-          this.setState({
-            ...monProfil,
-            saved: true
-          });
+          this.setState(
+            Object.assign(
+              {
+                saved: true
+              },
+              monProfil
+            )
+          );
           this.reload();
         },
         data => {
