@@ -217,12 +217,14 @@ export default class CalendarModalRdv extends React.Component {
 
       this.setState({
         rdv: rdv,
-        patient: {
-          gestionRdvJO: {
-            autoriseSMS: true
+        patient: Object.assign(
+          {
+            gestionRdvJO: {
+              autoriseSMS: true
+            }
           },
-          ...rdv.patientJO
-        }
+          rdv.patientJO
+        )
       });
       return;
     }

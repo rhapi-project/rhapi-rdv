@@ -132,7 +132,7 @@ export default class FichePatient extends React.Component {
   static getDerivedStateFromProps(props, state) {
     if (props.patient !== state.patient) {
       return {
-        patient: { ...props.patient },
+        patient: Object.assign({}, props.patient),
         saved: true,
         naissanceDate: moment(props.patient.naissance),
         modalPassword: false,
