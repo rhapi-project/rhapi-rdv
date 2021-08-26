@@ -206,7 +206,19 @@ export default class Calendar extends React.Component {
 
             let motifIndex = -1;
             if (data.planningJO.motif) {
-              motifIndex = Math.abs(data.planningJO.motif) - 1;
+              for (let j = 0; j < options.reservation.motifs.length; j++) {
+                if (
+                  !_.isUndefined(options.reservation.motifs[j].id) &&
+                  options.reservation.motifs[j].id === data.planningJO.motif
+                ) {
+                  motifIndex = j;
+                  break;
+                }
+              }
+              // motifs : id = index si id n'est pas défini (ancienne version)
+              if (motifIndex === -1) {
+                motifIndex = Math.abs(data.planningJO.motif) - 1;
+              }
             }
 
             let couleur = _.isEmpty(data.couleur)

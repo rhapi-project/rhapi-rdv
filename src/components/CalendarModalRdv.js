@@ -679,17 +679,16 @@ export default class CalendarModalRdv extends React.Component {
         let pc = _.find(this.state.plannings, p => {
           return p.value === pl.id;
         });
-        if (
-          this.state.dureeDefaut &&
-          pc &&
-          pc.motifs &&
-          pc.motifs[pl.motif - 1] &&
-          pc.motifs[pl.motif - 1].duree
-        ) {
-          //console.log( pc.motifs[pl.motif - 1]);
-          rdv.endAt = moment(this.state.rdv.startAt)
-            .add(pc.motifs[pl.motif - 1].duree, "minutes")
-            .format("YYYY-MM-DDTHH:mm:ss");
+        if (this.state.dureeDefaut && pc && pc.motifs) {
+          _.find(pc.motifs, motif => {
+            if (motif.id === pl.motif) {
+              rdv.endAt = moment(this.state.rdv.startAt)
+                .add(motif.duree, "minutes")
+                .format("YYYY-MM-DDTHH:mm:ss");
+              return true;
+            }
+            return false;
+          });
         }
         return true;
       }
@@ -702,13 +701,13 @@ export default class CalendarModalRdv extends React.Component {
       let planningsAssocies = this.props.options.reservation.planningsAssocies;
 
       let associes = _.filter(planningsAssocies, p => {
-        return p.motif === Math.abs(d.value) - 1 || p.motif === -1;
+        return p.motif === Math.abs(d.value) || p.motif === -1;
       });
 
       if (associes.length > 1) {
         // si plusieurs possibilités on ne conserve que l'association définie pour un motif précis
         associes = _.filter(associes, p => {
-          return p.motif === Math.abs(d.value) - 1;
+          return p.motif === Math.abs(d.value);
         });
       }
 
@@ -873,6 +872,17 @@ export default class CalendarModalRdv extends React.Component {
 
     let motifsOptions = [{ value: 0, text: "Aucun motif défini" }];
 
+    let m1 = {};
+    for (let i = 0; i < planning.motifs.length; i++) {
+      // motifs : id = index si id n'est pas défini (ancienne version)
+      if (_.isUndefined(planning.motifs[i].id)) {
+        planning.motifs[i].id = i + 1;
+      }
+      if (planning.motifs[i].id === motif) {
+        m1 = planning.motifs[i];
+      }
+    }
+
     _.forEach(planning.motifs, (m, i) => {
       if (
         !m.hidden &&
@@ -880,11 +890,10 @@ export default class CalendarModalRdv extends React.Component {
           // /!\ rdv.origine isUndefined (&& isEmpty) si nouveau RDV
           m.autorisationMin >= planning.autorisationMinAgenda)
       ) {
-        motifsOptions.push({ value: i + 1, text: m.motif });
+        motifsOptions.push({ value: m.id, text: m.motif });
       }
     });
 
-    let m1 = planning.motifs[motif - 1];
     let motifColor = m1 ? m1.couleur : "";
 
     // Rappels SMS

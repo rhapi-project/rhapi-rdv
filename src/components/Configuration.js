@@ -78,8 +78,18 @@ export default class Configuration extends React.Component {
         } else {
           index = index < result.results.length ? index : -1;
         }
+        let plannings = result.results;
+        // motifs : id = index si id n'est pas défini (ancienne version)
+        _.forEach(plannings, planning => {
+          let motifs = planning.optionsJO.reservation.motifs;
+          for (let i = 0; i < motifs.length; i++) {
+            if (_.isUndefined(motifs[i].id)) {
+              motifs[i].id = i;
+            }
+          }
+        });
         this.setState({
-          plannings: result.results,
+          plannings: plannings,
           index: index,
           saved: true
         });
@@ -92,8 +102,18 @@ export default class Configuration extends React.Component {
     this.props.client.Plannings.mesPlannings(
       { admin: false },
       result => {
+        let plannings = result.results;
+        // motifs : id = index si id n'est pas défini (ancienne version)
+        _.forEach(plannings, planning => {
+          let motifs = planning.optionsJO.reservation.motifs;
+          for (let i = 0; i < motifs.length; i++) {
+            if (_.isUndefined(motifs[i].id)) {
+              motifs[i].id = i;
+            }
+          }
+        });
         this.setState({
-          planningsAccess: result.results
+          planningsAccess: plannings
         });
       },
       datas => {
@@ -104,8 +124,18 @@ export default class Configuration extends React.Component {
     this.props.client.Plannings.readAll(
       { limit: 10000 /*no limit */ },
       result => {
+        let plannings = result.results;
+        // motifs : id = index si id n'est pas défini (ancienne version)
+        _.forEach(plannings, planning => {
+          let motifs = planning.optionsJO.reservation.motifs;
+          for (let i = 0; i < motifs.length; i++) {
+            if (_.isUndefined(motifs[i].id)) {
+              motifs[i].id = i;
+            }
+          }
+        });
         this.setState({
-          planningsAll: result.results
+          planningsAll: plannings
         });
       },
       datas => {
@@ -192,9 +222,8 @@ export default class Configuration extends React.Component {
     };
 
     this.setState({
-      confirmationMessage: this.state.saved
-        ? "Souhaitez-vous supprimer définitivement ce planning ?"
-        : "Souhaitez-vous supprimer définitivement ce planning sans sauvegarde préalable des modifications  ?",
+      confirmationMessage:
+        "Vous confirmez vouloir supprimer ce planning ? Cette suppression sera définitive et toutes les configurations seront perdues. Les rendez-vous enregistrés sur ce planning ne seront plus accessibles.",
       confirmationAction: supprimerAction
     });
   };
@@ -733,7 +762,7 @@ export default class Configuration extends React.Component {
           </Form.Group>
           <Form.Group>
             <Form.Input
-              label="Niveau d'autorisation minimal des motifs exposés aux menus l'agenda"
+              label="Niveau d'autorisation minimal des motifs exposés aux menus de l'agenda"
               style={{ maxWidth: maxWidth / 5 }}
             >
               <Dropdown
@@ -933,9 +962,20 @@ export default class Configuration extends React.Component {
             </Table.Header>
             <Table.Body>
               {_.map(options.reservation.motifs, (motif, i) => {
+                let j = i - 1;
+                while (j >= 0 && options.reservation.motifs[j].hidden) {
+                  j--;
+                }
+                let firstMotif = j < 0;
+                j = i + 1;
+                let n = options.reservation.motifs.length;
+                while (j < n && options.reservation.motifs[j].hidden) {
+                  j++;
+                }
+                let lastMotif = j === n;
                 if (!motif.hidden)
                   return (
-                    <Table.Row key={i}>
+                    <Table.Row key={motif.id}>
                       <Table.Cell>
                         <Form.Input
                           type="text"
@@ -1004,7 +1044,52 @@ export default class Configuration extends React.Component {
                           />
                         </Form.Input>
                       </Table.Cell>
-                      <Table.Cell>
+                      <Table.Cell singleLine={true}>
+                        <Button
+                          size="tiny"
+                          icon="angle up"
+                          circular={true}
+                          disabled={firstMotif}
+                          onClick={() => {
+                            let j = i - 1;
+                            while (
+                              j >= 0 &&
+                              options.reservation.motifs[j].hidden
+                            ) {
+                              j--;
+                            }
+                            if (j >= 0) {
+                              let tmp = options.reservation.motifs[i];
+                              options.reservation.motifs[i] =
+                                options.reservation.motifs[j];
+                              options.reservation.motifs[j] = tmp;
+                              this.setState({ saved: false });
+                            }
+                          }}
+                        />
+                        <Button
+                          size="tiny"
+                          icon="angle down"
+                          circular={true}
+                          disabled={lastMotif}
+                          onClick={() => {
+                            let j = i + 1;
+                            let n = options.reservation.motifs.length;
+                            while (
+                              j < n &&
+                              options.reservation.motifs[j].hidden
+                            ) {
+                              j++;
+                            }
+                            if (j < n) {
+                              let tmp = options.reservation.motifs[i];
+                              options.reservation.motifs[i] =
+                                options.reservation.motifs[j];
+                              options.reservation.motifs[j] = tmp;
+                              this.setState({ saved: false });
+                            }
+                          }}
+                        />
                         <Button
                           size="tiny"
                           icon="minus"
@@ -1027,7 +1112,15 @@ export default class Configuration extends React.Component {
             icon="add"
             circular={true}
             onClick={() => {
+              let idMax = 0;
+              _.forEach(options.reservation.motifs, motif => {
+                if (motif.id > idMax) {
+                  idMax = motif.id;
+                }
+              });
+              idMax++;
               options.reservation.motifs.push({
+                id: idMax,
                 motif: "Nouveau motif",
                 autorisationMin: 4,
                 duree: options.plages.duree,
@@ -1062,7 +1155,7 @@ export default class Configuration extends React.Component {
                   _.map(options.reservation.motifs, (motif, i) => {
                     return {
                       text: motif.motif,
-                      value: motif.hidden ? -1 : i
+                      value: motif.hidden ? -1 : motif.id
                     };
                   }),
                   o => o.value !== -1
@@ -1724,7 +1817,7 @@ export default class Configuration extends React.Component {
             </div>
             <Divider hidden={true} />
             <Button negative={true} onClick={this.supprimer}>
-              Supprimer
+              Supprimer le planning
             </Button>
             <Button onClick={this.ajouter}>Nouveau</Button>
             <Button

@@ -54,8 +54,22 @@ export default class CalendarPanel extends React.Component {
       });
 
       let motifIndex = -1;
+
       if (datas.planningJO.motif) {
-        motifIndex = Math.abs(datas.planningJO.motif) - 1;
+        for (let j = 0; j < this.props.options.reservation.motifs.length; j++) {
+          if (
+            !_.isUndefined(this.props.options.reservation.motifs[j].id) &&
+            this.props.options.reservation.motifs[j].id ===
+              datas.planningJO.motif
+          ) {
+            motifIndex = j;
+            break;
+          }
+        }
+        // motifs : id = index si id n'est pas défini (ancienne version)
+        if (motifIndex === -1) {
+          motifIndex = Math.abs(datas.planningJO.motif) - 1;
+        }
       }
 
       let couleur = _.isEmpty(datas.couleur)

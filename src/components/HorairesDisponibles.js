@@ -20,7 +20,7 @@ export default class HorairesDisponibles extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (prevProps.motifId !== this.props.motifId) {
-      this.loadNext(this.props.motifId, true);
+      this.loadNext(this.props, true);
     }
   }
 
