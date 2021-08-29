@@ -142,7 +142,8 @@ export default class CalendarModalRdv extends React.Component {
     patientSearchModal: false,
     dureeDefaut: false,
     patient: {},
-    rdv: {}
+    rdv: {},
+    descriptionSaisie: ""
   };
 
   idCopiedRdv = null;
@@ -195,7 +196,11 @@ export default class CalendarModalRdv extends React.Component {
             : "\n" + localisation + todo;
         }
       });
-      rdv.description = description;
+      if (_.isEmpty(this.state.descriptionSaisie)) {
+        rdv.description = description;
+      } else {
+        rdv.description = this.state.descriptionSaisie + "\n" + description;
+      }
       this.setState({ rdv: rdv });
     });
   };
@@ -466,7 +471,7 @@ export default class CalendarModalRdv extends React.Component {
   };
 
   close = () => {
-    this.setState({ patient: {}, rdv: {} });
+    this.setState({ patient: {}, rdv: {}, descriptionSaisie: "" });
     this.props.close();
   };
 
@@ -956,7 +961,11 @@ export default class CalendarModalRdv extends React.Component {
                           }
                           let rdv = this.state.rdv;
                           rdv.idPatient = 0;
-                          rdv.description = "";
+                          rdv.description = _.isUndefined(
+                            this.state.descriptionSaisie
+                          )
+                            ? ""
+                            : this.state.descriptionSaisie;
                           rdv.titre = text;
                           this.setState({ rdv: rdv });
                         }}
@@ -1417,7 +1426,10 @@ export default class CalendarModalRdv extends React.Component {
                   value={rdv.description}
                   onChange={(e, d) => {
                     rdv.description = e.target.value;
-                    this.setState({ rdv: rdv });
+                    this.setState({
+                      rdv: rdv,
+                      descriptionSaisie: e.target.value
+                    });
                   }}
                 />
                 <Form.TextArea
