@@ -199,7 +199,9 @@ export default class CalendarModalRdv extends React.Component {
       if (_.isEmpty(this.state.descriptionSaisie)) {
         rdv.description = description;
       } else {
-        rdv.description = this.state.descriptionSaisie + "\n" + description;
+        rdv.description = _.isEmpty(description)
+          ? this.state.descriptionSaisie
+          : this.state.descriptionSaisie + "\n" + description;
       }
       this.setState({ rdv: rdv });
     });
