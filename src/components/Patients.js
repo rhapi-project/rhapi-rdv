@@ -35,6 +35,7 @@ export default class Patients extends React.Component {
   state = {
     identifiant: "",
     etablissement: "",
+    planning: 0,
     identified: false,
     gestionRDV: false,
     clientOk: false,
@@ -56,6 +57,7 @@ export default class Patients extends React.Component {
     */
     let hashParts = window.location.hash.split("/");
     let etablissement = "";
+    let planning = 0;
     let identified = false;
     if (hashParts.length > 1) {
       // #Patients/xxxx
@@ -68,10 +70,16 @@ export default class Patients extends React.Component {
     let rdv = {};
     if (parts.length > 1) {
       // #Patients/123:password@master => un patient d'id 123, de password password pour l'organisation master
+      // #Patients/123:password@master,1 => sur le planning d'id 1
       // #Patients/_123:password@master => un RDV (unique) d'id 123, de password password pour l'organisation master
       identified = !_.isEmpty(parts[0]);
       identifiant = etablissement;
-      etablissement = parts[1];
+      let parts2 = parts[1].split(",");
+      etablissement = parts2[0];
+      planning = 1 * parts2[1];
+      if (!_.isInteger(planning)) {
+        planning = 0;
+      }
       let part0 = parts[0];
       parts = part0.split(":");
       if (parts.length > 1) {
@@ -87,13 +95,20 @@ export default class Patients extends React.Component {
       }
     } else {
       // #Patients/@master
+      let parts2 = etablissement.split(",");
+      etablissement = parts2[0];
+      planning = 1 * parts2[1];
+      if (!_.isInteger(planning)) {
+        planning = 0;
+      }
       identifiant = _.isEmpty(etablissement) ? "" : "@" + etablissement;
     }
 
     this.setState({
-      identifiant,
-      etablissement,
-      identified,
+      identifiant: identifiant,
+      etablissement: etablissement,
+      planning: planning,
+      identified: identified,
       gestionRDV: false,
       clientOk: false,
       patient: patient,
@@ -240,6 +255,7 @@ export default class Patients extends React.Component {
             ) : (
               <PriseRdv
                 patient={this.state.patient}
+                planning={this.state.planning}
                 identified={false}
                 client={client}
               />

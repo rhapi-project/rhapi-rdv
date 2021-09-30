@@ -54,7 +54,30 @@ export default class PriseRdv extends React.Component {
     this.props.client.Reservation.mesPlannings(
       patient,
       result => {
-        this.setState({ plannings: result.results });
+        let plannings =
+          this.props.planning > 0
+            ? [
+                _.find(result.results, p => {
+                  return p.id === this.props.planning;
+                })
+              ]
+            : result.results;
+        if (_.isUndefined(plannings[0])) {
+          plannings = result.results;
+        }
+        this.setState({ plannings });
+        if (plannings.length === 1) {
+          let planning = plannings[0];
+          this.setState({
+            plannings: plannings,
+            motifs: planning.motifs,
+            currentMotifId: 0,
+            currentMotifIndex: null,
+            currentPlanningId: planning.id
+          });
+        } else {
+          this.setState({ plannings });
+        }
       },
       datas => {
         // erreur
@@ -158,6 +181,11 @@ export default class PriseRdv extends React.Component {
               <Divider hidden={true} />
             </Step.Content>
             <Dropdown
+              text={
+                this.state.plannings.length === 1
+                  ? this.state.plannings[0].titre
+                  : ""
+              }
               onChange={this.onPlanningChange}
               placeholder="Je choisis le planning d'un praticien"
               fluid={true}
