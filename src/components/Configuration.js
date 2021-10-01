@@ -1336,6 +1336,12 @@ export default class Configuration extends React.Component {
           </Form.Group>
 
           <Conges
+            planningId={
+              this.state.index >= 0 &&
+              this.state.index < this.state.plannings.length
+                ? this.state.plannings[this.state.index].id
+                : 0
+            }
             plagesConges={congesPrevus}
             onChange={() => this.setState({ saved: false })}
           />

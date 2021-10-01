@@ -157,7 +157,7 @@ export default class Conges extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (!_.isEqual(prevProps.plagesConges, this.props.plagesConges)) {
+    if (prevProps.planningId !== this.props.planningId) {
       this.setState({
         plagesConges: this.props.plagesConges,
         clearFocus: false
