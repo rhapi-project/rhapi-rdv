@@ -43,6 +43,7 @@ export default class PriseRdv extends React.Component {
       plannings: [],
       motifs: [],
       currentPlanningId: 0,
+      currentPlanningIndex: null,
       currentMotifId: 0,
       currentMotifIndex: null,
       currentMotifText: "",
@@ -73,7 +74,8 @@ export default class PriseRdv extends React.Component {
             motifs: planning.motifs,
             currentMotifId: 0,
             currentMotifIndex: null,
-            currentPlanningId: planning.id
+            currentPlanningId: planning.id,
+            currentPlanningIndex: 0
           });
         } else {
           this.setState({ plannings });
@@ -95,7 +97,8 @@ export default class PriseRdv extends React.Component {
         motifs: planning.motifs,
         currentMotifId: 0,
         currentMotifIndex: null,
-        currentPlanningId: planning.id
+        currentPlanningId: planning.id,
+        currentPlanningIndex: d.value
       });
     }
   };
@@ -181,15 +184,15 @@ export default class PriseRdv extends React.Component {
               <Divider hidden={true} />
             </Step.Content>
             <Dropdown
-              text={
-                this.state.plannings.length === 1
-                  ? this.state.plannings[0].titre
-                  : ""
-              }
               onChange={this.onPlanningChange}
               placeholder="Je choisis le planning d'un praticien"
               fluid={true}
               selection={true}
+              value={
+                this.state.plannings.length === 1
+                  ? 0
+                  : this.state.currentPlanningIndex
+              }
               options={_.map(this.state.plannings, (planning, i) => {
                 return {
                   text: planning.titre,
