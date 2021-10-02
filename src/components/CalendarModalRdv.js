@@ -50,13 +50,22 @@ class FromTo extends React.Component {
   };
 
   componentDidMount() {
-    this.setState({ hfrom: this.props.hfrom, hto: this.props.hto });
+    // duration : durée initiale du RDV
+    let duration = moment("2000-01-01T" + this.props.hto).diff(
+      "2000-01-01T" + this.props.hfrom
+    );
+    this.setState({
+      hfrom: this.props.hfrom,
+      hto: this.props.hto,
+      duration: duration
+    });
   }
 
   static getDerivedStateFromProps(props, state) {
     if (!props.hfrom || !props.hto) {
       return null;
     }
+
     if (props.hfrom !== state.hfrom || props.hto !== state.hto) {
       return {
         hfrom: props.hfrom,
@@ -67,15 +76,25 @@ class FromTo extends React.Component {
   }
 
   handleChange = (value, name) => {
-    let { hfrom, hto } = this.state;
+    let { hfrom, hto, duration } = this.state;
 
-    if (name === "hfrom") {
+    if (name === "hfrom" && value < hto) {
       hfrom = value;
+      if (_.isInteger(duration)) {
+        hto = moment("2000-01-01T" + hfrom)
+          .add(moment.duration(duration))
+          .toISOString(true)
+          .split("T")[1]
+          .slice(0, 8);
+      }
     }
 
-    if (name === "hto") {
+    if (name === "hto" && value > hfrom) {
       hto = value;
+      duration = moment("2000-01-01T" + hto).diff("2000-01-01T" + hfrom);
+      this.setState({ duration });
     }
+
     this.props.handleChange(hfrom, hto);
   };
 
@@ -773,9 +792,10 @@ export default class CalendarModalRdv extends React.Component {
 
   rappelSMSChange = (e, d) => {
     let rdv = this.state.rdv;
-    // non modifiable si déjà envoyé !
     if (!_.isEmpty(rdv.rappelsJO.sms[d.name + "Done"])) {
-      return;
+      //return; // non modifiable si déjà envoyé !
+      // => réactivable si déjà envoyé
+      rdv.rappelsJO.sms[d.name + "Done"] = "";
     }
     rdv.rappelsJO.modified = true;
     rdv.rappelsJO.sms[d.name] = !rdv.rappelsJO.sms[d.name];
@@ -1547,6 +1567,24 @@ export default class CalendarModalRdv extends React.Component {
                         </Form.Group>
                       ))}
                     </Form>
+                    {moment(this.state.rdv.startAt).isAfter(moment()) &&
+                    _.findIndex(rappelsNames, (rappel, index) => {
+                      return !_.isEmpty(
+                        this.state.rdv.rappelsJO.sms[rappel.rappelDoneName]
+                      );
+                    }) > -1 ? (
+                      <Message info={true}>
+                        <Message.Content>
+                          <Message.Header>
+                            SMS de rappel envoyé mais rendez-vous reporté ?
+                          </Message.Header>
+                          Vous pouvez réactiver l'envoi d'un SMS en décochant
+                          puis cochant à nouveau le rappel correspondant.
+                        </Message.Content>
+                      </Message>
+                    ) : (
+                      ""
+                    )}
 
                     {this.state.rdv.rappelsJO.modified &&
                     !_.isUndefined(this.state.patient) &&
