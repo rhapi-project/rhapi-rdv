@@ -78,7 +78,7 @@ class FromTo extends React.Component {
   handleChange = (value, name) => {
     let { hfrom, hto, duration } = this.state;
 
-    if (name === "hfrom" && value < hto) {
+    if (name === "hfrom") {
       hfrom = value;
       if (_.isInteger(duration)) {
         hto = moment("2000-01-01T" + hfrom)
@@ -89,7 +89,7 @@ class FromTo extends React.Component {
       }
     }
 
-    if (name === "hto" && value > hfrom) {
+    if (name === "hto") {
       hto = value;
       duration = moment("2000-01-01T" + hto).diff("2000-01-01T" + hfrom);
       this.setState({ duration });
