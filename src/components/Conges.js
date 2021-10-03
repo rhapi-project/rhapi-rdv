@@ -151,6 +151,7 @@ export default class Conges extends React.Component {
     clearFocus: false
   };
 
+  /*
   componentDidMount() {
     //console.log(this.props.plagesConges);
     this.setState({ plagesConges: this.props.plagesConges });
@@ -163,6 +164,14 @@ export default class Conges extends React.Component {
         clearFocus: false
       });
     }
+  }
+  */
+
+  static getDerivedStateFromProps(props /*, state*/) {
+    return {
+      plagesConges: props.plagesConges,
+      clearFocus: false
+    };
   }
 
   ajouter = () => {

@@ -94,54 +94,19 @@ const defaultPlanning = {
         ]
       ]
     },
-    recurrents: [
-      {
-        titre: "Réunion début de semaine",
-        couleur: "#000000",
-        background: true,
-        recurrence: 0,
-        from: 0,
-        step: 0,
-        start: "",
-        end: "",
-        horaires: [
-          [],
-          [
-            {
-              start: "09:00",
-              end: "10:00"
-            }
-          ],
-          [],
-          [],
-          [],
-          [],
-          []
-        ]
-      }
-    ],
+    recurrents: [],
     reservation: {
-      autorisationMin: 0,
+      autorisationMin: 4,
       autorisationMax: 2,
-      autorisationMinAgenda: 1,
+      autorisationMinAgenda: 0,
+      confirmationDragAndDrop: true,
       congesCouleur: "#D0021B",
       congesVisibles: true,
       congesFeries: true,
-      conges: [
-        {
-          titre: "Fermeture annuelle",
-          start: "2018-08-01",
-          end: "2018-08-20"
-        },
-        {
-          titre: "Congés de fin d'année",
-          start: "2018-12-20",
-          end: "2019-01-02"
-        }
-      ],
+      conges: [],
       delaiMax: 120,
       delaiPrevenance: 48,
-      denominationFormat: "NP",
+      denominationFormat: "Np",
       denominationDefaut: "Anonyme",
       planningsAssocies: [],
       motifs: [
