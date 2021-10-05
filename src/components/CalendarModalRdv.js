@@ -401,7 +401,7 @@ export default class CalendarModalRdv extends React.Component {
     let rdv = {};
     if (isNewOne) {
       rdv = {
-        planningJO: { id: this.props.planning },
+        planningJO: { id: this.props.planning, motifIsId: true },
         planningsJA: [],
         idEtat: 1
       };
@@ -409,7 +409,8 @@ export default class CalendarModalRdv extends React.Component {
         id: this.props.planning,
         liste1: 0,
         liste2: 0,
-        motif: 0
+        motif: 0,
+        motifIsId: true
       });
       //
       // planning associé sur tout motif (-1)
@@ -542,6 +543,12 @@ export default class CalendarModalRdv extends React.Component {
       _.isUndefined(this.state.patient.id)
     ) {
       _.unset(rdv, "ipp2");
+    }
+
+    //console.log(rdv);
+    // les nouveaux rendez-vous sont pris avec des motifs définis par leur id
+    for (let i = 0; i < rdv.planningsJA.length; i++) {
+      rdv.planningsJA[i].motifIsId = true;
     }
 
     if (this.state.isNewOne) {
@@ -888,6 +895,7 @@ export default class CalendarModalRdv extends React.Component {
 
     let checked = false;
     let motif = 0;
+    let motifIsId = false;
     let pl = _.find(rdv.planningsJA, p => {
       return p.id === planning.value;
     });
@@ -895,14 +903,16 @@ export default class CalendarModalRdv extends React.Component {
     if (!_.isUndefined(pl)) {
       checked = true;
       motif = pl.motif;
+      motifIsId = pl.motifIsId;
     }
 
     let motifsOptions = [{ value: 0, text: "Aucun motif défini" }];
 
     let m1 = {};
     for (let i = 0; i < planning.motifs.length; i++) {
-      // motifs : id = index si id n'est pas défini (ancienne version)
-      if (_.isUndefined(planning.motifs[i].id)) {
+      // motifs : id = index si id n'est pas défini ou si RDV pris avant la modification des motifs du planning (ancienne version)
+      if (_.isUndefined(planning.motifs[i].id) || !motifIsId) {
+        //console.log("Ancien RDV (pre définition motif.id)...")
         planning.motifs[i].id = i + 1;
       }
       if (planning.motifs[i].id === motif) {
@@ -921,7 +931,7 @@ export default class CalendarModalRdv extends React.Component {
       }
     });
 
-    let motifColor = m1 ? m1.couleur : "";
+    let motifColor = m1 && m1.id > 0 ? m1.couleur : "";
 
     // Rappels SMS
     let showRappels =
