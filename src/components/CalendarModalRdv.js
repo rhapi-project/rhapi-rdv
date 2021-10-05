@@ -912,7 +912,7 @@ export default class CalendarModalRdv extends React.Component {
     for (let i = 0; i < planning.motifs.length; i++) {
       // motifs : id = index si id n'est pas défini ou si RDV pris avant la modification des motifs du planning (ancienne version)
       if (_.isUndefined(planning.motifs[i].id) || !motifIsId) {
-        //console.log("Ancien RDV (pre définition motif.id)...")
+        console.log("Ancien RDV (pre définition motif.id)...")
         planning.motifs[i].id = i + 1;
       }
       if (planning.motifs[i].id === motif) {
