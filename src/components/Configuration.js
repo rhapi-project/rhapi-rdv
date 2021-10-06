@@ -79,20 +79,29 @@ export default class Configuration extends React.Component {
           index = index < result.results.length ? index : -1;
         }
         let plannings = result.results;
-        // motifs : id = index si id n'est pas défini (ancienne version)
+        // motifs : id = index + 1 si id n'est pas défini (ancienne version)
+        let firstMotifIdIsNull = false;
         _.forEach(plannings, planning => {
           let motifs = planning.optionsJO.reservation.motifs;
           for (let i = 0; i < motifs.length; i++) {
-            if (_.isUndefined(motifs[i].id)) {
-              motifs[i].id = i;
+            if (i === 0) {
+              firstMotifIdIsNull = motifs[0].id === 0;
+            }
+            if (_.isUndefined(motifs[i].id) || firstMotifIdIsNull) {
+              motifs[i].id = i + 1;
             }
           }
         });
         this.setState({
           plannings: plannings,
           index: index,
-          saved: true
+          saved: !firstMotifIdIsNull
         });
+        if (firstMotifIdIsNull) {
+          alert(
+            "Suite à une réindexation des motifs vous devez forcer une sauvegarde."
+          );
+        }
       },
       datas => {
         console.log(datas);
@@ -103,12 +112,16 @@ export default class Configuration extends React.Component {
       { admin: false },
       result => {
         let plannings = result.results;
-        // motifs : id = index si id n'est pas défini (ancienne version)
+        // motifs : id = index + 1 si id n'est pas défini (ancienne version)
+        let firstMotifIdIsNull = false;
         _.forEach(plannings, planning => {
           let motifs = planning.optionsJO.reservation.motifs;
           for (let i = 0; i < motifs.length; i++) {
-            if (_.isUndefined(motifs[i].id)) {
-              motifs[i].id = i;
+            if (i === 0) {
+              firstMotifIdIsNull = motifs[0].id === 0;
+            }
+            if (_.isUndefined(motifs[i].id) || firstMotifIdIsNull) {
+              motifs[i].id = i + 1;
             }
           }
         });
@@ -125,12 +138,16 @@ export default class Configuration extends React.Component {
       { limit: 10000 /*no limit */ },
       result => {
         let plannings = result.results;
-        // motifs : id = index si id n'est pas défini (ancienne version)
+        // motifs : id = index + 1 si id n'est pas défini (ancienne version)
+        let firstMotifIdIsNull = false;
         _.forEach(plannings, planning => {
           let motifs = planning.optionsJO.reservation.motifs;
           for (let i = 0; i < motifs.length; i++) {
-            if (_.isUndefined(motifs[i].id)) {
-              motifs[i].id = i;
+            if (i === 0) {
+              firstMotifIdIsNull = motifs[0].id === 0;
+            }
+            if (_.isUndefined(motifs[i].id) || firstMotifIdIsNull) {
+              motifs[i].id = i + 1;
             }
           }
         });
