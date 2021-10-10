@@ -51,6 +51,9 @@ class FromTo extends React.Component {
 
   componentDidMount() {
     // duration : durée initiale du RDV
+    if (!this.props.hfrom || !this.props.hto) {
+      return;
+    }
     let duration = moment("2000-01-01T" + this.props.hto).diff(
       "2000-01-01T" + this.props.hfrom
     );

@@ -2,6 +2,8 @@ import React from "react";
 
 import _ from "lodash";
 
+import moment from "moment";
+
 import {
   Header,
   Dropdown,
@@ -238,9 +240,14 @@ export default class Configuration extends React.Component {
       );
     };
 
+    let planning = this.state.plannings[this.state.index];
     this.setState({
       confirmationMessage:
-        "Vous confirmez vouloir supprimer ce planning ? Cette suppression sera définitive et toutes les configurations seront perdues. Les rendez-vous enregistrés sur ce planning ne seront plus accessibles.",
+        "Vous confirmez vouloir supprimer le planning " +
+        planning.titre +
+        " créé le " +
+        moment(planning.createdAt).format("LLLL") +
+        " ? Cette suppression sera définitive et toutes les configurations seront perdues. Les rendez-vous enregistrés sur ce planning ne seront plus accessibles.",
       confirmationAction: supprimerAction
     });
   };
