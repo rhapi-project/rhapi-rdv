@@ -109,7 +109,13 @@ const defaultPlanning = {
       denominationFormat: "Np",
       denominationDefaut: "Anonyme",
       planningsAssocies: [],
-      motifs: []
+      motifs: [],
+      horaires: [
+        [[], [], [], [], [], [], []],
+        [[], [], [], [], [], [], []],
+        [[], [], [], [], [], [], []],
+        [[], [], [], [], [], [], []]
+      ]
     }
   },
   sms: {
