@@ -113,8 +113,8 @@ export default class Configuration extends React.Component {
               _.indexOf([7 ,10 ,8 ,9 ,17 ,19 ,25 ,153 ,154 ,161 ,162 ,156 ,157 ,158 ,159 ,160 ,163 ], motif.id) > -1)
           });
           */
-          console.log(planning.titre);
-          console.log(planning.optionsJO.reservation.motifs);
+          //console.log(planning.titre);
+          //console.log(planning.optionsJO.reservation.motifs);
         });
         this.setState({
           plannings: plannings,
