@@ -918,7 +918,7 @@ export default class CalendarModalRdv extends React.Component {
 
     _.forEach(planning.motifs, (m, i) => {
       if (
-        !m.hidden &&
+        (!m.hidden || m.id === motif) && // le motif du RDV doit toujour être affiché (même si il est masqué)
         (rdv.origine === "" || // pour un RDV pris en ligne on reprend tous les motifs
           // /!\ rdv.origine isUndefined (&& isEmpty) si nouveau RDV
           m.autorisationMin >= planning.autorisationMinAgenda)

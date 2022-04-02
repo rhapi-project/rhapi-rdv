@@ -92,7 +92,29 @@ export default class Configuration extends React.Component {
             if (_.isUndefined(motifs[i].id) || firstMotifIdIsNull) {
               motifs[i].id = i + 1;
             }
+            // réindexations (en cas de problèmes)
+            // à partir de l'index :
+            /*
+            if (!motifs[i].hidden) {
+              motifs[i].id = 100 + i;
+            }
+            */
+            // à partir de l'identifiant :
+            /*
+            if (!motifs[i].hidden) {
+              motifs[i].id = 72 + motifs[i].id;
+            }
+            */
           }
+          // supression de doublons masqués (en cas de problèmes)
+          /*
+          planning.optionsJO.reservation.motifs = _.filter(motifs, motif => {
+            return !(motif.hidden && 
+              _.indexOf([7 ,10 ,8 ,9 ,17 ,19 ,25 ,153 ,154 ,161 ,162 ,156 ,157 ,158 ,159 ,160 ,163 ], motif.id) > -1)
+          });
+          */
+          console.log(planning.titre);
+          console.log(planning.optionsJO.reservation.motifs);
         });
         this.setState({
           plannings: plannings,
@@ -957,6 +979,12 @@ export default class Configuration extends React.Component {
                 let pl = _.find(planningsAll, pl => {
                   return pl.id === d.value;
                 });
+                let idMax = 0;
+                _.forEach(options.reservation.motifs, motif => {
+                  if (motif.id > idMax) {
+                    idMax = motif.id;
+                  }
+                });
                 options.reservation.motifs = _.cloneDeep(
                   _.concat(
                     _.map(options.reservation.motifs, motif => {
@@ -964,10 +992,15 @@ export default class Configuration extends React.Component {
                       return motif;
                     }),
                     _.filter(pl.optionsJO.reservation.motifs, motif => {
+                      if (!motif.hidden) {
+                        idMax++;
+                        motif.id = idMax;
+                      }
                       return !motif.hidden;
                     })
                   )
                 );
+                //console.log(options.reservation.motifs);
                 this.setState({ saved: false });
               }}
             />
