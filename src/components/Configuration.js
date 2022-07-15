@@ -1737,7 +1737,7 @@ export default class Configuration extends React.Component {
           <Form.Group widths="equal">
             <Form.TextArea
               style={{ resize: "none" }}
-              label="Texte pour la confirmation initiale (e-mail et SMS)"
+              label="Texte pour la confirmation initiale"
               value={
                 _.isUndefined(options.sms.confirmationTexte)
                   ? ""
@@ -1753,7 +1753,7 @@ export default class Configuration extends React.Component {
             />
             <Form.TextArea
               style={{ resize: "none" }}
-              label="Texte pour les rappels (SMS)"
+              label="Texte pour les rappels"
               value={options.sms.rappelTexte}
               onChange={(e, d) => {
                 options.sms.rappelTexte = e.target.value;

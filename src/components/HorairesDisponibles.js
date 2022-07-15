@@ -46,10 +46,18 @@ export default class HorairesDisponibles extends React.Component {
         });
       },
       datas => {
-        // erreur
-        // TODO : Afficher le message en utilisant un Component semantic à la place de 'alert'
         console.log(datas);
-        alert(datas.internalMessage + " : " + datas.userMessage);
+        // erreur
+        // TODO : Afficher le messages en utilisant un Component semantic à la place de 'alert'
+        if (datas.networkError === 400 && _.isUndefined(params.from)) {
+          // Requête mal formulée car il manque le from
+          // Voir Configuration > Prise de rendez-vous > Délai maximal pour un RDV
+          alert(
+            "Aucun rendez-vous n'est disponible. Le planning n'est pas ouvert à la prise de rendez-vous au-delà de cette date."
+          );
+        } else {
+          alert(datas.internalMessage + " : " + datas.userMessage);
+        }
       }
     );
   };
