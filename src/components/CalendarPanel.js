@@ -182,7 +182,7 @@ export default class CalendarPanel extends React.Component {
       () => {
         this.reloadExternalEvents(this.props.planning);
       },
-      15000 // actualiser toutes les 15 secondes (voir md5 et retour 304)
+      20000 // actualiser toutes les 20 secondes (voir md5 et retour 304)
     );
 
     this.props.handleExternalRefetch(this.reloadExternalEvents);
