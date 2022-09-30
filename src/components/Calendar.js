@@ -40,8 +40,8 @@ export default class Calendar extends React.Component {
 
   componentDidMount() {
     this.reload();
-    // recharger les Events toutes les 15 secondes
-    this.refetchInterval = setInterval(this.refetchEvents, 5000);
+    // recharger les Events toutes les 20 secondes
+    this.refetchInterval = setInterval(this.refetchEvents, 20000);
   }
 
   componentDidUpdate(prevProps, prevState) {
