@@ -165,7 +165,8 @@ export default class CalendarModalRdv extends React.Component {
     dureeDefaut: false,
     patient: {},
     rdv: {},
-    descriptionSaisie: ""
+    descriptionSaisie: "",
+    originStart: ""
   };
 
   idCopiedRdv = null;
@@ -192,7 +193,8 @@ export default class CalendarModalRdv extends React.Component {
         image: "",
         accordionIndex: -1,
         accordionIndex2: -1,
-        dureeDefaut: dureeDefaut
+        dureeDefaut: dureeDefaut,
+        originStart: this.props.event.start ? this.props.selectStart : ""
       });
       this.reload(this.props);
     }
@@ -561,6 +563,17 @@ export default class CalendarModalRdv extends React.Component {
       );
     } else {
       _.unset(rdv, "planningJO");
+      if (
+        this.state.originStart !== "" &&
+        this.state.originStart !== rdv.startAt
+      ) {
+        // Reset SMS
+        let sms = rdv.rappelsJO.sms;
+        sms.rappel1Done = ""; // pour tester sans envoyer de SMS mettre : "2022-09-23T13:39:03";
+        sms.rappel24Done = "";
+        sms.rappel48Done = "";
+        sms.rappel72Done = "";
+      }
       this.props.client.RendezVous.update(
         rdv.id,
         rdv,

@@ -287,15 +287,30 @@ export default class Calendar extends React.Component {
       return;
     }
 
-    let params = {
-      startAt: this.tzParis(event.event.start).toISOString(),
-      endAt: this.tzParis(event.event.end).toISOString()
-    };
-    this.props.client.RendezVous.update(
+    // Il faut relire l'event pour récupérer l'état des rappels SMS
+    this.props.client.RendezVous.read(
       event.event.id,
-      params,
+      {},
       result => {
-        this.refetchEvents();
+        // Reset SMS
+        let sms = result.rappelsJO.sms;
+        sms.rappel1Done = ""; // pour tester sans envoyer de SMS mettre : "2022-09-23T13:39:03";
+        sms.rappel24Done = "";
+        sms.rappel48Done = "";
+        sms.rappel72Done = "";
+        let params = {
+          startAt: this.tzParis(event.event.start).toISOString(),
+          endAt: this.tzParis(event.event.end).toISOString(),
+          rappelsJO: result.rappelsJO
+        };
+        this.props.client.RendezVous.update(
+          event.event.id,
+          params,
+          result => {
+            this.refetchEvents();
+          },
+          error => {}
+        );
       },
       error => {}
     );
@@ -397,33 +412,45 @@ export default class Calendar extends React.Component {
       }
       end.add(laps, "minutes");
     }
-    var params = {
-      startAt: this.tzParis(start).toISOString(),
-      endAt: this.tzParis(end).toISOString()
-    };
 
     event.remove();
 
-    this.props.client.RendezVous.update(
-      datas.id,
-      params,
-      () => {
-        this.props.client.RendezVous.listeAction(
-          datas.id,
-          {
-            action: "remove",
-            planning: 0, // supprime de toutes les listes de tous les plannings du RDV
-            liste: 1
-          },
-          () => {
-            this.refetchEvents();
-            this.props.externalRefetch(this.props.planning);
-          },
-          () => {}
-        );
-      },
-      () => {}
-    );
+    // Il faut relire l'event pour récupérer l'état des rappels SMS
+    this.props.client.RendezVous.read(datas.id, {}, result => {
+      // Reset SMS
+      let sms = result.rappelsJO.sms;
+      sms.rappel1Done = ""; // pour tester sans envoyer de SMS mettre : "2022-09-23T13:39:03";
+      sms.rappel24Done = "";
+      sms.rappel48Done = "";
+      sms.rappel72Done = "";
+
+      var params = {
+        startAt: this.tzParis(start).toISOString(),
+        endAt: this.tzParis(end).toISOString(),
+        rappelsJO: result.rappelsJO
+      };
+
+      this.props.client.RendezVous.update(
+        datas.id,
+        params,
+        () => {
+          this.props.client.RendezVous.listeAction(
+            datas.id,
+            {
+              action: "remove",
+              planning: 0, // supprime de toutes les listes de tous les plannings du RDV
+              liste: 1
+            },
+            () => {
+              this.refetchEvents();
+              this.props.externalRefetch(this.props.planning);
+            },
+            () => {}
+          );
+        },
+        () => {}
+      );
+    });
   };
 
   render() {
