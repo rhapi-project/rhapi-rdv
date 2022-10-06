@@ -294,10 +294,12 @@ export default class Calendar extends React.Component {
       result => {
         // Reset SMS
         let sms = result.rappelsJO.sms;
-        sms.rappel1Done = ""; // pour tester sans envoyer de SMS mettre : "2022-09-23T13:39:03";
-        sms.rappel24Done = "";
-        sms.rappel48Done = "";
-        sms.rappel72Done = "";
+        if (sms) {
+          sms.rappel1Done = ""; // pour tester sans envoyer de SMS mettre : "2022-09-23T13:39:03";
+          sms.rappel24Done = "";
+          sms.rappel48Done = "";
+          sms.rappel72Done = "";
+        }
         let params = {
           startAt: this.tzParis(event.event.start).toISOString(),
           endAt: this.tzParis(event.event.end).toISOString(),
