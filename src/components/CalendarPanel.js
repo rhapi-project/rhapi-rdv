@@ -195,7 +195,7 @@ export default class CalendarPanel extends React.Component {
   getPatient = (id, title) => {
     this.props.client.Patients.completion(
       {
-        ipp2: id,
+        ipp: id,
         format: this.props.options.reservation.denominationFormat
       },
       results => {
@@ -209,7 +209,7 @@ export default class CalendarPanel extends React.Component {
       },
       data => {
         // error
-        console.log("Erreur completion sur ipp2");
+        console.log("Erreur completion sur ipp");
         console.log(data);
       }
     );

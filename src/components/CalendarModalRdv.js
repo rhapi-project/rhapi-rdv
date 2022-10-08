@@ -194,7 +194,7 @@ export default class CalendarModalRdv extends React.Component {
         accordionIndex: -1,
         accordionIndex2: -1,
         dureeDefaut: dureeDefaut,
-        originStart: this.props.event.start ? this.props.selectStart : ""
+        originStart: s.toISOString(true).slice(0, 19)
       });
       this.reload(this.props);
     }
@@ -564,6 +564,7 @@ export default class CalendarModalRdv extends React.Component {
     } else {
       _.unset(rdv, "planningJO");
       if (
+        rdv.rappelsJO.sms &&
         this.state.originStart !== "" &&
         this.state.originStart !== rdv.startAt
       ) {
