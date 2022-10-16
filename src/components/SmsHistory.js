@@ -57,9 +57,15 @@ export default class SmsHistory extends React.Component {
     let sortMessages = msg => {
       if (sortBy === "date") {
         msg.sort((msg1, msg2) => {
-          if (msg1.creationDatetime > msg2.creationDatetime) {
+          if (
+            !_.isObject(msg2) ||
+            msg1.creationDatetime > msg2.creationDatetime
+          ) {
             return -1;
-          } else if (msg1.creationDatetime < msg2.creationDatetime) {
+          } else if (
+            !_.isObject(msg1) ||
+            msg1.reationDatetime < msg2.creationDatetime
+          ) {
             return 1;
           } else {
             return 0;
@@ -68,9 +74,9 @@ export default class SmsHistory extends React.Component {
       } else {
         // tri par téléphone
         msg.sort((msg1, msg2) => {
-          if (msg1.receiver < msg2.receiver) {
+          if (!_.isObject(msg2) || msg1.receiver < msg2.receiver) {
             return -1;
-          } else if (msg1.receiver > msg2.receiver) {
+          } else if (!_.isObject(msg1) || msg1.receiver > msg2.receiver) {
             return 1;
           } else {
             return 0;
@@ -80,7 +86,7 @@ export default class SmsHistory extends React.Component {
     };
 
     if (this.state.fromStr === fromStr && this.state.toStr === toStr) {
-      // juste un chagement sur le tri
+      // juste un changement sur le tri
       let msg = this.state.messages;
       sortMessages(msg);
       this.setState({
@@ -92,12 +98,10 @@ export default class SmsHistory extends React.Component {
     }
 
     this.props.client.Sms.readAll(
-      { from: fromStr, to: toStr },
+      { from: fromStr, to: toStr, fast: "true" },
       datas => {
         let msg = datas.results;
         sortMessages(msg);
-        //console.log(msg);
-
         this.setState({
           informations: datas.informations,
           loading: false,
@@ -105,6 +109,26 @@ export default class SmsHistory extends React.Component {
           openedMessage: -1,
           fromStr: fromStr,
           toStr: toStr
+        });
+        _.forEach(msg, id => {
+          if (!_.isNumber(id)) {
+            // une version ancienne du backend qui ne prend pas en compte l'option
+            // "fast" et qui retourne des objets et non des identifiants
+            return;
+          }
+          this.props.client.Sms.read(id, {}, result => {
+            let i = _.findIndex(msg, m => m === id);
+            if (i >= 0) {
+              msg[i] = result;
+              let informations = this.state.informations;
+              informations.totalSms += result.numberOfSms;
+              informations.totalCredits += result.credits;
+              this.setState({
+                informations: informations,
+                messages: msg
+              });
+            }
+          });
         });
       },
       errors => {
@@ -197,6 +221,11 @@ export default class SmsHistory extends React.Component {
   };
 
   openMessage = (e, d) => {
+    if (!_.isObject(this.state.messages[d.index])) {
+      // le message n'est pas (encore renseigné)
+      return;
+    }
+
     let telephone = this.state.messages[d.index].receiver;
 
     this.props.client.Patients.telephones(

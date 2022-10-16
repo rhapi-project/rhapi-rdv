@@ -1117,6 +1117,8 @@ class SMSPlannings extends React.Component {
     infos += "@" + this.props.praticien.organisation.split("@")[0];
     // split("@") si une forme master@master => master
     message = _.replace(message, "{infos-annulation}", infos);
+    message = _.replace(message, "{nom}", this.props.patient.nom);
+    message = _.replace(message, "{prenom}", this.props.patient.prenom);
     this.props.onConfirmation(message);
   };
 
