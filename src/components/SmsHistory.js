@@ -64,7 +64,7 @@ export default class SmsHistory extends React.Component {
             return -1;
           } else if (
             !_.isObject(msg1) ||
-            msg1.reationDatetime < msg2.creationDatetime
+            msg1.creationDatetime < msg2.creationDatetime
           ) {
             return 1;
           } else {
