@@ -41,6 +41,8 @@ export default class SmsHistory extends React.Component {
     };
   }
 
+  /*
+  // le reload ne se fait plus qu'à l'ouverture par le bouton "Historique SMS"
   componentDidMount() {
     let fromStr = this.formatYearMonth(
       this.state.currentYear,
@@ -52,6 +54,7 @@ export default class SmsHistory extends React.Component {
     );
     this.reload(fromStr, toStr, this.state.sortBy);
   }
+  */
 
   reload = (fromStr, toStr, sortBy) => {
     let sortMessages = msg => {
@@ -477,7 +480,18 @@ export default class SmsHistory extends React.Component {
         </Modal>
         <Button
           content="Historique SMS"
-          onClick={() => this.props.smsHistoryOpen(true)}
+          onClick={() => {
+            let fromStr = this.formatYearMonth(
+              this.state.currentYear,
+              this.state.mois + 1
+            );
+            let toStr = this.formatYearMonth(
+              this.state.currentYear,
+              this.state.mois + 2
+            );
+            this.reload(fromStr, toStr, this.state.sortBy);
+            this.props.smsHistoryOpen(true);
+          }}
         />
       </React.Fragment>
     );
