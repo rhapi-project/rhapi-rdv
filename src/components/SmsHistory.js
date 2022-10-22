@@ -41,8 +41,8 @@ export default class SmsHistory extends React.Component {
     };
   }
 
+  // le reload ne se fait maintenant à l'ouverture par le bouton "Historique SMS"
   /*
-  // le reload ne se fait plus qu'à l'ouverture par le bouton "Historique SMS"
   componentDidMount() {
     let fromStr = this.formatYearMonth(
       this.state.currentYear,
@@ -104,7 +104,6 @@ export default class SmsHistory extends React.Component {
       { from: fromStr, to: toStr, fast: "true" },
       datas => {
         let msg = datas.results;
-        sortMessages(msg);
         this.setState({
           informations: datas.informations,
           loading: false,
@@ -119,6 +118,8 @@ export default class SmsHistory extends React.Component {
             // "fast" et qui retourne des objets et non des identifiants
             return;
           }
+          let nMessages = msg.length;
+          let count = 0;
           this.props.client.Sms.read(id, {}, result => {
             let i = _.findIndex(msg, m => m === id);
             if (i >= 0) {
@@ -130,6 +131,9 @@ export default class SmsHistory extends React.Component {
                 informations: informations,
                 messages: msg
               });
+            }
+            if (++count === nMessages) {
+              sortMessages(msg);
             }
           });
         });
@@ -187,8 +191,8 @@ export default class SmsHistory extends React.Component {
         let fromStr = this.formatYearMonth(this.state.currentYear, d.value + 1);
         let toStr = this.formatYearMonth(this.state.currentYear, d.value + 2);
         //console.log(argFrom);
-        this.setState({ loading: true, mois: d.value });
-        this.reload(fromStr, toStr, this.state.sortBy);
+        this.setState({ loading: true, mois: d.value, sortBy: "date" });
+        this.reload(fromStr, toStr, "date");
       } else {
         return;
       }
@@ -198,8 +202,8 @@ export default class SmsHistory extends React.Component {
       if (d.value !== this.state.currentYear) {
         let fromStr = this.formatYearMonth(d.value, this.state.mois + 1);
         let toStr = this.formatYearMonth(d.value, this.state.mois + 2);
-        this.setState({ loading: true, currentYear: d.value });
-        this.reload(fromStr, toStr, this.state.sortBy);
+        this.setState({ loading: true, currentYear: d.value, sortBy: "date" });
+        this.reload(fromStr, toStr, "date");
       } else {
         return;
       }
