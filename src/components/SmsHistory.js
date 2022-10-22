@@ -41,7 +41,7 @@ export default class SmsHistory extends React.Component {
     };
   }
 
-  // le reload ne se fait maintenant à l'ouverture par le bouton "Historique SMS"
+  // le reload se fait maintenant à l'ouverture par le bouton "Historique SMS"
   /*
   componentDidMount() {
     let fromStr = this.formatYearMonth(
