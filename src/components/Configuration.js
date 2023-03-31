@@ -1879,6 +1879,11 @@ export default class Configuration extends React.Component {
               {rootAccordion}
             </div>
             <Divider hidden={true} />
+            <div style={{ width: "0px", height: "0px" }}>
+              {/* bouton inactif dans une div invisible pour 
+                  récupérer les éventuels ENTER des Form.Input */}
+              <Button />
+            </div>
             <Button negative={true} onClick={this.supprimer}>
               Supprimer le planning
             </Button>
