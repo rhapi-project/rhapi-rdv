@@ -1,9 +1,6 @@
 # rhapi-rdv
 Une application de gestion de RDV pour RHAPI
 
-[Tester la démo en ligne](https://static.rhapi.net/demos/rdv/#Praticiens)
-
-
 ## Note pour intégration
 
 Il est possible d'intégrer un lien vers la prise de RDV en ligne, directement sur le site Web d'un cabinet ou sur les pages affichées par des services comme Google Maps.
